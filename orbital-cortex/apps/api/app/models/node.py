@@ -79,3 +79,5 @@ class SatellitesResponse(BaseModel):
 
 class ContactWindowsResponse(BaseModel):
     contact_windows: List[ContactWindow]
+    # Opaque keyset cursor; None when there are no further pages.
+    next_cursor: Optional[str] = None

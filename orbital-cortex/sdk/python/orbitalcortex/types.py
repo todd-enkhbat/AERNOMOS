@@ -170,6 +170,8 @@ class JobCreateResponse(TypedDict):
 
 class JobsListResponse(TypedDict):
     jobs: List[Job]
+    # Opaque keyset cursor; None when there are no further pages.
+    next_cursor: Optional[str]
 
 
 class JobDetailResponse(TypedDict):
@@ -182,8 +184,26 @@ class JobEventsResponse(TypedDict):
     events: List[JobEvent]
 
 
+class ArtifactRef(TypedDict):
+    key: str
+    url: str
+
+
 class ResultResponse(TypedDict):
     result: Result
+    artifacts: List[ArtifactRef]
+
+
+class SceneResponse(TypedDict):
+    scene: Optional[Dict[str, Any]]
+
+
+class ReplayResponse(TypedDict):
+    match: bool
+    stored_decision_hash: str
+    replay_decision_hash: str
+    config_version: str
+    input_hash: str
 
 
 class NodesResponse(TypedDict):
@@ -201,6 +221,8 @@ class SatellitesResponse(TypedDict):
 
 class ContactWindowsResponse(TypedDict):
     contact_windows: List[ContactWindow]
+    # Opaque keyset cursor; None when there are no further pages.
+    next_cursor: Optional[str]
 
 
 class RoutingResponse(TypedDict):

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -16,6 +17,9 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    # "development" | "production". Gates demo resets and default CORS.
+    app_env: str = "development"
 
     # Postgres (Neon) connection string, e.g.
     # postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
@@ -36,7 +40,37 @@ class Settings(BaseSettings):
     # Contact-window precompute horizon.
     pass_horizon_hours: int = 48
 
+    # Comma-separated list of allowed browser origins. Never "*".
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    # slowapi rate limit applied to POST /v1/jobs (per client IP).
+    rate_limit_jobs: str = "10/minute"
+    rate_limit_enabled: bool = True
+
+    # Sentry error reporting; disabled when the DSN is empty.
+    sentry_dsn: str = ""
+
+    # --- Object storage (F1) ---------------------------------------------
+    # When s3_bucket is set, artifacts go to S3/R2 via boto3; otherwise the
+    # local filesystem backend under artifact_dir serves signed URLs itself.
+    s3_bucket: str = ""
+    # R2: https://<account_id>.r2.cloudflarestorage.com  (leave empty for AWS)
+    s3_endpoint_url: str = ""
+    s3_region: str = "auto"
+    s3_access_key_id: str = ""
+    s3_secret_access_key: str = ""
+    signed_url_expiry_s: int = 3600
+    # Local-backend artifact directory (gitignored) and HMAC signing secret.
+    artifact_dir: str = str(API_DIR / "var" / "artifacts")
+    artifact_signing_secret: str = "dev-only-artifact-secret"
+    # Public base URL of this API, used to build local signed URLs.
+    public_base_url: str = "http://127.0.0.1:8000"
+
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+def cors_origin_list(settings: Settings) -> List[str]:
+    return [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]

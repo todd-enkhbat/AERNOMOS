@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Tuple
 
 from app.core.storage import new_id
 
-
 SHIP_DETECTIONS: List[Tuple[float, float, float, str, str]] = [
     (-74.0451, 40.6892, 0.94, "large_cargo", "Upper Bay anchorage"),
     (-74.0203, 40.7001, 0.9, "tug", "Governors Island channel"),

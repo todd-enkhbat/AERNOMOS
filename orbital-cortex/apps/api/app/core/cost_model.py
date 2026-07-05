@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-
 PRIORITY_MULTIPLIERS = {
     "fastest": 1.2,
     "cheapest": 0.85,

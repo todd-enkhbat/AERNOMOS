@@ -11,11 +11,14 @@ from app.core import node_registry
 from app.db import get_db
 from app.models.node import NodesResponse
 
-
 router = APIRouter(prefix="/v1", tags=["nodes"])
 
 
-@router.get("/nodes", response_model=NodesResponse)
+@router.get(
+    "/nodes",
+    response_model=NodesResponse,
+    summary="List compute nodes and ground stations",
+)
 def list_nodes(
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:

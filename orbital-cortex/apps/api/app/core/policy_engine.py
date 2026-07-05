@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-
 REQUIRED_TAG = "non_defense"
 BLOCKED_TAGS = {"classified", "defense_only", "weapons", "targeting"}
 

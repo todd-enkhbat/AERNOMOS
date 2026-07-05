@@ -1,0 +1,65 @@
+name: sdk
+
+# E2: regenerate the low-level OpenAPI client on merge and commit it back
+# when the spec changed. The hand-written orbitalcortex wrapper is never
+# touched by this job.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "orbital-cortex/apps/api/**"
+      - "orbital-cortex/sdk/**"
+      - ".github/workflows/sdk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install generator + API deps
+        working-directory: orbital-cortex/apps/api
+        run: |
+          pip install -r requirements.txt
+          pip install openapi-python-client ruff
+
+      - name: Export OpenAPI spec
+        working-directory: orbital-cortex/apps/api
+        run: python -m scripts.export_openapi ../../openapi.json
+
+      - name: Generate low-level client
+        working-directory: orbital-cortex
+        run: |
+          openapi-python-client generate \
+            --path openapi.json \
+            --output-path sdk/python/orbitalcortex_api \
+            --overwrite \
+            --meta none
+
+      - name: Run SDK tests against the regenerated tree
+        working-directory: orbital-cortex/sdk/python
+        run: |
+          pip install -e ".[async,generated]" pytest
+          pytest tests -q
+
+      - name: Commit regenerated client if changed
+        run: |
+          if [ -n "$(git status --porcelain orbital-cortex/sdk/python/orbitalcortex_api)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add orbital-cortex/sdk/python/orbitalcortex_api
+            git commit -m "chore(sdk): regenerate OpenAPI client [skip ci]"
+            git push
+          else
+            echo "Generated client is up to date."
+          fi

@@ -15,9 +15,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from skyfield.api import EarthSatellite, load, wgs84
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, tuple_
 from sqlalchemy.orm import Session
 
+from app.core.pagination import decode_cursor
 from app.core.storage import new_id, utc_now
 from app.db.orm import ContactWindow, GroundStation, Satellite
 
@@ -166,8 +167,11 @@ def list_windows(
     date: Optional[str] = None,
     after_utc: Optional[str] = None,
     limit: int = 100,
+    cursor: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    query = select(ContactWindow).order_by(ContactWindow.aos_utc.asc())
+    query = select(ContactWindow).order_by(
+        ContactWindow.aos_utc.asc(), ContactWindow.id.asc()
+    )
     if satellite_id:
         query = query.where(ContactWindow.satellite_id == satellite_id)
     if ground_station_id:
@@ -176,6 +180,11 @@ def list_windows(
         query = query.where(ContactWindow.date == date)
     if after_utc:
         query = query.where(ContactWindow.los_utc > after_utc)
+    if cursor:
+        aos_utc, window_id = decode_cursor(cursor, 2)
+        query = query.where(
+            tuple_(ContactWindow.aos_utc, ContactWindow.id) > (aos_utc, window_id)
+        )
     windows = session.scalars(query.limit(limit)).all()
     return [_window_to_dict(window) for window in windows]
 

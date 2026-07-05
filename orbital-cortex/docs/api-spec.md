@@ -1,5 +1,28 @@
 # API Spec
 
+> **Authoritative spec:** the OpenAPI document served at `/docs` /
+> `/openapi.json` (export offline with
+> `python -m scripts.export_openapi openapi.json` from `apps/api`).
+> This file is a narrative overview and may lag the generated spec.
+
+## v1 surface
+
+| Endpoint | Notes |
+| --- | --- |
+| `POST /v1/jobs` | rate-limited; returns `queued` immediately |
+| `GET /v1/jobs` | cursor-paginated (`limit`, `cursor` → `next_cursor`) |
+| `GET /v1/jobs/{id}` · `/events` · `/result` · `/scene` | job detail, event trail, result manifest |
+| `GET /v1/jobs/{id}/detections` | `application/geo+json` FeatureCollection |
+| `GET /v1/jobs/{id}/routing` · `POST /v1/jobs/{id}/replay` | routing explanation + deterministic replay |
+| `GET /v1/ground-stations` · `/satellites` | seeded real registries |
+| `GET /v1/contact-windows` | cursor-paginated SGP4 pass cache |
+| `GET /v1/nodes` | simulated compute nodes |
+| `GET /v1/artifacts/{key}` | signed-URL artifact serving (local backend) |
+| `GET /healthz` · `/readyz` | liveness / DB-gated readiness |
+
+Errors are always `{"error": {"code", "message", "details?"}}`. Result
+manifests include `artifacts: [{key, url}]` with time-limited signed URLs.
+
 ## Base URL
 
 ```text

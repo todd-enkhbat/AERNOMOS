@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.result import Result
 from app.models.routing import RoutingDecision
-
 
 JobType = Literal["ship_detection", "crop_health", "disaster_response"]
 Sensor = Literal["SAR", "optical", "hyperspectral", "any"]
@@ -28,7 +27,7 @@ JobStatus = Literal[
     "failed",
 ]
 
-CURRENT_JOB_SCHEMA_VERSION = 1
+CURRENT_JOB_SCHEMA_VERSION: Literal[1] = 1
 
 
 class AreaOfInterest(BaseModel):
@@ -51,6 +50,25 @@ class AreaOfInterest(BaseModel):
 
 
 class JobCreate(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "schema_version": 1,
+                    "job_type": "ship_detection",
+                    "area_of_interest": {
+                        "type": "bbox",
+                        "coordinates": [-74.3, 40.3, -73.5, 41.0],
+                    },
+                    "sensor": "SAR",
+                    "priority": "fastest",
+                    "compute_preference": "orbital_if_available",
+                    "max_cost_usd": 500,
+                }
+            ]
+        }
+    )
+
     schema_version: Literal[1] = CURRENT_JOB_SCHEMA_VERSION
     job_type: JobType
     area_of_interest: AreaOfInterest
@@ -83,6 +101,8 @@ class JobCreateResponse(BaseModel):
 
 class JobsListResponse(BaseModel):
     jobs: List[Job]
+    # Opaque keyset cursor; None when there are no further pages.
+    next_cursor: Optional[str] = None
 
 
 class JobDetailResponse(BaseModel):

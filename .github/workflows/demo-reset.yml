@@ -1,0 +1,45 @@
+name: demo-reset
+
+# F4: nightly reseed of the hosted demo to a clean canned state.
+# Wipes job data and reseeds reference data. The seed CLI's production
+# guard requires the explicit --force flag, passed only here.
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 06:00 UTC nightly
+  workflow_dispatch:
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+      APP_ENV: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip when demo database is not configured
+        id: gate
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "DEMO_DATABASE_URL not configured; skipping reset."
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install API deps
+        if: steps.gate.outputs.enabled == 'true'
+        working-directory: orbital-cortex/apps/api
+        run: pip install -r requirements.txt
+
+      - name: Reset and reseed demo data
+        if: steps.gate.outputs.enabled == 'true'
+        working-directory: orbital-cortex/apps/api
+        run: python -m app.seed --reset --force

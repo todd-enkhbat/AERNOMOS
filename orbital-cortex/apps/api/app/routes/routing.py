@@ -2,22 +2,40 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core import storage
 from app.db import get_db
+from app.models.errors import ErrorResponse
 from app.models.routing import ReplayResponse, RoutingResponse
 from app.routing.replay import canonical_hash, replay_from_inputs
 
-
 router = APIRouter(prefix="/v1", tags=["routing"])
 
+NOT_FOUND: Dict[Union[int, str], Dict[str, Any]] = {
+    404: {"model": ErrorResponse, "description": "Job or routing decision not found"}
+}
 
-@router.get("/routing/{job_id}", response_model=RoutingResponse)
-@router.get("/jobs/{job_id}/routing", response_model=RoutingResponse)
+
+@router.get(
+    "/routing/{job_id}",
+    response_model=RoutingResponse,
+    summary="Get the routing explanation (legacy path)",
+    responses=NOT_FOUND,
+)
+@router.get(
+    "/jobs/{job_id}/routing",
+    response_model=RoutingResponse,
+    summary="Get the routing explanation for a job",
+    description=(
+        "Ranked candidates with eligibility, hard-constraint failures, "
+        "per-factor sub-scores, weights, and the final score."
+    ),
+    responses=NOT_FOUND,
+)
 def get_routing(
     job_id: str,
     session: Session = Depends(get_db),
@@ -35,7 +53,16 @@ def get_routing(
     return {"routing_decision": decision}
 
 
-@router.post("/jobs/{job_id}/replay", response_model=ReplayResponse)
+@router.post(
+    "/jobs/{job_id}/replay",
+    response_model=ReplayResponse,
+    summary="Deterministically replay a routing decision",
+    description=(
+        "Recomputes the decision from the persisted inputs bundle and "
+        "compares hashes bit-for-bit against the stored decision."
+    ),
+    responses=NOT_FOUND,
+)
 def replay_routing(
     job_id: str,
     session: Session = Depends(get_db),

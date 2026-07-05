@@ -8,14 +8,18 @@ from the last persisted state instead of starting over.
 
 from __future__ import annotations
 
+import json
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core import node_registry, storage
 from app.core.mock_inference import generate_mock_result
+from app.core.object_store import get_object_store
 from app.core.state import TERMINAL_STATES
+from app.db.orm import Satellite
 from app.routing.replay import (
     DEFAULT_SEED,
     build_inputs_bundle,
@@ -24,8 +28,6 @@ from app.routing.replay import (
 from app.routing.scorer import ROUTING_CONFIG_VERSION, compute_routing_decision
 from app.services.contact_windows import next_window_for_satellite
 from app.services.scenes import ingest_canned_scene
-from sqlalchemy import select
-from app.db.orm import Satellite
 
 
 def _transition(
@@ -159,6 +161,7 @@ def run_pipeline(
         route_job(session, job_id)
         events_created += 2
         job = storage.get_job(session, job_id)
+        assert job is not None
         _pause()
 
     routing_decision = storage.get_routing_decision(session, job_id)
@@ -217,10 +220,14 @@ def run_pipeline(
         events_created += 1
         _pause()
 
+    saved_result: Optional[Dict[str, Any]]
     if job["status"] == "downlinking":
         result = generate_mock_result(job)
+        # F1: bytes go to object storage; the DB row keeps only the keys.
+        result["output_files"] = _upload_result_artifacts(session, job_id, result)
         saved_result = storage.save_result(session, result)
         job = storage.get_job(session, job_id)
+        assert job is not None
         ingest_canned_scene(session, job)
         job = _transition(
             session,
@@ -239,6 +246,50 @@ def run_pipeline(
         "events_created": events_created,
         "result": saved_result,
     }
+
+
+def _upload_result_artifacts(
+    session: Session,
+    job_id: str,
+    result: Dict[str, Any],
+) -> List[str]:
+    """Upload result artifacts; on failure the result stays inline-only."""
+    detections_key = f"results/{job_id}/detections.geojson"
+    summary_key = f"results/{job_id}/summary.json"
+    summary_doc = {
+        "job_id": job_id,
+        "summary": result["summary"],
+        "confidence": result["confidence"],
+    }
+    try:
+        store = get_object_store()
+        store.put_bytes(
+            detections_key,
+            json.dumps(result["geojson"]).encode("utf-8"),
+            "application/geo+json",
+        )
+        store.put_bytes(
+            summary_key,
+            json.dumps(summary_doc).encode("utf-8"),
+            "application/json",
+        )
+    except Exception as exc:
+        storage.create_event(
+            session,
+            job_id,
+            "artifact_upload_failed",
+            f"Object-store upload failed; result remains inline: {exc}",
+            payload={"error": str(exc)},
+        )
+        return []
+    storage.create_event(
+        session,
+        job_id,
+        "artifacts_uploaded",
+        "Uploaded result artifacts to object storage.",
+        payload={"keys": [detections_key, summary_key]},
+    )
+    return [detections_key, summary_key]
 
 
 def fail_job(session: Session, job_id: str, error: str) -> None:

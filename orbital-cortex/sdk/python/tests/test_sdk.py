@@ -29,7 +29,7 @@ class FakeTransport:
         )
         path = urlparse(url).path
 
-        if method == "GET" and path == "/health":
+        if method == "GET" and path in ("/health", "/healthz"):
             return {"status": "ok", "service": "orbital-cortex-api"}
 
         if method == "POST" and path == "/v1/jobs":
@@ -86,7 +86,10 @@ class FakeTransport:
                 }
             }
 
-        if method == "GET" and path == "/v1/routing/job_test":
+        if method == "GET" and path in (
+            "/v1/routing/job_test",
+            "/v1/jobs/job_test/routing",
+        ):
             return {"routing_decision": _routing_decision()}
 
         if method == "POST" and path == "/v1/simulate/run/job_test":

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
+from urllib.parse import urlencode
 
 from orbitalcortex.types import (
     AreaOfInterest,
@@ -13,8 +14,10 @@ from orbitalcortex.types import (
     JobType,
     JobsListResponse,
     Priority,
+    ReplayResponse,
     ResultResponse,
     RoutingResponse,
+    SceneResponse,
     Sensor,
     SimulateRunResponse,
 )
@@ -50,8 +53,21 @@ class JobsResource:
             },
         )  # type: ignore[return-value]
 
-    def list(self) -> JobsListResponse:
-        return self._client._request("GET", "/v1/jobs")  # type: ignore[return-value]
+    def list(
+        self,
+        *,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ) -> JobsListResponse:
+        params: Dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = limit
+        if cursor is not None:
+            params["cursor"] = cursor
+        path = "/v1/jobs"
+        if params:
+            path = f"{path}?{urlencode(params)}"
+        return self._client._request("GET", path)  # type: ignore[return-value]
 
     def retrieve(self, job_id: str) -> JobDetailResponse:
         return self._client._request("GET", f"/v1/jobs/{job_id}")  # type: ignore[return-value]
@@ -71,7 +87,37 @@ class JobsResource:
     def routing(self, job_id: str) -> RoutingResponse:
         return self._client._request(
             "GET",
-            f"/v1/routing/{job_id}",
+            f"/v1/jobs/{job_id}/routing",
+        )  # type: ignore[return-value]
+
+    def replay(self, job_id: str) -> ReplayResponse:
+        return self._client._request(
+            "POST",
+            f"/v1/jobs/{job_id}/replay",
+        )  # type: ignore[return-value]
+
+    def detections(self, job_id: str) -> Dict[str, Any]:
+        """GeoJSON FeatureCollection of detections for the job."""
+        return self._client._request(
+            "GET",
+            f"/v1/jobs/{job_id}/detections",
+        )
+
+    def scene(self, job_id: str) -> SceneResponse:
+        return self._client._request(
+            "GET",
+            f"/v1/jobs/{job_id}/scene",
+        )  # type: ignore[return-value]
+
+    def wait(
+        self,
+        job_id: str,
+        *,
+        timeout: float = 120.0,
+        poll_interval: float = 1.0,
+    ) -> JobDetailResponse:
+        return self._client.wait_for_job(
+            job_id, timeout=timeout, poll_interval=poll_interval
         )  # type: ignore[return-value]
 
     def run(self, job_id: str) -> SimulateRunResponse:

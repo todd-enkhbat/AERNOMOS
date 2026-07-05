@@ -1,0 +1,107 @@
+name: deploy
+
+# F3: ruff -> mypy -> pytest -> build image -> deploy.
+# Migrations run automatically: fly.toml's release_command executes
+# `alembic upgrade head` before each release, and the app also migrates
+# on boot as a belt-and-suspenders.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: orbital_cortex
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d orbital_cortex"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/orbital_cortex
+      REDIS_URL: redis://localhost:6379/0
+      RATE_LIMIT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install API deps
+        working-directory: orbital-cortex/apps/api
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        working-directory: orbital-cortex/apps/api
+        run: ruff check app tests scripts
+
+      - name: Type-check (mypy)
+        working-directory: orbital-cortex/apps/api
+        run: mypy app
+
+      - name: API tests
+        working-directory: orbital-cortex/apps/api
+        run: pytest tests -q
+
+      - name: SDK tests
+        working-directory: orbital-cortex/sdk/python
+        run: |
+          pip install -e ".[async]" pytest
+          pytest tests -q
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        working-directory: orbital-cortex
+        run: docker build -f apps/api/Dockerfile -t orbital-cortex-api:${{ github.sha }} .
+
+  deploy:
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check deploy credentials
+        id: creds
+        run: |
+          if [ -n "$FLY_API_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "FLY_API_TOKEN not configured; skipping deploy."
+          fi
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: steps.creds.outputs.enabled == 'true'
+
+      - name: Deploy API to Fly (runs migrations via release_command)
+        if: steps.creds.outputs.enabled == 'true'
+        working-directory: orbital-cortex
+        run: flyctl deploy --remote-only --config fly.toml

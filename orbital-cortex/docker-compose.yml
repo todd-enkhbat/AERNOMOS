@@ -34,6 +34,10 @@ services:
       REDIS_URL: redis://redis:6379/0
     ports:
       - "8000:8000"
+    volumes:
+      # Local object-store backend: worker writes artifacts, API serves
+      # them via signed URLs, so both need the same directory.
+      - artifacts:/srv/apps/api/var/artifacts
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,6 +54,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       # Pace pipeline stages so the UI can show jobs progressing.
       WORKER_STAGE_DELAY_S: "1.5"
+    volumes:
+      - artifacts:/srv/apps/api/var/artifacts
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,3 +66,4 @@ services:
 
 volumes:
   pgdata:
+  artifacts:

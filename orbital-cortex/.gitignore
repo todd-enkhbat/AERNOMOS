@@ -1,6 +1,9 @@
 .venv/
 .env
+var/
 node_modules/
+openapi.json
+.ruff_cache/
 .next/
 out/
 __pycache__/

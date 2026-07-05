@@ -34,3 +34,13 @@ class APIError(OrbitalCortexError):
 
 class TransportError(OrbitalCortexError):
     """Raised when the SDK cannot reach the API."""
+
+
+class JobTimeoutError(OrbitalCortexError):
+    """Raised when wait_for_job exceeds its deadline before the job
+    reaches a terminal state."""
+
+    def __init__(self, message: str, *, job_id: str, last_status: str) -> None:
+        super().__init__(message)
+        self.job_id = job_id
+        self.last_status = last_status

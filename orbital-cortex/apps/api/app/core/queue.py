@@ -32,3 +32,21 @@ def enqueue_job_execution(job_id: str) -> bool:
         return True
     except Exception:
         return False
+
+
+async def _ping() -> None:
+    pool = await create_pool(redis_settings())
+    try:
+        await pool.ping()
+    finally:
+        await pool.aclose()
+
+
+def ping_redis() -> bool:
+    """Readiness-probe helper; Redis is optional so failures are reported,
+    not raised."""
+    try:
+        asyncio.run(_ping())
+        return True
+    except Exception:
+        return False

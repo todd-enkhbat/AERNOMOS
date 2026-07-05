@@ -6,9 +6,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, tuple_
 from sqlalchemy.orm import Session
 
+from app.core.pagination import decode_cursor
 from app.core.state import validate_transition
 from app.db.orm import Job, JobEvent, Result, RoutingCandidate, RoutingDecision
 
@@ -66,10 +67,19 @@ def get_job(session: Session, job_id: str) -> Optional[Dict[str, Any]]:
     return _job_to_dict(job)
 
 
-def list_jobs(session: Session) -> List[Dict[str, Any]]:
-    jobs = session.scalars(
-        select(Job).order_by(Job.created_at.desc(), Job.id.desc())
-    ).all()
+def list_jobs(
+    session: Session,
+    *,
+    limit: Optional[int] = None,
+    cursor: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    query = select(Job).order_by(Job.created_at.desc(), Job.id.desc())
+    if cursor:
+        created_at, job_id = decode_cursor(cursor, 2)
+        query = query.where(tuple_(Job.created_at, Job.id) < (created_at, job_id))
+    if limit is not None:
+        query = query.limit(limit)
+    jobs = session.scalars(query).all()
     return [_job_to_dict(job) for job in jobs]
 
 

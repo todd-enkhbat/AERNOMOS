@@ -27,7 +27,14 @@ import { RouteExplain } from "@/components/RouteExplain";
 import { ScoreBar } from "@/components/ScoreBar";
 import { StatusBadge } from "@/components/StatusBadge";
 import { getDetections, getEvents, getJob, getResult, runSimulation } from "@/lib/api";
-import type { GeoJsonFeature, Job, JobEvent, Result, RoutingDecision } from "@/lib/types";
+import type {
+  ArtifactRef,
+  GeoJsonFeature,
+  Job,
+  JobEvent,
+  Result,
+  RoutingDecision
+} from "@/lib/types";
 import { formatCurrency, formatDateTime, formatMinutes, formatPercent, labelize } from "@/lib/format";
 
 type DetailTab = "route" | "timeline" | "result" | "api";
@@ -62,6 +69,7 @@ export default function JobDetailPage() {
   const [route, setRoute] = useState<RoutingDecision | null>(null);
   const [events, setEvents] = useState<JobEvent[]>([]);
   const [result, setResult] = useState<Result | null>(null);
+  const [artifacts, setArtifacts] = useState<ArtifactRef[]>([]);
   const [detections, setDetections] = useState<GeoJsonFeature[]>([]);
   const [selectedDetection, setSelectedDetection] = useState<GeoJsonFeature | null>(null);
   const [darkShipsOnly, setDarkShipsOnly] = useState(false);
@@ -85,6 +93,7 @@ export default function JobDetailPage() {
         try {
           const resultResponse = await getResult(jobId);
           setResult(resultResponse.result);
+          setArtifacts(resultResponse.artifacts ?? []);
           try {
             const detectionResponse = await getDetections(jobId);
             setDetections(detectionResponse.features);
@@ -93,6 +102,7 @@ export default function JobDetailPage() {
           }
         } catch {
           setResult(null);
+          setArtifacts([]);
           setDetections([]);
         }
       } catch (error) {
@@ -349,11 +359,24 @@ export default function JobDetailPage() {
                         <div className="rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/70 p-4 md:col-span-2">
                           <p className="text-sm text-[#6f604c]">Output files</p>
                           <div className="mt-2 space-y-1">
-                            {result.output_files.map((file) => (
-                              <p className="metric-value text-xs text-[#25495a]" key={file}>
-                                {file}
-                              </p>
-                            ))}
+                            {result.output_files.map((file) => {
+                              const artifact = artifacts.find((a) => a.key === file);
+                              return artifact ? (
+                                <a
+                                  className="metric-value block text-xs text-[#25495a] underline decoration-dotted underline-offset-2 hover:text-[#17140f]"
+                                  href={artifact.url}
+                                  key={file}
+                                  rel="noreferrer"
+                                  target="_blank"
+                                >
+                                  {file}
+                                </a>
+                              ) : (
+                                <p className="metric-value text-xs text-[#25495a]" key={file}>
+                                  {file}
+                                </p>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
