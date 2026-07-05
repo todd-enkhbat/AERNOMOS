@@ -1,13 +1,16 @@
 name: sdk
 
 # E2: the low-level OpenAPI client is generated, never hand-edited.
-# - Pull requests: fail when the committed spec or client drifts from the
-#   code (regenerate locally and commit to fix).
-# - Pushes to main: regenerate and commit back, so main self-heals.
+# - Pull requests: regenerate the client from the COMMITTED openapi.json
+#   (deterministic: generator + formatter are pinned) and fail on drift.
+# - Pushes to main: re-export the spec from the code, regenerate, and
+#   commit both back, so main self-heals — including specs that went
+#   stale because a PR changed routes without re-exporting.
 # The hand-written orbitalcortex wrapper is never touched by this job.
 #
-# Generator and formatter are pinned: their output changes across versions,
-# which would otherwise fail drift checks on unrelated PRs.
+# The PR check deliberately does not re-export the spec: export output
+# varies with the resolved fastapi/pydantic versions, which would fail
+# unrelated PRs whenever a transitive dep releases.
 
 on:
   push:
@@ -48,7 +51,8 @@ jobs:
           pip install -r requirements.txt
           pip install $GENERATOR_PINS
 
-      - name: Export OpenAPI spec
+      - name: Export OpenAPI spec (main only)
+        if: github.event_name != 'pull_request'
         working-directory: orbital-cortex/apps/api
         run: python -m scripts.export_openapi ../../openapi.json
 
@@ -68,12 +72,12 @@ jobs:
           pip install -e ".[async,generated]" pytest
           pytest tests -q
 
-      - name: Fail PR when committed spec or client drifts
+      - name: Fail PR when the committed client drifts from the spec
         if: github.event_name == 'pull_request'
         run: |
-          if ! git diff --exit-code -- orbital-cortex/openapi.json orbital-cortex/sdk/python/orbitalcortex_api; then
-            echo "::error::openapi.json or the generated client is stale."
-            echo "Regenerate locally (scripts/export_openapi.py + openapi-python-client) and commit."
+          if ! git diff --exit-code -- orbital-cortex/sdk/python/orbitalcortex_api; then
+            echo "::error::sdk/python/orbitalcortex_api is stale relative to openapi.json."
+            echo "Regenerate with the pinned openapi-python-client and commit."
             exit 1
           fi
 
