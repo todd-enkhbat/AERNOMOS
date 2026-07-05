@@ -1,9 +1,15 @@
 name: deploy
 
-# F3: ruff -> mypy -> pytest -> build image -> deploy.
-# Migrations run automatically: fly.toml's release_command executes
-# `alembic upgrade head` before each release, and the app also migrates
-# on boot as a belt-and-suspenders.
+# F3: ruff -> mypy -> pytest (API + SDK) -> build image -> deploy.
+# - API deploys to Fly; migrations run automatically via fly.toml's
+#   release_command (`alembic upgrade head`), and the app also migrates
+#   on boot as a belt-and-suspenders.
+# - Web deploys to Vercel.
+# - Both deploy jobs run only on main and skip gracefully when their
+#   platform token secret is absent, so nothing reaches production
+#   without explicitly configured credentials.
+# - SDK regeneration/drift lives in sdk.yml (PRs fail on drift; main
+#   self-heals by committing the regenerated client).
 
 on:
   push:
@@ -105,3 +111,29 @@ jobs:
         if: steps.creds.outputs.enabled == 'true'
         working-directory: orbital-cortex
         run: flyctl deploy --remote-only --config fly.toml
+
+  deploy-web:
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check deploy credentials
+        id: creds
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "VERCEL_TOKEN not configured; skipping web deploy."
+          fi
+
+      - name: Deploy web to Vercel
+        if: steps.creds.outputs.enabled == 'true'
+        working-directory: orbital-cortex/apps/web
+        run: npx vercel deploy --prod --token "$VERCEL_TOKEN" --yes
