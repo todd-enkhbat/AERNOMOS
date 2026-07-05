@@ -1,53 +1,41 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-
-
-
-
-
-
 T = TypeVar("T", bound="HardConstraintFailure")
-
 
 
 @_attrs_define
 class HardConstraintFailure:
-    """ 
-        Attributes:
-            constraint (str):
-            detail (str):
-     """
+    """
+    Attributes:
+        constraint (str):
+        detail (str):
+    """
 
     constraint: str
     detail: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         constraint = self.constraint
 
         detail = self.detail
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "constraint": constraint,
-            "detail": detail,
-        })
+        field_dict.update(
+            {
+                "constraint": constraint,
+                "detail": detail,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -60,7 +48,6 @@ class HardConstraintFailure:
             constraint=constraint,
             detail=detail,
         )
-
 
         hard_constraint_failure.additional_properties = d
         return hard_constraint_failure

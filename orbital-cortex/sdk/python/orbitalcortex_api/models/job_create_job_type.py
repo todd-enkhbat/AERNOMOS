@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class JobCreateJobType(str, Enum):
     CROP_HEALTH = "crop_health"
     DISASTER_RESPONSE = "disaster_response"

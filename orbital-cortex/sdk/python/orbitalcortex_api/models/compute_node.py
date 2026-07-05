@@ -1,46 +1,37 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.compute_node_type import ComputeNodeType
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
-
-
-
-
-
 
 T = TypeVar("T", bound="ComputeNode")
 
 
-
 @_attrs_define
 class ComputeNode:
-    """ 
-        Attributes:
-            availability (float):
-            base_cost_usd (float):
-            compliance_tags (list[str]):
-            downlink_mbps (int):
-            gpu_class (str):
-            id (str):
-            latency_minutes (float):
-            location (str):
-            name (str):
-            power_state (str):
-            storage_gb (int):
-            supported_models (list[str]):
-            type_ (ComputeNodeType):
-            orbit (Union[None, Unset, str]):
-            satellite_id (Union[None, Unset, str]):
-     """
+    """
+    Attributes:
+        availability (float):
+        base_cost_usd (float):
+        compliance_tags (list[str]):
+        downlink_mbps (int):
+        gpu_class (str):
+        id (str):
+        latency_minutes (float):
+        location (str):
+        name (str):
+        power_state (str):
+        storage_gb (int):
+        supported_models (list[str]):
+        type_ (ComputeNodeType):
+        orbit (None | str | Unset):
+        satellite_id (None | str | Unset):
+    """
 
     availability: float
     base_cost_usd: float
@@ -55,13 +46,9 @@ class ComputeNode:
     storage_gb: int
     supported_models: list[str]
     type_: ComputeNodeType
-    orbit: Union[None, Unset, str] = UNSET
-    satellite_id: Union[None, Unset, str] = UNSET
+    orbit: None | str | Unset = UNSET
+    satellite_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         availability = self.availability
@@ -69,8 +56,6 @@ class ComputeNode:
         base_cost_usd = self.base_cost_usd
 
         compliance_tags = self.compliance_tags
-
-
 
         downlink_mbps = self.downlink_mbps
 
@@ -90,48 +75,45 @@ class ComputeNode:
 
         supported_models = self.supported_models
 
-
-
         type_ = self.type_.value
 
-        orbit: Union[None, Unset, str]
+        orbit: None | str | Unset
         if isinstance(self.orbit, Unset):
             orbit = UNSET
         else:
             orbit = self.orbit
 
-        satellite_id: Union[None, Unset, str]
+        satellite_id: None | str | Unset
         if isinstance(self.satellite_id, Unset):
             satellite_id = UNSET
         else:
             satellite_id = self.satellite_id
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "availability": availability,
-            "base_cost_usd": base_cost_usd,
-            "compliance_tags": compliance_tags,
-            "downlink_mbps": downlink_mbps,
-            "gpu_class": gpu_class,
-            "id": id,
-            "latency_minutes": latency_minutes,
-            "location": location,
-            "name": name,
-            "power_state": power_state,
-            "storage_gb": storage_gb,
-            "supported_models": supported_models,
-            "type": type_,
-        })
+        field_dict.update(
+            {
+                "availability": availability,
+                "base_cost_usd": base_cost_usd,
+                "compliance_tags": compliance_tags,
+                "downlink_mbps": downlink_mbps,
+                "gpu_class": gpu_class,
+                "id": id,
+                "latency_minutes": latency_minutes,
+                "location": location,
+                "name": name,
+                "power_state": power_state,
+                "storage_gb": storage_gb,
+                "supported_models": supported_models,
+                "type": type_,
+            }
+        )
         if orbit is not UNSET:
             field_dict["orbit"] = orbit
         if satellite_id is not UNSET:
             field_dict["satellite_id"] = satellite_id
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -141,7 +123,6 @@ class ComputeNode:
         base_cost_usd = d.pop("base_cost_usd")
 
         compliance_tags = cast(list[str], d.pop("compliance_tags"))
-
 
         downlink_mbps = d.pop("downlink_mbps")
 
@@ -161,31 +142,25 @@ class ComputeNode:
 
         supported_models = cast(list[str], d.pop("supported_models"))
 
-
         type_ = ComputeNodeType(d.pop("type"))
 
-
-
-
-        def _parse_orbit(data: object) -> Union[None, Unset, str]:
+        def _parse_orbit(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         orbit = _parse_orbit(d.pop("orbit", UNSET))
 
-
-        def _parse_satellite_id(data: object) -> Union[None, Unset, str]:
+        def _parse_satellite_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         satellite_id = _parse_satellite_id(d.pop("satellite_id", UNSET))
-
 
         compute_node = cls(
             availability=availability,
@@ -204,7 +179,6 @@ class ComputeNode:
             orbit=orbit,
             satellite_id=satellite_id,
         )
-
 
         compute_node.additional_properties = d
         return compute_node

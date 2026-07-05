@@ -1,16 +1,14 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any
+from urllib.parse import quote
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
-from typing import cast
-
+from ...types import UNSET, Response
 
 
 def _get_kwargs(
@@ -18,11 +16,7 @@ def _get_kwargs(
     *,
     expires: int,
     signature: str,
-
 ) -> dict[str, Any]:
-    
-
-    
 
     params: dict[str, Any] = {}
 
@@ -30,22 +24,22 @@ def _get_kwargs(
 
     params["signature"] = signature
 
-
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
-
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/v1/artifacts/{key}".format(key=key,),
+        "url": "/v1/artifacts/{key}".format(
+            key=quote(str(key), safe=""),
+        ),
         "params": params,
     }
-
 
     return _kwargs
 
 
-
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[Any, ErrorResponse, HTTPValidationError]]:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Any | ErrorResponse | HTTPValidationError | None:
     if response.status_code == 200:
         response_200 = response.json()
         return response_200
@@ -53,21 +47,15 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
     if response.status_code == 403:
         response_403 = ErrorResponse.from_dict(response.json())
 
-
-
         return response_403
 
     if response.status_code == 404:
         response_404 = ErrorResponse.from_dict(response.json())
 
-
-
         return response_404
 
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
-
-
 
         return response_422
 
@@ -77,7 +65,9 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[Any, ErrorResponse, HTTPValidationError]]:
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[Any | ErrorResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -89,12 +79,11 @@ def _build_response(*, client: Union[AuthenticatedClient, Client], response: htt
 def sync_detailed(
     key: str,
     *,
-    client: Union[AuthenticatedClient, Client],
+    client: AuthenticatedClient | Client,
     expires: int,
     signature: str,
-
-) -> Response[Union[Any, ErrorResponse, HTTPValidationError]]:
-    """ Fetch an artifact via a signed URL (local backend only)
+) -> Response[Any | ErrorResponse | HTTPValidationError]:
+    """Fetch an artifact via a signed URL (local backend only)
 
     Args:
         key (str):
@@ -106,15 +95,13 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ErrorResponse, HTTPValidationError]]
-     """
-
+        Response[Any | ErrorResponse | HTTPValidationError]
+    """
 
     kwargs = _get_kwargs(
         key=key,
-expires=expires,
-signature=signature,
-
+        expires=expires,
+        signature=signature,
     )
 
     response = client.get_httpx_client().request(
@@ -123,15 +110,15 @@ signature=signature,
 
     return _build_response(client=client, response=response)
 
+
 def sync(
     key: str,
     *,
-    client: Union[AuthenticatedClient, Client],
+    client: AuthenticatedClient | Client,
     expires: int,
     signature: str,
-
-) -> Optional[Union[Any, ErrorResponse, HTTPValidationError]]:
-    """ Fetch an artifact via a signed URL (local backend only)
+) -> Any | ErrorResponse | HTTPValidationError | None:
+    """Fetch an artifact via a signed URL (local backend only)
 
     Args:
         key (str):
@@ -143,27 +130,25 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ErrorResponse, HTTPValidationError]
-     """
-
+        Any | ErrorResponse | HTTPValidationError
+    """
 
     return sync_detailed(
         key=key,
-client=client,
-expires=expires,
-signature=signature,
-
+        client=client,
+        expires=expires,
+        signature=signature,
     ).parsed
+
 
 async def asyncio_detailed(
     key: str,
     *,
-    client: Union[AuthenticatedClient, Client],
+    client: AuthenticatedClient | Client,
     expires: int,
     signature: str,
-
-) -> Response[Union[Any, ErrorResponse, HTTPValidationError]]:
-    """ Fetch an artifact via a signed URL (local backend only)
+) -> Response[Any | ErrorResponse | HTTPValidationError]:
+    """Fetch an artifact via a signed URL (local backend only)
 
     Args:
         key (str):
@@ -175,32 +160,28 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ErrorResponse, HTTPValidationError]]
-     """
-
+        Response[Any | ErrorResponse | HTTPValidationError]
+    """
 
     kwargs = _get_kwargs(
         key=key,
-expires=expires,
-signature=signature,
-
+        expires=expires,
+        signature=signature,
     )
 
-    response = await client.get_async_httpx_client().request(
-        **kwargs
-    )
+    response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
+
 
 async def asyncio(
     key: str,
     *,
-    client: Union[AuthenticatedClient, Client],
+    client: AuthenticatedClient | Client,
     expires: int,
     signature: str,
-
-) -> Optional[Union[Any, ErrorResponse, HTTPValidationError]]:
-    """ Fetch an artifact via a signed URL (local backend only)
+) -> Any | ErrorResponse | HTTPValidationError | None:
+    """Fetch an artifact via a signed URL (local backend only)
 
     Args:
         key (str):
@@ -212,14 +193,14 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ErrorResponse, HTTPValidationError]
-     """
+        Any | ErrorResponse | HTTPValidationError
+    """
 
-
-    return (await asyncio_detailed(
-        key=key,
-client=client,
-expires=expires,
-signature=signature,
-
-    )).parsed
+    return (
+        await asyncio_detailed(
+            key=key,
+            client=client,
+            expires=expires,
+            signature=signature,
+        )
+    ).parsed

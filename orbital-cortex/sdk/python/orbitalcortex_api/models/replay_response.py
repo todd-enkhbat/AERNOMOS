@@ -1,31 +1,24 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-
-
-
-
-
-
 T = TypeVar("T", bound="ReplayResponse")
-
 
 
 @_attrs_define
 class ReplayResponse:
-    """ 
-        Attributes:
-            config_version (str):
-            input_hash (str):
-            match (bool):
-            replay_decision_hash (str):
-            stored_decision_hash (str):
-     """
+    """
+    Attributes:
+        config_version (str):
+        input_hash (str):
+        match (bool):
+        replay_decision_hash (str):
+        stored_decision_hash (str):
+    """
 
     config_version: str
     input_hash: str
@@ -33,10 +26,6 @@ class ReplayResponse:
     replay_decision_hash: str
     stored_decision_hash: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         config_version = self.config_version
@@ -49,20 +38,19 @@ class ReplayResponse:
 
         stored_decision_hash = self.stored_decision_hash
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "config_version": config_version,
-            "input_hash": input_hash,
-            "match": match,
-            "replay_decision_hash": replay_decision_hash,
-            "stored_decision_hash": stored_decision_hash,
-        })
+        field_dict.update(
+            {
+                "config_version": config_version,
+                "input_hash": input_hash,
+                "match": match,
+                "replay_decision_hash": replay_decision_hash,
+                "stored_decision_hash": stored_decision_hash,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -84,7 +72,6 @@ class ReplayResponse:
             replay_decision_hash=replay_decision_hash,
             stored_decision_hash=stored_decision_hash,
         )
-
 
         replay_response.additional_properties = d
         return replay_response

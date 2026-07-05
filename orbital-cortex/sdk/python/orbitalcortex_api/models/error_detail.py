@@ -1,66 +1,53 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from ..types import UNSET, Unset
-from typing import cast, Union
-from typing import Union
-
-
-
-
-
-
 T = TypeVar("T", bound="ErrorDetail")
-
 
 
 @_attrs_define
 class ErrorDetail:
-    """ 
-        Attributes:
-            code (str):
-            message (str):
-            details (Union[Any, None, Unset]):
-     """
+    """
+    Attributes:
+        code (str):
+        message (str):
+        details (Any | None | Unset):
+    """
 
     code: str
     message: str
-    details: Union[Any, None, Unset] = UNSET
+    details: Any | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         code = self.code
 
         message = self.message
 
-        details: Union[Any, None, Unset]
+        details: Any | None | Unset
         if isinstance(self.details, Unset):
             details = UNSET
         else:
             details = self.details
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "code": code,
-            "message": message,
-        })
+        field_dict.update(
+            {
+                "code": code,
+                "message": message,
+            }
+        )
         if details is not UNSET:
             field_dict["details"] = details
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -69,22 +56,20 @@ class ErrorDetail:
 
         message = d.pop("message")
 
-        def _parse_details(data: object) -> Union[Any, None, Unset]:
+        def _parse_details(data: object) -> Any | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[Any, None, Unset], data)
+            return cast(Any | None | Unset, data)
 
         details = _parse_details(d.pop("details", UNSET))
-
 
         error_detail = cls(
             code=code,
             message=message,
             details=details,
         )
-
 
         error_detail.additional_properties = d
         return error_detail
