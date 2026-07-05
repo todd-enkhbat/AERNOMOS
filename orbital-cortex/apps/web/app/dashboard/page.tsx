@@ -16,14 +16,14 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { MetricCard } from "@/components/MetricCard";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
-import { getNodes, getRouting, listJobs } from "@/lib/api";
-import { fallbackNodes } from "@/lib/mock-data";
+import { API_BASE_URL, getNodes, getRouting, listJobs } from "@/lib/api";
+import { EMPTY_NODES } from "@/lib/constants";
 import type { Job, NodesResponse, RoutingDecision } from "@/lib/types";
 import { formatCurrency, formatDateTime, formatMinutes, labelize } from "@/lib/format";
 
 export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [nodes, setNodes] = useState<NodesResponse>(fallbackNodes);
+  const [nodes, setNodes] = useState<NodesResponse>(EMPTY_NODES);
   const [routes, setRoutes] = useState<Record<string, RoutingDecision>>({});
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -58,10 +58,9 @@ export default function DashboardPage() {
         if (mounted) {
           setNotice(
             error instanceof Error
-              ? error.message
-              : "Backend data is not available."
+              ? `${error.message} — is the API running at ${API_BASE_URL}?`
+              : `Backend data is not available. Is the API running at ${API_BASE_URL}?`
           );
-          setNodes(fallbackNodes);
         }
       }
     }

@@ -26,14 +26,16 @@ import { PageHeader } from "@/components/PageHeader";
 import { RouteExplain } from "@/components/RouteExplain";
 import { ScoreBar } from "@/components/ScoreBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { getDetections, getEvents, getJob, getResult, runSimulation } from "@/lib/api";
+import { getDetections, getEvents, getJob, getResult, getScene, replayRouting, runSimulation } from "@/lib/api";
 import type {
   ArtifactRef,
   GeoJsonFeature,
   Job,
   JobEvent,
+  ReplayResponse,
   Result,
-  RoutingDecision
+  RoutingDecision,
+  SceneRecord
 } from "@/lib/types";
 import { formatCurrency, formatDateTime, formatMinutes, formatPercent, labelize } from "@/lib/format";
 
@@ -71,11 +73,14 @@ export default function JobDetailPage() {
   const [result, setResult] = useState<Result | null>(null);
   const [artifacts, setArtifacts] = useState<ArtifactRef[]>([]);
   const [detections, setDetections] = useState<GeoJsonFeature[]>([]);
+  const [scene, setScene] = useState<SceneRecord | null>(null);
+  const [replayResult, setReplayResult] = useState<ReplayResponse | null>(null);
   const [selectedDetection, setSelectedDetection] = useState<GeoJsonFeature | null>(null);
   const [darkShipsOnly, setDarkShipsOnly] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [replaying, setReplaying] = useState(false);
   const [tab, setTab] = useState<DetailTab>("route");
 
   const load = useCallback(
@@ -88,8 +93,14 @@ export default function JobDetailPage() {
         const detail = await getJob(jobId);
         const eventResponse = await getEvents(jobId);
         setJob(detail.job);
-        setRoute(detail.routing_decision);
+        setRoute(detail.routing_decision ?? null);
         setEvents(eventResponse.events);
+        try {
+          const sceneResponse = await getScene(jobId);
+          setScene((sceneResponse.scene as SceneRecord | null | undefined) ?? null);
+        } catch {
+          setScene(null);
+        }
         try {
           const resultResponse = await getResult(jobId);
           setResult(resultResponse.result);
@@ -133,13 +144,26 @@ export default function JobDetailPage() {
     return () => clearInterval(interval);
   }, [job, load]);
 
+  async function handleReplayRouting() {
+    setReplaying(true);
+    setNotice(null);
+    try {
+      const response = await replayRouting(jobId);
+      setReplayResult(response);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Routing replay failed.");
+    } finally {
+      setReplaying(false);
+    }
+  }
+
   async function handleRunSimulation() {
     setRunning(true);
     setNotice(null);
     try {
       const response = await runSimulation(jobId);
       setJob(response.job);
-      setResult(response.result);
+      setResult(response.result ?? null);
       const eventResponse = await getEvents(jobId);
       setEvents(eventResponse.events);
       setTab("result");
@@ -255,6 +279,43 @@ export default function JobDetailPage() {
                       </span>
                     </p>
                   </div>
+                  {scene ? (
+                    <div className="rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/70 p-4 text-sm">
+                      <p className="font-bold text-[#17140f]">Scene metadata</p>
+                      <p className="mt-2 text-[#5d5244]">
+                        {scene.sensor} · {scene.mode} · {scene.resolution_m}m ·{" "}
+                        {scene.provenance}
+                      </p>
+                      {scene.stac_item_id ? (
+                        <p className="metric-value mt-1 text-xs text-[#6f604c]">
+                          STAC: {scene.stac_item_id}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  <button
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[rgba(86,67,42,0.22)] px-5 py-3 font-bold text-[#17140f] transition hover:bg-[#eadcc8] disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={replaying || !route}
+                    onClick={handleReplayRouting}
+                    type="button"
+                  >
+                    {replaying ? (
+                      <Loader2 className="animate-spin" size={18} strokeWidth={1.8} />
+                    ) : (
+                      <Route size={18} strokeWidth={1.8} />
+                    )}
+                    Replay routing
+                  </button>
+                  {replayResult ? (
+                    <div className="rounded-lg bg-[#eadcc8] p-4 text-sm">
+                      <p className="font-bold text-[#17140f]">
+                        Audit {replayResult.match ? "match" : "mismatch"}
+                      </p>
+                      <p className="metric-value mt-2 break-all text-xs text-[#6f604c]">
+                        {replayResult.replay_decision_hash}
+                      </p>
+                    </div>
+                  ) : null}
                   <button
                     className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#17140f] px-5 py-3 font-bold text-[#fffaf0] transition hover:bg-[#2a241b] disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={running || job.status === "complete"}

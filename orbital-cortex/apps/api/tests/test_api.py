@@ -85,7 +85,7 @@ def test_ship_detection_job_routes_and_simulates():
         assert len(simulated_data["result"]["geojson"]["features"]) == 17
         assert simulated_data["result"]["geojson"]["features"][0]["properties"]["harbor_zone"]
 
-        routing = client.get(f"/v1/routing/{job_id}")
+        routing = client.get(f"/v1/jobs/{job_id}/routing")
         assert routing.status_code == 200
         decision = routing.json()["routing_decision"]
         assert decision["selected_node_id"]

@@ -1,4 +1,4 @@
-"""Orbital Cortex SDK client."""
+"""Nomos Orbital SDK client."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ TERMINAL_STATUSES = frozenset({"complete", "failed"})
 
 
 class Client:
-    """Client for the Orbital Cortex control plane.
+    """Client for the Nomos Orbital control plane.
 
     GET requests retry on transport errors and 5xx responses with
     exponential backoff; POSTs never retry unless retry=True is passed.

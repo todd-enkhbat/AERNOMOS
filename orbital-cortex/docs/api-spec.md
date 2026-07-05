@@ -122,7 +122,7 @@ Authorization: Bearer oc_test_123
 Creates a job and enqueues it for async execution. Returns immediately with
 `queued`; the worker drives routing and execution. `routing_decision` is
 `null` until the worker routes the job (fetch it later via
-`GET /v1/routing/{job_id}`).
+`GET /v1/jobs/{job_id}/routing` (legacy alias: `GET /v1/routing/{job_id}`).
 
 Request:
 
@@ -305,9 +305,11 @@ the request path). Query params: `satellite_id`, `ground_station_id`, `date`
 }
 ```
 
-### `GET /v1/routing/{job_id}`
+### `GET /v1/jobs/{job_id}/routing`
 
 Returns selected routing decision and candidate node scores.
+
+Legacy alias: `GET /v1/routing/{job_id}`.
 
 Response:
 

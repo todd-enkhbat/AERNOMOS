@@ -2,7 +2,7 @@
 
 ## Product
 
-Orbital Cortex is a simulated orbital compute orchestration platform. It gives developers one local control plane for submitting space-data AI jobs, comparing execution routes, and inspecting deterministic results.
+Nomos Orbital is an orbital compute orchestration platform. It gives developers one control plane for submitting space-data AI jobs, comparing execution routes, and inspecting deterministic results.
 
 ## MVP Goal
 

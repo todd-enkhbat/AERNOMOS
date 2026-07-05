@@ -1,4 +1,4 @@
-"""HTTP transport for the Orbital Cortex SDK."""
+"""HTTP transport for the Nomos Orbital SDK."""
 
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ class UrllibTransport:
             raw_error = exc.read()
             payload = _decode_json(raw_error) if raw_error else {}
             error = payload.get("error", {}) if isinstance(payload, dict) else {}
-            message = error.get("message") or f"Orbital Cortex API returned {exc.code}"
+            message = error.get("message") or f"Nomos Orbital API returned {exc.code}"
             code = error.get("code") or "api_error"
             raise APIError(
                 message,
@@ -60,16 +60,16 @@ class UrllibTransport:
                 response=payload if isinstance(payload, dict) else {},
             ) from exc
         except URLError as exc:
-            raise TransportError(f"Could not reach Orbital Cortex API: {exc.reason}") from exc
+            raise TransportError(f"Could not reach Nomos Orbital API: {exc.reason}") from exc
         except TimeoutError as exc:
-            raise TransportError("Timed out while calling Orbital Cortex API") from exc
+            raise TransportError("Timed out while calling Nomos Orbital API") from exc
 
 
 def _decode_json(raw: bytes) -> Dict[str, Any]:
     try:
         value = json.loads(raw.decode("utf-8"))
     except json.JSONDecodeError as exc:
-        raise TransportError("Orbital Cortex API returned invalid JSON") from exc
+        raise TransportError("Nomos Orbital API returned invalid JSON") from exc
     if not isinstance(value, dict):
-        raise TransportError("Orbital Cortex API returned a non-object JSON payload")
+        raise TransportError("Nomos Orbital API returned a non-object JSON payload")
     return value

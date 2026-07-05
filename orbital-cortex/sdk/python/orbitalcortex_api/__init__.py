@@ -1,4 +1,4 @@
-"""A client library for accessing Orbital Cortex API"""
+"""A client library for accessing Nomos Orbital API"""
 
 from .client import AuthenticatedClient, Client
 

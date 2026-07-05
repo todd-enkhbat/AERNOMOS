@@ -1,4 +1,4 @@
-"""FastAPI application entrypoint for the Orbital Cortex control plane."""
+"""FastAPI application entrypoint for the Nomos Orbital control plane."""
 
 from __future__ import annotations
 
@@ -86,10 +86,10 @@ OPENAPI_TAGS = [
 ]
 
 app = FastAPI(
-    title="Orbital Cortex API",
+    title="Nomos Orbital API",
     version="0.1.0",
     description=(
-        "Simulated orbital compute orchestration control plane. "
+        "Orbital compute orchestration control plane for space-data AI jobs. "
         "Civilian/commercial maritime domain awareness only; simulated and "
         "real data are labeled per record."
     ),
@@ -179,12 +179,12 @@ async def rate_limit_handler(request, exc):  # type: ignore[no-untyped-def]
 @app.get("/health", tags=["health"], include_in_schema=False)
 def health() -> dict:
     # Legacy alias kept for older SDK versions; use /healthz.
-    return {"status": "ok", "service": "orbital-cortex-api"}
+    return {"status": "ok", "service": "nomos-orbital-api"}
 
 
 @app.get("/healthz", tags=["health"], summary="Liveness probe")
 def healthz() -> dict:
-    return {"status": "ok", "service": "orbital-cortex-api"}
+    return {"status": "ok", "service": "nomos-orbital-api"}
 
 
 @app.get(

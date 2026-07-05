@@ -1,31 +1,40 @@
-# Orbital Cortex
+# Nomos Orbital control plane
 
-Orbital Cortex is an MVP demo of an orbital compute orchestration control plane. It lets a user submit a simulated space-data AI job, evaluates a mocked network of orbital compute nodes, ground stations, and cloud fallback nodes, then explains the selected route before simulating execution and returning logs and results.
+Nomos Orbital is the deployable v0.1 demo of an orbital compute orchestration
+control plane. It lets a user submit a simulated space-data AI job, evaluates a
+network of orbital compute nodes, ground stations, and cloud fallback nodes,
+then explains the selected route before executing the job and returning logs
+and results.
 
-The v0.1 demo use case is maritime ship detection over New York Harbor using simulated SAR data.
+The v0.1 demo use case is maritime ship detection over New York Harbor using
+simulated SAR data.
 
-## Phase 1 Status
+Product vision and repo layout: see the root [`README.md`](../README.md).
 
-This phase creates the monorepo skeleton and project documentation. Runtime implementation will follow in later phases.
+Production deployment: [`docs/deployment.md`](docs/deployment.md).
 
-Included now:
+## Current status (v0.1)
 
-- Monorepo directory layout for frontend, backend, SDK, simulator data, and examples
-- Product specification
-- Architecture notes
-- API contract
-- Routing model
-- Glossary
-- Seed-style simulator and example request JSON files
+Implemented and working:
+
+- **Backend**: FastAPI control plane with Postgres + PostGIS, ARQ async worker,
+  Redis job queue, SGP4 contact windows (Skyfield), deterministic routing
+- **Object storage**: local filesystem (dev) or Cloudflare R2 (production)
+- **Frontend**: Next.js web UI for job submission, routing inspection, and results
+- **SDK**: Python client (`orbitalcortex` package) with OpenAPI-generated layer
+- **CI/CD**: API tests, Docker build, Fly.io deploy; nightly demo DB reset
 
 ## What The MVP Demonstrates
 
-- A user submits a local AI job through a web UI, API request, or Python SDK.
-- The backend evaluates deterministic simulated infrastructure.
-- The router scores candidate nodes by model support, latency, cost, availability, contact windows, compute preference, and compliance tags.
+- A user submits a space-data AI job through the web UI, API, or Python SDK.
+- The backend evaluates deterministic simulated infrastructure with real
+  contact-window physics over pinned TLEs.
+- The router scores candidate nodes by model support, latency, cost,
+  availability, contact windows, compute preference, and compliance tags.
 - The selected route is explained in human-readable terms.
-- A manual simulation endpoint advances the job lifecycle.
-- Mock inference returns realistic-looking results, including fake ship detections around New York Harbor.
+- The async worker drives the job lifecycle (or manual simulate for dev).
+- Mock inference returns realistic-looking results, including ship detections
+  around New York Harbor.
 
 ## Monorepo Layout
 
@@ -84,6 +93,13 @@ Frontend:
 cd orbital-cortex/apps/web
 npm install
 npm run dev
+```
+
+After API schema changes, regenerate TypeScript types:
+
+```bash
+cd orbital-cortex/apps/web
+npm run generate:api-types
 ```
 
 Python SDK:
@@ -147,4 +163,6 @@ Simulated:
 
 ## Constraints
 
-Orbital Cortex v0.1 is local-only and deterministic. It does not integrate with real satellites, real ground stations, real payment providers, real defense systems, or classified workflows.
+Nomos Orbital v0.1 is a deterministic demo. It does not integrate with real
+satellite tasking, real payment providers, real defense systems, or classified
+workflows.

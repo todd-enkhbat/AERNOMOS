@@ -1,6 +1,6 @@
-# Orbital Cortex Python SDK
+# Nomos Orbital Python SDK
 
-Python SDK for the Orbital Cortex simulated orbital compute control plane.
+Python SDK for the Nomos Orbital orbital compute control plane.
 
 Two layers:
 
@@ -15,18 +15,23 @@ Two layers:
 
 ```bash
 cd orbital-cortex/sdk/python
-pip install -e .            # sync client only
-pip install -e ".[async]"   # + httpx-backed AsyncClient
+pip install -e .
 ```
 
-## Usage
+With async support:
+
+```bash
+pip install -e ".[async]"
+```
+
+## Quick start
 
 ```python
 from orbitalcortex import Client
 
-client = Client(api_key="oc_test_123", base_url="http://127.0.0.1:8000")
+client = Client(api_key="oc_test_123", base_url="http://localhost:8000")
 
-response = client.jobs.create(
+job = client.jobs.create(
     job_type="ship_detection",
     area_of_interest={
         "type": "bbox",
@@ -38,57 +43,60 @@ response = client.jobs.create(
     max_cost_usd=500,
 )
 
-# Block until the async worker finishes (or JobTimeoutError).
-detail = client.wait_for_job(response["job"]["id"], timeout=120)
-
-result = client.jobs.result(detail["job"]["id"])
-print(result["result"]["summary"])
-for artifact in result["artifacts"]:
-    print(artifact["key"], "->", artifact["url"])  # signed URL
-
-# Routing explanation + deterministic replay
-explanation = client.jobs.routing(detail["job"]["id"])
-replay = client.jobs.replay(detail["job"]["id"])
-assert replay["match"]
-
-# Registry (cursor-paginated where applicable)
-page = client.jobs.list(limit=20)
-while page["next_cursor"]:
-    page = client.jobs.list(limit=20, cursor=page["next_cursor"])
-windows = client.registry.contact_windows(upcoming=True, limit=10)
+print(job)
 ```
 
-### Async
+## Async client
 
 ```python
-import asyncio
 from orbitalcortex import AsyncClient
 
-async def main() -> None:
-    async with AsyncClient(base_url="http://127.0.0.1:8000") as client:
-        created = await client.create_job(
-            job_type="ship_detection",
-            area_of_interest={"type": "bbox", "coordinates": [-74.3, 40.3, -73.5, 41.0]},
-            sensor="SAR",
-            priority="fastest",
-            compute_preference="orbital_if_available",
-            max_cost_usd=500,
-        )
-        detail = await client.wait_for_job(created["job"]["id"])
-        print(detail["job"]["status"])
-
-asyncio.run(main())
+async with AsyncClient(api_key="oc_test_123", base_url="http://localhost:8000") as client:
+    job = await client.jobs.create(
+        job_type="ship_detection",
+        area_of_interest={"type": "bbox", "coordinates": [-74.3, 40.3, -73.5, 41.0]},
+        sensor="SAR",
+        priority="fastest",
+        compute_preference="orbital_if_available",
+        max_cost_usd=500,
+    )
+    print(job)
 ```
 
-### Retries
+## Resources
 
-GET requests retry up to `max_retries` times (default 2) on transport
-errors and 5xx responses, with exponential backoff + jitter. POSTs never
-retry unless you pass `retry=True` to `_request`. Configure per client:
+| Resource | Methods |
+| --- | --- |
+| `client.jobs` | `create`, `list`, `retrieve`, `events`, `scene`, `detections`, `result`, `simulate_run`, `wait_for_job` |
+| `client.routing` | `retrieve`, `replay` |
+| `client.nodes` | `list` |
+| `client.registry` | `ground_stations`, `satellites`, `contact_windows` |
+
+## Error handling
 
 ```python
-Client(max_retries=4, retry_backoff_s=0.5, timeout=10.0)
+from orbitalcortex import APIError, Client, TransportError
+
+try:
+    client.jobs.retrieve("missing")
+except APIError as exc:
+    print(exc.status, exc.code, exc.message)
+except TransportError:
+    print("Network failure")
 ```
 
-The sync client uses Python's standard-library HTTP client and can be unit
-tested with an injected transport — no live server needed.
+## Development
+
+```bash
+pip install -e ".[async,generated]" pytest
+pytest tests -q
+```
+
+Regenerate the low-level client after API changes (from repo root):
+
+```bash
+cd orbital-cortex/apps/api
+python -m scripts.export_openapi ../../openapi.json
+cd ../..
+openapi-python-client generate --path openapi.json --output-path sdk/python/orbitalcortex_api --overwrite --meta none
+```

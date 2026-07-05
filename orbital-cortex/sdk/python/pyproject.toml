@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "orbitalcortex"
 version = "0.2.0"
-description = "Python SDK for the Orbital Cortex simulated orbital compute control plane."
+description = "Python SDK for the Nomos Orbital orbital compute control plane."
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-  { name = "Orbital Cortex" }
+  { name = "Nomos Orbital" }
 ]
 license = { text = "MIT" }
 keywords = ["orbital-compute", "satellite", "simulation", "fastapi", "sdk"]

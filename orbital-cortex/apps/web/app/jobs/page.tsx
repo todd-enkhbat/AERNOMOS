@@ -9,7 +9,7 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { createJob, listJobs } from "@/lib/api";
-import { defaultJobPayload } from "@/lib/mock-data";
+import { defaultJobPayload } from "@/lib/default-job-payload";
 import type {
   ComputePreference,
   Job,
@@ -80,6 +80,7 @@ export default function JobsPage() {
   const payloadPreview = useMemo<JobCreatePayload | null>(() => {
     try {
       return {
+        schema_version: 1,
         job_type: jobType,
         area_of_interest: JSON.parse(aoi),
         sensor,

@@ -1,30 +1,32 @@
-# Orbital Cortex Technical Roadmap
+# Nomos Orbital Technical Roadmap
 
-This document consolidates the current Orbital Cortex MVP, the external research response, and the practical engineering path from local demo to credible orbital compute orchestration prototype.
+This document consolidates the current Nomos Orbital MVP, the external research response, and the practical engineering path from local demo to credible orbital compute orchestration prototype.
 
 ## 1. Current State
 
-Orbital Cortex is currently a local MVP demo of an orbital compute orchestration control plane.
+Nomos Orbital is a deployable v0.1 demo of an orbital compute orchestration control plane.
 
 It lets a user:
 
 - submit a space-data AI job
 - score simulated orbital compute nodes, ground stations, and cloud fallback nodes
-- inspect why a route was selected
-- simulate execution
-- view lifecycle logs
-- view mock vessel detection results
+- inspect why a route was selected (with deterministic routing replay)
+- run jobs asynchronously via ARQ worker
+- view lifecycle logs and vessel detection results on a MapLibre map
 - use a Python SDK against the same API
 
 Current stack:
 
-- Frontend: Next.js, TypeScript, Tailwind
-- Backend: FastAPI, Python
-- Database: SQLite
-- SDK: local Python package
+- Frontend: Next.js, TypeScript, Tailwind, MapLibre GL
+- Backend: FastAPI, Python, ARQ worker
+- Database: Postgres + PostGIS (Neon in production)
+- Queue: Redis (Upstash or Fly Redis)
+- Object storage: Cloudflare R2 (production) or local filesystem (dev)
+- Contact windows: Skyfield SGP4 over pinned TLEs
+- SDK: Python package with OpenAPI-generated client
 - Data: deterministic simulator JSON
 - Current use case: SAR ship detection over New York Harbor
-- Deployment target: frontend on Vercel, backend on Render/Railway/Fly
+- Deployment: frontend on Vercel, API + worker on Fly.io
 
 Current non-goals:
 
@@ -35,9 +37,9 @@ Current non-goals:
 - no defense, targeting, weapons, or classified workflows
 - no real SAR inference yet
 
-## 2. What Orbital Cortex Is
+## 2. What Nomos Orbital Is
 
-Orbital Cortex sits between several existing categories:
+Nomos Orbital sits between several existing categories:
 
 - Cloud orchestration: decides where compute should run
 - Satellite tasking: adjacent, but not the same; tasking decides where a satellite looks
@@ -54,12 +56,12 @@ The current MVP simulates this well enough for product storytelling. The next st
 
 ## 3. Main Research Conclusion
 
-The most important next credibility jump is:
+The most important next credibility jumps (several now **done** in v0.1):
 
-1. Replace fake contact windows with real orbital propagation.
-2. Replace local SQLite with Postgres/PostGIS.
-3. Replace the fake result map with a real map viewer.
-4. Add async job execution.
+1. ~~Replace fake contact windows with real orbital propagation.~~ **Done** (Skyfield SGP4)
+2. ~~Replace local SQLite with Postgres/PostGIS.~~ **Done**
+3. ~~Replace the fake result map with a real map viewer.~~ **Done** (MapLibre GL)
+4. ~~Add async job execution.~~ **Done** (ARQ worker)
 5. Improve routing from weighted scoring toward constraint-based scheduling.
 
 Do not jump directly to real satellite APIs. That adds legal, cost, operational, and compliance complexity too early.
@@ -72,17 +74,17 @@ Do not jump directly to real satellite APIs. That adds legal, cost, operational,
 | Job spec | simple JSON payload | strict schema, GeoJSON AOI, model requirements | 2 | Formalize request/response schemas |
 | Geospatial data | mock bbox and GeoJSON | GeoTIFF, COG, STAC, PostGIS | 4 | Add PostGIS and MapLibre viewer |
 | Satellite tasking | not implemented | provider APIs, capture scheduling | 5 | Keep simulated |
-| Contact windows | fake `next_contact_minutes` | TLE + SGP4 + ground station visibility | 4 | Integrate Skyfield |
-| Ground stations | JSON records | availability windows, antenna constraints | 3 | Add real coordinates and visibility windows |
+| Contact windows | SGP4 + Skyfield over pinned TLEs | TLE + SGP4 + ground station visibility | 4 | Expose in UI (**done**) |
+| Ground stations | real public site coordinates | availability windows, antenna constraints | 3 | **Done** (real coords + visibility) |
 | Orbital compute | JSON node profiles | hardware limits, power, thermal, storage | 5 | Keep simulated but model constraints better |
 | Cloud fallback | mocked cloud nodes | GPU availability, queueing, costs | 3 | Add deterministic cost model |
 | Routing | weighted scoring | hard constraints + optimization | 4 | Add hard filters and route manifest |
 | Model registry | supported model strings | model versions, hardware compatibility | 3 | Add model registry table |
-| Results | mock GeoJSON | object storage, provenance, STAC metadata | 4 | Add result artifacts and map visualization |
+| Results | GeoJSON + R2 artifacts | object storage, provenance, STAC metadata | 4 | **Done** (R2 + map) |
 | Billing | mock cost | compute + downlink + storage pricing | 3 | Expand cost calculator |
-| Observability | lifecycle events | structured logs, traces, replay | 3 | Add route audit snapshot |
+| Observability | lifecycle events + routing replay | structured logs, traces, replay | 3 | **Done** (replay endpoint) |
 | Security | fake API key | auth, tenants, data access controls | 4 | Keep simple for demo, design boundary |
-| Deployment | local only | Vercel + managed backend + Postgres | 3 | Add production env config |
+| Deployment | Fly.io + Vercel + Neon + R2 | production env config | 3 | **Done** (see deployment.md) |
 
 ## 5. Orbital Compute Reality Check
 
@@ -524,17 +526,17 @@ Later production features:
 
 Adjacent categories:
 
-| Category | Examples | What They Do | Orbital Cortex Difference |
+| Category | Examples | What They Do | Nomos Orbital Difference |
 | --- | --- | --- | --- |
-| Satellite imagery APIs | Planet, SkyWatch, Umbra | provide imagery and tasking access | Orbital Cortex focuses on compute routing after/during capture |
-| Ground station services | AWS Ground Station, Azure Orbital, KSAT | provide antenna/downlink services | Orbital Cortex treats them as route candidates |
-| Geospatial AI platforms | UP42, Descartes Labs style platforms | run analytics on geospatial data | Orbital Cortex emphasizes orbital/cloud routing logic |
-| Space edge compute | Loft Orbital, Unibap, Ramon.Space | provide physical or abstraction-layer compute | Orbital Cortex could sit above multiple providers |
-| MLOps platforms | generic model deployment systems | manage model execution | Orbital Cortex adds intermittent connectivity and orbital constraints |
+| Satellite imagery APIs | Planet, SkyWatch, Umbra | provide imagery and tasking access | Nomos Orbital focuses on compute routing after/during capture |
+| Ground station services | AWS Ground Station, Azure Orbital, KSAT | provide antenna/downlink services | Nomos Orbital treats them as route candidates |
+| Geospatial AI platforms | UP42, Descartes Labs style platforms | run analytics on geospatial data | Nomos Orbital emphasizes orbital/cloud routing logic |
+| Space edge compute | Loft Orbital, Unibap, Ramon.Space | provide physical or abstraction-layer compute | Nomos Orbital could sit above multiple providers |
+| MLOps platforms | generic model deployment systems | manage model execution | Nomos Orbital adds intermittent connectivity and orbital constraints |
 
 Positioning:
 
-> Orbital Cortex is not trying to be a satellite company. It is the control plane that decides where space-data compute should happen.
+> Nomos Orbital is not trying to be a satellite company. It is the control plane that decides where space-data compute should happen.
 
 ## 16. 30-Day Engineering Plan
 
@@ -738,7 +740,7 @@ Mini-project:
 
 ## 20. Final Product Thesis
 
-Orbital Cortex should evolve into:
+Nomos Orbital should evolve into:
 
 > A physics-aware, geospatial AI orchestration control plane that decides whether a space-data workload should run on orbital edge compute, through a ground station path, or in cloud fallback, with transparent cost, latency, compliance, and confidence tradeoffs.
 

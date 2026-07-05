@@ -1,4 +1,4 @@
-"""Python SDK for Orbital Cortex."""
+"""Nomos Orbital Python SDK."""
 
 from orbitalcortex.client import Client
 from orbitalcortex.exceptions import (

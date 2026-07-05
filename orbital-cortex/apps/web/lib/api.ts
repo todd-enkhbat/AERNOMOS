@@ -1,6 +1,8 @@
 import type {
+  ContactWindowsResponse,
   DetectionsGeoJson,
   EventsResponse,
+  GroundStationsResponse,
   JobCreatePayload,
   JobCreateResponse,
   JobDetailResponse,
@@ -9,6 +11,7 @@ import type {
   ReplayResponse,
   ResultResponse,
   RoutingResponse,
+  SatellitesResponse,
   SceneResponse,
   SimulateRunResponse
 } from "@/lib/types";
@@ -50,6 +53,31 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     );
   }
   return data as T;
+}
+
+export function getGroundStations(): Promise<GroundStationsResponse> {
+  return request<GroundStationsResponse>("/v1/ground-stations");
+}
+
+export function getSatellites(): Promise<SatellitesResponse> {
+  return request<SatellitesResponse>("/v1/satellites");
+}
+
+export function getContactWindows(params?: {
+  upcoming?: boolean;
+  limit?: number;
+}): Promise<ContactWindowsResponse> {
+  const search = new URLSearchParams();
+  if (params?.upcoming) {
+    search.set("upcoming", "true");
+  }
+  if (params?.limit) {
+    search.set("limit", String(params.limit));
+  }
+  const query = search.toString();
+  return request<ContactWindowsResponse>(
+    `/v1/contact-windows${query ? `?${query}` : ""}`
+  );
 }
 
 export function getNodes(): Promise<NodesResponse> {

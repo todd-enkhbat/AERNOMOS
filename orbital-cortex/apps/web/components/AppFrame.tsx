@@ -32,10 +32,10 @@ export function AppFrame({ children }: { children: ReactNode }) {
             </span>
             <span className="min-w-0">
               <span className="block text-lg font-bold leading-tight text-[#17140f]">
-                Orbital Cortex
+                Nomos Orbital
               </span>
               <span className="block text-xs text-[#6f604c]">
-                Simulated orbital compute
+                Orbital compute orchestration
               </span>
             </span>
           </Link>

@@ -1,4 +1,4 @@
-"""Typed request and response shapes for the Orbital Cortex SDK."""
+"""Typed request and response shapes for the Nomos Orbital SDK."""
 
 from __future__ import annotations
 

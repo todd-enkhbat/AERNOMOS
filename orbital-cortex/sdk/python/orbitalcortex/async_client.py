@@ -1,4 +1,4 @@
-"""Async Orbital Cortex client (httpx-backed).
+"""Async Nomos Orbital client (httpx-backed).
 
 Install with the async extra: pip install orbitalcortex[async]
 
@@ -150,9 +150,9 @@ class AsyncClient:
                 method.upper(), path, json=json_body, params=params or None
             )
         except httpx.TimeoutException as exc:
-            raise TransportError("Timed out while calling Orbital Cortex API") from exc
+            raise TransportError("Timed out while calling Nomos Orbital API") from exc
         except httpx.HTTPError as exc:
-            raise TransportError(f"Could not reach Orbital Cortex API: {exc}") from exc
+            raise TransportError(f"Could not reach Nomos Orbital API: {exc}") from exc
 
         if response.status_code >= 400:
             try:
@@ -162,7 +162,7 @@ class AsyncClient:
             error = payload.get("error", {}) if isinstance(payload, dict) else {}
             raise APIError(
                 error.get("message")
-                or f"Orbital Cortex API returned {response.status_code}",
+                or f"Nomos Orbital API returned {response.status_code}",
                 status_code=response.status_code,
                 code=error.get("code") or "api_error",
                 response=payload if isinstance(payload, dict) else {},
@@ -171,5 +171,5 @@ class AsyncClient:
             return {}
         value = response.json()
         if not isinstance(value, dict):
-            raise TransportError("Orbital Cortex API returned a non-object JSON payload")
+            raise TransportError("Nomos Orbital API returned a non-object JSON payload")
         return value

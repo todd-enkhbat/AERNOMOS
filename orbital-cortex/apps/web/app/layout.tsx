@@ -5,8 +5,8 @@ import { AppFrame } from "@/components/AppFrame";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Orbital Cortex",
-  description: "Simulated orbital compute orchestration control plane."
+  title: "Nomos Orbital",
+  description: "Orbital compute orchestration control plane for space-data AI jobs."
 };
 
 export default function RootLayout({

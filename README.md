@@ -1,16 +1,32 @@
 # Nomos Orbital
 
-*(repo: AERNOMOS — fka AERNOMOS / OrbitalCortex, product name is now Nomos Orbital)*
+*(repo: AERNOMOS — product name: Nomos Orbital)*
 
 **Kubernetes for orbital infrastructure.** A routing and orchestration layer so
 customers can submit a compute job to orbital infrastructure the same way
 they'd call a cloud provider — one SDK, instead of building against every
 supplier's own API from scratch.
 
+## Project structure
+
+```text
+AERNOMOS/
+  README.md              ← you are here (Nomos Orbital product vision)
+  src/nomos/             ← in-process MVS skeleton (submit → route → log)
+  orbital-cortex/        ← deployable control plane (FastAPI + Next.js + SDK)
+    docs/deployment.md   ← production deploy guide
+```
+
+The **deployable stack** lives under [`orbital-cortex/`](orbital-cortex/). See
+[`orbital-cortex/README.md`](orbital-cortex/README.md) for local development and
+[`orbital-cortex/docs/deployment.md`](orbital-cortex/docs/deployment.md) for
+production deployment (Fly.io, Neon, Redis, Cloudflare R2, Vercel).
+
 ## Status: MVS skeleton (v0.1)
 
-This is the Week 1 scaffold: **submit → route → log**, working end-to-end
-against one simulated node. No real hardware integration yet.
+The root `src/nomos/` package is the Week 1 scaffold: **submit → route → log**,
+working end-to-end against one simulated node. The full control-plane demo
+(Postgres, ARQ worker, Next.js UI, Python SDK) is in `orbital-cortex/`.
 
 Note: the original plan named T-REX (Brown's NASA-NIAC quantum satellite) as
 the first integration target. That node won't fly until 2032, so this
@@ -38,13 +54,21 @@ tests/               pytest coverage of the happy path + failure paths
 Multiple nodes / intelligent scheduling, billing, the full compliance/audit
 layer, and any specific node integration (T-REX or otherwise) — per the PRD.
 
-### Run it
+### Run the skeleton
 
 ```bash
 pip install -e ".[dev]"
 python examples/demo.py      # end-to-end run, prints result + log path
 pytest                        # 4 tests: happy path, unsupported job type,
                                # no-node-available, simulated failure
+```
+
+### Run the full control plane
+
+```bash
+cd orbital-cortex
+docker compose up --build     # API + worker + Postgres + Redis
+cd apps/web && npm install && npm run dev
 ```
 
 ### Next (Week 2, per Sprint Plan)

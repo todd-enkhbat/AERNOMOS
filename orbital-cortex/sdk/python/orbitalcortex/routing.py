@@ -17,5 +17,5 @@ class RoutingResource:
     def retrieve(self, job_id: str) -> RoutingResponse:
         return self._client._request(
             "GET",
-            f"/v1/routing/{job_id}",
+            f"/v1/jobs/{job_id}/routing",
         )  # type: ignore[return-value]

@@ -1,8 +1,9 @@
 import { BookOpen, Code2, FileJson, Package } from "lucide-react";
 
+import { API_BASE_URL } from "@/lib/api";
 import { PageHeader } from "@/components/PageHeader";
 
-const curlExample = `curl -X POST http://127.0.0.1:8000/v1/jobs \\
+const curlExample = (baseUrl: string) => `curl -X POST ${baseUrl}/v1/jobs \\
   -H "Authorization: Bearer oc_test_123" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -19,7 +20,7 @@ const curlExample = `curl -X POST http://127.0.0.1:8000/v1/jobs \\
 
 const sdkExample = `from orbitalcortex import Client
 
-client = Client(api_key="oc_test_123", base_url="http://localhost:8000")
+client = Client(api_key="oc_test_123", base_url="${API_BASE_URL}")
 
 job = client.jobs.create(
     job_type="ship_detection",
@@ -40,10 +41,16 @@ const endpoints = [
   ["GET", "/v1/jobs", "List jobs"],
   ["GET", "/v1/jobs/{job_id}", "Read job detail"],
   ["GET", "/v1/jobs/{job_id}/events", "Read lifecycle events"],
-  ["GET", "/v1/jobs/{job_id}/result", "Read mock result"],
-  ["GET", "/v1/nodes", "Read simulated infrastructure"],
-  ["GET", "/v1/routing/{job_id}", "Read route scores"],
-  ["POST", "/v1/simulate/run/{job_id}", "Advance simulation"]
+  ["GET", "/v1/jobs/{job_id}/scene", "Read scene metadata"],
+  ["GET", "/v1/jobs/{job_id}/routing", "Read route scores"],
+  ["POST", "/v1/jobs/{job_id}/replay", "Replay routing for audit hash"],
+  ["GET", "/v1/jobs/{job_id}/result", "Read result manifest and artifact URLs"],
+  ["GET", "/v1/jobs/{job_id}/detections", "Read detections GeoJSON"],
+  ["GET", "/v1/nodes", "Read compute nodes and ground stations"],
+  ["GET", "/v1/ground-stations", "List ground stations"],
+  ["GET", "/v1/satellites", "List satellites with pinned TLEs"],
+  ["GET", "/v1/contact-windows", "List SGP4 contact windows"],
+  ["POST", "/v1/simulate/run/{job_id}", "Advance simulation manually"]
 ];
 
 export default function DocsPage() {
@@ -52,7 +59,7 @@ export default function DocsPage() {
       <PageHeader
         eyebrow="Docs"
         title="API and SDK reference"
-        description="The frontend talks to the local FastAPI backend through the same contract exposed to SDK users."
+        description="The Nomos Orbital web app and Python SDK share the same FastAPI contract."
       />
 
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -61,6 +68,9 @@ export default function DocsPage() {
             <BookOpen className="text-[#25495a]" size={20} strokeWidth={1.8} />
             <h2 className="text-2xl font-bold text-[#17140f]">Endpoints</h2>
           </div>
+          <p className="mt-3 text-sm text-[#6f604c]">
+            Base URL: <span className="metric-value">{API_BASE_URL}</span>
+          </p>
           <div className="mt-6 space-y-3">
             {endpoints.map(([method, path, summary]) => (
               <div
@@ -88,7 +98,7 @@ export default function DocsPage() {
               <h2 className="text-2xl font-bold">Create job</h2>
             </div>
             <pre className="code-block border-[#fffaf0]/10 bg-[#0f0d0a]">
-              {curlExample}
+              {curlExample(API_BASE_URL)}
             </pre>
           </section>
 
@@ -106,7 +116,7 @@ export default function DocsPage() {
         {[
           ["Job lifecycle", "queued -> routing -> executing -> downlinking -> complete"],
           ["Default use case", "SAR ship detection over New York Harbor"],
-          ["Result shape", "GeoJSON detections and mock output files"]
+          ["Result shape", "GeoJSON detections and signed artifact URLs"]
         ].map(([title, detail]) => (
           <div className="panel p-5" key={title}>
             <FileJson className="text-[#25495a]" size={20} strokeWidth={1.8} />

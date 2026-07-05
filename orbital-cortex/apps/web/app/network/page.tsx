@@ -1,18 +1,27 @@
 "use client";
 
-import { Cloud, RadioTower, Satellite, Server, Signal } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Cloud, RadioTower, Satellite as SatelliteIcon, Server, Signal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
 import { MetricCard } from "@/components/MetricCard";
 import { PageHeader } from "@/components/PageHeader";
-import { getNodes, listJobs } from "@/lib/api";
-import { fallbackNodes } from "@/lib/mock-data";
-import type { ComputeNode, GroundStation, NodesResponse } from "@/lib/types";
+import { API_BASE_URL, getContactWindows, getNodes, getSatellites, listJobs } from "@/lib/api";
+import { EMPTY_NODES } from "@/lib/constants";
+import type {
+  ComputeNode,
+  ContactWindow,
+  GroundStation,
+  NodesResponse,
+  Satellite
+} from "@/lib/types";
 import { formatMinutes, formatPercent, labelize } from "@/lib/format";
 
 export default function NetworkPage() {
-  const [nodes, setNodes] = useState<NodesResponse>(fallbackNodes);
+  const [nodes, setNodes] = useState<NodesResponse>(EMPTY_NODES);
+  const [satellites, setSatellites] = useState<Satellite[]>([]);
+  const [contactWindows, setContactWindows] = useState<ContactWindow[]>([]);
   const [activeJobs, setActiveJobs] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -20,11 +29,19 @@ export default function NetworkPage() {
     let mounted = true;
     async function load() {
       try {
-        const [nodeResponse, jobsResponse] = await Promise.all([getNodes(), listJobs()]);
+        const [nodeResponse, jobsResponse, satellitesResponse, windowsResponse] =
+          await Promise.all([
+            getNodes(),
+            listJobs(),
+            getSatellites(),
+            getContactWindows({ upcoming: true, limit: 20 })
+          ]);
         if (!mounted) {
           return;
         }
         setNodes(nodeResponse);
+        setSatellites(satellitesResponse.satellites);
+        setContactWindows(windowsResponse.contact_windows);
         setActiveJobs(
           jobsResponse.jobs.filter(
             (job) => job.status !== "complete" && job.status !== "failed"
@@ -34,10 +51,9 @@ export default function NetworkPage() {
         if (mounted) {
           setNotice(
             error instanceof Error
-              ? error.message
-              : "Backend data is not available."
+              ? `${error.message} — is the API running at ${API_BASE_URL}?`
+              : `Backend data is not available. Is the API running at ${API_BASE_URL}?`
           );
-          setNodes(fallbackNodes);
         }
       }
     }
@@ -69,7 +85,7 @@ export default function NetworkPage() {
       <section className="mt-5 grid gap-4 md:grid-cols-4">
         <MetricCard
           detail="Orbital candidates"
-          icon={Satellite}
+          icon={SatelliteIcon}
           label="Orbital Nodes"
           value={String(orbital.length)}
           tone="dark"
@@ -101,7 +117,7 @@ export default function NetworkPage() {
         </div>
         <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
           <TopologyColumn
-            icon={Satellite}
+            icon={SatelliteIcon}
             label="Orbital compute"
             nodes={orbital.map((node) => node.id)}
           />
@@ -127,11 +143,64 @@ export default function NetworkPage() {
 
       <section className="mt-8">
         <h2 className="mb-4 text-2xl font-bold text-[#17140f]">Ground stations</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {nodes.ground_stations.map((station) => (
-            <GroundStationCard key={station.id} station={station} />
-          ))}
-        </div>
+        {nodes.ground_stations.length === 0 ? (
+          <p className="text-sm text-[#6f604c]">No ground station data available.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {nodes.ground_stations.map((station) => (
+              <GroundStationCard key={station.id} station={station} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-4 text-2xl font-bold text-[#17140f]">Satellites</h2>
+        {satellites.length === 0 ? (
+          <p className="text-sm text-[#6f604c]">No satellite registry data available.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {satellites.map((satellite) => (
+              <SatelliteCard key={satellite.id} satellite={satellite} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-4 text-2xl font-bold text-[#17140f]">Upcoming contact windows</h2>
+        {contactWindows.length === 0 ? (
+          <p className="text-sm text-[#6f604c]">No upcoming contact windows in the pass cache.</p>
+        ) : (
+          <div className="table-shell">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Satellite</th>
+                  <th>Ground station</th>
+                  <th>AOS (UTC)</th>
+                  <th>Max elevation</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contactWindows.map((window) => (
+                  <tr key={window.id}>
+                    <td className="metric-value text-sm">{window.satellite_id}</td>
+                    <td className="metric-value text-sm">{window.ground_station_id}</td>
+                    <td className="text-sm text-[#6f604c]">{window.aos_utc}</td>
+                    <td className="metric-value text-sm">
+                      {window.max_elevation_deg.toFixed(1)}°
+                    </td>
+                    <td className="metric-value text-sm">
+                      {Math.round(window.duration_s / 60)}m
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -142,7 +211,7 @@ function TopologyColumn({
   label,
   nodes
 }: {
-  icon: typeof Satellite;
+  icon: LucideIcon;
   label: string;
   nodes: string[];
 }) {
@@ -224,6 +293,36 @@ function NodeGroup({ title, nodes }: { title: string; nodes: ComputeNode[] }) {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function SatelliteCard({ satellite }: { satellite: Satellite }) {
+  return (
+    <div className="panel p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-[#17140f]">{satellite.name}</h3>
+          <p className="metric-value mt-1 text-xs text-[#6f604c]">{satellite.id}</p>
+        </div>
+        <span className="rounded-lg bg-[#eadcc8] px-3 py-2 text-sm font-bold text-[#25495a]">
+          NORAD {satellite.norad_id}
+        </span>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <p className="rounded-lg bg-[#fffaf0]/70 p-3 text-sm">
+          <span className="block text-[#6f604c]">TLE snapshot</span>
+          <span className="metric-value mt-1 block font-bold text-[#17140f]">
+            {satellite.snapshot_id}
+          </span>
+        </p>
+        <p className="rounded-lg bg-[#fffaf0]/70 p-3 text-sm">
+          <span className="block text-[#6f604c]">Downlink rate</span>
+          <span className="metric-value mt-1 block font-bold text-[#17140f]">
+            {satellite.downlink_rate_mbps} Mbps
+          </span>
+        </p>
       </div>
     </div>
   );

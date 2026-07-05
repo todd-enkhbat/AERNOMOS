@@ -31,7 +31,7 @@ export default function HomePage() {
               Orbital compute orchestration
             </div>
             <h1 className="max-w-3xl text-5xl font-bold leading-[1.02] text-[#fffaf0] md:text-7xl">
-              Orbital Cortex
+              Nomos Orbital
             </h1>
             <p className="mt-6 max-w-2xl text-xl leading-8 text-[#f2e8d8] md:text-2xl">
               Submit a space-data AI job, compare orbital and cloud execution

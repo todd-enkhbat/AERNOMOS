@@ -1,1 +1,1 @@
-"""Orbital Cortex API package."""
+"""Nomos Orbital API package."""
