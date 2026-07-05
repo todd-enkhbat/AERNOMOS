@@ -1,0 +1,11 @@
+{
+  "job_type": "crop_health",
+  "area_of_interest": {
+    "type": "bbox",
+    "coordinates": [-121.2, 36.1, -119.7, 37.4]
+  },
+  "sensor": "hyperspectral",
+  "priority": "cheapest",
+  "compute_preference": "cheapest",
+  "max_cost_usd": 350
+}

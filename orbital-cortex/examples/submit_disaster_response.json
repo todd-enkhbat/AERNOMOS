@@ -1,0 +1,11 @@
+{
+  "job_type": "disaster_response",
+  "area_of_interest": {
+    "type": "bbox",
+    "coordinates": [-90.5, 29.7, -89.1, 30.7]
+  },
+  "sensor": "SAR",
+  "priority": "most_reliable",
+  "compute_preference": "fastest",
+  "max_cost_usd": 800
+}
