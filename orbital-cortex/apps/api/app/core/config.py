@@ -74,3 +74,32 @@ def get_settings() -> Settings:
 
 def cors_origin_list(settings: Settings) -> List[str]:
     return [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]
+
+
+# Placeholder secrets that must never sign anything in production.
+_DEV_SIGNING_SECRETS = ("dev-only-artifact-secret", "change-me-in-production")
+
+
+def validate_production_settings(settings: Settings) -> None:
+    """Refuse to boot a production API with dev placeholders (F2).
+
+    Runs in the app lifespan so a misconfigured deploy fails its health
+    checks loudly instead of shipping forgeable URLs or wildcard CORS.
+    """
+    if settings.app_env != "production":
+        return
+    problems = []
+    if not settings.s3_bucket and settings.artifact_signing_secret in _DEV_SIGNING_SECRETS:
+        problems.append(
+            "the local artifact backend is active (S3_BUCKET empty) but "
+            "ARTIFACT_SIGNING_SECRET is a dev placeholder, so signed URLs "
+            "would be forgeable — set S3_BUCKET or a strong secret"
+        )
+    if "*" in cors_origin_list(settings):
+        problems.append("CORS_ORIGINS must list explicit origins, never '*'")
+    if problems:
+        raise RuntimeError(
+            "Refusing to start with production config problems: "
+            + "; ".join(problems)
+            + "."
+        )

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -31,8 +31,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | JobCreateResponse | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ErrorResponse, JobCreateResponse]]:
     if response.status_code == 201:
         response_201 = JobCreateResponse.from_dict(response.json())
 
@@ -55,8 +55,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | JobCreateResponse]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ErrorResponse, JobCreateResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,9 +67,9 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient | Client,
+    client: Union[AuthenticatedClient, Client],
     body: JobCreate,
-) -> Response[ErrorResponse | JobCreateResponse]:
+) -> Response[Union[ErrorResponse, JobCreateResponse]]:
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
@@ -83,7 +83,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | JobCreateResponse]
+        Response[Union[ErrorResponse, JobCreateResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -99,9 +99,9 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient | Client,
+    client: Union[AuthenticatedClient, Client],
     body: JobCreate,
-) -> ErrorResponse | JobCreateResponse | None:
+) -> Optional[Union[ErrorResponse, JobCreateResponse]]:
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
@@ -115,7 +115,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | JobCreateResponse
+        Union[ErrorResponse, JobCreateResponse]
     """
 
     return sync_detailed(
@@ -126,9 +126,9 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient | Client,
+    client: Union[AuthenticatedClient, Client],
     body: JobCreate,
-) -> Response[ErrorResponse | JobCreateResponse]:
+) -> Response[Union[ErrorResponse, JobCreateResponse]]:
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
@@ -142,7 +142,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | JobCreateResponse]
+        Response[Union[ErrorResponse, JobCreateResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -156,9 +156,9 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient | Client,
+    client: Union[AuthenticatedClient, Client],
     body: JobCreate,
-) -> ErrorResponse | JobCreateResponse | None:
+) -> Optional[Union[ErrorResponse, JobCreateResponse]]:
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
@@ -172,7 +172,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | JobCreateResponse
+        Union[ErrorResponse, JobCreateResponse]
     """
 
     return (

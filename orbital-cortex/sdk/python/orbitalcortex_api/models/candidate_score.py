@@ -1,7 +1,11 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -34,14 +38,14 @@ class CandidateScore:
         preference_score (float):
         reasons (list[str]):
         score (float):
-        binding_constraint (None | str | Unset):
-        est_downlink_mb (float | None | Unset):
-        hard_constraint_failures (list[HardConstraintFailure] | Unset):
-        next_aos_utc (None | str | Unset):
-        next_contact_minutes (float | None | Unset):
-        next_max_elevation_deg (float | None | Unset):
-        selected_ground_station_id (None | str | Unset):
-        weights (CandidateScoreWeights | Unset):
+        binding_constraint (Union[None, Unset, str]):
+        est_downlink_mb (Union[None, Unset, float]):
+        hard_constraint_failures (Union[Unset, list['HardConstraintFailure']]):
+        next_aos_utc (Union[None, Unset, str]):
+        next_contact_minutes (Union[None, Unset, float]):
+        next_max_elevation_deg (Union[None, Unset, float]):
+        selected_ground_station_id (Union[None, Unset, str]):
+        weights (Union[Unset, CandidateScoreWeights]):
     """
 
     availability_score: float
@@ -58,14 +62,14 @@ class CandidateScore:
     preference_score: float
     reasons: list[str]
     score: float
-    binding_constraint: None | str | Unset = UNSET
-    est_downlink_mb: float | None | Unset = UNSET
-    hard_constraint_failures: list[HardConstraintFailure] | Unset = UNSET
-    next_aos_utc: None | str | Unset = UNSET
-    next_contact_minutes: float | None | Unset = UNSET
-    next_max_elevation_deg: float | None | Unset = UNSET
-    selected_ground_station_id: None | str | Unset = UNSET
-    weights: CandidateScoreWeights | Unset = UNSET
+    binding_constraint: Union[None, Unset, str] = UNSET
+    est_downlink_mb: Union[None, Unset, float] = UNSET
+    hard_constraint_failures: Union[Unset, list["HardConstraintFailure"]] = UNSET
+    next_aos_utc: Union[None, Unset, str] = UNSET
+    next_contact_minutes: Union[None, Unset, float] = UNSET
+    next_max_elevation_deg: Union[None, Unset, float] = UNSET
+    selected_ground_station_id: Union[None, Unset, str] = UNSET
+    weights: Union[Unset, "CandidateScoreWeights"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -97,19 +101,19 @@ class CandidateScore:
 
         score = self.score
 
-        binding_constraint: None | str | Unset
+        binding_constraint: Union[None, Unset, str]
         if isinstance(self.binding_constraint, Unset):
             binding_constraint = UNSET
         else:
             binding_constraint = self.binding_constraint
 
-        est_downlink_mb: float | None | Unset
+        est_downlink_mb: Union[None, Unset, float]
         if isinstance(self.est_downlink_mb, Unset):
             est_downlink_mb = UNSET
         else:
             est_downlink_mb = self.est_downlink_mb
 
-        hard_constraint_failures: list[dict[str, Any]] | Unset = UNSET
+        hard_constraint_failures: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.hard_constraint_failures, Unset):
             hard_constraint_failures = []
             for hard_constraint_failures_item_data in self.hard_constraint_failures:
@@ -118,31 +122,31 @@ class CandidateScore:
                 )
                 hard_constraint_failures.append(hard_constraint_failures_item)
 
-        next_aos_utc: None | str | Unset
+        next_aos_utc: Union[None, Unset, str]
         if isinstance(self.next_aos_utc, Unset):
             next_aos_utc = UNSET
         else:
             next_aos_utc = self.next_aos_utc
 
-        next_contact_minutes: float | None | Unset
+        next_contact_minutes: Union[None, Unset, float]
         if isinstance(self.next_contact_minutes, Unset):
             next_contact_minutes = UNSET
         else:
             next_contact_minutes = self.next_contact_minutes
 
-        next_max_elevation_deg: float | None | Unset
+        next_max_elevation_deg: Union[None, Unset, float]
         if isinstance(self.next_max_elevation_deg, Unset):
             next_max_elevation_deg = UNSET
         else:
             next_max_elevation_deg = self.next_max_elevation_deg
 
-        selected_ground_station_id: None | str | Unset
+        selected_ground_station_id: Union[None, Unset, str]
         if isinstance(self.selected_ground_station_id, Unset):
             selected_ground_station_id = UNSET
         else:
             selected_ground_station_id = self.selected_ground_station_id
 
-        weights: dict[str, Any] | Unset = UNSET
+        weights: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.weights, Unset):
             weights = self.weights.to_dict()
 
@@ -219,81 +223,79 @@ class CandidateScore:
 
         score = d.pop("score")
 
-        def _parse_binding_constraint(data: object) -> None | str | Unset:
+        def _parse_binding_constraint(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         binding_constraint = _parse_binding_constraint(
             d.pop("binding_constraint", UNSET)
         )
 
-        def _parse_est_downlink_mb(data: object) -> float | None | Unset:
+        def _parse_est_downlink_mb(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(Union[None, Unset, float], data)
 
         est_downlink_mb = _parse_est_downlink_mb(d.pop("est_downlink_mb", UNSET))
 
+        hard_constraint_failures = []
         _hard_constraint_failures = d.pop("hard_constraint_failures", UNSET)
-        hard_constraint_failures: list[HardConstraintFailure] | Unset = UNSET
-        if _hard_constraint_failures is not UNSET:
-            hard_constraint_failures = []
-            for hard_constraint_failures_item_data in _hard_constraint_failures:
-                hard_constraint_failures_item = HardConstraintFailure.from_dict(
-                    hard_constraint_failures_item_data
-                )
+        for hard_constraint_failures_item_data in _hard_constraint_failures or []:
+            hard_constraint_failures_item = HardConstraintFailure.from_dict(
+                hard_constraint_failures_item_data
+            )
 
-                hard_constraint_failures.append(hard_constraint_failures_item)
+            hard_constraint_failures.append(hard_constraint_failures_item)
 
-        def _parse_next_aos_utc(data: object) -> None | str | Unset:
+        def _parse_next_aos_utc(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         next_aos_utc = _parse_next_aos_utc(d.pop("next_aos_utc", UNSET))
 
-        def _parse_next_contact_minutes(data: object) -> float | None | Unset:
+        def _parse_next_contact_minutes(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(Union[None, Unset, float], data)
 
         next_contact_minutes = _parse_next_contact_minutes(
             d.pop("next_contact_minutes", UNSET)
         )
 
-        def _parse_next_max_elevation_deg(data: object) -> float | None | Unset:
+        def _parse_next_max_elevation_deg(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(Union[None, Unset, float], data)
 
         next_max_elevation_deg = _parse_next_max_elevation_deg(
             d.pop("next_max_elevation_deg", UNSET)
         )
 
-        def _parse_selected_ground_station_id(data: object) -> None | str | Unset:
+        def _parse_selected_ground_station_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         selected_ground_station_id = _parse_selected_ground_station_id(
             d.pop("selected_ground_station_id", UNSET)
         )
 
         _weights = d.pop("weights", UNSET)
-        weights: CandidateScoreWeights | Unset
+        weights: Union[Unset, CandidateScoreWeights]
         if isinstance(_weights, Unset):
             weights = UNSET
         else:

@@ -16,7 +16,11 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy import text
 
-from app.core.config import cors_origin_list, get_settings
+from app.core.config import (
+    cors_origin_list,
+    get_settings,
+    validate_production_settings,
+)
 from app.core.logging import configure_logging, get_logger
 from app.core.ratelimit import limiter
 from app.db import SessionLocal, get_engine
@@ -58,6 +62,7 @@ def warm_pass_cache_if_empty() -> None:
 
 @asynccontextmanager
 async def lifespan(app):  # type: ignore[no-untyped-def]
+    validate_production_settings(get_settings())
     run_migrations()
     session = SessionLocal(bind=get_engine())
     try:
@@ -182,7 +187,20 @@ def health() -> dict:
     return {"status": "ok", "service": "orbital-cortex-api"}
 
 
-@app.get("/healthz", tags=["health"], summary="Liveness probe")
+@app.get(
+    "/healthz",
+    tags=["health"],
+    summary="Liveness probe",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {"status": "ok", "service": "orbital-cortex-api"}
+                }
+            }
+        }
+    },
+)
 def healthz() -> dict:
     return {"status": "ok", "service": "orbital-cortex-api"}
 
@@ -195,6 +213,29 @@ def healthz() -> dict:
         "503 until the database answers. Redis is reported but optional: "
         "without it, jobs queue and run via the manual dev path."
     ),
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "ready",
+                        "checks": {"database": True, "redis": True},
+                    }
+                }
+            }
+        },
+        503: {
+            "description": "Database unreachable",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "unavailable",
+                        "checks": {"database": False, "redis": True},
+                    }
+                }
+            },
+        },
+    },
 )
 def readyz() -> JSONResponse:
     from app.core.queue import ping_redis

@@ -1,7 +1,10 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,7 +27,7 @@ class JobEvent:
         job_id (str):
         message (str):
         ts_utc (str):
-        payload (JobEventPayload | Unset):
+        payload (Union[Unset, JobEventPayload]):
     """
 
     event_type: str
@@ -32,7 +35,7 @@ class JobEvent:
     job_id: str
     message: str
     ts_utc: str
-    payload: JobEventPayload | Unset = UNSET
+    payload: Union[Unset, "JobEventPayload"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +49,7 @@ class JobEvent:
 
         ts_utc = self.ts_utc
 
-        payload: dict[str, Any] | Unset = UNSET
+        payload: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.payload, Unset):
             payload = self.payload.to_dict()
 
@@ -82,7 +85,7 @@ class JobEvent:
         ts_utc = d.pop("ts_utc")
 
         _payload = d.pop("payload", UNSET)
-        payload: JobEventPayload | Unset
+        payload: Union[Unset, JobEventPayload]
         if isinstance(_payload, Unset):
             payload = UNSET
         else:

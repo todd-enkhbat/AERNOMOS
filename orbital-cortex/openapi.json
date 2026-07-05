@@ -1,0 +1,2765 @@
+{
+  "components": {
+    "schemas": {
+      "AreaOfInterest": {
+        "properties": {
+          "coordinates": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "type": {
+            "const": "bbox",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "AreaOfInterest",
+        "type": "object"
+      },
+      "ArtifactRef": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "url"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
+      "CandidateScore": {
+        "properties": {
+          "availability_score": {
+            "title": "Availability Score",
+            "type": "number"
+          },
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "binding_constraint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Binding Constraint"
+          },
+          "compliance_score": {
+            "title": "Compliance Score",
+            "type": "number"
+          },
+          "contact_score": {
+            "title": "Contact Score",
+            "type": "number"
+          },
+          "cost_score": {
+            "title": "Cost Score",
+            "type": "number"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "est_downlink_mb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Est Downlink Mb"
+          },
+          "estimated_cost_usd": {
+            "title": "Estimated Cost Usd",
+            "type": "number"
+          },
+          "estimated_latency_minutes": {
+            "title": "Estimated Latency Minutes",
+            "type": "number"
+          },
+          "hard_constraint_failures": {
+            "items": {
+              "$ref": "#/components/schemas/HardConstraintFailure"
+            },
+            "title": "Hard Constraint Failures",
+            "type": "array"
+          },
+          "latency_score": {
+            "title": "Latency Score",
+            "type": "number"
+          },
+          "model_support_score": {
+            "title": "Model Support Score",
+            "type": "number"
+          },
+          "next_aos_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Aos Utc"
+          },
+          "next_contact_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Contact Minutes"
+          },
+          "next_max_elevation_deg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Max Elevation Deg"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "preference_score": {
+            "title": "Preference Score",
+            "type": "number"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "selected_ground_station_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Ground Station Id"
+          },
+          "weights": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Weights",
+            "type": "object"
+          }
+        },
+        "required": [
+          "node_id",
+          "score",
+          "eligible",
+          "model_support_score",
+          "latency_score",
+          "cost_score",
+          "availability_score",
+          "contact_score",
+          "preference_score",
+          "compliance_score",
+          "estimated_latency_minutes",
+          "estimated_cost_usd",
+          "available",
+          "reasons"
+        ],
+        "title": "CandidateScore",
+        "type": "object"
+      },
+      "ComputeNode": {
+        "properties": {
+          "availability": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Availability",
+            "type": "number"
+          },
+          "base_cost_usd": {
+            "title": "Base Cost Usd",
+            "type": "number"
+          },
+          "compliance_tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Compliance Tags",
+            "type": "array"
+          },
+          "downlink_mbps": {
+            "title": "Downlink Mbps",
+            "type": "integer"
+          },
+          "gpu_class": {
+            "title": "Gpu Class",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "latency_minutes": {
+            "title": "Latency Minutes",
+            "type": "number"
+          },
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "orbit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orbit"
+          },
+          "power_state": {
+            "title": "Power State",
+            "type": "string"
+          },
+          "satellite_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Satellite Id"
+          },
+          "storage_gb": {
+            "title": "Storage Gb",
+            "type": "integer"
+          },
+          "supported_models": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Supported Models",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "orbital",
+              "ground_cloud",
+              "ground_station"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "location",
+          "gpu_class",
+          "supported_models",
+          "storage_gb",
+          "downlink_mbps",
+          "power_state",
+          "availability",
+          "compliance_tags",
+          "base_cost_usd",
+          "latency_minutes"
+        ],
+        "title": "ComputeNode",
+        "type": "object"
+      },
+      "ContactWindow": {
+        "properties": {
+          "aos_utc": {
+            "title": "Aos Utc",
+            "type": "string"
+          },
+          "culminate_utc": {
+            "title": "Culminate Utc",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "duration_s": {
+            "title": "Duration S",
+            "type": "number"
+          },
+          "est_downlink_mb": {
+            "title": "Est Downlink Mb",
+            "type": "number"
+          },
+          "ground_station_id": {
+            "title": "Ground Station Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "los_utc": {
+            "title": "Los Utc",
+            "type": "string"
+          },
+          "max_elevation_deg": {
+            "title": "Max Elevation Deg",
+            "type": "number"
+          },
+          "satellite_id": {
+            "title": "Satellite Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "satellite_id",
+          "ground_station_id",
+          "date",
+          "aos_utc",
+          "culminate_utc",
+          "los_utc",
+          "max_elevation_deg",
+          "duration_s",
+          "est_downlink_mb"
+        ],
+        "title": "ContactWindow",
+        "type": "object"
+      },
+      "ContactWindowsResponse": {
+        "example": {
+          "contact_windows": [
+            {
+              "aos_utc": "2026-07-05T14:27:30+00:00",
+              "culminate_utc": "2026-07-05T14:32:10+00:00",
+              "date": "2026-07-05",
+              "duration_s": 555.0,
+              "est_downlink_mb": 42.0,
+              "ground_station_id": "gs_ksat_svalbard",
+              "id": "cw_7a1b3c5d9e2f",
+              "los_utc": "2026-07-05T14:36:45+00:00",
+              "max_elevation_deg": 63.4,
+              "satellite_id": "sat_sentinel_1a"
+            }
+          ],
+          "next_cursor": "MjAyNi0wNy0wNVQxNDoyNzozMCswMDowMHxjd183YTFiM2M1ZDllMmY="
+        },
+        "properties": {
+          "contact_windows": {
+            "items": {
+              "$ref": "#/components/schemas/ContactWindow"
+            },
+            "title": "Contact Windows",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "contact_windows"
+        ],
+        "title": "ContactWindowsResponse",
+        "type": "object"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorDetail",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "example": {
+          "error": {
+            "code": "job_not_found",
+            "message": "No job exists for id job_000000000000."
+          }
+        },
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "GroundStation": {
+        "properties": {
+          "altitude_m": {
+            "default": 0,
+            "title": "Altitude M",
+            "type": "number"
+          },
+          "availability": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Availability",
+            "type": "number"
+          },
+          "downlink_mbps": {
+            "title": "Downlink Mbps",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "latency_minutes": {
+            "title": "Latency Minutes",
+            "type": "number"
+          },
+          "latitude": {
+            "title": "Latitude",
+            "type": "number"
+          },
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "longitude": {
+            "title": "Longitude",
+            "type": "number"
+          },
+          "min_elevation_deg": {
+            "default": 10.0,
+            "title": "Min Elevation Deg",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "provider": {
+            "default": "",
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "location",
+          "latitude",
+          "longitude",
+          "latency_minutes",
+          "downlink_mbps",
+          "availability"
+        ],
+        "title": "GroundStation",
+        "type": "object"
+      },
+      "GroundStationsResponse": {
+        "example": {
+          "ground_stations": [
+            {
+              "altitude_m": 458.0,
+              "availability": 0.98,
+              "downlink_mbps": 600,
+              "id": "gs_ksat_svalbard",
+              "latency_minutes": 8.0,
+              "latitude": 78.23,
+              "location": "Svalbard, Norway",
+              "longitude": 15.39,
+              "min_elevation_deg": 10.0,
+              "name": "KSAT Svalbard",
+              "provider": "KSAT"
+            }
+          ]
+        },
+        "properties": {
+          "ground_stations": {
+            "items": {
+              "$ref": "#/components/schemas/GroundStation"
+            },
+            "title": "Ground Stations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ground_stations"
+        ],
+        "title": "GroundStationsResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HardConstraintFailure": {
+        "properties": {
+          "constraint": {
+            "title": "Constraint",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "constraint",
+          "detail"
+        ],
+        "title": "HardConstraintFailure",
+        "type": "object"
+      },
+      "Job": {
+        "properties": {
+          "area_of_interest": {
+            "$ref": "#/components/schemas/AreaOfInterest"
+          },
+          "compute_preference": {
+            "enum": [
+              "orbital_if_available",
+              "ground_only",
+              "cheapest",
+              "fastest"
+            ],
+            "title": "Compute Preference",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "job_type": {
+            "enum": [
+              "ship_detection",
+              "crop_health",
+              "disaster_response"
+            ],
+            "title": "Job Type",
+            "type": "string"
+          },
+          "max_cost_usd": {
+            "title": "Max Cost Usd",
+            "type": "number"
+          },
+          "priority": {
+            "enum": [
+              "fastest",
+              "cheapest",
+              "most_reliable"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "selected_route_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Route Id"
+          },
+          "sensor": {
+            "enum": [
+              "SAR",
+              "optical",
+              "hyperspectral",
+              "any"
+            ],
+            "title": "Sensor",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "routing",
+              "executing",
+              "downlinking",
+              "complete",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "job_type",
+          "area_of_interest",
+          "sensor",
+          "priority",
+          "compute_preference",
+          "max_cost_usd",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "Job",
+        "type": "object"
+      },
+      "JobCreate": {
+        "examples": [
+          {
+            "area_of_interest": {
+              "coordinates": [
+                -74.3,
+                40.3,
+                -73.5,
+                41.0
+              ],
+              "type": "bbox"
+            },
+            "compute_preference": "orbital_if_available",
+            "job_type": "ship_detection",
+            "max_cost_usd": 500,
+            "priority": "fastest",
+            "schema_version": 1,
+            "sensor": "SAR"
+          }
+        ],
+        "properties": {
+          "area_of_interest": {
+            "$ref": "#/components/schemas/AreaOfInterest"
+          },
+          "compute_preference": {
+            "enum": [
+              "orbital_if_available",
+              "ground_only",
+              "cheapest",
+              "fastest"
+            ],
+            "title": "Compute Preference",
+            "type": "string"
+          },
+          "job_type": {
+            "enum": [
+              "ship_detection",
+              "crop_health",
+              "disaster_response"
+            ],
+            "title": "Job Type",
+            "type": "string"
+          },
+          "max_cost_usd": {
+            "exclusiveMinimum": 0.0,
+            "title": "Max Cost Usd",
+            "type": "number"
+          },
+          "priority": {
+            "enum": [
+              "fastest",
+              "cheapest",
+              "most_reliable"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "sensor": {
+            "enum": [
+              "SAR",
+              "optical",
+              "hyperspectral",
+              "any"
+            ],
+            "title": "Sensor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_type",
+          "area_of_interest",
+          "sensor",
+          "priority",
+          "compute_preference",
+          "max_cost_usd"
+        ],
+        "title": "JobCreate",
+        "type": "object"
+      },
+      "JobCreateResponse": {
+        "example": {
+          "job": {
+            "area_of_interest": {
+              "coordinates": [
+                -74.3,
+                40.3,
+                -73.5,
+                41.0
+              ],
+              "type": "bbox"
+            },
+            "compute_preference": "orbital_if_available",
+            "created_at": "2026-07-05T14:00:00+00:00",
+            "id": "job_9f2c41d3a8b7",
+            "job_type": "ship_detection",
+            "max_cost_usd": 500.0,
+            "priority": "fastest",
+            "schema_version": 1,
+            "sensor": "SAR",
+            "status": "queued",
+            "updated_at": "2026-07-05T14:00:00+00:00"
+          }
+        },
+        "properties": {
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          },
+          "routing_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoutingDecision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "job"
+        ],
+        "title": "JobCreateResponse",
+        "type": "object"
+      },
+      "JobDetailResponse": {
+        "example": {
+          "job": {
+            "area_of_interest": {
+              "coordinates": [
+                -74.3,
+                40.3,
+                -73.5,
+                41.0
+              ],
+              "type": "bbox"
+            },
+            "compute_preference": "orbital_if_available",
+            "created_at": "2026-07-05T14:00:00+00:00",
+            "id": "job_9f2c41d3a8b7",
+            "job_type": "ship_detection",
+            "max_cost_usd": 500.0,
+            "priority": "fastest",
+            "schema_version": 1,
+            "selected_route_id": "route_5b8e2f7c9d01",
+            "sensor": "SAR",
+            "status": "complete",
+            "updated_at": "2026-07-05T14:00:09+00:00"
+          },
+          "result_summary": "Detected 17 vessels in New York Harbor.",
+          "routing_decision": {
+            "candidate_scores": [
+              {
+                "availability_score": 0.97,
+                "available": true,
+                "compliance_score": 1.0,
+                "contact_score": 0.88,
+                "cost_score": 0.74,
+                "eligible": true,
+                "est_downlink_mb": 42.0,
+                "estimated_cost_usd": 84.0,
+                "estimated_latency_minutes": 38.0,
+                "hard_constraint_failures": [],
+                "latency_score": 0.92,
+                "model_support_score": 1.0,
+                "next_aos_utc": "2026-07-05T14:27:30+00:00",
+                "next_contact_minutes": 27.5,
+                "next_max_elevation_deg": 63.4,
+                "node_id": "sim_leo_01",
+                "preference_score": 1.0,
+                "reasons": [
+                  "Onboard ship_detection model eliminates raw-scene downlink.",
+                  "Next Svalbard contact in 28 minutes fits the fastest priority."
+                ],
+                "score": 0.87,
+                "selected_ground_station_id": "gs_ksat_svalbard",
+                "weights": {
+                  "availability": 15,
+                  "compliance": 5,
+                  "contact": 10,
+                  "cost": 10,
+                  "latency": 25,
+                  "model_support": 25,
+                  "preference": 10
+                }
+              }
+            ],
+            "confidence": 0.87,
+            "config_version": "2026.07.05-1",
+            "decided_at_utc": "2026-07-05T14:00:01+00:00",
+            "decision_hash": "5d9e0b2a7c41f386",
+            "estimated_cost_usd": 84.0,
+            "estimated_latency_minutes": 38.0,
+            "fallback_node_id": "aws_us_east_gpu",
+            "id": "route_5b8e2f7c9d01",
+            "input_hash": "a3f1c6e29b8d4c07",
+            "job_id": "job_9f2c41d3a8b7",
+            "reasons": [
+              "sim_leo_01 scored highest for fastest priority with an onboard model.",
+              "Fallback aws_us_east_gpu retained in case the contact window slips."
+            ],
+            "seed": 42,
+            "selected_ground_station_id": "gs_ksat_svalbard",
+            "selected_node_id": "sim_leo_01",
+            "tle_snapshot_id": "celestrak-2026-07-05"
+          }
+        },
+        "properties": {
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          },
+          "result_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Summary"
+          },
+          "routing_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoutingDecision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "job"
+        ],
+        "title": "JobDetailResponse",
+        "type": "object"
+      },
+      "JobEvent": {
+        "properties": {
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "ts_utc": {
+            "title": "Ts Utc",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "event_type",
+          "message",
+          "ts_utc"
+        ],
+        "title": "JobEvent",
+        "type": "object"
+      },
+      "JobEventsResponse": {
+        "example": {
+          "events": [
+            {
+              "event_type": "route_selected",
+              "id": "evt_1d4f8a2c6b3e",
+              "job_id": "job_9f2c41d3a8b7",
+              "message": "Selected sim_leo_01 at 87% route confidence; latency 38 minutes, cost $84.00, fallback aws_us_east_gpu.",
+              "payload": {
+                "confidence": 0.87,
+                "routing_decision_id": "route_5b8e2f7c9d01",
+                "selected_node_id": "sim_leo_01",
+                "status_from": "queued",
+                "status_to": "routing"
+              },
+              "ts_utc": "2026-07-05T14:00:01+00:00"
+            }
+          ]
+        },
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/JobEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
+        ],
+        "title": "JobEventsResponse",
+        "type": "object"
+      },
+      "JobsListResponse": {
+        "example": {
+          "jobs": [
+            {
+              "area_of_interest": {
+                "coordinates": [
+                  -74.3,
+                  40.3,
+                  -73.5,
+                  41.0
+                ],
+                "type": "bbox"
+              },
+              "compute_preference": "orbital_if_available",
+              "created_at": "2026-07-05T14:00:00+00:00",
+              "id": "job_9f2c41d3a8b7",
+              "job_type": "ship_detection",
+              "max_cost_usd": 500.0,
+              "priority": "fastest",
+              "schema_version": 1,
+              "selected_route_id": "route_5b8e2f7c9d01",
+              "sensor": "SAR",
+              "status": "complete",
+              "updated_at": "2026-07-05T14:00:09+00:00"
+            }
+          ],
+          "next_cursor": "MjAyNi0wNy0wNVQxNDowMDowMCswMDowMHxqb2JfOWYyYzQxZDNhOGI3"
+        },
+        "properties": {
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            },
+            "title": "Jobs",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "jobs"
+        ],
+        "title": "JobsListResponse",
+        "type": "object"
+      },
+      "NodesResponse": {
+        "example": {
+          "compute_nodes": [
+            {
+              "availability": 0.97,
+              "base_cost_usd": 60.0,
+              "compliance_tags": [
+                "civilian",
+                "commercial"
+              ],
+              "downlink_mbps": 400,
+              "gpu_class": "edge-tpu-class",
+              "id": "sim_leo_01",
+              "latency_minutes": 30.0,
+              "location": "LEO / sun-synchronous",
+              "name": "Simulated LEO SAR node 01",
+              "orbit": "SSO ~700 km",
+              "power_state": "nominal",
+              "satellite_id": "sat_sentinel_1a",
+              "storage_gb": 512,
+              "supported_models": [
+                "ship_detection"
+              ],
+              "type": "orbital"
+            }
+          ],
+          "ground_stations": [
+            {
+              "altitude_m": 458.0,
+              "availability": 0.98,
+              "downlink_mbps": 600,
+              "id": "gs_ksat_svalbard",
+              "latency_minutes": 8.0,
+              "latitude": 78.23,
+              "location": "Svalbard, Norway",
+              "longitude": 15.39,
+              "min_elevation_deg": 10.0,
+              "name": "KSAT Svalbard",
+              "provider": "KSAT"
+            }
+          ]
+        },
+        "properties": {
+          "compute_nodes": {
+            "items": {
+              "$ref": "#/components/schemas/ComputeNode"
+            },
+            "title": "Compute Nodes",
+            "type": "array"
+          },
+          "ground_stations": {
+            "items": {
+              "$ref": "#/components/schemas/GroundStation"
+            },
+            "title": "Ground Stations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "compute_nodes",
+          "ground_stations"
+        ],
+        "title": "NodesResponse",
+        "type": "object"
+      },
+      "ReplayResponse": {
+        "example": {
+          "config_version": "2026.07.05-1",
+          "input_hash": "a3f1c6e29b8d4c07",
+          "match": true,
+          "replay_decision_hash": "5d9e0b2a7c41f386",
+          "stored_decision_hash": "5d9e0b2a7c41f386"
+        },
+        "properties": {
+          "config_version": {
+            "title": "Config Version",
+            "type": "string"
+          },
+          "input_hash": {
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "match": {
+            "title": "Match",
+            "type": "boolean"
+          },
+          "replay_decision_hash": {
+            "title": "Replay Decision Hash",
+            "type": "string"
+          },
+          "stored_decision_hash": {
+            "title": "Stored Decision Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "match",
+          "stored_decision_hash",
+          "replay_decision_hash",
+          "config_version",
+          "input_hash"
+        ],
+        "title": "ReplayResponse",
+        "type": "object"
+      },
+      "Result": {
+        "properties": {
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "geojson": {
+            "additionalProperties": true,
+            "title": "Geojson",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "output_files": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Output Files",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "summary",
+          "confidence",
+          "geojson",
+          "output_files"
+        ],
+        "title": "Result",
+        "type": "object"
+      },
+      "ResultResponse": {
+        "example": {
+          "artifacts": [
+            {
+              "key": "results/job_9f2c41d3a8b7/detections.geojson",
+              "url": "https://api.orbital-cortex.example/v1/artifacts/results/job_9f2c41d3a8b7/detections.geojson?expires=1783700000&signature=8c1f2ab90d374e6c"
+            }
+          ],
+          "result": {
+            "confidence": 0.91,
+            "geojson": {
+              "features": [
+                {
+                  "geometry": {
+                    "coordinates": [
+                      -74.045,
+                      40.63
+                    ],
+                    "type": "Point"
+                  },
+                  "properties": {
+                    "class": "cargo",
+                    "confidence": 0.94,
+                    "simulated": true
+                  },
+                  "type": "Feature"
+                }
+              ],
+              "type": "FeatureCollection"
+            },
+            "id": "res_3c7d91e5b2a4",
+            "job_id": "job_9f2c41d3a8b7",
+            "output_files": [
+              "results/job_9f2c41d3a8b7/detections.geojson",
+              "results/job_9f2c41d3a8b7/summary.json"
+            ],
+            "summary": "Detected 17 vessels in New York Harbor."
+          }
+        },
+        "properties": {
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Result"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "ResultResponse",
+        "type": "object"
+      },
+      "RoutingDecision": {
+        "properties": {
+          "candidate_scores": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateScore"
+            },
+            "title": "Candidate Scores",
+            "type": "array"
+          },
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "config_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config Version"
+          },
+          "decided_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At Utc"
+          },
+          "decision_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Hash"
+          },
+          "estimated_cost_usd": {
+            "title": "Estimated Cost Usd",
+            "type": "number"
+          },
+          "estimated_latency_minutes": {
+            "title": "Estimated Latency Minutes",
+            "type": "number"
+          },
+          "fallback_node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Node Id"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "input_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Hash"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "selected_ground_station_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Ground Station Id"
+          },
+          "selected_node_id": {
+            "title": "Selected Node Id",
+            "type": "string"
+          },
+          "tle_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tle Snapshot Id"
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "selected_node_id",
+          "estimated_latency_minutes",
+          "estimated_cost_usd",
+          "confidence",
+          "reasons",
+          "candidate_scores"
+        ],
+        "title": "RoutingDecision",
+        "type": "object"
+      },
+      "RoutingResponse": {
+        "example": {
+          "routing_decision": {
+            "candidate_scores": [
+              {
+                "availability_score": 0.97,
+                "available": true,
+                "compliance_score": 1.0,
+                "contact_score": 0.88,
+                "cost_score": 0.74,
+                "eligible": true,
+                "est_downlink_mb": 42.0,
+                "estimated_cost_usd": 84.0,
+                "estimated_latency_minutes": 38.0,
+                "hard_constraint_failures": [],
+                "latency_score": 0.92,
+                "model_support_score": 1.0,
+                "next_aos_utc": "2026-07-05T14:27:30+00:00",
+                "next_contact_minutes": 27.5,
+                "next_max_elevation_deg": 63.4,
+                "node_id": "sim_leo_01",
+                "preference_score": 1.0,
+                "reasons": [
+                  "Onboard ship_detection model eliminates raw-scene downlink.",
+                  "Next Svalbard contact in 28 minutes fits the fastest priority."
+                ],
+                "score": 0.87,
+                "selected_ground_station_id": "gs_ksat_svalbard",
+                "weights": {
+                  "availability": 15,
+                  "compliance": 5,
+                  "contact": 10,
+                  "cost": 10,
+                  "latency": 25,
+                  "model_support": 25,
+                  "preference": 10
+                }
+              }
+            ],
+            "confidence": 0.87,
+            "config_version": "2026.07.05-1",
+            "decided_at_utc": "2026-07-05T14:00:01+00:00",
+            "decision_hash": "5d9e0b2a7c41f386",
+            "estimated_cost_usd": 84.0,
+            "estimated_latency_minutes": 38.0,
+            "fallback_node_id": "aws_us_east_gpu",
+            "id": "route_5b8e2f7c9d01",
+            "input_hash": "a3f1c6e29b8d4c07",
+            "job_id": "job_9f2c41d3a8b7",
+            "reasons": [
+              "sim_leo_01 scored highest for fastest priority with an onboard model.",
+              "Fallback aws_us_east_gpu retained in case the contact window slips."
+            ],
+            "seed": 42,
+            "selected_ground_station_id": "gs_ksat_svalbard",
+            "selected_node_id": "sim_leo_01",
+            "tle_snapshot_id": "celestrak-2026-07-05"
+          }
+        },
+        "properties": {
+          "routing_decision": {
+            "$ref": "#/components/schemas/RoutingDecision"
+          }
+        },
+        "required": [
+          "routing_decision"
+        ],
+        "title": "RoutingResponse",
+        "type": "object"
+      },
+      "Satellite": {
+        "properties": {
+          "downlink_rate_mbps": {
+            "title": "Downlink Rate Mbps",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "norad_id": {
+            "title": "Norad Id",
+            "type": "integer"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "tle_epoch": {
+            "title": "Tle Epoch",
+            "type": "string"
+          },
+          "tle_line1": {
+            "title": "Tle Line1",
+            "type": "string"
+          },
+          "tle_line2": {
+            "title": "Tle Line2",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "norad_id",
+          "tle_line1",
+          "tle_line2",
+          "tle_epoch",
+          "source",
+          "snapshot_id",
+          "downlink_rate_mbps"
+        ],
+        "title": "Satellite",
+        "type": "object"
+      },
+      "SatellitesResponse": {
+        "example": {
+          "satellites": [
+            {
+              "downlink_rate_mbps": 520.0,
+              "id": "sat_sentinel_1a",
+              "name": "SENTINEL-1A",
+              "norad_id": 39634,
+              "snapshot_id": "celestrak-2026-07-05",
+              "source": "celestrak",
+              "tle_epoch": "2026-07-05T12:25:40+00:00",
+              "tle_line1": "1 39634U 14016A   26186.51782528  .00000714  00000+0  19052-3 0  9995",
+              "tle_line2": "2 39634  98.1813 187.6273 0001341  81.4767 278.6588 14.59198614652873"
+            }
+          ]
+        },
+        "properties": {
+          "satellites": {
+            "items": {
+              "$ref": "#/components/schemas/Satellite"
+            },
+            "title": "Satellites",
+            "type": "array"
+          }
+        },
+        "required": [
+          "satellites"
+        ],
+        "title": "SatellitesResponse",
+        "type": "object"
+      },
+      "SceneResponse": {
+        "example": {
+          "scene": {
+            "aoi": {
+              "coordinates": [
+                [
+                  [
+                    -74.3,
+                    40.3
+                  ],
+                  [
+                    -73.5,
+                    40.3
+                  ],
+                  [
+                    -73.5,
+                    41.0
+                  ],
+                  [
+                    -74.3,
+                    41.0
+                  ],
+                  [
+                    -74.3,
+                    40.3
+                  ]
+                ]
+              ],
+              "type": "Polygon"
+            },
+            "captured_utc": "2026-06-15T10:42:00+00:00",
+            "cog_url": "mock://scenes/ny_harbor/backscatter.tif",
+            "id": "scene_6e2a9c4f1b8d",
+            "job_id": "job_9f2c41d3a8b7",
+            "mode": "IW GRD",
+            "provenance": "Canned Sentinel-1 IW GRD chip over New York Harbor. Offline SNAP-style processing pin; not live SAR.",
+            "resolution_m": 10.0,
+            "sensor": "Sentinel-1",
+            "source": "simulator/ny_harbor_scene",
+            "stac_item_id": "S1A_IW_GRDH_NY_HARBOR_DEMO"
+          }
+        },
+        "properties": {
+          "scene": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scene"
+          }
+        },
+        "title": "SceneResponse",
+        "type": "object"
+      },
+      "SimulateRunResponse": {
+        "example": {
+          "events_created": 8,
+          "job": {
+            "area_of_interest": {
+              "coordinates": [
+                -74.3,
+                40.3,
+                -73.5,
+                41.0
+              ],
+              "type": "bbox"
+            },
+            "compute_preference": "orbital_if_available",
+            "created_at": "2026-07-05T14:00:00+00:00",
+            "id": "job_9f2c41d3a8b7",
+            "job_type": "ship_detection",
+            "max_cost_usd": 500.0,
+            "priority": "fastest",
+            "schema_version": 1,
+            "selected_route_id": "route_5b8e2f7c9d01",
+            "sensor": "SAR",
+            "status": "complete",
+            "updated_at": "2026-07-05T14:00:09+00:00"
+          },
+          "result": {
+            "confidence": 0.91,
+            "geojson": {
+              "features": [
+                {
+                  "geometry": {
+                    "coordinates": [
+                      -74.045,
+                      40.63
+                    ],
+                    "type": "Point"
+                  },
+                  "properties": {
+                    "class": "cargo",
+                    "confidence": 0.94,
+                    "simulated": true
+                  },
+                  "type": "Feature"
+                }
+              ],
+              "type": "FeatureCollection"
+            },
+            "id": "res_3c7d91e5b2a4",
+            "job_id": "job_9f2c41d3a8b7",
+            "output_files": [
+              "results/job_9f2c41d3a8b7/detections.geojson",
+              "results/job_9f2c41d3a8b7/summary.json"
+            ],
+            "summary": "Detected 17 vessels in New York Harbor."
+          }
+        },
+        "properties": {
+          "events_created": {
+            "title": "Events Created",
+            "type": "integer"
+          },
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Result"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "job",
+          "events_created"
+        ],
+        "title": "SimulateRunResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Simulated orbital compute orchestration control plane. Civilian/commercial maritime domain awareness only; simulated and real data are labeled per record.",
+    "title": "Orbital Cortex API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "service": "orbital-cortex-api",
+                  "status": "ok"
+                },
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Healthz Healthz Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Liveness probe",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "description": "503 until the database answers. Redis is reported but optional: without it, jobs queue and run via the manual dev path.",
+        "operationId": "readyz_readyz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "checks": {
+                    "database": true,
+                    "redis": true
+                  },
+                  "status": "ready"
+                },
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "checks": {
+                    "database": false,
+                    "redis": true
+                  },
+                  "status": "unavailable"
+                }
+              }
+            },
+            "description": "Database unreachable"
+          }
+        },
+        "summary": "Readiness probe",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/artifacts/{key}": {
+      "get": {
+        "operationId": "get_artifact_v1_artifacts__key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expires",
+            "required": true,
+            "schema": {
+              "title": "Expires",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "signature",
+            "required": true,
+            "schema": {
+              "title": "Signature",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/geo+json": {
+                "example": {
+                  "features": [],
+                  "type": "FeatureCollection"
+                }
+              },
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Raw artifact bytes"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad or expired signature"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Artifact not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch an artifact via a signed URL (local backend only)",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/v1/contact-windows": {
+      "get": {
+        "description": "Reads from the pass cache populated by the worker; no orbital propagation happens on this request path.",
+        "operationId": "list_contact_windows_v1_contact_windows_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "satellite_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Satellite Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ground_station_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ground Station Id"
+            }
+          },
+          {
+            "description": "AOS date, YYYY-MM-DD UTC",
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "AOS date, YYYY-MM-DD UTC",
+              "title": "Date"
+            }
+          },
+          {
+            "description": "Only windows that have not ended",
+            "in": "query",
+            "name": "upcoming",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Only windows that have not ended",
+              "title": "Upcoming",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Opaque cursor from a previous page's next_cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from a previous page's next_cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactWindowsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Malformed cursor"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List precomputed SGP4 contact windows (cursor-paginated)",
+        "tags": [
+          "registry"
+        ]
+      }
+    },
+    "/v1/ground-stations": {
+      "get": {
+        "operationId": "list_ground_stations_v1_ground_stations_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroundStationsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List ground stations (real public sites)",
+        "tags": [
+          "registry"
+        ]
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "operationId": "list_jobs_v1_jobs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Opaque cursor from a previous page's next_cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from a previous page's next_cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobsListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Malformed cursor"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List jobs (cursor-paginated)",
+        "tags": [
+          "jobs"
+        ]
+      },
+      "post": {
+        "description": "Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker. Returns immediately; poll the job until it reaches a terminal state.",
+        "operationId": "create_job_v1_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobCreateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid job spec"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded"
+          }
+        },
+        "summary": "Submit a job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "operationId": "get_job_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get a job with its routing decision",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}/detections": {
+      "get": {
+        "description": "Returns an `application/geo+json` FeatureCollection.",
+        "operationId": "get_job_detections_v1_jobs__job_id__detections_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/geo+json": {
+                "example": {
+                  "features": [
+                    {
+                      "geometry": {
+                        "coordinates": [
+                          -74.045,
+                          40.63
+                        ],
+                        "type": "Point"
+                      },
+                      "properties": {
+                        "class": "cargo",
+                        "confidence": 0.94,
+                        "length_m": 182.0,
+                        "simulated": true
+                      },
+                      "type": "Feature"
+                    }
+                  ],
+                  "type": "FeatureCollection"
+                }
+              },
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get job detections as GeoJSON",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}/events": {
+      "get": {
+        "operationId": "get_job_events_v1_jobs__job_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobEventsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get the append-only event trail for a job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}/replay": {
+      "post": {
+        "description": "Recomputes the decision from the persisted inputs bundle and compares hashes bit-for-bit against the stored decision.",
+        "operationId": "replay_routing_v1_jobs__job_id__replay_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job or routing decision not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deterministically replay a routing decision",
+        "tags": [
+          "routing"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}/result": {
+      "get": {
+        "operationId": "get_result_v1_jobs__job_id__result_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job not found or result not ready"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get the result manifest for a completed job",
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}/routing": {
+      "get": {
+        "description": "Ranked candidates with eligibility, hard-constraint failures, per-factor sub-scores, weights, and the final score.",
+        "operationId": "get_routing_v1_jobs__job_id__routing_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job or routing decision not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get the routing explanation for a job",
+        "tags": [
+          "routing"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}/scene": {
+      "get": {
+        "operationId": "get_job_scene_v1_jobs__job_id__scene_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get the SAR scene provenance for a job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/v1/nodes": {
+      "get": {
+        "operationId": "list_nodes_v1_nodes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List compute nodes and ground stations",
+        "tags": [
+          "nodes"
+        ]
+      }
+    },
+    "/v1/routing/{job_id}": {
+      "get": {
+        "operationId": "get_routing_v1_routing__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job or routing decision not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get the routing explanation (legacy path)",
+        "tags": [
+          "routing"
+        ]
+      }
+    },
+    "/v1/satellites": {
+      "get": {
+        "operationId": "list_satellites_v1_satellites_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SatellitesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List satellites with their pinned TLEs",
+        "tags": [
+          "registry"
+        ]
+      }
+    },
+    "/v1/simulate/run/{job_id}": {
+      "post": {
+        "operationId": "simulate_run_v1_simulate_run__job_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulateRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Job not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Illegal state transition"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Drive a queued job to completion synchronously (dev fallback)",
+        "tags": [
+          "jobs"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Submit and track EO analysis jobs.",
+      "name": "jobs"
+    },
+    {
+      "description": "Explainable routing decisions and deterministic replay.",
+      "name": "routing"
+    },
+    {
+      "description": "Result manifests and signed artifact URLs.",
+      "name": "results"
+    },
+    {
+      "description": "Simulated compute-node registry.",
+      "name": "nodes"
+    },
+    {
+      "description": "Ground stations, satellites (pinned TLEs), and SGP4 contact windows.",
+      "name": "registry"
+    },
+    {
+      "description": "Signed-URL artifact serving (local backend).",
+      "name": "artifacts"
+    },
+    {
+      "description": "Liveness and readiness probes.",
+      "name": "health"
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 from http import HTTPStatus
-from typing import Any
-from urllib.parse import quote
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -15,11 +14,10 @@ from ...types import Response
 def _get_kwargs(
     job_id: str,
 ) -> dict[str, Any]:
-
     _kwargs: dict[str, Any] = {
         "method": "post",
         "url": "/v1/simulate/run/{job_id}".format(
-            job_id=quote(str(job_id), safe=""),
+            job_id=job_id,
         ),
     }
 
@@ -27,8 +25,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | HTTPValidationError | SimulateRunResponse | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]:
     if response.status_code == 200:
         response_200 = SimulateRunResponse.from_dict(response.json())
 
@@ -56,8 +54,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | HTTPValidationError | SimulateRunResponse]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -69,8 +67,8 @@ def _build_response(
 def sync_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[ErrorResponse | HTTPValidationError | SimulateRunResponse]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]:
     """Drive a queued job to completion synchronously (dev fallback)
 
     Args:
@@ -81,7 +79,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | SimulateRunResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -98,8 +96,8 @@ def sync_detailed(
 def sync(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> ErrorResponse | HTTPValidationError | SimulateRunResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]:
     """Drive a queued job to completion synchronously (dev fallback)
 
     Args:
@@ -110,7 +108,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | SimulateRunResponse
+        Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]
     """
 
     return sync_detailed(
@@ -122,8 +120,8 @@ def sync(
 async def asyncio_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[ErrorResponse | HTTPValidationError | SimulateRunResponse]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]:
     """Drive a queued job to completion synchronously (dev fallback)
 
     Args:
@@ -134,7 +132,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | SimulateRunResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -149,8 +147,8 @@ async def asyncio_detailed(
 async def asyncio(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> ErrorResponse | HTTPValidationError | SimulateRunResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]]:
     """Drive a queued job to completion synchronously (dev fallback)
 
     Args:
@@ -161,7 +159,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | SimulateRunResponse
+        Union[ErrorResponse, HTTPValidationError, SimulateRunResponse]
     """
 
     return (

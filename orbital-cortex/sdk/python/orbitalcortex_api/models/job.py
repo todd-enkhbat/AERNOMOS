@@ -1,7 +1,11 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -34,11 +38,11 @@ class Job:
         sensor (JobSensor):
         status (JobStatus):
         updated_at (str):
-        schema_version (int | Unset):  Default: 1.
-        selected_route_id (None | str | Unset):
+        schema_version (Union[Unset, int]):  Default: 1.
+        selected_route_id (Union[None, Unset, str]):
     """
 
-    area_of_interest: AreaOfInterest
+    area_of_interest: "AreaOfInterest"
     compute_preference: JobComputePreference
     created_at: str
     id: str
@@ -48,8 +52,8 @@ class Job:
     sensor: JobSensor
     status: JobStatus
     updated_at: str
-    schema_version: int | Unset = 1
-    selected_route_id: None | str | Unset = UNSET
+    schema_version: Union[Unset, int] = 1
+    selected_route_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -75,7 +79,7 @@ class Job:
 
         schema_version = self.schema_version
 
-        selected_route_id: None | str | Unset
+        selected_route_id: Union[None, Unset, str]
         if isinstance(self.selected_route_id, Unset):
             selected_route_id = UNSET
         else:
@@ -131,12 +135,12 @@ class Job:
 
         schema_version = d.pop("schema_version", UNSET)
 
-        def _parse_selected_route_id(data: object) -> None | str | Unset:
+        def _parse_selected_route_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         selected_route_id = _parse_selected_route_id(d.pop("selected_route_id", UNSET))
 

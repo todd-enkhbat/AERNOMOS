@@ -1,7 +1,9 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import (
+    Any,
+    TypeVar,
+    Union,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,9 +25,9 @@ class GroundStation:
         location (str):
         longitude (float):
         name (str):
-        altitude_m (float | Unset):  Default: 0.0.
-        min_elevation_deg (float | Unset):  Default: 10.0.
-        provider (str | Unset):  Default: ''.
+        altitude_m (Union[Unset, float]):  Default: 0.0.
+        min_elevation_deg (Union[Unset, float]):  Default: 10.0.
+        provider (Union[Unset, str]):  Default: ''.
     """
 
     availability: float
@@ -36,9 +38,9 @@ class GroundStation:
     location: str
     longitude: float
     name: str
-    altitude_m: float | Unset = 0.0
-    min_elevation_deg: float | Unset = 10.0
-    provider: str | Unset = ""
+    altitude_m: Union[Unset, float] = 0.0
+    min_elevation_deg: Union[Unset, float] = 10.0
+    provider: Union[Unset, str] = ""
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

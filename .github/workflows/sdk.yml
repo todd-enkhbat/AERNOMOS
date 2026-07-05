@@ -1,8 +1,16 @@
 name: sdk
 
-# E2: regenerate the low-level OpenAPI client on merge and commit it back
-# when the spec changed. The hand-written orbitalcortex wrapper is never
-# touched by this job.
+# E2: the low-level OpenAPI client is generated, never hand-edited.
+# - Pull requests: regenerate the client from the COMMITTED openapi.json
+#   (deterministic: generator + formatter are pinned) and fail on drift.
+# - Pushes to main: re-export the spec from the code, regenerate, and
+#   commit both back, so main self-heals — including specs that went
+#   stale because a PR changed routes without re-exporting.
+# The hand-written orbitalcortex wrapper is never touched by this job.
+#
+# The PR check deliberately does not re-export the spec: export output
+# varies with the resolved fastapi/pydantic versions, which would fail
+# unrelated PRs whenever a transitive dep releases.
 
 on:
   push:
@@ -10,11 +18,21 @@ on:
     paths:
       - "orbital-cortex/apps/api/**"
       - "orbital-cortex/sdk/**"
+      - "orbital-cortex/openapi.json"
+      - ".github/workflows/sdk.yml"
+  pull_request:
+    paths:
+      - "orbital-cortex/apps/api/**"
+      - "orbital-cortex/sdk/**"
+      - "orbital-cortex/openapi.json"
       - ".github/workflows/sdk.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+env:
+  GENERATOR_PINS: "openapi-python-client==0.26.2 ruff==0.13.3"
 
 jobs:
   regenerate:
@@ -31,9 +49,10 @@ jobs:
         working-directory: orbital-cortex/apps/api
         run: |
           pip install -r requirements.txt
-          pip install openapi-python-client ruff
+          pip install $GENERATOR_PINS
 
-      - name: Export OpenAPI spec
+      - name: Export OpenAPI spec (main only)
+        if: github.event_name != 'pull_request'
         working-directory: orbital-cortex/apps/api
         run: python -m scripts.export_openapi ../../openapi.json
 
@@ -45,6 +64,7 @@ jobs:
             --output-path sdk/python/orbitalcortex_api \
             --overwrite \
             --meta none
+          rm -rf sdk/python/orbitalcortex_api/.ruff_cache
 
       - name: Run SDK tests against the regenerated tree
         working-directory: orbital-cortex/sdk/python
@@ -52,14 +72,24 @@ jobs:
           pip install -e ".[async,generated]" pytest
           pytest tests -q
 
-      - name: Commit regenerated client if changed
+      - name: Fail PR when the committed client drifts from the spec
+        if: github.event_name == 'pull_request'
         run: |
-          if [ -n "$(git status --porcelain orbital-cortex/sdk/python/orbitalcortex_api)" ]; then
+          if ! git diff --exit-code -- orbital-cortex/sdk/python/orbitalcortex_api; then
+            echo "::error::sdk/python/orbitalcortex_api is stale relative to openapi.json."
+            echo "Regenerate with the pinned openapi-python-client and commit."
+            exit 1
+          fi
+
+      - name: Commit regenerated spec + client if changed (main only)
+        if: github.event_name != 'pull_request'
+        run: |
+          if [ -n "$(git status --porcelain orbital-cortex/openapi.json orbital-cortex/sdk/python/orbitalcortex_api)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add orbital-cortex/sdk/python/orbitalcortex_api
-            git commit -m "chore(sdk): regenerate OpenAPI client [skip ci]"
+            git add orbital-cortex/openapi.json orbital-cortex/sdk/python/orbitalcortex_api
+            git commit -m "chore(sdk): regenerate OpenAPI spec + client [skip ci]"
             git push
           else
-            echo "Generated client is up to date."
+            echo "Spec and generated client are up to date."
           fi
