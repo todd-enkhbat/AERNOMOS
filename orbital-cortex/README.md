@@ -42,19 +42,43 @@ orbital-cortex/
   examples/
 ```
 
-## Planned Local Development
+## Local Development
 
-Backend, once implemented:
+### Full stack with Docker (recommended)
+
+Runs the API, the async execution worker, Redis, and Postgres with PostGIS:
+
+```bash
+cd orbital-cortex
+docker compose up --build
+```
+
+The API is served on `http://localhost:8000`; migrations run automatically at
+startup and simulator data is seeded.
+
+### Bare-metal API
+
+Requires a Postgres database (Neon works; see `apps/api/.env.example`):
 
 ```bash
 cd orbital-cortex/apps/api
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env   # then fill in DATABASE_URL
 uvicorn app.main:app --reload --port 8000
 ```
 
-Frontend, once implemented:
+Async execution needs Redis and the worker:
+
+```bash
+arq app.workers.executor.WorkerSettings
+```
+
+Without Redis, jobs stay `queued` and can be driven manually via
+`POST /v1/simulate/run/{job_id}`.
+
+Frontend:
 
 ```bash
 cd orbital-cortex/apps/web
@@ -62,7 +86,7 @@ npm install
 npm run dev
 ```
 
-Python SDK, once implemented:
+Python SDK:
 
 ```bash
 cd orbital-cortex/sdk/python
@@ -92,14 +116,25 @@ job = client.jobs.create(
 print(job)
 ```
 
-## What Is Simulated
+## What Is Real vs Simulated
 
-- Satellite and orbital compute node availability
-- Ground station contact windows
-- Model availability and node capabilities
-- Routing decisions, cost, latency, confidence, and explanations
-- Job lifecycle events
-- Inference output for ship detection, crop health, and disaster response
+Real:
+
+- Contact windows: SGP4-propagated passes (Skyfield) over real TLEs for a
+  real LEO EO fleet (Sentinel-1, ICEYE, Capella), pinned to a snapshot in
+  `simulator/tle_snapshot.json` for deterministic demos (`LIVE_TLE=true`
+  refreshes from CelesTrak)
+- Ground stations: real public sites (KSAT Svalbard/Tromso/Punta Arenas,
+  AWS Ground Station regions, Leaf Space) with elevation masks
+- Downlink-volume estimates from public X-band rates and pass durations
+
+Simulated:
+
+- Orbital compute node capabilities and availability (nodes are mapped to
+  real satellites for pass timing, but the compute profiles are fictional)
+- Model availability, routing cost model, and confidence
+- Job lifecycle events and inference output for ship detection, crop
+  health, and disaster response
 
 ## What Would Be Real In Production
 

@@ -23,6 +23,7 @@ Authorization: Bearer oc_test_123
 ```json
 {
   "id": "job_01HOC...",
+  "schema_version": 1,
   "job_type": "ship_detection",
   "area_of_interest": {
     "type": "bbox",
@@ -32,7 +33,7 @@ Authorization: Bearer oc_test_123
   "priority": "fastest",
   "compute_preference": "orbital_if_available",
   "max_cost_usd": 500,
-  "status": "queued",
+  "status": "routing",
   "created_at": "2026-01-01T12:00:00Z",
   "updated_at": "2026-01-01T12:00:00Z",
   "selected_route_id": "route_01HOC..."
@@ -95,7 +96,10 @@ Authorization: Bearer oc_test_123
 
 ### `POST /v1/jobs`
 
-Creates a job and routing decision.
+Creates a job and enqueues it for async execution. Returns immediately with
+`queued`; the worker drives routing and execution. `routing_decision` is
+`null` until the worker routes the job (fetch it later via
+`GET /v1/routing/{job_id}`).
 
 Request:
 
@@ -120,13 +124,9 @@ Response:
   "job": {
     "id": "job_01HOC...",
     "status": "queued",
-    "selected_route_id": "route_01HOC..."
+    "selected_route_id": null
   },
-  "routing_decision": {
-    "selected_node_id": "sim_leo_02",
-    "estimated_latency_minutes": 35,
-    "estimated_cost_usd": 214
-  }
+  "routing_decision": null
 }
 ```
 
@@ -170,11 +170,15 @@ Response:
       "job_id": "job_01HOC...",
       "event_type": "job_created",
       "message": "Job accepted by control plane.",
-      "timestamp": "2026-01-01T12:00:00Z"
+      "payload": {"job_type": "ship_detection", "priority": "fastest"},
+      "ts_utc": "2026-01-01T12:00:00Z"
     }
   ]
 }
 ```
+
+The event log is append-only. State-change events carry `status_from` /
+`status_to` in `payload`.
 
 ### `GET /v1/jobs/{job_id}/result`
 
@@ -200,7 +204,8 @@ Response for `ship_detection`:
 
 ### `GET /v1/nodes`
 
-Returns all simulated compute nodes and ground stations.
+Returns all simulated compute nodes and ground stations. Orbital nodes carry
+a `satellite_id` mapping them to a real satellite in the TLE registry.
 
 Response:
 
@@ -208,6 +213,72 @@ Response:
 {
   "compute_nodes": [],
   "ground_stations": []
+}
+```
+
+### `GET /v1/ground-stations`
+
+Returns the real ground-station registry (KSAT, AWS Ground Station, Leaf
+Space sites) with coordinates, altitude, provider, and elevation mask.
+
+```json
+{
+  "ground_stations": [
+    {
+      "id": "gs_ksat_svalbard",
+      "name": "KSAT Svalbard (SvalSat)",
+      "provider": "KSAT",
+      "latitude": 78.2297,
+      "longitude": 15.3975,
+      "altitude_m": 450,
+      "min_elevation_deg": 10.0
+    }
+  ]
+}
+```
+
+### `GET /v1/satellites`
+
+Returns the tracked satellite fleet with pinned TLEs.
+
+```json
+{
+  "satellites": [
+    {
+      "id": "sat_sentinel_1a",
+      "name": "SENTINEL-1A",
+      "norad_id": 39634,
+      "tle_line1": "1 39634U ...",
+      "tle_line2": "2 39634 ...",
+      "tle_epoch": "2026-07-04T13:53:37+00:00",
+      "snapshot_id": "celestrak-2026-07-05",
+      "downlink_rate_mbps": 520
+    }
+  ]
+}
+```
+
+### `GET /v1/contact-windows`
+
+Returns SGP4-propagated passes from the precomputed cache (no propagation on
+the request path). Query params: `satellite_id`, `ground_station_id`, `date`
+(YYYY-MM-DD), `upcoming` (bool), `limit`.
+
+```json
+{
+  "contact_windows": [
+    {
+      "id": "cw_...",
+      "satellite_id": "sat_sentinel_1a",
+      "ground_station_id": "gs_ksat_svalbard",
+      "aos_utc": "2026-07-05T06:43:51+00:00",
+      "culminate_utc": "2026-07-05T06:48:35+00:00",
+      "los_utc": "2026-07-05T06:53:19+00:00",
+      "max_elevation_deg": 64.98,
+      "duration_s": 568.2,
+      "est_downlink_mb": 36933.0
+    }
+  ]
 }
 ```
 
@@ -233,7 +304,7 @@ Response:
 {
   "job": {
     "id": "job_01HOC...",
-    "status": "completed"
+    "status": "complete"
   },
   "events_created": 4,
   "result": {}
@@ -257,8 +328,11 @@ Use a consistent local error format:
 
 | Status | Meaning |
 | --- | --- |
-| `queued` | Job accepted and waiting for simulation |
-| `scheduled` | Route selected and execution scheduled |
-| `running` | Mock execution is in progress |
-| `completed` | Mock result is available |
+| `queued` | Job accepted and waiting for routing |
+| `routing` | Route selected; awaiting execution |
+| `executing` | Mock execution is in progress |
+| `downlinking` | Result packaged and downlink in progress |
+| `complete` | Mock result is available |
 | `failed` | Simulation failed due to validation or policy |
+
+Transitions are guarded by a state machine (`queued -> routing -> executing -> downlinking -> complete`, any non-terminal state may move to `failed`). Illegal transitions are rejected with a 409 `illegal_state_transition` error.

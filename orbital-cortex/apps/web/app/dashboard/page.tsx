@@ -74,13 +74,13 @@ export default function DashboardPage() {
 
   const metrics = useMemo(() => {
     const activeJobs = jobs.filter(
-      (job) => job.status !== "completed" && job.status !== "failed"
+      (job) => job.status !== "complete" && job.status !== "failed"
     ).length;
     const completedToday = jobs.filter((job) => {
       const updated = new Date(job.updated_at);
       const now = new Date();
       return (
-        job.status === "completed" &&
+        job.status === "complete" &&
         updated.getFullYear() === now.getFullYear() &&
         updated.getMonth() === now.getMonth() &&
         updated.getDate() === now.getDate()

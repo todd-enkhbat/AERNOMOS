@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, Dict, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class JobEvent(BaseModel):
@@ -12,7 +12,8 @@ class JobEvent(BaseModel):
     job_id: str
     event_type: str
     message: str
-    timestamp: str
+    payload: Dict[str, Any] = Field(default_factory=dict)
+    ts_utc: str
 
 
 class JobEventsResponse(BaseModel):

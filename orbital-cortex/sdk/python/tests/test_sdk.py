@@ -45,9 +45,9 @@ class FakeTransport:
                     "status": "queued",
                     "created_at": "2026-01-01T00:00:00Z",
                     "updated_at": "2026-01-01T00:00:00Z",
-                    "selected_route_id": "route_test",
+                    "selected_route_id": None,
                 },
-                "routing_decision": _routing_decision(),
+                "routing_decision": None,
             }
 
         if method == "GET" and path == "/v1/jobs":
@@ -68,7 +68,8 @@ class FakeTransport:
                         "job_id": "job_test",
                         "event_type": "job_created",
                         "message": "Job accepted.",
-                        "timestamp": "2026-01-01T00:00:00Z",
+                        "payload": {},
+                        "ts_utc": "2026-01-01T00:00:00Z",
                     }
                 ]
             }
@@ -90,7 +91,7 @@ class FakeTransport:
 
         if method == "POST" and path == "/v1/simulate/run/job_test":
             return {
-                "job": {**_job(), "status": "completed"},
+                "job": {**_job(), "status": "complete"},
                 "events_created": 4,
                 "result": {
                     "id": "res_test",
@@ -120,7 +121,7 @@ class FakeTransport:
                         "compliance_tags": ["non_defense"],
                         "base_cost_usd": 180,
                         "latency_minutes": 24,
-                        "next_contact_minutes": 11,
+                        "satellite_id": "sat_sentinel_1a",
                     }
                 ],
                 "ground_stations": [],
@@ -156,7 +157,7 @@ class ClientTest(unittest.TestCase):
         )
 
         self.assertEqual(response["job"]["id"], "job_test")
-        self.assertEqual(response["routing_decision"]["selected_node_id"], "sim_leo_02")
+        self.assertIsNone(response["routing_decision"])
 
         request = transport.requests[-1]
         self.assertEqual(request["method"], "POST")
@@ -176,7 +177,7 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(client.jobs.events("job_test")["events"][0]["event_type"], "job_created")
         self.assertEqual(client.jobs.routing("job_test")["routing_decision"]["id"], "route_test")
         self.assertEqual(client.routing.retrieve("job_test")["routing_decision"]["id"], "route_test")
-        self.assertEqual(client.jobs.run("job_test")["job"]["status"], "completed")
+        self.assertEqual(client.jobs.run("job_test")["job"]["status"], "complete")
         self.assertEqual(client.jobs.result("job_test")["result"]["confidence"], 0.91)
         self.assertEqual(client.nodes.list()["compute_nodes"][0]["id"], "sim_leo_02")
 

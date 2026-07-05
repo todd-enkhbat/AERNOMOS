@@ -1,0 +1,362 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0451,
+          40.6892
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_01",
+        "class": "vessel",
+        "vessel_type": "large_cargo",
+        "harbor_zone": "Upper Bay anchorage",
+        "confidence": 0.94,
+        "length_m_estimate": 47,
+        "heading_deg_estimate": 23,
+        "priority": "review",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0203,
+          40.7001
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_02",
+        "class": "vessel",
+        "vessel_type": "tug",
+        "harbor_zone": "Governors Island channel",
+        "confidence": 0.9,
+        "length_m_estimate": 59,
+        "heading_deg_estimate": 46,
+        "priority": "review",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0042,
+          40.7128
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_03",
+        "class": "vessel",
+        "vessel_type": "ferry",
+        "harbor_zone": "East River approach",
+        "confidence": 0.91,
+        "length_m_estimate": 71,
+        "heading_deg_estimate": 69,
+        "priority": "review",
+        "ais_correlated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9857,
+          40.7045
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_04",
+        "class": "vessel",
+        "vessel_type": "service_vessel",
+        "harbor_zone": "Brooklyn waterfront",
+        "confidence": 0.87,
+        "length_m_estimate": 83,
+        "heading_deg_estimate": 92,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0724,
+          40.6413
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_05",
+        "class": "vessel",
+        "vessel_type": "container_ship",
+        "harbor_zone": "Kill Van Kull",
+        "confidence": 0.9,
+        "length_m_estimate": 95,
+        "heading_deg_estimate": 115,
+        "priority": "review",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.1016,
+          40.6072
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_06",
+        "class": "vessel",
+        "vessel_type": "tanker",
+        "harbor_zone": "Staten Island east",
+        "confidence": 0.86,
+        "length_m_estimate": 107,
+        "heading_deg_estimate": 138,
+        "priority": "monitor",
+        "ais_correlated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9609,
+          40.7421
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_07",
+        "class": "vessel",
+        "vessel_type": "barge",
+        "harbor_zone": "Queens shoreline",
+        "confidence": 0.83,
+        "length_m_estimate": 35,
+        "heading_deg_estimate": 161,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.1588,
+          40.5468
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_08",
+        "class": "vessel",
+        "vessel_type": "cargo",
+        "harbor_zone": "Outerbridge approach",
+        "confidence": 0.85,
+        "length_m_estimate": 47,
+        "heading_deg_estimate": 184,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0133,
+          40.6554
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_09",
+        "class": "vessel",
+        "vessel_type": "tug",
+        "harbor_zone": "Bay Ridge channel",
+        "confidence": 0.92,
+        "length_m_estimate": 59,
+        "heading_deg_estimate": 207,
+        "priority": "review",
+        "ais_correlated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9345,
+          40.7831
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_10",
+        "class": "vessel",
+        "vessel_type": "small_vessel",
+        "harbor_zone": "Harlem River",
+        "confidence": 0.8,
+        "length_m_estimate": 71,
+        "heading_deg_estimate": 230,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.1852,
+          40.512
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_11",
+        "class": "vessel",
+        "vessel_type": "small_vessel",
+        "harbor_zone": "Raritan Bay",
+        "confidence": 0.78,
+        "length_m_estimate": 83,
+        "heading_deg_estimate": 253,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.8891,
+          40.8043
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_12",
+        "class": "vessel",
+        "vessel_type": "service_vessel",
+        "harbor_zone": "Bronx waterfront",
+        "confidence": 0.82,
+        "length_m_estimate": 95,
+        "heading_deg_estimate": 276,
+        "priority": "monitor",
+        "ais_correlated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0368,
+          40.5798
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_13",
+        "class": "vessel",
+        "vessel_type": "ferry",
+        "harbor_zone": "Verrazzano north",
+        "confidence": 0.88,
+        "length_m_estimate": 107,
+        "heading_deg_estimate": 299,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9754,
+          40.633
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_14",
+        "class": "vessel",
+        "vessel_type": "barge",
+        "harbor_zone": "Brooklyn south",
+        "confidence": 0.84,
+        "length_m_estimate": 35,
+        "heading_deg_estimate": 322,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.2261,
+          40.5008
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_15",
+        "class": "vessel",
+        "vessel_type": "small_cargo",
+        "harbor_zone": "Arthur Kill south",
+        "confidence": 0.79,
+        "length_m_estimate": 47,
+        "heading_deg_estimate": 345,
+        "priority": "monitor",
+        "ais_correlated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9442,
+          40.6795
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_16",
+        "class": "vessel",
+        "vessel_type": "small_vessel",
+        "harbor_zone": "Brooklyn interior",
+        "confidence": 0.81,
+        "length_m_estimate": 59,
+        "heading_deg_estimate": 8,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0698,
+          40.7293
+        ]
+      },
+      "properties": {
+        "detection_id": "vessel_17",
+        "class": "vessel",
+        "vessel_type": "cargo",
+        "harbor_zone": "Jersey City terminal",
+        "confidence": 0.86,
+        "length_m_estimate": 71,
+        "heading_deg_estimate": 31,
+        "priority": "monitor",
+        "ais_correlated": true
+      }
+    }
+  ]
+}

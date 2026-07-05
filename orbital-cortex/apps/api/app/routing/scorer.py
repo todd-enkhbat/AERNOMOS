@@ -1,22 +1,51 @@
-"""Deterministic routing score implementation."""
+"""Deterministic weighted routing scorer with a hard/soft constraint split.
+
+Hard constraints (app/routing/constraints.py) decide *feasibility*: nodes
+that fail any are ineligible and never scored. Soft weighted scoring ranks
+the survivors. Every candidate carries a structured explanation: recorded
+hard-constraint failures with the binding constraint, per-factor sub-scores,
+and the weight table used.
+
+compute_routing_decision() is pure and deterministic given its inputs
+(job, nodes, stations, next windows, decision time), which is what makes
+byte-for-byte replay possible.
+"""
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-from app.core.contact_windows import next_contact_minutes, select_ground_station
 from app.core.cost_model import estimate_cost_usd
-from app.core.policy_engine import node_is_allowed
-from app.core.storage import new_id
+from app.core.storage import new_id, utc_now
+from app.routing.constraints import evaluate_hard_constraints
+
+# Bump when scoring weights, constraints, or formulas change: replay compares
+# decisions computed under the same config version.
+ROUTING_CONFIG_VERSION = "2026.07.05-1"
+
+# Contact wait assumed when a satellite has no cached pass (cold cache or no
+# visibility in the horizon): score it like a worst-case one-hour wait.
+NO_WINDOW_WAIT_MINUTES = 60.0
 
 
-def build_routing_decision(
+def compute_routing_decision(
     job: Dict[str, Any],
     compute_nodes: List[Dict[str, Any]],
     ground_stations: List[Dict[str, Any]],
+    next_windows: Optional[Dict[str, Dict[str, Any]]] = None,
+    now_utc: Optional[str] = None,
 ) -> Dict[str, Any]:
+    """Pure decision content (no generated id). Deterministic given inputs.
+
+    next_windows maps satellite_id -> next contact window (may be in progress).
+    """
+    next_windows = next_windows or {}
+    now = now_utc or utc_now()
+    stations_by_id = {station["id"]: station for station in ground_stations}
+
     raw_candidates = [
-        _build_raw_candidate(job, node, ground_stations)
+        _build_raw_candidate(job, node, next_windows.get(node.get("satellite_id") or ""), stations_by_id, now)
         for node in compute_nodes
     ]
     candidates = _score_candidates(job, raw_candidates)
@@ -39,7 +68,6 @@ def build_routing_decision(
     reasons = _selected_reasons(job, selected, selected_node, fallback_candidate)
 
     return {
-        "id": new_id("route"),
         "job_id": job["id"],
         "selected_node_id": selected["node_id"],
         "selected_ground_station_id": selected.get("selected_ground_station_id"),
@@ -47,36 +75,76 @@ def build_routing_decision(
         "estimated_latency_minutes": selected["estimated_latency_minutes"],
         "estimated_cost_usd": selected["estimated_cost_usd"],
         "confidence": round(max(0.5, min(0.99, selected["score"] / 100)), 2),
+        "config_version": ROUTING_CONFIG_VERSION,
+        "decided_at_utc": now,
         "reasons": reasons,
         "candidate_scores": candidates,
     }
 
 
+def build_routing_decision(
+    job: Dict[str, Any],
+    compute_nodes: List[Dict[str, Any]],
+    ground_stations: List[Dict[str, Any]],
+    next_windows: Optional[Dict[str, Dict[str, Any]]] = None,
+    now_utc: Optional[str] = None,
+) -> Dict[str, Any]:
+    content = compute_routing_decision(
+        job, compute_nodes, ground_stations, next_windows, now_utc
+    )
+    return {"id": new_id("route"), **content}
+
+
+def _contact_wait_minutes(window: Optional[Dict[str, Any]], now_iso: str) -> Optional[float]:
+    """Minutes until AOS; 0 when the pass is already in progress."""
+    if window is None:
+        return None
+    now = datetime.fromisoformat(now_iso)
+    aos = datetime.fromisoformat(window["aos_utc"])
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    wait_s = (aos - now).total_seconds()
+    return round(max(0.0, wait_s / 60.0), 2)
+
+
 def _build_raw_candidate(
     job: Dict[str, Any],
     node: Dict[str, Any],
-    ground_stations: List[Dict[str, Any]],
+    next_window: Optional[Dict[str, Any]],
+    stations_by_id: Dict[str, Dict[str, Any]],
+    now_iso: str,
 ) -> Dict[str, Any]:
-    station = select_ground_station(ground_stations)
-    contact_minutes = next_contact_minutes(node)
     if node["type"] == "orbital":
+        wait = _contact_wait_minutes(next_window, now_iso)
+        contact_minutes = wait if wait is not None else NO_WINDOW_WAIT_MINUTES
+        station = (
+            stations_by_id.get(next_window["ground_station_id"]) if next_window else None
+        )
         station_latency = float(station["latency_minutes"]) if station else 0.0
         estimated_latency = contact_minutes + float(node["latency_minutes"]) + station_latency
         selected_ground_station_id = station["id"] if station else None
     else:
+        contact_minutes = 0.0
         estimated_latency = float(node["latency_minutes"])
         selected_ground_station_id = None
+        next_window = None
+
+    estimated_latency = round(estimated_latency, 2)
+    failures = evaluate_hard_constraints(job, node, next_window, estimated_latency)
+    failed_constraints = {failure["constraint"] for failure in failures}
 
     return {
         "node": node,
         "node_id": node["id"],
         "selected_ground_station_id": selected_ground_station_id,
-        "model_supported": job["job_type"] in node["supported_models"],
-        "policy_allowed": node_is_allowed(node),
-        "preference_allowed": _preference_allows_node(job, node),
-        "estimated_latency_minutes": round(estimated_latency, 2),
+        "hard_constraint_failures": failures,
+        "model_supported": "model_unsupported" not in failed_constraints,
+        "policy_allowed": "compliance_mismatch" not in failed_constraints,
+        "preference_allowed": "preference_exclusion" not in failed_constraints,
+        "estimated_latency_minutes": estimated_latency,
         "estimated_cost_usd": estimate_cost_usd(job, node),
         "contact_minutes": contact_minutes,
+        "next_window": next_window,
     }
 
 
@@ -87,9 +155,7 @@ def _score_candidates(
     eligible_raw = [
         candidate
         for candidate in raw_candidates
-        if candidate["model_supported"]
-        and candidate["policy_allowed"]
-        and candidate["preference_allowed"]
+        if not candidate["hard_constraint_failures"]
     ]
     latency_range = _range_for(eligible_raw, "estimated_latency_minutes")
     cost_range = _range_for(eligible_raw, "estimated_cost_usd")
@@ -99,7 +165,15 @@ def _score_candidates(
         _score_candidate(job, candidate, latency_range, cost_range, weights)
         for candidate in raw_candidates
     ]
-    return sorted(scored, key=lambda candidate: candidate["node_id"])
+    # Ranked: eligible by score (best first), then eliminated nodes.
+    return sorted(
+        scored,
+        key=lambda candidate: (
+            not candidate["eligible"],
+            -candidate["score"],
+            candidate["node_id"],
+        ),
+    )
 
 
 def _score_candidate(
@@ -110,11 +184,7 @@ def _score_candidate(
     weights: Dict[str, float],
 ) -> Dict[str, Any]:
     node = candidate["node"]
-    eligible = (
-        candidate["model_supported"]
-        and candidate["policy_allowed"]
-        and candidate["preference_allowed"]
-    )
+    eligible = not candidate["hard_constraint_failures"]
 
     if eligible:
         model_support_score = weights["model_support"]
@@ -154,10 +224,15 @@ def _score_candidate(
     if not eligible:
         score = 0.0
 
+    window = candidate.get("next_window")
+    failures = candidate["hard_constraint_failures"]
     return {
         "node_id": candidate["node_id"],
         "score": score,
         "eligible": eligible,
+        "hard_constraint_failures": failures,
+        "binding_constraint": failures[0]["constraint"] if failures else None,
+        "weights": weights,
         "model_support_score": round(model_support_score, 2),
         "latency_score": round(latency_score, 2),
         "cost_score": round(cost_score, 2),
@@ -169,6 +244,10 @@ def _score_candidate(
         "estimated_cost_usd": candidate["estimated_cost_usd"],
         "available": eligible,
         "selected_ground_station_id": candidate.get("selected_ground_station_id"),
+        "next_contact_minutes": round(float(candidate["contact_minutes"]), 2),
+        "next_aos_utc": window["aos_utc"] if window else None,
+        "next_max_elevation_deg": window["max_elevation_deg"] if window else None,
+        "est_downlink_mb": window["est_downlink_mb"] if window else None,
         "reasons": _candidate_reasons(job, candidate, eligible),
     }
 
@@ -259,6 +338,8 @@ def _candidate_reasons(
 ) -> List[str]:
     node = candidate["node"]
     reasons: List[str] = []
+    for failure in candidate["hard_constraint_failures"]:
+        reasons.append(f"Hard constraint [{failure['constraint']}]: {failure['detail']}")
     if candidate["model_supported"]:
         reasons.append(
             f"Supports {_label(job['job_type'])} on {node['gpu_class']} compute."
@@ -274,16 +355,30 @@ def _candidate_reasons(
     else:
         reasons.append(f"Excluded by {_label(job['compute_preference'])} preference.")
     if node["type"] == "orbital":
-        reasons.append(
-            f"Next contact in {int(candidate['contact_minutes'])} minutes; "
-            f"total route latency {candidate['estimated_latency_minutes']:.0f} minutes."
-        )
+        window = candidate.get("next_window")
+        if window:
+            reasons.append(
+                f"Next pass over {window['ground_station_id']} at {window['aos_utc']} "
+                f"(in {candidate['contact_minutes']:.0f} min, max elevation "
+                f"{window['max_elevation_deg']:.0f} deg, ~{window['est_downlink_mb']:.0f} MB downlink); "
+                f"total route latency {candidate['estimated_latency_minutes']:.0f} minutes."
+            )
+        else:
+            reasons.append(
+                "No cached contact window in the pass horizon; assuming a "
+                f"{NO_WINDOW_WAIT_MINUTES:.0f}-minute worst-case wait."
+            )
     else:
         reasons.append(
             f"Ground cloud is immediately reachable with "
             f"{candidate['estimated_latency_minutes']:.0f} minute execution latency."
         )
-    if candidate["estimated_cost_usd"] > float(job["max_cost_usd"]):
+    budget_failed = "budget_exceeded" in {
+        failure["constraint"] for failure in candidate["hard_constraint_failures"]
+    }
+    if budget_failed:
+        pass  # hard-constraint detail already recorded above
+    elif candidate["estimated_cost_usd"] > float(job["max_cost_usd"]):
         reasons.append(
             f"Estimated cost ${candidate['estimated_cost_usd']:.2f} exceeds "
             f"requested cap ${float(job['max_cost_usd']):.2f}."
@@ -329,11 +424,17 @@ def _selected_reasons(
     else:
         reasons.append(f"Route is ${abs(budget_delta):.2f} over the requested max budget.")
     if selected_node["type"] == "orbital":
+        aos = selected.get("next_aos_utc")
+        contact_text = (
+            f"Next contact (AOS {aos}) is in {selected['next_contact_minutes']:.0f} minutes"
+            if aos
+            else "No cached pass; worst-case contact wait assumed"
+        )
         reasons.insert(
             1,
             (
-                f"Next orbital contact is in {int(_selected_contact(selected))} minutes; "
-                f"downlink is paired with {selected.get('selected_ground_station_id') or 'the best available ground station'}."
+                f"{contact_text}; downlink is paired with "
+                f"{selected.get('selected_ground_station_id') or 'the best available ground station'}."
             ),
         )
     else:
@@ -354,14 +455,6 @@ def _selected_reasons(
         else:
             reasons.append(f"Cloud fallback {fallback_candidate['node_id']} remains available.")
     return reasons
-
-
-def _selected_contact(selected: Dict[str, Any]) -> float:
-    for reason in selected.get("reasons", []):
-        prefix = "Next contact window in "
-        if reason.startswith(prefix):
-            return float(reason[len(prefix) :].split(" ")[0])
-    return 0.0
 
 
 def _select_fallback_candidate(

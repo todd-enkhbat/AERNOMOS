@@ -14,7 +14,14 @@ ComputePreference = Literal[
     "cheapest",
     "fastest",
 ]
-JobStatus = Literal["queued", "scheduled", "running", "completed", "failed"]
+JobStatus = Literal[
+    "queued",
+    "routing",
+    "executing",
+    "downlinking",
+    "complete",
+    "failed",
+]
 
 
 class AreaOfInterest(TypedDict):
@@ -60,18 +67,46 @@ class ComputeNode(TypedDict):
     compliance_tags: List[str]
     base_cost_usd: float
     latency_minutes: float
-    next_contact_minutes: float
+    satellite_id: Optional[str]
 
 
 class GroundStation(TypedDict):
     id: str
     name: str
     location: str
+    provider: str
     latitude: float
     longitude: float
+    altitude_m: float
+    min_elevation_deg: float
     latency_minutes: float
     downlink_mbps: int
     availability: float
+
+
+class Satellite(TypedDict):
+    id: str
+    name: str
+    norad_id: int
+    tle_line1: str
+    tle_line2: str
+    tle_epoch: str
+    source: str
+    snapshot_id: str
+    downlink_rate_mbps: float
+
+
+class ContactWindow(TypedDict):
+    id: str
+    satellite_id: str
+    ground_station_id: str
+    date: str
+    aos_utc: str
+    culminate_utc: str
+    los_utc: str
+    max_elevation_deg: float
+    duration_s: float
+    est_downlink_mb: float
 
 
 class CandidateScore(TypedDict, total=False):
@@ -89,6 +124,10 @@ class CandidateScore(TypedDict, total=False):
     estimated_cost_usd: float
     available: bool
     selected_ground_station_id: Optional[str]
+    next_contact_minutes: Optional[float]
+    next_aos_utc: Optional[str]
+    next_max_elevation_deg: Optional[float]
+    est_downlink_mb: Optional[float]
     reasons: List[str]
 
 
@@ -110,7 +149,8 @@ class JobEvent(TypedDict):
     job_id: str
     event_type: str
     message: str
-    timestamp: str
+    payload: Dict[str, Any]
+    ts_utc: str
 
 
 class Result(TypedDict):
@@ -124,7 +164,8 @@ class Result(TypedDict):
 
 class JobCreateResponse(TypedDict):
     job: Job
-    routing_decision: RoutingDecision
+    # None until the async worker routes the job.
+    routing_decision: Optional[RoutingDecision]
 
 
 class JobsListResponse(TypedDict):
@@ -150,6 +191,18 @@ class NodesResponse(TypedDict):
     ground_stations: List[GroundStation]
 
 
+class GroundStationsResponse(TypedDict):
+    ground_stations: List[GroundStation]
+
+
+class SatellitesResponse(TypedDict):
+    satellites: List[Satellite]
+
+
+class ContactWindowsResponse(TypedDict):
+    contact_windows: List[ContactWindow]
+
+
 class RoutingResponse(TypedDict):
     routing_decision: RoutingDecision
 
@@ -157,4 +210,4 @@ class RoutingResponse(TypedDict):
 class SimulateRunResponse(TypedDict):
     job: Job
     events_created: int
-    result: Result
+    result: Optional[Result]

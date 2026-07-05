@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import sqlite3
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from app.core import node_registry
 from app.db import get_db
@@ -17,9 +17,9 @@ router = APIRouter(prefix="/v1", tags=["nodes"])
 
 @router.get("/nodes", response_model=NodesResponse)
 def list_nodes(
-    connection: sqlite3.Connection = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     return {
-        "compute_nodes": node_registry.list_compute_nodes(connection),
-        "ground_stations": node_registry.list_ground_stations(connection),
+        "compute_nodes": node_registry.list_compute_nodes(session),
+        "ground_stations": node_registry.list_ground_stations(session),
     }

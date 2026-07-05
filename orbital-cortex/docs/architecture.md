@@ -48,10 +48,13 @@ orbital-cortex/
     api/
       app/
         main.py
-        db.py
+        db/
         routes/
         core/
         models/
+        routing/
+        services/
+        workers/
         seed.py
   sdk/
     python/
@@ -59,7 +62,8 @@ orbital-cortex/
       examples/
   simulator/
     sample_nodes.json
-    sample_ground_stations.json
+    ground_stations.json
+    tle_snapshot.json
     sample_jobs.json
   examples/
     submit_ship_detection.json

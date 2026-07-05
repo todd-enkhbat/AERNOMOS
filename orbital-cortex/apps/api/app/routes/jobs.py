@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-import sqlite3
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
 
-from app.core import node_registry, storage
-from app.core.router import build_routing_decision
-from app.core.scheduler import run_job_simulation
+from app.core import storage
+from app.core.pipeline import run_pipeline
+from app.core.queue import enqueue_job_execution
+from app.core.state import IllegalTransitionError
 from app.db import get_db
 from app.models.event import JobEventsResponse
 from app.models.job import (
@@ -19,6 +21,8 @@ from app.models.job import (
     JobsListResponse,
     SimulateRunResponse,
 )
+from app.models.scene import SceneResponse
+from app.services.scenes import get_scene, list_detections_geojson
 
 
 router = APIRouter(prefix="/v1", tags=["jobs"])
@@ -27,80 +31,61 @@ router = APIRouter(prefix="/v1", tags=["jobs"])
 @router.post("/jobs", response_model=JobCreateResponse, status_code=201)
 def create_job(
     payload: JobCreate,
-    connection: sqlite3.Connection = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    try:
-        job = storage.create_job(connection, _model_to_dict(payload))
-        storage.create_event(
-            connection,
-            job["id"],
-            "job_created",
-            (
-                f"Accepted {job['sensor']} {job['job_type']} request with "
-                f"{job['priority']} priority and ${job['max_cost_usd']:.2f} max budget."
-            ),
-        )
-        compute_nodes = node_registry.list_compute_nodes(connection)
-        ground_stations = node_registry.list_ground_stations(connection)
-        routing_decision = build_routing_decision(job, compute_nodes, ground_stations)
-        eligible_count = sum(
-            1 for candidate in routing_decision["candidate_scores"]
-            if candidate["eligible"]
-        )
-        storage.create_event(
-            connection,
-            job["id"],
-            "routing_candidates_scored",
-            (
-                f"Scored {len(routing_decision['candidate_scores'])} compute nodes; "
-                f"{eligible_count} passed model, policy, and preference checks."
-            ),
-        )
-        saved_decision = storage.save_routing_decision(connection, routing_decision)
-        job = storage.update_job(
-            connection,
-            job["id"],
-            selected_route_id=saved_decision["id"],
-        )
-        storage.create_event(
-            connection,
-            job["id"],
-            "route_selected",
-            (
-                f"Selected {saved_decision['selected_node_id']} at "
-                f"{saved_decision['confidence']:.0%} route confidence; "
-                f"latency {saved_decision['estimated_latency_minutes']:.0f} minutes, "
-                f"cost ${saved_decision['estimated_cost_usd']:.2f}, "
-                f"fallback {saved_decision['fallback_node_id'] or 'none'}."
-            ),
-        )
-        connection.commit()
-        return {
-            "job": job,
-            "routing_decision": saved_decision,
-        }
-    except ValueError as exc:
-        connection.rollback()
-        raise _api_error(400, "routing_failed", str(exc))
+    job = storage.create_job(session, _model_to_dict(payload))
+    storage.create_event(
+        session,
+        job["id"],
+        "job_created",
+        (
+            f"Accepted {job['sensor']} {job['job_type']} request with "
+            f"{job['priority']} priority and ${job['max_cost_usd']:.2f} max budget."
+        ),
+        payload={"job_type": job["job_type"], "priority": job["priority"]},
+    )
+    session.commit()
+
+    # Execution happens off the request path: the ARQ worker drives the
+    # state machine. If Redis is unreachable (bare local dev), the job stays
+    # queued and can be driven manually via POST /v1/simulate/run/{id}.
+    enqueued = enqueue_job_execution(job["id"])
+    storage.create_event(
+        session,
+        job["id"],
+        "execution_enqueued" if enqueued else "execution_enqueue_failed",
+        (
+            "Job handed to the async execution worker."
+            if enqueued
+            else "Async queue unavailable; run manually via /v1/simulate/run."
+        ),
+        payload={"enqueued": enqueued},
+    )
+    session.commit()
+
+    return {
+        "job": job,
+        "routing_decision": None,
+    }
 
 
 @router.get("/jobs", response_model=JobsListResponse)
 def list_jobs(
-    connection: sqlite3.Connection = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    return {"jobs": storage.list_jobs(connection)}
+    return {"jobs": storage.list_jobs(session)}
 
 
 @router.get("/jobs/{job_id}", response_model=JobDetailResponse)
 def get_job(
     job_id: str,
-    connection: sqlite3.Connection = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    job = _require_job(connection, job_id)
-    result = storage.get_result(connection, job_id)
+    job = _require_job(session, job_id)
+    result = storage.get_result(session, job_id)
     return {
         "job": job,
-        "routing_decision": storage.get_routing_decision(connection, job_id),
+        "routing_decision": storage.get_routing_decision(session, job_id),
         "result_summary": result["summary"] if result else None,
     }
 
@@ -108,29 +93,51 @@ def get_job(
 @router.get("/jobs/{job_id}/events", response_model=JobEventsResponse)
 def get_job_events(
     job_id: str,
-    connection: sqlite3.Connection = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    _require_job(connection, job_id)
-    return {"events": storage.list_events(connection, job_id)}
+    _require_job(session, job_id)
+    return {"events": storage.list_events(session, job_id)}
+
+
+@router.get("/jobs/{job_id}/scene", response_model=SceneResponse)
+def get_job_scene(
+    job_id: str,
+    session: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    _require_job(session, job_id)
+    return {"scene": get_scene(session, job_id)}
+
+
+@router.get("/jobs/{job_id}/detections")
+def get_job_detections(
+    job_id: str,
+    session: Session = Depends(get_db),
+) -> JSONResponse:
+    _require_job(session, job_id)
+    geojson = list_detections_geojson(session, job_id)
+    return JSONResponse(content=geojson, media_type="application/geo+json")
 
 
 @router.post("/simulate/run/{job_id}", response_model=SimulateRunResponse)
 def simulate_run(
     job_id: str,
-    connection: sqlite3.Connection = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    _require_job(connection, job_id)
+    _require_job(session, job_id)
     try:
-        response = run_job_simulation(connection, job_id)
-        connection.commit()
+        response = run_pipeline(session, job_id)
+        session.commit()
         return response
+    except IllegalTransitionError as exc:
+        session.rollback()
+        raise _api_error(409, "illegal_state_transition", str(exc))
     except ValueError as exc:
-        connection.rollback()
+        session.rollback()
         raise _api_error(400, "simulation_failed", str(exc))
 
 
-def _require_job(connection: sqlite3.Connection, job_id: str) -> Dict[str, Any]:
-    job = storage.get_job(connection, job_id)
+def _require_job(session: Session, job_id: str) -> Dict[str, Any]:
+    job = storage.get_job(session, job_id)
     if job is None:
         raise _api_error(404, "job_not_found", f"No job exists for id {job_id}.")
     return job
@@ -149,6 +156,4 @@ def _api_error(status_code: int, code: str, message: str) -> HTTPException:
 
 
 def _model_to_dict(model: JobCreate) -> Dict[str, Any]:
-    if hasattr(model, "model_dump"):
-        return model.model_dump()
-    return model.dict()
+    return model.model_dump()

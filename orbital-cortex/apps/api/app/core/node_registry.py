@@ -2,70 +2,86 @@
 
 from __future__ import annotations
 
-import json
-import sqlite3
 from typing import Any, Dict, List, Optional
 
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-def _loads(value: str) -> Any:
-    return json.loads(value)
+from app.db.orm import ComputeNode, GroundStation, Satellite
 
 
-def _row_to_compute_node(row: sqlite3.Row) -> Dict[str, Any]:
+def _node_to_dict(node: ComputeNode) -> Dict[str, Any]:
     return {
-        "id": row["id"],
-        "name": row["name"],
-        "type": row["type"],
-        "location": row["location"],
-        "orbit": row["orbit"],
-        "gpu_class": row["gpu_class"],
-        "supported_models": _loads(row["supported_models_json"]),
-        "storage_gb": int(row["storage_gb"]),
-        "downlink_mbps": int(row["downlink_mbps"]),
-        "power_state": row["power_state"],
-        "availability": float(row["availability"]),
-        "compliance_tags": _loads(row["compliance_tags_json"]),
-        "base_cost_usd": float(row["base_cost_usd"]),
-        "latency_minutes": float(row["latency_minutes"]),
-        "next_contact_minutes": float(row["next_contact_minutes"]),
+        "id": node.id,
+        "name": node.name,
+        "type": node.type,
+        "location": node.location,
+        "orbit": node.orbit,
+        "gpu_class": node.gpu_class,
+        "supported_models": node.supported_models_json,
+        "storage_gb": int(node.storage_gb),
+        "downlink_mbps": int(node.downlink_mbps),
+        "power_state": node.power_state,
+        "availability": float(node.availability),
+        "compliance_tags": node.compliance_tags_json,
+        "base_cost_usd": float(node.base_cost_usd),
+        "latency_minutes": float(node.latency_minutes),
+        "satellite_id": node.satellite_id,
     }
 
 
-def _row_to_ground_station(row: sqlite3.Row) -> Dict[str, Any]:
+def _station_to_dict(station: GroundStation) -> Dict[str, Any]:
     return {
-        "id": row["id"],
-        "name": row["name"],
-        "location": row["location"],
-        "latitude": float(row["latitude"]),
-        "longitude": float(row["longitude"]),
-        "latency_minutes": float(row["latency_minutes"]),
-        "downlink_mbps": int(row["downlink_mbps"]),
-        "availability": float(row["availability"]),
+        "id": station.id,
+        "name": station.name,
+        "location": station.location,
+        "provider": station.provider,
+        "latitude": float(station.latitude),
+        "longitude": float(station.longitude),
+        "altitude_m": float(station.altitude_m),
+        "min_elevation_deg": float(station.min_elevation_deg),
+        "latency_minutes": float(station.latency_minutes),
+        "downlink_mbps": int(station.downlink_mbps),
+        "availability": float(station.availability),
     }
 
 
-def list_compute_nodes(connection: sqlite3.Connection) -> List[Dict[str, Any]]:
-    rows = connection.execute(
-        "SELECT * FROM compute_nodes ORDER BY id ASC"
-    ).fetchall()
-    return [_row_to_compute_node(row) for row in rows]
+def _satellite_to_dict(satellite: Satellite) -> Dict[str, Any]:
+    return {
+        "id": satellite.id,
+        "name": satellite.name,
+        "norad_id": int(satellite.norad_id),
+        "tle_line1": satellite.tle_line1,
+        "tle_line2": satellite.tle_line2,
+        "tle_epoch": satellite.tle_epoch,
+        "source": satellite.source,
+        "snapshot_id": satellite.snapshot_id,
+        "downlink_rate_mbps": float(satellite.downlink_rate_mbps),
+    }
 
 
-def list_ground_stations(connection: sqlite3.Connection) -> List[Dict[str, Any]]:
-    rows = connection.execute(
-        "SELECT * FROM ground_stations ORDER BY id ASC"
-    ).fetchall()
-    return [_row_to_ground_station(row) for row in rows]
+def list_satellites(session: Session) -> List[Dict[str, Any]]:
+    satellites = session.scalars(select(Satellite).order_by(Satellite.id.asc())).all()
+    return [_satellite_to_dict(satellite) for satellite in satellites]
+
+
+def list_compute_nodes(session: Session) -> List[Dict[str, Any]]:
+    nodes = session.scalars(select(ComputeNode).order_by(ComputeNode.id.asc())).all()
+    return [_node_to_dict(node) for node in nodes]
+
+
+def list_ground_stations(session: Session) -> List[Dict[str, Any]]:
+    stations = session.scalars(
+        select(GroundStation).order_by(GroundStation.id.asc())
+    ).all()
+    return [_station_to_dict(station) for station in stations]
 
 
 def get_compute_node(
-    connection: sqlite3.Connection,
+    session: Session,
     node_id: str,
 ) -> Optional[Dict[str, Any]]:
-    row = connection.execute(
-        "SELECT * FROM compute_nodes WHERE id = ?",
-        (node_id,),
-    ).fetchone()
-    if row is None:
+    node = session.get(ComputeNode, node_id)
+    if node is None:
         return None
-    return _row_to_compute_node(row)
+    return _node_to_dict(node)

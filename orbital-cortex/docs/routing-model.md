@@ -21,9 +21,9 @@ Each candidate node is evaluated with:
 
 | Type | Contact behavior | Notes |
 | --- | --- | --- |
-| `orbital` | Uses mocked `next_contact_minutes` | Better data locality, may wait for contact |
+| `orbital` | Real SGP4-propagated passes (Skyfield) over the mapped satellite's TLE | Better data locality, may wait for the next pass |
 | `ground_cloud` | Always contact available | Reliable fallback, may cost more or add data movement |
-| `ground_station` | Used as a downlink route, not primary AI compute | Paired with orbital nodes |
+| `ground_station` | Used as a downlink route, not primary AI compute | Paired with orbital nodes by next-pass visibility |
 
 ## Scoring Weights
 
@@ -47,10 +47,16 @@ For orbital nodes:
 
 ```text
 estimated_latency =
-  next_contact_minutes
+  minutes_until_next_pass_AOS   (0 if a pass is in progress)
   + node.latency_minutes
   + selected_ground_station.latency_minutes
 ```
+
+The next pass comes from the precomputed `contact_windows` cache
+(SGP4-propagated from the pinned TLE snapshot; station elevation mask 10 deg).
+The selected ground station is the station of that pass. If no pass is cached
+in the horizon, a worst-case 60-minute wait is assumed and flagged in the
+candidate reasons.
 
 For cloud nodes:
 

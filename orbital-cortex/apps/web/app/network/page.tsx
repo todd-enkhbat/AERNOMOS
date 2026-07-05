@@ -27,7 +27,7 @@ export default function NetworkPage() {
         setNodes(nodeResponse);
         setActiveJobs(
           jobsResponse.jobs.filter(
-            (job) => job.status !== "completed" && job.status !== "failed"
+            (job) => job.status !== "complete" && job.status !== "failed"
           ).length
         );
       } catch (error) {
@@ -204,9 +204,11 @@ function NodeGroup({ title, nodes }: { title: string; nodes: ComputeNode[] }) {
                 </span>
               </p>
               <p className="rounded-lg bg-[#fffaf0]/70 p-3 text-sm">
-                <span className="block text-[#6f604c]">Contact</span>
+                <span className="block text-[#6f604c]">
+                  {node.type === "orbital" ? "Satellite" : "Contact"}
+                </span>
                 <span className="metric-value mt-1 block font-bold text-[#17140f]">
-                  {formatMinutes(node.next_contact_minutes)}
+                  {node.satellite_id ?? "direct"}
                 </span>
               </p>
             </div>

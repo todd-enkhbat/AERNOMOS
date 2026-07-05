@@ -19,12 +19,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { DetectionPanel } from "@/components/DetectionPanel";
+import { HarborMap } from "@/components/HarborMap";
 import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
+import { RouteExplain } from "@/components/RouteExplain";
 import { ScoreBar } from "@/components/ScoreBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { getEvents, getJob, getResult, runSimulation } from "@/lib/api";
-import type { Job, JobEvent, Result, RoutingDecision } from "@/lib/types";
+import { getDetections, getEvents, getJob, getResult, runSimulation } from "@/lib/api";
+import type { GeoJsonFeature, Job, JobEvent, Result, RoutingDecision } from "@/lib/types";
 import { formatCurrency, formatDateTime, formatMinutes, formatPercent, labelize } from "@/lib/format";
 
 type DetailTab = "route" | "timeline" | "result" | "api";
@@ -59,36 +62,66 @@ export default function JobDetailPage() {
   const [route, setRoute] = useState<RoutingDecision | null>(null);
   const [events, setEvents] = useState<JobEvent[]>([]);
   const [result, setResult] = useState<Result | null>(null);
+  const [detections, setDetections] = useState<GeoJsonFeature[]>([]);
+  const [selectedDetection, setSelectedDetection] = useState<GeoJsonFeature | null>(null);
+  const [darkShipsOnly, setDarkShipsOnly] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [tab, setTab] = useState<DetailTab>("route");
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setNotice(null);
-    try {
-      const detail = await getJob(jobId);
-      const eventResponse = await getEvents(jobId);
-      setJob(detail.job);
-      setRoute(detail.routing_decision);
-      setEvents(eventResponse.events);
-      try {
-        const resultResponse = await getResult(jobId);
-        setResult(resultResponse.result);
-      } catch {
-        setResult(null);
+  const load = useCallback(
+    async (silent = false) => {
+      if (!silent) {
+        setLoading(true);
+        setNotice(null);
       }
-    } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Job detail is not available.");
-    } finally {
-      setLoading(false);
-    }
-  }, [jobId]);
+      try {
+        const detail = await getJob(jobId);
+        const eventResponse = await getEvents(jobId);
+        setJob(detail.job);
+        setRoute(detail.routing_decision);
+        setEvents(eventResponse.events);
+        try {
+          const resultResponse = await getResult(jobId);
+          setResult(resultResponse.result);
+          try {
+            const detectionResponse = await getDetections(jobId);
+            setDetections(detectionResponse.features);
+          } catch {
+            setDetections([]);
+          }
+        } catch {
+          setResult(null);
+          setDetections([]);
+        }
+      } catch (error) {
+        if (!silent) {
+          setNotice(error instanceof Error ? error.message : "Job detail is not available.");
+        }
+      } finally {
+        if (!silent) {
+          setLoading(false);
+        }
+      }
+    },
+    [jobId]
+  );
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Poll while the async worker is driving the job through its lifecycle.
+  useEffect(() => {
+    if (!job || job.status === "complete" || job.status === "failed") {
+      return;
+    }
+    const interval = setInterval(() => {
+      load(true);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [job, load]);
 
   async function handleRunSimulation() {
     setRunning(true);
@@ -214,7 +247,7 @@ export default function JobDetailPage() {
                   </div>
                   <button
                     className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#17140f] px-5 py-3 font-bold text-[#fffaf0] transition hover:bg-[#2a241b] disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={running || job.status === "completed"}
+                    disabled={running || job.status === "complete"}
                     onClick={handleRunSimulation}
                     type="button"
                   >
@@ -223,7 +256,7 @@ export default function JobDetailPage() {
                     ) : (
                       <Play size={18} strokeWidth={1.8} />
                     )}
-                    {job.status === "completed" ? "Simulation Complete" : "Run Simulation"}
+                    {job.status === "complete" ? "Simulation Complete" : "Run Simulation"}
                   </button>
                 </div>
               ) : (
@@ -255,7 +288,8 @@ export default function JobDetailPage() {
               </div>
 
               {tab === "route" ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {route ? <RouteExplain route={route} /> : null}
                   {route?.candidate_scores.map((candidate) => (
                     <ScoreBar candidate={candidate} key={candidate.node_id} />
                   ))}
@@ -276,7 +310,7 @@ export default function JobDetailPage() {
                             {event.message}
                           </p>
                           <p className="metric-value mt-1 text-xs text-[#6f604c]">
-                            {formatDateTime(event.timestamp)}
+                            {formatDateTime(event.ts_utc)}
                           </p>
                         </div>
                       </div>
@@ -323,7 +357,39 @@ export default function JobDetailPage() {
                           </div>
                         </div>
                       </div>
-                      <ResultMap result={result} />
+                      <div className="relative mt-6">
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <MapPinned className="text-[#25495a]" size={18} strokeWidth={1.8} />
+                            <h3 className="text-xl font-bold text-[#17140f]">
+                              New York Harbor detection map
+                            </h3>
+                          </div>
+                          <label className="inline-flex items-center gap-2 text-sm font-bold text-[#4f4436]">
+                            <input
+                              checked={darkShipsOnly}
+                              className="h-4 w-4"
+                              onChange={(event) => setDarkShipsOnly(event.target.checked)}
+                              type="checkbox"
+                            />
+                            Dark ships only (no AIS)
+                          </label>
+                        </div>
+                        <HarborMap
+                          darkShipsOnly={darkShipsOnly}
+                          features={detections.length > 0 ? detections : mapFeaturesFromResult(result)}
+                          onSelect={setSelectedDetection}
+                          selectedId={
+                            selectedDetection
+                              ? String(selectedDetection.properties.detection_id ?? "")
+                              : null
+                          }
+                        />
+                        <DetectionPanel
+                          feature={selectedDetection}
+                          onClose={() => setSelectedDetection(null)}
+                        />
+                      </div>
                       <DetectionTable result={result} />
                     </>
                   ) : (
@@ -348,65 +414,25 @@ export default function JobDetailPage() {
   );
 }
 
-function ResultMap({ result }: { result: Result }) {
-  const detections = extractDetections(result);
-  const bounds = getBounds(detections);
-
-  return (
-    <section className="mt-6">
-      <div className="mb-3 flex items-center gap-2">
-        <MapPinned className="text-[#25495a]" size={18} strokeWidth={1.8} />
-        <h3 className="text-xl font-bold text-[#17140f]">New York Harbor detection map</h3>
-      </div>
-      <div className="relative min-h-[340px] overflow-hidden rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#17140f]">
-        <div className="absolute inset-0">
-          <MapLine vertical left="18%" />
-          <MapLine vertical left="38%" />
-          <MapLine vertical left="62%" />
-          <MapLine vertical left="82%" />
-          <MapLine top="22%" />
-          <MapLine top="48%" />
-          <MapLine top="74%" />
-        </div>
-        <div className="absolute bottom-5 left-5 rounded-lg border border-[#fffaf0]/20 bg-[#fffaf0]/10 px-3 py-2 text-sm text-[#f5eddf]">
-          Lower harbor
-        </div>
-        <div className="absolute right-5 top-5 rounded-lg border border-[#fffaf0]/20 bg-[#fffaf0]/10 px-3 py-2 text-sm text-[#f5eddf]">
-          East River
-        </div>
-        <div className="absolute left-[42%] top-[42%] rounded-lg border border-[#fffaf0]/20 bg-[#fffaf0]/10 px-3 py-2 text-sm text-[#f5eddf]">
-          Upper Bay
-        </div>
-        {detections.map((detection, index) => {
-          const left = normalize(detection.longitude, bounds.minLon, bounds.maxLon);
-          const top = 100 - normalize(detection.latitude, bounds.minLat, bounds.maxLat);
-          const review = detection.priority === "review";
-          return (
-            <span
-              className={`absolute grid h-4 w-4 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border ${
-                review
-                  ? "border-[#fffaf0] bg-[#e0b16f]"
-                  : "border-[#e0b16f] bg-[#25495a]"
-              }`}
-              key={detection.id}
-              style={{
-                left: `${left}%`,
-                top: `${top}%`
-              }}
-              title={`${detection.id} / ${detection.vesselType} / ${Math.round(
-                detection.confidence * 100
-              )}%`}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-[#fffaf0]" />
-              <span className="sr-only">
-                Detection {index + 1}: {detection.zone}
-              </span>
-            </span>
-          );
-        })}
-      </div>
-    </section>
-  );
+function mapFeaturesFromResult(result: Result): GeoJsonFeature[] {
+  return result.geojson.features.flatMap((feature) => {
+    if (feature.geometry.type !== "Point" || !Array.isArray(feature.geometry.coordinates)) {
+      return [];
+    }
+    return [
+      {
+        type: "Feature" as const,
+        geometry: {
+          type: "Point" as const,
+          coordinates: feature.geometry.coordinates as number[]
+        },
+        properties: {
+          ...feature.properties,
+          dark_ship: feature.properties.ais_correlated === false
+        }
+      }
+    ];
+  });
 }
 
 function DetectionTable({ result }: { result: Result }) {
@@ -456,27 +482,6 @@ function DetectionTable({ result }: { result: Result }) {
   );
 }
 
-function MapLine({
-  vertical = false,
-  left,
-  top
-}: {
-  vertical?: boolean;
-  left?: string;
-  top?: string;
-}) {
-  return (
-    <span
-      className={
-        vertical
-          ? "absolute top-0 h-full w-px bg-[#fffaf0]/10"
-          : "absolute left-0 h-px w-full bg-[#fffaf0]/10"
-      }
-      style={vertical ? { left } : { top }}
-    />
-  );
-}
-
 function extractDetections(result: Result): DetectionRow[] {
   return result.geojson.features.flatMap((feature) => {
     const coordinates = feature.geometry.coordinates;
@@ -507,30 +512,4 @@ function isPointCoordinates(value: unknown): value is [number, number] {
     typeof value[0] === "number" &&
     typeof value[1] === "number"
   );
-}
-
-function getBounds(detections: DetectionRow[]) {
-  if (detections.length === 0) {
-    return {
-      minLon: -74.3,
-      maxLon: -73.5,
-      minLat: 40.3,
-      maxLat: 41.0
-    };
-  }
-  const longitudes = detections.map((detection) => detection.longitude);
-  const latitudes = detections.map((detection) => detection.latitude);
-  return {
-    minLon: Math.min(...longitudes) - 0.04,
-    maxLon: Math.max(...longitudes) + 0.04,
-    minLat: Math.min(...latitudes) - 0.04,
-    maxLat: Math.max(...latitudes) + 0.04
-  };
-}
-
-function normalize(value: number, min: number, max: number) {
-  if (max <= min) {
-    return 50;
-  }
-  return Math.min(94, Math.max(6, ((value - min) / (max - min)) * 100));
 }

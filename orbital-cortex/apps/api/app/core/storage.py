@@ -1,12 +1,16 @@
-"""SQLite persistence helpers for jobs, routing, events, and results."""
+"""Postgres persistence helpers for jobs, routing, events, and results."""
 
 from __future__ import annotations
 
-import json
-import sqlite3
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
+
+from sqlalchemy import delete, select
+from sqlalchemy.orm import Session
+
+from app.core.state import validate_transition
+from app.db.orm import Job, JobEvent, Result, RoutingCandidate, RoutingDecision
 
 
 def utc_now() -> str:
@@ -17,294 +21,273 @@ def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:12]}"
 
 
-def dumps(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"))
-
-
-def loads(value: Optional[str], default: Any) -> Any:
-    if value is None:
-        return default
-    return json.loads(value)
-
-
-def row_to_job(row: sqlite3.Row) -> Dict[str, Any]:
+def _job_to_dict(job: Job) -> Dict[str, Any]:
     return {
-        "id": row["id"],
-        "job_type": row["job_type"],
-        "area_of_interest": loads(row["area_of_interest_json"], {}),
-        "sensor": row["sensor"],
-        "priority": row["priority"],
-        "compute_preference": row["compute_preference"],
-        "max_cost_usd": float(row["max_cost_usd"]),
-        "status": row["status"],
-        "created_at": row["created_at"],
-        "updated_at": row["updated_at"],
-        "selected_route_id": row["selected_route_id"],
+        "id": job.id,
+        "schema_version": int(job.schema_version),
+        "job_type": job.job_type,
+        "area_of_interest": job.area_of_interest_json,
+        "sensor": job.sensor,
+        "priority": job.priority,
+        "compute_preference": job.compute_preference,
+        "max_cost_usd": float(job.max_cost_usd),
+        "status": job.status,
+        "created_at": job.created_at,
+        "updated_at": job.updated_at,
+        "selected_route_id": job.selected_route_id,
     }
 
 
-def create_job(connection: sqlite3.Connection, payload: Dict[str, Any]) -> Dict[str, Any]:
+def create_job(session: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
     timestamp = utc_now()
-    job_id = new_id("job")
-    connection.execute(
-        """
-        INSERT INTO jobs (
-            id,
-            job_type,
-            area_of_interest_json,
-            sensor,
-            priority,
-            compute_preference,
-            max_cost_usd,
-            status,
-            created_at,
-            updated_at,
-            selected_route_id
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            job_id,
-            payload["job_type"],
-            dumps(payload["area_of_interest"]),
-            payload["sensor"],
-            payload["priority"],
-            payload["compute_preference"],
-            float(payload["max_cost_usd"]),
-            "queued",
-            timestamp,
-            timestamp,
-            None,
-        ),
+    job = Job(
+        id=new_id("job"),
+        schema_version=int(payload.get("schema_version", 1)),
+        job_type=payload["job_type"],
+        area_of_interest_json=payload["area_of_interest"],
+        sensor=payload["sensor"],
+        priority=payload["priority"],
+        compute_preference=payload["compute_preference"],
+        max_cost_usd=float(payload["max_cost_usd"]),
+        status="queued",
+        created_at=timestamp,
+        updated_at=timestamp,
+        selected_route_id=None,
     )
-    job = get_job(connection, job_id)
+    session.add(job)
+    session.flush()
+    return _job_to_dict(job)
+
+
+def get_job(session: Session, job_id: str) -> Optional[Dict[str, Any]]:
+    job = session.get(Job, job_id)
     if job is None:
-        raise RuntimeError("Job insert did not return a row")
-    return job
-
-
-def get_job(connection: sqlite3.Connection, job_id: str) -> Optional[Dict[str, Any]]:
-    row = connection.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
-    if row is None:
         return None
-    return row_to_job(row)
+    return _job_to_dict(job)
 
 
-def list_jobs(connection: sqlite3.Connection) -> List[Dict[str, Any]]:
-    rows = connection.execute(
-        "SELECT * FROM jobs ORDER BY created_at DESC, id DESC"
-    ).fetchall()
-    return [row_to_job(row) for row in rows]
+def list_jobs(session: Session) -> List[Dict[str, Any]]:
+    jobs = session.scalars(
+        select(Job).order_by(Job.created_at.desc(), Job.id.desc())
+    ).all()
+    return [_job_to_dict(job) for job in jobs]
 
 
 def update_job(
-    connection: sqlite3.Connection,
+    session: Session,
     job_id: str,
     *,
     status: Optional[str] = None,
     selected_route_id: Optional[str] = None,
 ) -> Dict[str, Any]:
-    job = get_job(connection, job_id)
+    job = session.get(Job, job_id)
     if job is None:
         raise KeyError(job_id)
-    new_status = status if status is not None else job["status"]
-    new_route_id = (
-        selected_route_id
-        if selected_route_id is not None
-        else job["selected_route_id"]
-    )
-    connection.execute(
-        """
-        UPDATE jobs
-        SET status = ?, selected_route_id = ?, updated_at = ?
-        WHERE id = ?
-        """,
-        (new_status, new_route_id, utc_now(), job_id),
-    )
-    updated = get_job(connection, job_id)
-    if updated is None:
-        raise KeyError(job_id)
-    return updated
+    if status is not None and status != job.status:
+        validate_transition(job.status, status)
+        job.status = status
+    if selected_route_id is not None:
+        job.selected_route_id = selected_route_id
+    job.updated_at = utc_now()
+    session.flush()
+    return _job_to_dict(job)
 
 
-def row_to_routing_decision(row: sqlite3.Row) -> Dict[str, Any]:
+def _decision_to_dict(decision: RoutingDecision) -> Dict[str, Any]:
+    payload = {
+        "id": decision.id,
+        "job_id": decision.job_id,
+        "selected_node_id": decision.selected_node_id,
+        "selected_ground_station_id": decision.selected_ground_station_id,
+        "fallback_node_id": decision.fallback_node_id,
+        "estimated_latency_minutes": float(decision.estimated_latency_minutes),
+        "estimated_cost_usd": float(decision.estimated_cost_usd),
+        "confidence": float(decision.confidence),
+        "reasons": decision.reasons_json,
+        "candidate_scores": decision.candidate_scores_json,
+        "config_version": decision.config_version or None,
+        "input_hash": decision.input_hash or None,
+        "decision_hash": decision.decision_hash or None,
+        "tle_snapshot_id": decision.tle_snapshot_id or None,
+        "seed": int(decision.seed),
+    }
+    if isinstance(decision.inputs_json, dict):
+        payload["decided_at_utc"] = decision.inputs_json.get("now_utc")
+    return payload
+
+
+def _soft_scores_from_candidate(candidate: Dict[str, Any]) -> Dict[str, float]:
     return {
-        "id": row["id"],
-        "job_id": row["job_id"],
-        "selected_node_id": row["selected_node_id"],
-        "selected_ground_station_id": row["selected_ground_station_id"],
-        "fallback_node_id": row["fallback_node_id"],
-        "estimated_latency_minutes": float(row["estimated_latency_minutes"]),
-        "estimated_cost_usd": float(row["estimated_cost_usd"]),
-        "confidence": float(row["confidence"]),
-        "reasons": loads(row["reasons_json"], []),
-        "candidate_scores": loads(row["candidate_scores_json"], []),
+        "model_support_score": float(candidate["model_support_score"]),
+        "latency_score": float(candidate["latency_score"]),
+        "cost_score": float(candidate["cost_score"]),
+        "availability_score": float(candidate["availability_score"]),
+        "contact_score": float(candidate["contact_score"]),
+        "preference_score": float(candidate["preference_score"]),
+        "compliance_score": float(candidate["compliance_score"]),
     }
 
 
 def save_routing_decision(
-    connection: sqlite3.Connection,
+    session: Session,
     decision: Dict[str, Any],
+    *,
+    audit: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    connection.execute(
-        """
-        INSERT INTO routing_decisions (
-            id,
-            job_id,
-            selected_node_id,
-            selected_ground_station_id,
-            fallback_node_id,
-            estimated_latency_minutes,
-            estimated_cost_usd,
-            confidence,
-            reasons_json,
-            candidate_scores_json,
-            created_at
+    existing = session.scalars(
+        select(RoutingDecision).where(RoutingDecision.job_id == decision["job_id"])
+    ).one_or_none()
+    if existing is None:
+        existing = RoutingDecision(
+            id=decision["id"],
+            job_id=decision["job_id"],
+            created_at=utc_now(),
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(job_id) DO UPDATE SET
-            selected_node_id = excluded.selected_node_id,
-            selected_ground_station_id = excluded.selected_ground_station_id,
-            fallback_node_id = excluded.fallback_node_id,
-            estimated_latency_minutes = excluded.estimated_latency_minutes,
-            estimated_cost_usd = excluded.estimated_cost_usd,
-            confidence = excluded.confidence,
-            reasons_json = excluded.reasons_json,
-            candidate_scores_json = excluded.candidate_scores_json
-        """,
-        (
-            decision["id"],
-            decision["job_id"],
-            decision["selected_node_id"],
-            decision.get("selected_ground_station_id"),
-            decision.get("fallback_node_id"),
-            float(decision["estimated_latency_minutes"]),
-            float(decision["estimated_cost_usd"]),
-            float(decision["confidence"]),
-            dumps(decision["reasons"]),
-            dumps(decision["candidate_scores"]),
-            utc_now(),
-        ),
+        session.add(existing)
+    existing.selected_node_id = decision["selected_node_id"]
+    existing.selected_ground_station_id = decision.get("selected_ground_station_id")
+    existing.fallback_node_id = decision.get("fallback_node_id")
+    existing.estimated_latency_minutes = float(decision["estimated_latency_minutes"])
+    existing.estimated_cost_usd = float(decision["estimated_cost_usd"])
+    existing.confidence = float(decision["confidence"])
+    existing.reasons_json = decision["reasons"]
+    existing.candidate_scores_json = decision["candidate_scores"]
+    if audit is not None:
+        existing.config_version = audit.get("config_version", "")
+        existing.input_hash = audit.get("input_hash", "")
+        existing.decision_hash = audit.get("decision_hash", "")
+        existing.tle_snapshot_id = audit.get("tle_snapshot_id", "")
+        existing.seed = int(audit.get("seed", 0))
+        existing.inputs_json = audit.get("inputs_json", {})
+    session.flush()
+
+    session.execute(
+        delete(RoutingCandidate).where(
+            RoutingCandidate.routing_decision_id == existing.id
+        )
     )
-    saved = get_routing_decision(connection, decision["job_id"])
-    if saved is None:
-        raise RuntimeError("Routing decision insert did not return a row")
-    return saved
+    for candidate in decision["candidate_scores"]:
+        session.add(
+            RoutingCandidate(
+                id=new_id("rcand"),
+                routing_decision_id=existing.id,
+                node_id=candidate["node_id"],
+                eligible=bool(candidate["eligible"]),
+                hard_constraint_failures=candidate.get("hard_constraint_failures", []),
+                soft_scores=_soft_scores_from_candidate(candidate),
+                weights=candidate.get("weights", {}),
+                final_score=float(candidate["score"]),
+            )
+        )
+    session.flush()
+    return _decision_to_dict(existing)
+
+
+def get_routing_audit(session: Session, job_id: str) -> Optional[Dict[str, Any]]:
+    decision = session.scalars(
+        select(RoutingDecision).where(RoutingDecision.job_id == job_id)
+    ).one_or_none()
+    if decision is None:
+        return None
+    return {
+        "id": decision.id,
+        "job_id": decision.job_id,
+        "config_version": decision.config_version,
+        "input_hash": decision.input_hash,
+        "decision_hash": decision.decision_hash,
+        "tle_snapshot_id": decision.tle_snapshot_id,
+        "seed": int(decision.seed),
+        "inputs_json": decision.inputs_json,
+    }
 
 
 def get_routing_decision(
-    connection: sqlite3.Connection,
+    session: Session,
     job_id: str,
 ) -> Optional[Dict[str, Any]]:
-    row = connection.execute(
-        "SELECT * FROM routing_decisions WHERE job_id = ?",
-        (job_id,),
-    ).fetchone()
-    if row is None:
+    decision = session.scalars(
+        select(RoutingDecision).where(RoutingDecision.job_id == job_id)
+    ).one_or_none()
+    if decision is None:
         return None
-    return row_to_routing_decision(row)
+    return _decision_to_dict(decision)
 
 
-def row_to_event(row: sqlite3.Row) -> Dict[str, Any]:
+def _event_to_dict(event: JobEvent) -> Dict[str, Any]:
     return {
-        "id": row["id"],
-        "job_id": row["job_id"],
-        "event_type": row["event_type"],
-        "message": row["message"],
-        "timestamp": row["timestamp"],
+        "id": event.id,
+        "job_id": event.job_id,
+        "event_type": event.event_type,
+        "message": event.message,
+        "payload": event.payload,
+        "ts_utc": event.ts_utc,
     }
 
 
 def create_event(
-    connection: sqlite3.Connection,
+    session: Session,
     job_id: str,
     event_type: str,
     message: str,
+    payload: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    event_id = new_id("evt")
-    timestamp = utc_now()
-    connection.execute(
-        """
-        INSERT INTO job_events (id, job_id, event_type, message, timestamp)
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (event_id, job_id, event_type, message, timestamp),
+    event = JobEvent(
+        id=new_id("evt"),
+        job_id=job_id,
+        event_type=event_type,
+        message=message,
+        payload=payload or {},
+        ts_utc=utc_now(),
     )
-    row = connection.execute(
-        "SELECT * FROM job_events WHERE id = ?",
-        (event_id,),
-    ).fetchone()
-    if row is None:
-        raise RuntimeError("Event insert did not return a row")
-    return row_to_event(row)
+    session.add(event)
+    session.flush()
+    return _event_to_dict(event)
 
 
-def list_events(connection: sqlite3.Connection, job_id: str) -> List[Dict[str, Any]]:
-    rows = connection.execute(
-        """
-        SELECT * FROM job_events
-        WHERE job_id = ?
-        ORDER BY rowid ASC
-        """,
-        (job_id,),
-    ).fetchall()
-    return [row_to_event(row) for row in rows]
+def list_events(session: Session, job_id: str) -> List[Dict[str, Any]]:
+    events = session.scalars(
+        select(JobEvent).where(JobEvent.job_id == job_id).order_by(JobEvent.seq.asc())
+    ).all()
+    return [_event_to_dict(event) for event in events]
 
 
-def row_to_result(row: sqlite3.Row) -> Dict[str, Any]:
+def _result_to_dict(result: Result) -> Dict[str, Any]:
     return {
-        "id": row["id"],
-        "job_id": row["job_id"],
-        "summary": row["summary"],
-        "confidence": float(row["confidence"]),
-        "geojson": loads(row["geojson_json"], {}),
-        "output_files": loads(row["output_files_json"], []),
+        "id": result.id,
+        "job_id": result.job_id,
+        "summary": result.summary,
+        "confidence": float(result.confidence),
+        "geojson": result.geojson_json,
+        "output_files": result.output_files_json,
     }
 
 
 def save_result(
-    connection: sqlite3.Connection,
+    session: Session,
     result: Dict[str, Any],
 ) -> Dict[str, Any]:
-    connection.execute(
-        """
-        INSERT INTO results (
-            id,
-            job_id,
-            summary,
-            confidence,
-            geojson_json,
-            output_files_json,
-            created_at
+    existing = session.scalars(
+        select(Result).where(Result.job_id == result["job_id"])
+    ).one_or_none()
+    if existing is None:
+        existing = Result(
+            id=result["id"],
+            job_id=result["job_id"],
+            created_at=utc_now(),
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(job_id) DO UPDATE SET
-            summary = excluded.summary,
-            confidence = excluded.confidence,
-            geojson_json = excluded.geojson_json,
-            output_files_json = excluded.output_files_json
-        """,
-        (
-            result["id"],
-            result["job_id"],
-            result["summary"],
-            float(result["confidence"]),
-            dumps(result["geojson"]),
-            dumps(result["output_files"]),
-            utc_now(),
-        ),
-    )
-    saved = get_result(connection, result["job_id"])
-    if saved is None:
-        raise RuntimeError("Result insert did not return a row")
-    return saved
+        session.add(existing)
+    existing.summary = result["summary"]
+    existing.confidence = float(result["confidence"])
+    existing.geojson_json = result["geojson"]
+    existing.output_files_json = result["output_files"]
+    session.flush()
+    return _result_to_dict(existing)
 
 
-def get_result(connection: sqlite3.Connection, job_id: str) -> Optional[Dict[str, Any]]:
-    row = connection.execute(
-        "SELECT * FROM results WHERE job_id = ?",
-        (job_id,),
-    ).fetchone()
-    if row is None:
+def get_result(session: Session, job_id: str) -> Optional[Dict[str, Any]]:
+    result = session.scalars(
+        select(Result).where(Result.job_id == job_id)
+    ).one_or_none()
+    if result is None:
         return None
-    return row_to_result(row)
+    return _result_to_dict(result)

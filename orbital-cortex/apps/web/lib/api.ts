@@ -1,12 +1,15 @@
 import type {
+  DetectionsGeoJson,
   EventsResponse,
   JobCreatePayload,
   JobCreateResponse,
   JobDetailResponse,
   JobsListResponse,
   NodesResponse,
+  ReplayResponse,
   ResultResponse,
   RoutingResponse,
+  SceneResponse,
   SimulateRunResponse
 } from "@/lib/types";
 
@@ -79,7 +82,21 @@ export function getEvents(jobId: string): Promise<EventsResponse> {
 }
 
 export function getRouting(jobId: string): Promise<RoutingResponse> {
-  return request<RoutingResponse>(`/v1/routing/${jobId}`);
+  return request<RoutingResponse>(`/v1/jobs/${jobId}/routing`);
+}
+
+export function replayRouting(jobId: string): Promise<ReplayResponse> {
+  return request<ReplayResponse>(`/v1/jobs/${jobId}/replay`, { method: "POST" });
+}
+
+export function getDetections(jobId: string): Promise<DetectionsGeoJson> {
+  return request<DetectionsGeoJson>(`/v1/jobs/${jobId}/detections`, {
+    headers: { Accept: "application/geo+json" }
+  });
+}
+
+export function getScene(jobId: string): Promise<SceneResponse> {
+  return request<SceneResponse>(`/v1/jobs/${jobId}/scene`);
 }
 
 export function getResult(jobId: string): Promise<ResultResponse> {

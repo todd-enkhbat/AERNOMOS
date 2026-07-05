@@ -27,6 +27,11 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
           {candidate.score.toFixed(1)}
         </span>
       </div>
+      {candidate.binding_constraint ? (
+        <p className="mt-2 text-xs font-bold uppercase text-[#8a4b12]">
+          Binding: {candidate.binding_constraint.replaceAll("_", " ")}
+        </p>
+      ) : null}
       <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#eadcc8]">
         <div
           className="h-full rounded-full bg-[#25495a]"

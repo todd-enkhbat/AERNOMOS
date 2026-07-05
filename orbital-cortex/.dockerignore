@@ -1,0 +1,10 @@
+**/.venv/
+**/node_modules/
+**/.next/
+**/__pycache__/
+**/*.pyc
+**/*.sqlite3
+**/.pytest_cache/
+**/.mypy_cache/
+apps/web/
+.git/

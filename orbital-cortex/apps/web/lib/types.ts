@@ -1,4 +1,10 @@
-export type JobStatus = "queued" | "scheduled" | "running" | "completed" | "failed";
+export type JobStatus =
+  | "queued"
+  | "routing"
+  | "executing"
+  | "downlinking"
+  | "complete"
+  | "failed";
 
 export type JobType = "ship_detection" | "crop_health" | "disaster_response";
 
@@ -55,15 +61,18 @@ export interface ComputeNode {
   compliance_tags: string[];
   base_cost_usd: number;
   latency_minutes: number;
-  next_contact_minutes: number;
+  satellite_id: string | null;
 }
 
 export interface GroundStation {
   id: string;
   name: string;
   location: string;
+  provider: string;
   latitude: number;
   longitude: number;
+  altitude_m: number;
+  min_elevation_deg: number;
   latency_minutes: number;
   downlink_mbps: number;
   availability: number;
@@ -74,10 +83,18 @@ export interface NodesResponse {
   ground_stations: GroundStation[];
 }
 
+export interface HardConstraintFailure {
+  constraint: string;
+  detail: string;
+}
+
 export interface CandidateScore {
   node_id: string;
   score: number;
   eligible: boolean;
+  hard_constraint_failures?: HardConstraintFailure[];
+  binding_constraint?: string | null;
+  weights?: Record<string, number>;
   model_support_score: number;
   latency_score: number;
   cost_score: number;
@@ -89,6 +106,10 @@ export interface CandidateScore {
   estimated_cost_usd: number;
   available: boolean;
   selected_ground_station_id?: string | null;
+  next_contact_minutes?: number | null;
+  next_aos_utc?: string | null;
+  next_max_elevation_deg?: number | null;
+  est_downlink_mb?: number | null;
   reasons: string[];
 }
 
@@ -101,6 +122,12 @@ export interface RoutingDecision {
   estimated_latency_minutes: number;
   estimated_cost_usd: number;
   confidence: number;
+  config_version?: string | null;
+  input_hash?: string | null;
+  decision_hash?: string | null;
+  tle_snapshot_id?: string | null;
+  seed?: number | null;
+  decided_at_utc?: string | null;
   reasons: string[];
   candidate_scores: CandidateScore[];
 }
@@ -110,7 +137,8 @@ export interface JobEvent {
   job_id: string;
   event_type: string;
   message: string;
-  timestamp: string;
+  payload: Record<string, unknown>;
+  ts_utc: string;
 }
 
 export interface Result {
@@ -134,7 +162,7 @@ export interface Result {
 
 export interface JobCreateResponse {
   job: Job;
-  routing_decision: RoutingDecision;
+  routing_decision: RoutingDecision | null;
 }
 
 export interface JobsListResponse {
@@ -163,4 +191,41 @@ export interface SimulateRunResponse {
   job: Job;
   events_created: number;
   result: Result;
+}
+
+export interface GeoJsonFeature {
+  type: "Feature";
+  geometry: {
+    type: "Point";
+    coordinates: number[];
+  };
+  properties: Record<string, string | number | boolean | null>;
+}
+
+export interface DetectionsGeoJson {
+  type: string;
+  features: GeoJsonFeature[];
+}
+
+export interface SceneRecord {
+  id: string;
+  job_id: string;
+  sensor: string;
+  mode: string;
+  resolution_m: number;
+  captured_utc: string;
+  stac_item_id: string | null;
+  provenance: string;
+}
+
+export interface SceneResponse {
+  scene: SceneRecord | null;
+}
+
+export interface ReplayResponse {
+  match: boolean;
+  stored_decision_hash: string;
+  replay_decision_hash: string;
+  config_version: string;
+  input_hash: string;
 }

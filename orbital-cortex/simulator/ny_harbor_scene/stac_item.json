@@ -1,0 +1,61 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "S1A_IW_GRD_20260615T104200_NY_HARBOR_DEMO",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -74.3,
+          40.3
+        ],
+        [
+          -73.5,
+          40.3
+        ],
+        [
+          -73.5,
+          41.0
+        ],
+        [
+          -74.3,
+          41.0
+        ],
+        [
+          -74.3,
+          40.3
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -74.3,
+    40.3,
+    -73.5,
+    41.0
+  ],
+  "properties": {
+    "datetime": "2026-06-15T10:42:00Z",
+    "platform": "sentinel-1a",
+    "instruments": [
+      "c-sar"
+    ],
+    "sar:polarizations": [
+      "VV",
+      "VH"
+    ],
+    "sar:product_type": "GRD",
+    "orbital_cortex:demo": true
+  },
+  "links": [],
+  "assets": {
+    "backscatter": {
+      "href": "mock://scenes/ny_harbor/backscatter.tif",
+      "type": "image/tiff; application=geotiff",
+      "roles": [
+        "data"
+      ]
+    }
+  }
+}

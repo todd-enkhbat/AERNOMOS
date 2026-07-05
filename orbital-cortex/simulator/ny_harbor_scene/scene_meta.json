@@ -1,0 +1,9 @@
+{
+  "captured_utc": "2026-06-15T10:42:00+00:00",
+  "sensor": "Sentinel-1",
+  "mode": "IW GRD",
+  "resolution_m": 10.0,
+  "source": "simulator/ny_harbor_scene",
+  "provenance": "Canned Sentinel-1 IW GRD chip over New York Harbor. Offline SNAP-style processing pin; not live SAR.",
+  "cog_url": "mock://scenes/ny_harbor/backscatter.tif"
+}

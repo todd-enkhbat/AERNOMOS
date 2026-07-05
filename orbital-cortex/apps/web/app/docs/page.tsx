@@ -104,7 +104,7 @@ export default function DocsPage() {
 
       <section className="mt-8 grid gap-4 md:grid-cols-3">
         {[
-          ["Job lifecycle", "queued -> scheduled -> running -> completed"],
+          ["Job lifecycle", "queued -> routing -> executing -> downlinking -> complete"],
           ["Default use case", "SAR ship detection over New York Harbor"],
           ["Result shape", "GeoJSON detections and mock output files"]
         ].map(([title, detail]) => (

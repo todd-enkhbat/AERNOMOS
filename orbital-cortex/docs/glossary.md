@@ -22,11 +22,17 @@ The user's routing preference, such as `orbital_if_available`, `ground_only`, `c
 
 ## Contact Window
 
-A mocked period when an orbital node can communicate with a ground station. v0.1 uses deterministic `next_contact_minutes` values instead of physical orbital calculations.
+A real pass (AOS -> culminate -> LOS) computed by propagating the satellite's
+TLE with SGP4 (Skyfield) against a ground station's location and 10-degree
+elevation mask. Windows are precomputed into a cache from a pinned TLE
+snapshot for deterministic demos; each carries a max elevation, duration, and
+estimated downlink volume.
 
 ## Ground Station
 
-A simulated downlink location that can be paired with orbital nodes.
+A real public downlink site (KSAT, AWS Ground Station, Leaf Space) with
+latitude/longitude/altitude and an elevation mask, paired with orbital nodes
+by next-pass visibility.
 
 ## Job
 
