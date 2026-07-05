@@ -51,7 +51,24 @@
       "Bash(grep -E \"bin/node$\")",
       "Bash(.venv/bin/python -m pytest tests/test_platform.py -q)",
       "Bash(.venv/bin/python -m pytest tests/ -q)",
-      "Bash(../../apps/api/.venv/bin/ruff check *)"
+      "Bash(../../apps/api/.venv/bin/ruff check *)",
+      "Bash(gh run *)",
+      "Read(//Users/kintekente-mac/.local/bin/**)",
+      "Bash(curl -s \"https://api.github.com/repos/todd-enkhbat/AERNOMOS/actions/runs?per_page=4\")",
+      "Bash(curl -s \"https://api.github.com/repos/todd-enkhbat/AERNOMOS/actions/runs/28733349042/jobs\")",
+      "Bash(curl -s \"https://api.github.com/repos/todd-enkhbat/AERNOMOS/actions/runs/28733349030/jobs\")",
+      "Bash(curl -sL -o /private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/mypy_job.log -w \"%{http_code}\" \"https://api.github.com/repos/todd-enkhbat/AERNOMOS/actions/jobs/85202981861/logs\")",
+      "Read(//Library/Frameworks/Python.framework/**)",
+      "Bash(xcrun --find python3)",
+      "Bash(/usr/bin/env python3 --version)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/python --version)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/mypy --version)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/ruff check *)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/mypy app *)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/python -m pytest tests -q)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/python -m scripts.export_openapi /private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/openapi312.json)",
+      "Bash(/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/ci312/bin/python -c 'import json; print\\('\\\\''paths:'\\\\'', len\\(json.load\\(open\\('\\\\''/private/tmp/claude-501/-Users-kintekente-mac-Documents-GitHub-AERNOMOS/2a00fc58-f569-49b7-9e23-f89471f2b64d/scratchpad/openapi312.json'\\\\''\\)\\)['\\\\''paths'\\\\'']\\)\\)')",
+      "Bash(.venv/bin/python -m pytest tests -q)"
     ]
   }
 }
