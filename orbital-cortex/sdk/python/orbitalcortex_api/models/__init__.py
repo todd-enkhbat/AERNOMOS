@@ -1,4 +1,4 @@
-""" Contains all the data models used in inputs/outputs """
+"""Contains all the data models used in inputs/outputs"""
 
 from .area_of_interest import AreaOfInterest
 from .artifact_ref import ArtifactRef
@@ -13,7 +13,9 @@ from .error_response import ErrorResponse
 from .ground_station import GroundStation
 from .ground_stations_response import GroundStationsResponse
 from .hard_constraint_failure import HardConstraintFailure
-from .healthz_healthz_get_response_healthz_healthz_get import HealthzHealthzGetResponseHealthzHealthzGet
+from .healthz_healthz_get_response_healthz_healthz_get import (
+    HealthzHealthzGetResponseHealthzHealthzGet,
+)
 from .http_validation_error import HTTPValidationError
 from .job import Job
 from .job_compute_preference import JobComputePreference

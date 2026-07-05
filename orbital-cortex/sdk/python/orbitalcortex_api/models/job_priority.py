@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class JobPriority(str, Enum):
     CHEAPEST = "cheapest"
     FASTEST = "fastest"

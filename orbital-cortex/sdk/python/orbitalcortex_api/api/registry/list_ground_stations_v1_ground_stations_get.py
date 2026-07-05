@@ -1,41 +1,29 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.ground_stations_response import GroundStationsResponse
-from typing import cast
+from ...types import Response
 
 
-
-def _get_kwargs(
-    
-) -> dict[str, Any]:
-    
-
-    
-
-    
+def _get_kwargs() -> dict[str, Any]:
 
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/v1/ground-stations",
     }
 
-
     return _kwargs
 
 
-
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[GroundStationsResponse]:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> GroundStationsResponse | None:
     if response.status_code == 200:
         response_200 = GroundStationsResponse.from_dict(response.json())
-
-
 
         return response_200
 
@@ -45,7 +33,9 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[GroundStationsResponse]:
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[GroundStationsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,10 +46,9 @@ def _build_response(*, client: Union[AuthenticatedClient, Client], response: htt
 
 def sync_detailed(
     *,
-    client: Union[AuthenticatedClient, Client],
-
+    client: AuthenticatedClient | Client,
 ) -> Response[GroundStationsResponse]:
-    """ List ground stations (real public sites)
+    """List ground stations (real public sites)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -67,12 +56,9 @@ def sync_detailed(
 
     Returns:
         Response[GroundStationsResponse]
-     """
+    """
 
-
-    kwargs = _get_kwargs(
-        
-    )
+    kwargs = _get_kwargs()
 
     response = client.get_httpx_client().request(
         **kwargs,
@@ -80,12 +66,12 @@ def sync_detailed(
 
     return _build_response(client=client, response=response)
 
+
 def sync(
     *,
-    client: Union[AuthenticatedClient, Client],
-
-) -> Optional[GroundStationsResponse]:
-    """ List ground stations (real public sites)
+    client: AuthenticatedClient | Client,
+) -> GroundStationsResponse | None:
+    """List ground stations (real public sites)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -93,20 +79,18 @@ def sync(
 
     Returns:
         GroundStationsResponse
-     """
-
+    """
 
     return sync_detailed(
         client=client,
-
     ).parsed
+
 
 async def asyncio_detailed(
     *,
-    client: Union[AuthenticatedClient, Client],
-
+    client: AuthenticatedClient | Client,
 ) -> Response[GroundStationsResponse]:
-    """ List ground stations (real public sites)
+    """List ground stations (real public sites)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -114,25 +98,20 @@ async def asyncio_detailed(
 
     Returns:
         Response[GroundStationsResponse]
-     """
+    """
 
+    kwargs = _get_kwargs()
 
-    kwargs = _get_kwargs(
-        
-    )
-
-    response = await client.get_async_httpx_client().request(
-        **kwargs
-    )
+    response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
+
 async def asyncio(
     *,
-    client: Union[AuthenticatedClient, Client],
-
-) -> Optional[GroundStationsResponse]:
-    """ List ground stations (real public sites)
+    client: AuthenticatedClient | Client,
+) -> GroundStationsResponse | None:
+    """List ground stations (real public sites)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,10 +119,10 @@ async def asyncio(
 
     Returns:
         GroundStationsResponse
-     """
+    """
 
-
-    return (await asyncio_detailed(
-        client=client,
-
-    )).parsed
+    return (
+        await asyncio_detailed(
+            client=client,
+        )
+    ).parsed

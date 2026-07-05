@@ -1,66 +1,51 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-from typing import cast
-
 if TYPE_CHECKING:
-  from ..models.routing_decision import RoutingDecision
-
-
-
+    from ..models.routing_decision import RoutingDecision
 
 
 T = TypeVar("T", bound="RoutingResponse")
 
 
-
 @_attrs_define
 class RoutingResponse:
-    """ 
-        Attributes:
-            routing_decision (RoutingDecision):
-     """
+    """
+    Attributes:
+        routing_decision (RoutingDecision):
+    """
 
-    routing_decision: 'RoutingDecision'
+    routing_decision: RoutingDecision
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-
-
-
-
     def to_dict(self) -> dict[str, Any]:
-        from ..models.routing_decision import RoutingDecision
         routing_decision = self.routing_decision.to_dict()
-
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "routing_decision": routing_decision,
-        })
+        field_dict.update(
+            {
+                "routing_decision": routing_decision,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.routing_decision import RoutingDecision
+
         d = dict(src_dict)
         routing_decision = RoutingDecision.from_dict(d.pop("routing_decision"))
-
-
-
 
         routing_response = cls(
             routing_decision=routing_decision,
         )
-
 
         routing_response.additional_properties = d
         return routing_response

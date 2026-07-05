@@ -1,39 +1,32 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from ..types import UNSET, Unset
-from typing import Union
-
-
-
-
-
-
 T = TypeVar("T", bound="GroundStation")
-
 
 
 @_attrs_define
 class GroundStation:
-    """ 
-        Attributes:
-            availability (float):
-            downlink_mbps (int):
-            id (str):
-            latency_minutes (float):
-            latitude (float):
-            location (str):
-            longitude (float):
-            name (str):
-            altitude_m (Union[Unset, float]):  Default: 0.0.
-            min_elevation_deg (Union[Unset, float]):  Default: 10.0.
-            provider (Union[Unset, str]):  Default: ''.
-     """
+    """
+    Attributes:
+        availability (float):
+        downlink_mbps (int):
+        id (str):
+        latency_minutes (float):
+        latitude (float):
+        location (str):
+        longitude (float):
+        name (str):
+        altitude_m (float | Unset):  Default: 0.0.
+        min_elevation_deg (float | Unset):  Default: 10.0.
+        provider (str | Unset):  Default: ''.
+    """
 
     availability: float
     downlink_mbps: int
@@ -43,14 +36,10 @@ class GroundStation:
     location: str
     longitude: float
     name: str
-    altitude_m: Union[Unset, float] = 0.0
-    min_elevation_deg: Union[Unset, float] = 10.0
-    provider: Union[Unset, str] = ''
+    altitude_m: float | Unset = 0.0
+    min_elevation_deg: float | Unset = 10.0
+    provider: str | Unset = ""
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         availability = self.availability
@@ -75,19 +64,20 @@ class GroundStation:
 
         provider = self.provider
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "availability": availability,
-            "downlink_mbps": downlink_mbps,
-            "id": id,
-            "latency_minutes": latency_minutes,
-            "latitude": latitude,
-            "location": location,
-            "longitude": longitude,
-            "name": name,
-        })
+        field_dict.update(
+            {
+                "availability": availability,
+                "downlink_mbps": downlink_mbps,
+                "id": id,
+                "latency_minutes": latency_minutes,
+                "latitude": latitude,
+                "location": location,
+                "longitude": longitude,
+                "name": name,
+            }
+        )
         if altitude_m is not UNSET:
             field_dict["altitude_m"] = altitude_m
         if min_elevation_deg is not UNSET:
@@ -96,8 +86,6 @@ class GroundStation:
             field_dict["provider"] = provider
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -137,7 +125,6 @@ class GroundStation:
             min_elevation_deg=min_elevation_deg,
             provider=provider,
         )
-
 
         ground_station.additional_properties = d
         return ground_station

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class JobCreateSensor(str, Enum):
     ANY = "any"
     HYPERSPECTRAL = "hyperspectral"

@@ -1,36 +1,29 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-
-
-
-
-
-
 T = TypeVar("T", bound="ContactWindow")
-
 
 
 @_attrs_define
 class ContactWindow:
-    """ 
-        Attributes:
-            aos_utc (str):
-            culminate_utc (str):
-            date (str):
-            duration_s (float):
-            est_downlink_mb (float):
-            ground_station_id (str):
-            id (str):
-            los_utc (str):
-            max_elevation_deg (float):
-            satellite_id (str):
-     """
+    """
+    Attributes:
+        aos_utc (str):
+        culminate_utc (str):
+        date (str):
+        duration_s (float):
+        est_downlink_mb (float):
+        ground_station_id (str):
+        id (str):
+        los_utc (str):
+        max_elevation_deg (float):
+        satellite_id (str):
+    """
 
     aos_utc: str
     culminate_utc: str
@@ -43,10 +36,6 @@ class ContactWindow:
     max_elevation_deg: float
     satellite_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         aos_utc = self.aos_utc
@@ -69,25 +58,24 @@ class ContactWindow:
 
         satellite_id = self.satellite_id
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "aos_utc": aos_utc,
-            "culminate_utc": culminate_utc,
-            "date": date,
-            "duration_s": duration_s,
-            "est_downlink_mb": est_downlink_mb,
-            "ground_station_id": ground_station_id,
-            "id": id,
-            "los_utc": los_utc,
-            "max_elevation_deg": max_elevation_deg,
-            "satellite_id": satellite_id,
-        })
+        field_dict.update(
+            {
+                "aos_utc": aos_utc,
+                "culminate_utc": culminate_utc,
+                "date": date,
+                "duration_s": duration_s,
+                "est_downlink_mb": est_downlink_mb,
+                "ground_station_id": ground_station_id,
+                "id": id,
+                "los_utc": los_utc,
+                "max_elevation_deg": max_elevation_deg,
+                "satellite_id": satellite_id,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -124,7 +112,6 @@ class ContactWindow:
             max_elevation_deg=max_elevation_deg,
             satellite_id=satellite_id,
         )
-
 
         contact_window.additional_properties = d
         return contact_window

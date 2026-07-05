@@ -1,58 +1,47 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
-
 if TYPE_CHECKING:
-  from ..models.job import Job
-  from ..models.routing_decision import RoutingDecision
-
-
-
+    from ..models.job import Job
+    from ..models.routing_decision import RoutingDecision
 
 
 T = TypeVar("T", bound="JobDetailResponse")
 
 
-
 @_attrs_define
 class JobDetailResponse:
-    """ 
-        Attributes:
-            job (Job):
-            result_summary (Union[None, Unset, str]):
-            routing_decision (Union['RoutingDecision', None, Unset]):
-     """
+    """
+    Attributes:
+        job (Job):
+        result_summary (None | str | Unset):
+        routing_decision (None | RoutingDecision | Unset):
+    """
 
-    job: 'Job'
-    result_summary: Union[None, Unset, str] = UNSET
-    routing_decision: Union['RoutingDecision', None, Unset] = UNSET
+    job: Job
+    result_summary: None | str | Unset = UNSET
+    routing_decision: None | RoutingDecision | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-
-
-
-
     def to_dict(self) -> dict[str, Any]:
-        from ..models.job import Job
         from ..models.routing_decision import RoutingDecision
+
         job = self.job.to_dict()
 
-        result_summary: Union[None, Unset, str]
+        result_summary: None | str | Unset
         if isinstance(self.result_summary, Unset):
             result_summary = UNSET
         else:
             result_summary = self.result_summary
 
-        routing_decision: Union[None, Unset, dict[str, Any]]
+        routing_decision: dict[str, Any] | None | Unset
         if isinstance(self.routing_decision, Unset):
             routing_decision = UNSET
         elif isinstance(self.routing_decision, RoutingDecision):
@@ -60,12 +49,13 @@ class JobDetailResponse:
         else:
             routing_decision = self.routing_decision
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "job": job,
-        })
+        field_dict.update(
+            {
+                "job": job,
+            }
+        )
         if result_summary is not UNSET:
             field_dict["result_summary"] = result_summary
         if routing_decision is not UNSET:
@@ -73,29 +63,24 @@ class JobDetailResponse:
 
         return field_dict
 
-
-
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.job import Job
         from ..models.routing_decision import RoutingDecision
+
         d = dict(src_dict)
         job = Job.from_dict(d.pop("job"))
 
-
-
-
-        def _parse_result_summary(data: object) -> Union[None, Unset, str]:
+        def _parse_result_summary(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         result_summary = _parse_result_summary(d.pop("result_summary", UNSET))
 
-
-        def _parse_routing_decision(data: object) -> Union['RoutingDecision', None, Unset]:
+        def _parse_routing_decision(data: object) -> None | RoutingDecision | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -105,22 +90,18 @@ class JobDetailResponse:
                     raise TypeError()
                 routing_decision_type_0 = RoutingDecision.from_dict(data)
 
-
-
                 return routing_decision_type_0
-            except: # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union['RoutingDecision', None, Unset], data)
+            return cast(None | RoutingDecision | Unset, data)
 
         routing_decision = _parse_routing_decision(d.pop("routing_decision", UNSET))
-
 
         job_detail_response = cls(
             job=job,
             result_summary=result_summary,
             routing_decision=routing_decision,
         )
-
 
         job_detail_response.additional_properties = d
         return job_detail_response

@@ -1,5 +1,5 @@
+"""A client library for accessing Orbital Cortex API"""
 
-""" A client library for accessing Orbital Cortex API """
 from .client import AuthenticatedClient, Client
 
 __all__ = (
