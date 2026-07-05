@@ -1,6 +1,5 @@
 from http import HTTPStatus
-from typing import Any
-from urllib.parse import quote
+from typing import Any, Optional, Union, cast
 
 import httpx
 
@@ -14,11 +13,10 @@ from ...types import Response
 def _get_kwargs(
     job_id: str,
 ) -> dict[str, Any]:
-
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/v1/jobs/{job_id}/detections".format(
-            job_id=quote(str(job_id), safe=""),
+            job_id=job_id,
         ),
     }
 
@@ -26,10 +24,10 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | ErrorResponse | HTTPValidationError | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[Any, ErrorResponse, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = response.json()
+        response_200 = cast(Any, None)
         return response_200
 
     if response.status_code == 404:
@@ -49,8 +47,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | ErrorResponse | HTTPValidationError]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[Any, ErrorResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -62,8 +60,8 @@ def _build_response(
 def sync_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[Any | ErrorResponse | HTTPValidationError]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[Any, ErrorResponse, HTTPValidationError]]:
     """Get job detections as GeoJSON
 
      Returns an `application/geo+json` FeatureCollection.
@@ -76,7 +74,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | ErrorResponse | HTTPValidationError]
+        Response[Union[Any, ErrorResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -93,8 +91,8 @@ def sync_detailed(
 def sync(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Any | ErrorResponse | HTTPValidationError | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[Any, ErrorResponse, HTTPValidationError]]:
     """Get job detections as GeoJSON
 
      Returns an `application/geo+json` FeatureCollection.
@@ -107,7 +105,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | ErrorResponse | HTTPValidationError
+        Union[Any, ErrorResponse, HTTPValidationError]
     """
 
     return sync_detailed(
@@ -119,8 +117,8 @@ def sync(
 async def asyncio_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[Any | ErrorResponse | HTTPValidationError]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[Any, ErrorResponse, HTTPValidationError]]:
     """Get job detections as GeoJSON
 
      Returns an `application/geo+json` FeatureCollection.
@@ -133,7 +131,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | ErrorResponse | HTTPValidationError]
+        Response[Union[Any, ErrorResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -148,8 +146,8 @@ async def asyncio_detailed(
 async def asyncio(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Any | ErrorResponse | HTTPValidationError | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[Any, ErrorResponse, HTTPValidationError]]:
     """Get job detections as GeoJSON
 
      Returns an `application/geo+json` FeatureCollection.
@@ -162,7 +160,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | ErrorResponse | HTTPValidationError
+        Union[Any, ErrorResponse, HTTPValidationError]
     """
 
     return (

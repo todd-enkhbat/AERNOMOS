@@ -1,6 +1,5 @@
 from http import HTTPStatus
-from typing import Any
-from urllib.parse import quote
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -15,11 +14,10 @@ from ...types import Response
 def _get_kwargs(
     job_id: str,
 ) -> dict[str, Any]:
-
     _kwargs: dict[str, Any] = {
         "method": "post",
         "url": "/v1/jobs/{job_id}/replay".format(
-            job_id=quote(str(job_id), safe=""),
+            job_id=job_id,
         ),
     }
 
@@ -27,8 +25,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | HTTPValidationError | ReplayResponse | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]:
     if response.status_code == 200:
         response_200 = ReplayResponse.from_dict(response.json())
 
@@ -51,8 +49,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | HTTPValidationError | ReplayResponse]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -64,8 +62,8 @@ def _build_response(
 def sync_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[ErrorResponse | HTTPValidationError | ReplayResponse]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]:
     """Deterministically replay a routing decision
 
      Recomputes the decision from the persisted inputs bundle and compares hashes bit-for-bit against the
@@ -79,7 +77,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | ReplayResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -96,8 +94,8 @@ def sync_detailed(
 def sync(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> ErrorResponse | HTTPValidationError | ReplayResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]:
     """Deterministically replay a routing decision
 
      Recomputes the decision from the persisted inputs bundle and compares hashes bit-for-bit against the
@@ -111,7 +109,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | ReplayResponse
+        Union[ErrorResponse, HTTPValidationError, ReplayResponse]
     """
 
     return sync_detailed(
@@ -123,8 +121,8 @@ def sync(
 async def asyncio_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[ErrorResponse | HTTPValidationError | ReplayResponse]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]:
     """Deterministically replay a routing decision
 
      Recomputes the decision from the persisted inputs bundle and compares hashes bit-for-bit against the
@@ -138,7 +136,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | ReplayResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -153,8 +151,8 @@ async def asyncio_detailed(
 async def asyncio(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> ErrorResponse | HTTPValidationError | ReplayResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, HTTPValidationError, ReplayResponse]]:
     """Deterministically replay a routing decision
 
      Recomputes the decision from the persisted inputs bundle and compares hashes bit-for-bit against the
@@ -168,7 +166,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | ReplayResponse
+        Union[ErrorResponse, HTTPValidationError, ReplayResponse]
     """
 
     return (

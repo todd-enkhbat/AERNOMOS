@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
     TypeVar,
+    Union,
     cast,
 )
 
@@ -35,16 +34,16 @@ class JobCreate:
         max_cost_usd (float):
         priority (JobCreatePriority):
         sensor (JobCreateSensor):
-        schema_version (Literal[1] | Unset):  Default: 1.
+        schema_version (Union[Literal[1], Unset]):  Default: 1.
     """
 
-    area_of_interest: AreaOfInterest
+    area_of_interest: "AreaOfInterest"
     compute_preference: JobCreateComputePreference
     job_type: JobCreateJobType
     max_cost_usd: float
     priority: JobCreatePriority
     sensor: JobCreateSensor
-    schema_version: Literal[1] | Unset = 1
+    schema_version: Union[Literal[1], Unset] = 1
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -96,7 +95,7 @@ class JobCreate:
 
         sensor = JobCreateSensor(d.pop("sensor"))
 
-        schema_version = cast(Literal[1] | Unset, d.pop("schema_version", UNSET))
+        schema_version = cast(Union[Literal[1], Unset], d.pop("schema_version", UNSET))
         if schema_version != 1 and not isinstance(schema_version, Unset):
             raise ValueError(
                 f"schema_version must match const 1, got '{schema_version}'"

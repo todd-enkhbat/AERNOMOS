@@ -1,7 +1,9 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,11 +18,17 @@ T = TypeVar("T", bound="JobEventsResponse")
 @_attrs_define
 class JobEventsResponse:
     """
+    Example:
+        {'events': [{'event_type': 'route_selected', 'id': 'evt_1d4f8a2c6b3e', 'job_id': 'job_9f2c41d3a8b7', 'message':
+            'Selected sim_leo_01 at 87% route confidence; latency 38 minutes, cost $84.00, fallback aws_us_east_gpu.',
+            'payload': {'confidence': 0.87, 'routing_decision_id': 'route_5b8e2f7c9d01', 'selected_node_id': 'sim_leo_01',
+            'status_from': 'queued', 'status_to': 'routing'}, 'ts_utc': '2026-07-05T14:00:01+00:00'}]}
+
     Attributes:
-        events (list[JobEvent]):
+        events (list['JobEvent']):
     """
 
-    events: list[JobEvent]
+    events: list["JobEvent"]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

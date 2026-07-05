@@ -1,7 +1,11 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,24 +23,24 @@ T = TypeVar("T", bound="ValidationError")
 class ValidationError:
     """
     Attributes:
-        loc (list[int | str]):
+        loc (list[Union[int, str]]):
         msg (str):
         type_ (str):
-        ctx (ValidationErrorContext | Unset):
-        input_ (Any | Unset):
+        ctx (Union[Unset, ValidationErrorContext]):
+        input_ (Union[Unset, Any]):
     """
 
-    loc: list[int | str]
+    loc: list[Union[int, str]]
     msg: str
     type_: str
-    ctx: ValidationErrorContext | Unset = UNSET
-    input_: Any | Unset = UNSET
+    ctx: Union[Unset, "ValidationErrorContext"] = UNSET
+    input_: Union[Unset, Any] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         loc = []
         for loc_item_data in self.loc:
-            loc_item: int | str
+            loc_item: Union[int, str]
             loc_item = loc_item_data
             loc.append(loc_item)
 
@@ -44,7 +48,7 @@ class ValidationError:
 
         type_ = self.type_
 
-        ctx: dict[str, Any] | Unset = UNSET
+        ctx: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.ctx, Unset):
             ctx = self.ctx.to_dict()
 
@@ -75,8 +79,8 @@ class ValidationError:
         _loc = d.pop("loc")
         for loc_item_data in _loc:
 
-            def _parse_loc_item(data: object) -> int | str:
-                return cast(int | str, data)
+            def _parse_loc_item(data: object) -> Union[int, str]:
+                return cast(Union[int, str], data)
 
             loc_item = _parse_loc_item(loc_item_data)
 
@@ -87,7 +91,7 @@ class ValidationError:
         type_ = d.pop("type")
 
         _ctx = d.pop("ctx", UNSET)
-        ctx: ValidationErrorContext | Unset
+        ctx: Union[Unset, ValidationErrorContext]
         if isinstance(_ctx, Unset):
             ctx = UNSET
         else:

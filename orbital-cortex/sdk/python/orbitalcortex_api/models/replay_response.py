@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -12,6 +10,10 @@ T = TypeVar("T", bound="ReplayResponse")
 @_attrs_define
 class ReplayResponse:
     """
+    Example:
+        {'config_version': '2026.07.05-1', 'input_hash': 'a3f1c6e29b8d4c07', 'match': True, 'replay_decision_hash':
+            '5d9e0b2a7c41f386', 'stored_decision_hash': '5d9e0b2a7c41f386'}
+
     Attributes:
         config_version (str):
         input_hash (str):

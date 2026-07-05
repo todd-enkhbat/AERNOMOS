@@ -1,7 +1,9 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,13 +19,22 @@ T = TypeVar("T", bound="NodesResponse")
 @_attrs_define
 class NodesResponse:
     """
+    Example:
+        {'compute_nodes': [{'availability': 0.97, 'base_cost_usd': 60.0, 'compliance_tags': ['civilian', 'commercial'],
+            'downlink_mbps': 400, 'gpu_class': 'edge-tpu-class', 'id': 'sim_leo_01', 'latency_minutes': 30.0, 'location':
+            'LEO / sun-synchronous', 'name': 'Simulated LEO SAR node 01', 'orbit': 'SSO ~700 km', 'power_state': 'nominal',
+            'satellite_id': 'sat_sentinel_1a', 'storage_gb': 512, 'supported_models': ['ship_detection'], 'type':
+            'orbital'}], 'ground_stations': [{'altitude_m': 458.0, 'availability': 0.98, 'downlink_mbps': 600, 'id':
+            'gs_ksat_svalbard', 'latency_minutes': 8.0, 'latitude': 78.23, 'location': 'Svalbard, Norway', 'longitude':
+            15.39, 'min_elevation_deg': 10.0, 'name': 'KSAT Svalbard', 'provider': 'KSAT'}]}
+
     Attributes:
-        compute_nodes (list[ComputeNode]):
-        ground_stations (list[GroundStation]):
+        compute_nodes (list['ComputeNode']):
+        ground_stations (list['GroundStation']):
     """
 
-    compute_nodes: list[ComputeNode]
-    ground_stations: list[GroundStation]
+    compute_nodes: list["ComputeNode"]
+    ground_stations: list["GroundStation"]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -13,31 +13,30 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    satellite_id: None | str | Unset = UNSET,
-    ground_station_id: None | str | Unset = UNSET,
-    date: None | str | Unset = UNSET,
-    upcoming: bool | Unset = False,
-    limit: int | Unset = 100,
-    cursor: None | str | Unset = UNSET,
+    satellite_id: Union[None, Unset, str] = UNSET,
+    ground_station_id: Union[None, Unset, str] = UNSET,
+    date: Union[None, Unset, str] = UNSET,
+    upcoming: Union[Unset, bool] = False,
+    limit: Union[Unset, int] = 100,
+    cursor: Union[None, Unset, str] = UNSET,
 ) -> dict[str, Any]:
-
     params: dict[str, Any] = {}
 
-    json_satellite_id: None | str | Unset
+    json_satellite_id: Union[None, Unset, str]
     if isinstance(satellite_id, Unset):
         json_satellite_id = UNSET
     else:
         json_satellite_id = satellite_id
     params["satellite_id"] = json_satellite_id
 
-    json_ground_station_id: None | str | Unset
+    json_ground_station_id: Union[None, Unset, str]
     if isinstance(ground_station_id, Unset):
         json_ground_station_id = UNSET
     else:
         json_ground_station_id = ground_station_id
     params["ground_station_id"] = json_ground_station_id
 
-    json_date: None | str | Unset
+    json_date: Union[None, Unset, str]
     if isinstance(date, Unset):
         json_date = UNSET
     else:
@@ -48,7 +47,7 @@ def _get_kwargs(
 
     params["limit"] = limit
 
-    json_cursor: None | str | Unset
+    json_cursor: Union[None, Unset, str]
     if isinstance(cursor, Unset):
         json_cursor = UNSET
     else:
@@ -67,8 +66,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ContactWindowsResponse | ErrorResponse | HTTPValidationError | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = ContactWindowsResponse.from_dict(response.json())
 
@@ -91,8 +90,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ContactWindowsResponse | ErrorResponse | HTTPValidationError]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -103,33 +102,33 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient | Client,
-    satellite_id: None | str | Unset = UNSET,
-    ground_station_id: None | str | Unset = UNSET,
-    date: None | str | Unset = UNSET,
-    upcoming: bool | Unset = False,
-    limit: int | Unset = 100,
-    cursor: None | str | Unset = UNSET,
-) -> Response[ContactWindowsResponse | ErrorResponse | HTTPValidationError]:
+    client: Union[AuthenticatedClient, Client],
+    satellite_id: Union[None, Unset, str] = UNSET,
+    ground_station_id: Union[None, Unset, str] = UNSET,
+    date: Union[None, Unset, str] = UNSET,
+    upcoming: Union[Unset, bool] = False,
+    limit: Union[Unset, int] = 100,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Response[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]:
     """List precomputed SGP4 contact windows (cursor-paginated)
 
      Reads from the pass cache populated by the worker; no orbital propagation happens on this request
     path.
 
     Args:
-        satellite_id (None | str | Unset):
-        ground_station_id (None | str | Unset):
-        date (None | str | Unset): AOS date, YYYY-MM-DD UTC
-        upcoming (bool | Unset): Only windows that have not ended Default: False.
-        limit (int | Unset):  Default: 100.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        satellite_id (Union[None, Unset, str]):
+        ground_station_id (Union[None, Unset, str]):
+        date (Union[None, Unset, str]): AOS date, YYYY-MM-DD UTC
+        upcoming (Union[Unset, bool]): Only windows that have not ended Default: False.
+        limit (Union[Unset, int]):  Default: 100.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ContactWindowsResponse | ErrorResponse | HTTPValidationError]
+        Response[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -150,33 +149,33 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient | Client,
-    satellite_id: None | str | Unset = UNSET,
-    ground_station_id: None | str | Unset = UNSET,
-    date: None | str | Unset = UNSET,
-    upcoming: bool | Unset = False,
-    limit: int | Unset = 100,
-    cursor: None | str | Unset = UNSET,
-) -> ContactWindowsResponse | ErrorResponse | HTTPValidationError | None:
+    client: Union[AuthenticatedClient, Client],
+    satellite_id: Union[None, Unset, str] = UNSET,
+    ground_station_id: Union[None, Unset, str] = UNSET,
+    date: Union[None, Unset, str] = UNSET,
+    upcoming: Union[Unset, bool] = False,
+    limit: Union[Unset, int] = 100,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Optional[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]:
     """List precomputed SGP4 contact windows (cursor-paginated)
 
      Reads from the pass cache populated by the worker; no orbital propagation happens on this request
     path.
 
     Args:
-        satellite_id (None | str | Unset):
-        ground_station_id (None | str | Unset):
-        date (None | str | Unset): AOS date, YYYY-MM-DD UTC
-        upcoming (bool | Unset): Only windows that have not ended Default: False.
-        limit (int | Unset):  Default: 100.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        satellite_id (Union[None, Unset, str]):
+        ground_station_id (Union[None, Unset, str]):
+        date (Union[None, Unset, str]): AOS date, YYYY-MM-DD UTC
+        upcoming (Union[Unset, bool]): Only windows that have not ended Default: False.
+        limit (Union[Unset, int]):  Default: 100.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ContactWindowsResponse | ErrorResponse | HTTPValidationError
+        Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]
     """
 
     return sync_detailed(
@@ -192,33 +191,33 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient | Client,
-    satellite_id: None | str | Unset = UNSET,
-    ground_station_id: None | str | Unset = UNSET,
-    date: None | str | Unset = UNSET,
-    upcoming: bool | Unset = False,
-    limit: int | Unset = 100,
-    cursor: None | str | Unset = UNSET,
-) -> Response[ContactWindowsResponse | ErrorResponse | HTTPValidationError]:
+    client: Union[AuthenticatedClient, Client],
+    satellite_id: Union[None, Unset, str] = UNSET,
+    ground_station_id: Union[None, Unset, str] = UNSET,
+    date: Union[None, Unset, str] = UNSET,
+    upcoming: Union[Unset, bool] = False,
+    limit: Union[Unset, int] = 100,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Response[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]:
     """List precomputed SGP4 contact windows (cursor-paginated)
 
      Reads from the pass cache populated by the worker; no orbital propagation happens on this request
     path.
 
     Args:
-        satellite_id (None | str | Unset):
-        ground_station_id (None | str | Unset):
-        date (None | str | Unset): AOS date, YYYY-MM-DD UTC
-        upcoming (bool | Unset): Only windows that have not ended Default: False.
-        limit (int | Unset):  Default: 100.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        satellite_id (Union[None, Unset, str]):
+        ground_station_id (Union[None, Unset, str]):
+        date (Union[None, Unset, str]): AOS date, YYYY-MM-DD UTC
+        upcoming (Union[Unset, bool]): Only windows that have not ended Default: False.
+        limit (Union[Unset, int]):  Default: 100.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ContactWindowsResponse | ErrorResponse | HTTPValidationError]
+        Response[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -237,33 +236,33 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient | Client,
-    satellite_id: None | str | Unset = UNSET,
-    ground_station_id: None | str | Unset = UNSET,
-    date: None | str | Unset = UNSET,
-    upcoming: bool | Unset = False,
-    limit: int | Unset = 100,
-    cursor: None | str | Unset = UNSET,
-) -> ContactWindowsResponse | ErrorResponse | HTTPValidationError | None:
+    client: Union[AuthenticatedClient, Client],
+    satellite_id: Union[None, Unset, str] = UNSET,
+    ground_station_id: Union[None, Unset, str] = UNSET,
+    date: Union[None, Unset, str] = UNSET,
+    upcoming: Union[Unset, bool] = False,
+    limit: Union[Unset, int] = 100,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Optional[Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]]:
     """List precomputed SGP4 contact windows (cursor-paginated)
 
      Reads from the pass cache populated by the worker; no orbital propagation happens on this request
     path.
 
     Args:
-        satellite_id (None | str | Unset):
-        ground_station_id (None | str | Unset):
-        date (None | str | Unset): AOS date, YYYY-MM-DD UTC
-        upcoming (bool | Unset): Only windows that have not ended Default: False.
-        limit (int | Unset):  Default: 100.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        satellite_id (Union[None, Unset, str]):
+        ground_station_id (Union[None, Unset, str]):
+        date (Union[None, Unset, str]): AOS date, YYYY-MM-DD UTC
+        upcoming (Union[Unset, bool]): Only windows that have not ended Default: False.
+        limit (Union[Unset, int]):  Default: 100.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ContactWindowsResponse | ErrorResponse | HTTPValidationError
+        Union[ContactWindowsResponse, ErrorResponse, HTTPValidationError]
     """
 
     return (

@@ -1,6 +1,5 @@
 from http import HTTPStatus
-from typing import Any
-from urllib.parse import quote
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -15,11 +14,10 @@ from ...types import Response
 def _get_kwargs(
     job_id: str,
 ) -> dict[str, Any]:
-
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/v1/jobs/{job_id}".format(
-            job_id=quote(str(job_id), safe=""),
+            job_id=job_id,
         ),
     }
 
@@ -27,8 +25,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | HTTPValidationError | JobDetailResponse | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]:
     if response.status_code == 200:
         response_200 = JobDetailResponse.from_dict(response.json())
 
@@ -51,8 +49,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | HTTPValidationError | JobDetailResponse]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -64,8 +62,8 @@ def _build_response(
 def sync_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[ErrorResponse | HTTPValidationError | JobDetailResponse]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]:
     """Get a job with its routing decision
 
     Args:
@@ -76,7 +74,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | JobDetailResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -93,8 +91,8 @@ def sync_detailed(
 def sync(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> ErrorResponse | HTTPValidationError | JobDetailResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]:
     """Get a job with its routing decision
 
     Args:
@@ -105,7 +103,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | JobDetailResponse
+        Union[ErrorResponse, HTTPValidationError, JobDetailResponse]
     """
 
     return sync_detailed(
@@ -117,8 +115,8 @@ def sync(
 async def asyncio_detailed(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> Response[ErrorResponse | HTTPValidationError | JobDetailResponse]:
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]:
     """Get a job with its routing decision
 
     Args:
@@ -129,7 +127,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | JobDetailResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -144,8 +142,8 @@ async def asyncio_detailed(
 async def asyncio(
     job_id: str,
     *,
-    client: AuthenticatedClient | Client,
-) -> ErrorResponse | HTTPValidationError | JobDetailResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, HTTPValidationError, JobDetailResponse]]:
     """Get a job with its routing decision
 
     Args:
@@ -156,7 +154,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | JobDetailResponse
+        Union[ErrorResponse, HTTPValidationError, JobDetailResponse]
     """
 
     return (

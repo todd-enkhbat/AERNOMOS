@@ -1,7 +1,11 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,13 +22,19 @@ T = TypeVar("T", bound="ContactWindowsResponse")
 @_attrs_define
 class ContactWindowsResponse:
     """
+    Example:
+        {'contact_windows': [{'aos_utc': '2026-07-05T14:27:30+00:00', 'culminate_utc': '2026-07-05T14:32:10+00:00',
+            'date': '2026-07-05', 'duration_s': 555.0, 'est_downlink_mb': 42.0, 'ground_station_id': 'gs_ksat_svalbard',
+            'id': 'cw_7a1b3c5d9e2f', 'los_utc': '2026-07-05T14:36:45+00:00', 'max_elevation_deg': 63.4, 'satellite_id':
+            'sat_sentinel_1a'}], 'next_cursor': 'MjAyNi0wNy0wNVQxNDoyNzozMCswMDowMHxjd183YTFiM2M1ZDllMmY='}
+
     Attributes:
-        contact_windows (list[ContactWindow]):
-        next_cursor (None | str | Unset):
+        contact_windows (list['ContactWindow']):
+        next_cursor (Union[None, Unset, str]):
     """
 
-    contact_windows: list[ContactWindow]
-    next_cursor: None | str | Unset = UNSET
+    contact_windows: list["ContactWindow"]
+    next_cursor: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +43,7 @@ class ContactWindowsResponse:
             contact_windows_item = contact_windows_item_data.to_dict()
             contact_windows.append(contact_windows_item)
 
-        next_cursor: None | str | Unset
+        next_cursor: Union[None, Unset, str]
         if isinstance(self.next_cursor, Unset):
             next_cursor = UNSET
         else:
@@ -63,12 +73,12 @@ class ContactWindowsResponse:
 
             contact_windows.append(contact_windows_item)
 
-        def _parse_next_cursor(data: object) -> None | str | Unset:
+        def _parse_next_cursor(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         next_cursor = _parse_next_cursor(d.pop("next_cursor", UNSET))
 

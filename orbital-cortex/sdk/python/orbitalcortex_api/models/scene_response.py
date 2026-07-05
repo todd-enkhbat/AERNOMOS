@@ -1,7 +1,11 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,17 +22,25 @@ T = TypeVar("T", bound="SceneResponse")
 @_attrs_define
 class SceneResponse:
     """
+    Example:
+        {'scene': {'aoi': {'coordinates': [[[-74.3, 40.3], [-73.5, 40.3], [-73.5, 41.0], [-74.3, 41.0], [-74.3, 40.3]]],
+            'type': 'Polygon'}, 'captured_utc': '2026-06-15T10:42:00+00:00', 'cog_url':
+            'mock://scenes/ny_harbor/backscatter.tif', 'id': 'scene_6e2a9c4f1b8d', 'job_id': 'job_9f2c41d3a8b7', 'mode': 'IW
+            GRD', 'provenance': 'Canned Sentinel-1 IW GRD chip over New York Harbor. Offline SNAP-style processing pin; not
+            live SAR.', 'resolution_m': 10.0, 'sensor': 'Sentinel-1', 'source': 'simulator/ny_harbor_scene', 'stac_item_id':
+            'S1A_IW_GRDH_NY_HARBOR_DEMO'}}
+
     Attributes:
-        scene (None | SceneResponseSceneType0 | Unset):
+        scene (Union['SceneResponseSceneType0', None, Unset]):
     """
 
-    scene: None | SceneResponseSceneType0 | Unset = UNSET
+    scene: Union["SceneResponseSceneType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.scene_response_scene_type_0 import SceneResponseSceneType0
 
-        scene: dict[str, Any] | None | Unset
+        scene: Union[None, Unset, dict[str, Any]]
         if isinstance(self.scene, Unset):
             scene = UNSET
         elif isinstance(self.scene, SceneResponseSceneType0):
@@ -50,7 +62,7 @@ class SceneResponse:
 
         d = dict(src_dict)
 
-        def _parse_scene(data: object) -> None | SceneResponseSceneType0 | Unset:
+        def _parse_scene(data: object) -> Union["SceneResponseSceneType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -61,9 +73,9 @@ class SceneResponse:
                 scene_type_0 = SceneResponseSceneType0.from_dict(data)
 
                 return scene_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
+            except:  # noqa: E722
                 pass
-            return cast(None | SceneResponseSceneType0 | Unset, data)
+            return cast(Union["SceneResponseSceneType0", None, Unset], data)
 
         scene = _parse_scene(d.pop("scene", UNSET))
 

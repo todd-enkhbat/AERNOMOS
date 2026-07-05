@@ -1,7 +1,10 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import (
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -29,8 +32,8 @@ class ComputeNode:
         storage_gb (int):
         supported_models (list[str]):
         type_ (ComputeNodeType):
-        orbit (None | str | Unset):
-        satellite_id (None | str | Unset):
+        orbit (Union[None, Unset, str]):
+        satellite_id (Union[None, Unset, str]):
     """
 
     availability: float
@@ -46,8 +49,8 @@ class ComputeNode:
     storage_gb: int
     supported_models: list[str]
     type_: ComputeNodeType
-    orbit: None | str | Unset = UNSET
-    satellite_id: None | str | Unset = UNSET
+    orbit: Union[None, Unset, str] = UNSET
+    satellite_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -77,13 +80,13 @@ class ComputeNode:
 
         type_ = self.type_.value
 
-        orbit: None | str | Unset
+        orbit: Union[None, Unset, str]
         if isinstance(self.orbit, Unset):
             orbit = UNSET
         else:
             orbit = self.orbit
 
-        satellite_id: None | str | Unset
+        satellite_id: Union[None, Unset, str]
         if isinstance(self.satellite_id, Unset):
             satellite_id = UNSET
         else:
@@ -144,21 +147,21 @@ class ComputeNode:
 
         type_ = ComputeNodeType(d.pop("type"))
 
-        def _parse_orbit(data: object) -> None | str | Unset:
+        def _parse_orbit(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         orbit = _parse_orbit(d.pop("orbit", UNSET))
 
-        def _parse_satellite_id(data: object) -> None | str | Unset:
+        def _parse_satellite_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         satellite_id = _parse_satellite_id(d.pop("satellite_id", UNSET))
 

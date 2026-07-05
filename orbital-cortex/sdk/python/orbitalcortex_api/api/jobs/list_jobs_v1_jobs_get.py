@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -13,15 +13,14 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    limit: int | Unset = 50,
-    cursor: None | str | Unset = UNSET,
+    limit: Union[Unset, int] = 50,
+    cursor: Union[None, Unset, str] = UNSET,
 ) -> dict[str, Any]:
-
     params: dict[str, Any] = {}
 
     params["limit"] = limit
 
-    json_cursor: None | str | Unset
+    json_cursor: Union[None, Unset, str]
     if isinstance(cursor, Unset):
         json_cursor = UNSET
     else:
@@ -40,8 +39,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]:
     if response.status_code == 200:
         response_200 = JobsListResponse.from_dict(response.json())
 
@@ -64,8 +63,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -76,22 +75,22 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient | Client,
-    limit: int | Unset = 50,
-    cursor: None | str | Unset = UNSET,
-) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
+    client: Union[AuthenticatedClient, Client],
+    limit: Union[Unset, int] = 50,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Response[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]:
     """List jobs (cursor-paginated)
 
     Args:
-        limit (int | Unset):  Default: 50.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        limit (Union[Unset, int]):  Default: 50.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | JobsListResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -108,22 +107,22 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient | Client,
-    limit: int | Unset = 50,
-    cursor: None | str | Unset = UNSET,
-) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
+    client: Union[AuthenticatedClient, Client],
+    limit: Union[Unset, int] = 50,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Optional[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]:
     """List jobs (cursor-paginated)
 
     Args:
-        limit (int | Unset):  Default: 50.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        limit (Union[Unset, int]):  Default: 50.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | JobsListResponse
+        Union[ErrorResponse, HTTPValidationError, JobsListResponse]
     """
 
     return sync_detailed(
@@ -135,22 +134,22 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient | Client,
-    limit: int | Unset = 50,
-    cursor: None | str | Unset = UNSET,
-) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
+    client: Union[AuthenticatedClient, Client],
+    limit: Union[Unset, int] = 50,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Response[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]:
     """List jobs (cursor-paginated)
 
     Args:
-        limit (int | Unset):  Default: 50.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        limit (Union[Unset, int]):  Default: 50.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | HTTPValidationError | JobsListResponse]
+        Response[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -165,22 +164,22 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient | Client,
-    limit: int | Unset = 50,
-    cursor: None | str | Unset = UNSET,
-) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
+    client: Union[AuthenticatedClient, Client],
+    limit: Union[Unset, int] = 50,
+    cursor: Union[None, Unset, str] = UNSET,
+) -> Optional[Union[ErrorResponse, HTTPValidationError, JobsListResponse]]:
     """List jobs (cursor-paginated)
 
     Args:
-        limit (int | Unset):  Default: 50.
-        cursor (None | str | Unset): Opaque cursor from a previous page's next_cursor
+        limit (Union[Unset, int]):  Default: 50.
+        cursor (Union[None, Unset, str]): Opaque cursor from a previous page's next_cursor
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | HTTPValidationError | JobsListResponse
+        Union[ErrorResponse, HTTPValidationError, JobsListResponse]
     """
 
     return (

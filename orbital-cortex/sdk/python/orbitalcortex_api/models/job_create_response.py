@@ -1,7 +1,11 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,13 +23,19 @@ T = TypeVar("T", bound="JobCreateResponse")
 @_attrs_define
 class JobCreateResponse:
     """
+    Example:
+        {'job': {'area_of_interest': {'coordinates': [-74.3, 40.3, -73.5, 41.0], 'type': 'bbox'}, 'compute_preference':
+            'orbital_if_available', 'created_at': '2026-07-05T14:00:00+00:00', 'id': 'job_9f2c41d3a8b7', 'job_type':
+            'ship_detection', 'max_cost_usd': 500.0, 'priority': 'fastest', 'schema_version': 1, 'sensor': 'SAR', 'status':
+            'queued', 'updated_at': '2026-07-05T14:00:00+00:00'}}
+
     Attributes:
         job (Job):
-        routing_decision (None | RoutingDecision | Unset):
+        routing_decision (Union['RoutingDecision', None, Unset]):
     """
 
-    job: Job
-    routing_decision: None | RoutingDecision | Unset = UNSET
+    job: "Job"
+    routing_decision: Union["RoutingDecision", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +43,7 @@ class JobCreateResponse:
 
         job = self.job.to_dict()
 
-        routing_decision: dict[str, Any] | None | Unset
+        routing_decision: Union[None, Unset, dict[str, Any]]
         if isinstance(self.routing_decision, Unset):
             routing_decision = UNSET
         elif isinstance(self.routing_decision, RoutingDecision):
@@ -61,7 +71,9 @@ class JobCreateResponse:
         d = dict(src_dict)
         job = Job.from_dict(d.pop("job"))
 
-        def _parse_routing_decision(data: object) -> None | RoutingDecision | Unset:
+        def _parse_routing_decision(
+            data: object,
+        ) -> Union["RoutingDecision", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -72,9 +84,9 @@ class JobCreateResponse:
                 routing_decision_type_0 = RoutingDecision.from_dict(data)
 
                 return routing_decision_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
+            except:  # noqa: E722
                 pass
-            return cast(None | RoutingDecision | Unset, data)
+            return cast(Union["RoutingDecision", None, Unset], data)
 
         routing_decision = _parse_routing_decision(d.pop("routing_decision", UNSET))
 

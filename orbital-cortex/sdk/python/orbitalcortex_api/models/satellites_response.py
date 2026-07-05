@@ -1,7 +1,9 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,11 +18,17 @@ T = TypeVar("T", bound="SatellitesResponse")
 @_attrs_define
 class SatellitesResponse:
     """
+    Example:
+        {'satellites': [{'downlink_rate_mbps': 520.0, 'id': 'sat_sentinel_1a', 'name': 'SENTINEL-1A', 'norad_id': 39634,
+            'snapshot_id': 'celestrak-2026-07-05', 'source': 'celestrak', 'tle_epoch': '2026-07-05T12:25:40+00:00',
+            'tle_line1': '1 39634U 14016A   26186.51782528  .00000714  00000+0  19052-3 0  9995', 'tle_line2': '2 39634
+            98.1813 187.6273 0001341  81.4767 278.6588 14.59198614652873'}]}
+
     Attributes:
-        satellites (list[Satellite]):
+        satellites (list['Satellite']):
     """
 
-    satellites: list[Satellite]
+    satellites: list["Satellite"]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

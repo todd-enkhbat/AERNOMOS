@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -10,7 +10,6 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/v1/nodes",
@@ -20,8 +19,8 @@ def _get_kwargs() -> dict[str, Any]:
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> NodesResponse | None:
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[NodesResponse]:
     if response.status_code == 200:
         response_200 = NodesResponse.from_dict(response.json())
 
@@ -34,7 +33,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Response[NodesResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -46,7 +45,7 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient | Client,
+    client: Union[AuthenticatedClient, Client],
 ) -> Response[NodesResponse]:
     """List compute nodes and ground stations
 
@@ -69,8 +68,8 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient | Client,
-) -> NodesResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[NodesResponse]:
     """List compute nodes and ground stations
 
     Raises:
@@ -88,7 +87,7 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient | Client,
+    client: Union[AuthenticatedClient, Client],
 ) -> Response[NodesResponse]:
     """List compute nodes and ground stations
 
@@ -109,8 +108,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient | Client,
-) -> NodesResponse | None:
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[NodesResponse]:
     """List compute nodes and ground stations
 
     Raises:

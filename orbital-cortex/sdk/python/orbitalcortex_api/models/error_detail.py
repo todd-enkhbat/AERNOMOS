@@ -1,7 +1,10 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import (
+    Any,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,12 +20,12 @@ class ErrorDetail:
     Attributes:
         code (str):
         message (str):
-        details (Any | None | Unset):
+        details (Union[Any, None, Unset]):
     """
 
     code: str
     message: str
-    details: Any | None | Unset = UNSET
+    details: Union[Any, None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -30,7 +33,7 @@ class ErrorDetail:
 
         message = self.message
 
-        details: Any | None | Unset
+        details: Union[Any, None, Unset]
         if isinstance(self.details, Unset):
             details = UNSET
         else:
@@ -56,12 +59,12 @@ class ErrorDetail:
 
         message = d.pop("message")
 
-        def _parse_details(data: object) -> Any | None | Unset:
+        def _parse_details(data: object) -> Union[Any, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Any | None | Unset, data)
+            return cast(Union[Any, None, Unset], data)
 
         details = _parse_details(d.pop("details", UNSET))
 
