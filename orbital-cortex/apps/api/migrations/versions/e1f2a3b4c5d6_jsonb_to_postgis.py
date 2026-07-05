@@ -16,6 +16,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Fresh databases (new Neon branch, new Fly Postgres) don't have PostGIS
+    # enabled; CI's postgis image and the dev DB already do, so IF NOT EXISTS.
+    op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
     op.execute(
         """
         ALTER TABLE detections
