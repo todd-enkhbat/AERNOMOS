@@ -165,7 +165,33 @@ def get_job_scene(
     "/jobs/{job_id}/detections",
     summary="Get job detections as GeoJSON",
     description="Returns an `application/geo+json` FeatureCollection.",
-    responses=NOT_FOUND,
+    responses={
+        **NOT_FOUND,
+        200: {
+            "content": {
+                "application/geo+json": {
+                    "example": {
+                        "type": "FeatureCollection",
+                        "features": [
+                            {
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": [-74.045, 40.63],
+                                },
+                                "properties": {
+                                    "class": "cargo",
+                                    "confidence": 0.94,
+                                    "length_m": 182.0,
+                                    "simulated": True,
+                                },
+                            }
+                        ],
+                    }
+                }
+            }
+        },
+    },
 )
 def get_job_detections(
     job_id: str,

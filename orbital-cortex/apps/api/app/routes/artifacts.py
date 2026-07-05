@@ -19,6 +19,14 @@ router = APIRouter(prefix="/v1", tags=["artifacts"])
     "/artifacts/{key:path}",
     summary="Fetch an artifact via a signed URL (local backend only)",
     responses={
+        200: {
+            "description": "Raw artifact bytes",
+            "content": {
+                "application/geo+json": {
+                    "example": {"type": "FeatureCollection", "features": []}
+                }
+            },
+        },
         403: {"model": ErrorResponse, "description": "Bad or expired signature"},
         404: {"model": ErrorResponse, "description": "Artifact not found"},
     },

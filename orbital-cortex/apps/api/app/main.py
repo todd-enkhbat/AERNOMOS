@@ -182,7 +182,20 @@ def health() -> dict:
     return {"status": "ok", "service": "orbital-cortex-api"}
 
 
-@app.get("/healthz", tags=["health"], summary="Liveness probe")
+@app.get(
+    "/healthz",
+    tags=["health"],
+    summary="Liveness probe",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {"status": "ok", "service": "orbital-cortex-api"}
+                }
+            }
+        }
+    },
+)
 def healthz() -> dict:
     return {"status": "ok", "service": "orbital-cortex-api"}
 
@@ -195,6 +208,29 @@ def healthz() -> dict:
         "503 until the database answers. Redis is reported but optional: "
         "without it, jobs queue and run via the manual dev path."
     ),
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "ready",
+                        "checks": {"database": True, "redis": True},
+                    }
+                }
+            }
+        },
+        503: {
+            "description": "Database unreachable",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "unavailable",
+                        "checks": {"database": False, "redis": True},
+                    }
+                }
+            },
+        },
+    },
 )
 def readyz() -> JSONResponse:
     from app.core.queue import ping_redis
