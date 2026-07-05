@@ -34,8 +34,9 @@ def build_routing_decision(
         ),
     )[0]
     selected_node = _node_by_id(compute_nodes, selected["node_id"])
-    fallback_node_id = _select_fallback_node_id(eligible_candidates, compute_nodes, selected)
-    reasons = _selected_reasons(job, selected, selected_node, fallback_node_id)
+    fallback_candidate = _select_fallback_candidate(eligible_candidates, compute_nodes, selected)
+    fallback_node_id = fallback_candidate["node_id"] if fallback_candidate else None
+    reasons = _selected_reasons(job, selected, selected_node, fallback_candidate)
 
     return {
         "id": new_id("route"),
@@ -259,25 +260,39 @@ def _candidate_reasons(
     node = candidate["node"]
     reasons: List[str] = []
     if candidate["model_supported"]:
-        reasons.append("Supports requested job type")
+        reasons.append(
+            f"Supports {_label(job['job_type'])} on {node['gpu_class']} compute."
+        )
     else:
-        reasons.append("Does not support requested job type")
+        reasons.append(f"Does not support {_label(job['job_type'])}.")
     if candidate["policy_allowed"]:
-        reasons.append("Allowed by local non-defense demo policy")
+        reasons.append("Passes non-defense commercial demo policy.")
     else:
         reasons.append("Blocked by local demo policy")
     if candidate["preference_allowed"]:
-        reasons.append("Allowed by compute preference")
+        reasons.append(f"Compatible with {_label(job['compute_preference'])} preference.")
     else:
-        reasons.append("Excluded by compute preference")
+        reasons.append(f"Excluded by {_label(job['compute_preference'])} preference.")
     if node["type"] == "orbital":
-        reasons.append(f"Next contact window in {int(candidate['contact_minutes'])} minutes")
+        reasons.append(
+            f"Next contact in {int(candidate['contact_minutes'])} minutes; "
+            f"total route latency {candidate['estimated_latency_minutes']:.0f} minutes."
+        )
     else:
-        reasons.append("Ground cloud contact is immediately available")
+        reasons.append(
+            f"Ground cloud is immediately reachable with "
+            f"{candidate['estimated_latency_minutes']:.0f} minute execution latency."
+        )
     if candidate["estimated_cost_usd"] > float(job["max_cost_usd"]):
-        reasons.append("Estimated cost exceeds requested max cost")
+        reasons.append(
+            f"Estimated cost ${candidate['estimated_cost_usd']:.2f} exceeds "
+            f"requested cap ${float(job['max_cost_usd']):.2f}."
+        )
+    else:
+        budget_delta = float(job["max_cost_usd"]) - candidate["estimated_cost_usd"]
+        reasons.append(f"Estimated cost is ${budget_delta:.2f} under the job budget.")
     if eligible:
-        reasons.append("Eligible candidate")
+        reasons.append("Eligible candidate after model, policy, and preference checks.")
     return reasons
 
 
@@ -285,29 +300,59 @@ def _selected_reasons(
     job: Dict[str, Any],
     selected: Dict[str, Any],
     selected_node: Dict[str, Any],
-    fallback_node_id: Optional[str],
+    fallback_candidate: Optional[Dict[str, Any]],
 ) -> List[str]:
+    budget_delta = float(job["max_cost_usd"]) - selected["estimated_cost_usd"]
+    locality_reason = (
+        "The route keeps first-pass inference close to the simulated orbital data path."
+        if selected_node["type"] == "orbital"
+        else "The route uses cloud fallback because immediate execution is favored."
+    )
     reasons = [
         (
             f"Selected {selected_node['id']} because it supports "
-            f"{job['sensor']} {job['job_type']}."
+            f"{job['sensor']} {_label(job['job_type'])} on {selected_node['gpu_class']}."
+        ),
+        locality_reason,
+        (
+            f"Route score {selected['score']:.1f}/100 balanced "
+            f"{_label(job['priority'])} priority against "
+            f"{_label(job['compute_preference'])} compute preference."
         ),
         (
-            f"Estimated route latency is "
-            f"{selected['estimated_latency_minutes']:.0f} minutes."
+            f"Estimated latency is {selected['estimated_latency_minutes']:.0f} minutes "
+            f"and estimated cost is ${selected['estimated_cost_usd']:.2f}."
         ),
-        f"Estimated route cost is ${selected['estimated_cost_usd']:.2f}.",
-        f"Matched priority '{job['priority']}' and compute preference '{job['compute_preference']}'.",
     ]
+    if budget_delta >= 0:
+        reasons.append(f"Route is ${budget_delta:.2f} under the max budget.")
+    else:
+        reasons.append(f"Route is ${abs(budget_delta):.2f} over the requested max budget.")
     if selected_node["type"] == "orbital":
         reasons.insert(
             1,
-            f"Next orbital contact window is in {int(_selected_contact(selected))} minutes.",
+            (
+                f"Next orbital contact is in {int(_selected_contact(selected))} minutes; "
+                f"downlink is paired with {selected.get('selected_ground_station_id') or 'the best available ground station'}."
+            ),
         )
     else:
         reasons.insert(1, "Cloud fallback path is immediately reachable.")
-    if fallback_node_id and selected_node["type"] == "orbital":
-        reasons.append(f"Fallback node is {fallback_node_id}.")
+    if fallback_candidate and selected_node["type"] == "orbital":
+        cost_delta = fallback_candidate["estimated_cost_usd"] - selected["estimated_cost_usd"]
+        latency_delta = selected["estimated_latency_minutes"] - fallback_candidate["estimated_latency_minutes"]
+        if cost_delta > 0:
+            reasons.append(
+                f"Cloud fallback {fallback_candidate['node_id']} remains available, "
+                f"but costs ${cost_delta:.2f} more in this simulation."
+            )
+        elif latency_delta > 0:
+            reasons.append(
+                f"Cloud fallback {fallback_candidate['node_id']} is "
+                f"{latency_delta:.0f} minutes faster, but the orbital route wins on preference and locality."
+            )
+        else:
+            reasons.append(f"Cloud fallback {fallback_candidate['node_id']} remains available.")
     return reasons
 
 
@@ -319,11 +364,11 @@ def _selected_contact(selected: Dict[str, Any]) -> float:
     return 0.0
 
 
-def _select_fallback_node_id(
+def _select_fallback_candidate(
     eligible_candidates: List[Dict[str, Any]],
     compute_nodes: List[Dict[str, Any]],
     selected: Dict[str, Any],
-) -> Optional[str]:
+) -> Optional[Dict[str, Any]]:
     cloud_node_ids = {
         node["id"]
         for node in compute_nodes
@@ -344,7 +389,7 @@ def _select_fallback_node_id(
             candidate["estimated_cost_usd"],
             candidate["node_id"],
         ),
-    )[0]["node_id"]
+    )[0]
 
 
 def _node_by_id(nodes: List[Dict[str, Any]], node_id: str) -> Dict[str, Any]:
@@ -352,3 +397,7 @@ def _node_by_id(nodes: List[Dict[str, Any]], node_id: str) -> Dict[str, Any]:
         if node["id"] == node_id:
             return node
     raise KeyError(node_id)
+
+
+def _label(value: str) -> str:
+    return value.replace("_", " ")

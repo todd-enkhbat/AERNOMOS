@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import ast; ast.parse\\(open\\('app/core/router.py'\\).read\\(\\)\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('app/core/mock_inference.py'\\).read\\(\\)\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('app/core/scheduler.py'\\).read\\(\\)\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('app/routes/jobs.py'\\).read\\(\\)\\)\")",
+      "Bash(python3 -m pytest tests/test_api.py -q)",
+      "Bash(git check-ignore *)",
+      "Bash(lsof -i :8000 -sTCP:LISTEN)",
+      "Bash(curl -s http://127.0.0.1:8000/openapi.json)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['info']\\)\")",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/v1/jobs -H \"Content-Type: application/json\" -d '{\"sensor\":\"sar\",\"job_type\":\"ship_detection\",\"priority\":\"low_cost\",\"compute_preference\":\"prefer_orbital\",\"max_cost_usd\":50}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/v1/jobs -H \"Content-Type: application/json\" -d '{\"sensor\":\"SAR\",\"job_type\":\"ship_detection\",\"priority\":\"fastest\",\"compute_preference\":\"prefer_orbital\",\"max_cost_usd\":50,\"area_of_interest\":\"New York Harbor\"}')",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/jobs -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/dashboard -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://127.0.0.1:8000/v1/nodes/compute)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/v1/jobs/job_58236e3efdc2/simulate)",
+      "Bash(curl -s http://127.0.0.1:8000/v1/jobs/job_58236e3efdc2)",
+      "Bash(curl -s http://127.0.0.1:8000/v1/jobs/job_58236e3efdc2/events)",
+      "Bash(npx tsc *)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(git -C /Users/kintekente-mac/Documents/GitHub/AERNOMOS status --short .claude)"
+    ]
+  }
+}

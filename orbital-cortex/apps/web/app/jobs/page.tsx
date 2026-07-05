@@ -123,8 +123,8 @@ export default function JobsPage() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Jobs"
-        title="Submit and inspect AI jobs"
-        description="Create a deterministic space-data job and let the backend select a route across simulated orbital, ground, and cloud compute."
+        title="Submit a mission job"
+        description="Create a deterministic space-data request, route it across simulated orbital and cloud compute, then inspect the operator log and result."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
@@ -136,8 +136,10 @@ export default function JobsPage() {
               <Plus size={18} strokeWidth={1.8} />
             </span>
             <div>
-              <h2 className="text-2xl font-bold text-[#17140f]">New job</h2>
-              <p className="text-sm text-[#6f604c]">Default AOI: New York Harbor</p>
+              <h2 className="text-2xl font-bold text-[#17140f]">New maritime run</h2>
+              <p className="text-sm text-[#6f604c]">
+                Default AOI: New York Harbor SAR scene
+              </p>
             </div>
           </div>
 

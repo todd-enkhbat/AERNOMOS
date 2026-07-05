@@ -122,7 +122,10 @@ export interface Result {
     type: string;
     features: Array<{
       type: string;
-      geometry: Record<string, unknown>;
+      geometry: {
+        type: string;
+        coordinates?: unknown;
+      };
       properties: Record<string, string | number | boolean | null>;
     }>;
   };

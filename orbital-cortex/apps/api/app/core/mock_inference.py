@@ -7,24 +7,24 @@ from typing import Any, Dict, List, Tuple
 from app.core.storage import new_id
 
 
-SHIP_DETECTIONS: List[Tuple[float, float, float]] = [
-    (-74.0451, 40.6892, 0.94),
-    (-74.0203, 40.7001, 0.89),
-    (-74.0042, 40.7128, 0.91),
-    (-73.9857, 40.7045, 0.87),
-    (-74.0724, 40.6413, 0.9),
-    (-74.1016, 40.6072, 0.86),
-    (-73.9609, 40.7421, 0.83),
-    (-74.1588, 40.5468, 0.85),
-    (-74.0133, 40.6554, 0.92),
-    (-73.9345, 40.7831, 0.8),
-    (-74.1852, 40.512, 0.78),
-    (-73.8891, 40.8043, 0.82),
-    (-74.0368, 40.5798, 0.88),
-    (-73.9754, 40.633, 0.84),
-    (-74.2261, 40.5008, 0.79),
-    (-73.9442, 40.6795, 0.81),
-    (-74.0698, 40.7293, 0.86),
+SHIP_DETECTIONS: List[Tuple[float, float, float, str, str]] = [
+    (-74.0451, 40.6892, 0.94, "large_cargo", "Upper Bay anchorage"),
+    (-74.0203, 40.7001, 0.9, "tug", "Governors Island channel"),
+    (-74.0042, 40.7128, 0.91, "ferry", "East River approach"),
+    (-73.9857, 40.7045, 0.87, "service_vessel", "Brooklyn waterfront"),
+    (-74.0724, 40.6413, 0.9, "container_ship", "Kill Van Kull"),
+    (-74.1016, 40.6072, 0.86, "tanker", "Staten Island east"),
+    (-73.9609, 40.7421, 0.83, "barge", "Queens shoreline"),
+    (-74.1588, 40.5468, 0.85, "cargo", "Outerbridge approach"),
+    (-74.0133, 40.6554, 0.92, "tug", "Bay Ridge channel"),
+    (-73.9345, 40.7831, 0.8, "small_vessel", "Harlem River"),
+    (-74.1852, 40.512, 0.78, "small_vessel", "Raritan Bay"),
+    (-73.8891, 40.8043, 0.82, "service_vessel", "Bronx waterfront"),
+    (-74.0368, 40.5798, 0.88, "ferry", "Verrazzano north"),
+    (-73.9754, 40.633, 0.84, "barge", "Brooklyn south"),
+    (-74.2261, 40.5008, 0.79, "small_cargo", "Arthur Kill south"),
+    (-73.9442, 40.6795, 0.81, "small_vessel", "Brooklyn interior"),
+    (-74.0698, 40.7293, 0.86, "cargo", "Jersey City terminal"),
 ]
 
 
@@ -40,7 +40,10 @@ def generate_mock_result(job: Dict[str, Any]) -> Dict[str, Any]:
 
 def _ship_detection_result(job: Dict[str, Any]) -> Dict[str, Any]:
     features = []
-    for index, (longitude, latitude, confidence) in enumerate(SHIP_DETECTIONS, start=1):
+    for index, (longitude, latitude, confidence, vessel_type, zone) in enumerate(
+        SHIP_DETECTIONS,
+        start=1,
+    ):
         features.append(
             {
                 "type": "Feature",
@@ -51,15 +54,22 @@ def _ship_detection_result(job: Dict[str, Any]) -> Dict[str, Any]:
                 "properties": {
                     "detection_id": f"vessel_{index:02d}",
                     "class": "vessel",
+                    "vessel_type": vessel_type,
+                    "harbor_zone": zone,
                     "confidence": confidence,
                     "length_m_estimate": 35 + (index % 7) * 12,
+                    "heading_deg_estimate": (index * 23) % 360,
+                    "priority": "review" if confidence >= 0.9 else "monitor",
                 },
             }
         )
     return {
         "id": new_id("res"),
         "job_id": job["id"],
-        "summary": "Detected 17 likely vessels in New York Harbor.",
+        "summary": (
+            "Detected 17 likely vessels in New York Harbor; 5 contacts are "
+            "high-confidence review candidates and 12 are monitor-level contacts."
+        ),
         "confidence": 0.91,
         "geojson": {
             "type": "FeatureCollection",

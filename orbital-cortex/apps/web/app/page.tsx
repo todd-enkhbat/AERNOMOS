@@ -3,20 +3,20 @@ import Link from "next/link";
 
 const routeSteps = [
   {
-    label: "Ingest",
-    value: "SAR AOI"
+    label: "Request",
+    value: "SAR harbor scene"
   },
   {
-    label: "Route",
-    value: "sim_leo_02"
+    label: "Score",
+    value: "6 compute nodes"
   },
   {
-    label: "Downlink",
-    value: "svalbard_gs"
+    label: "Select",
+    value: "orbital route"
   },
   {
-    label: "Fallback",
-    value: "aws_us_east_gpu"
+    label: "Return",
+    value: "GeoJSON result"
   }
 ];
 
@@ -34,8 +34,8 @@ export default function HomePage() {
               Orbital Cortex
             </h1>
             <p className="mt-6 max-w-2xl text-xl leading-8 text-[#f2e8d8] md:text-2xl">
-              Run AI jobs across satellites, orbital compute, ground stations,
-              and cloud from one API.
+              Submit a space-data AI job, compare orbital and cloud execution
+              paths, then inspect the route, logs, scores, and simulated result.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
@@ -81,6 +81,25 @@ export default function HomePage() {
             <p className="metric-value mt-2 text-sm text-[#6f604c]">{step.value}</p>
           </div>
         ))}
+      </section>
+
+      <section className="page-shell mt-8 grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+        <div className="dark-panel p-7">
+          <h2 className="text-3xl font-bold">Maritime demo scenario</h2>
+          <p className="mt-4 max-w-3xl text-lg leading-8 text-[#d8cbb8]">
+            The v0.1 control plane simulates SAR-based vessel detection over
+            New York Harbor. It does not task a real satellite; it demonstrates
+            the orchestration layer that would decide where compute should run.
+          </p>
+        </div>
+        <div className="panel p-7">
+          <p className="text-sm font-bold uppercase text-[#a86f35]">Demo posture</p>
+          <h2 className="mt-3 text-2xl font-bold text-[#17140f]">Local and deterministic</h2>
+          <p className="mt-3 leading-7 text-[#5d5244]">
+            Every route, event, and result is generated from local seed data so
+            the demo behaves the same way every time.
+          </p>
+        </div>
       </section>
     </div>
   );

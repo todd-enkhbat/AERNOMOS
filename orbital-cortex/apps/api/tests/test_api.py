@@ -45,17 +45,21 @@ def test_ship_detection_job_routes_and_simulates(tmp_path, monkeypatch):
         assert simulated.status_code == 200
         simulated_data = simulated.json()
         assert simulated_data["job"]["status"] == "completed"
-        assert simulated_data["events_created"] == 4
+        assert simulated_data["events_created"] == 6
         assert simulated_data["result"]["summary"].startswith("Detected 17")
         assert len(simulated_data["result"]["geojson"]["features"]) == 17
+        assert simulated_data["result"]["geojson"]["features"][0]["properties"]["harbor_zone"]
 
         events = client.get(f"/v1/jobs/{job_id}/events")
         assert events.status_code == 200
         assert [event["event_type"] for event in events.json()["events"]] == [
             "job_created",
+            "routing_candidates_scored",
             "route_selected",
             "execution_scheduled",
+            "contact_window_confirmed",
             "execution_started",
+            "inference_completed",
             "downlink_complete",
             "result_ready",
         ]

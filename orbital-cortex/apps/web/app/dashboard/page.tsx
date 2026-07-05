@@ -116,8 +116,8 @@ export default function DashboardPage() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Control plane"
-        title="Dashboard"
-        description="A local view of simulated orbital compute capacity, routing activity, and recent AI jobs."
+        title="Mission operations dashboard"
+        description="Track simulated orbital compute availability, route quality, execution latency, and recent space-data jobs from one local console."
         action={
           <Link
             className="inline-flex items-center gap-2 rounded-lg bg-[#17140f] px-4 py-3 font-bold text-[#fffaf0] transition hover:bg-[#2a241b]"
@@ -136,38 +136,38 @@ export default function DashboardPage() {
           icon={Activity}
           label="Active Jobs"
           value={String(metrics.activeJobs)}
-          detail="Queued, scheduled, or running"
+          detail="Queued, scheduled, or running simulations"
           tone="dark"
         />
         <MetricCard
           icon={ShieldCheck}
           label="Completed Today"
           value={String(metrics.completedToday)}
-          detail="Local simulation lifecycle"
+          detail="Jobs with generated result manifests"
         />
         <MetricCard
           icon={Clock3}
           label="Average Latency"
           value={formatMinutes(metrics.averageLatency)}
-          detail="Across routed jobs"
+          detail="Mean selected-route estimate"
         />
         <MetricCard
           icon={Satellite}
           label="Orbital Nodes Online"
           value={String(metrics.orbitalNodesOnline)}
-          detail="Nominal simulated orbital compute"
+          detail="Nominal orbital compute candidates"
         />
         <MetricCard
           icon={RadioTower}
           label="Ground Stations Available"
           value={String(metrics.groundStationsAvailable)}
-          detail="Seeded downlink locations"
+          detail="Simulated downlink partners"
         />
         <MetricCard
           icon={DollarSign}
           label="Estimated Cost Saved"
           value={formatCurrency(metrics.costSaved)}
-          detail="Compared with job max budget"
+          detail="Budget headroom across routed jobs"
         />
       </section>
 
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                 key={item}
               >
                 <p className="text-sm text-[#d8cbb8]">{item}</p>
-                <p className="mt-2 font-bold text-[#fffaf0]">Nominal</p>
+                <p className="mt-2 font-bold text-[#fffaf0]">Ready</p>
               </div>
             ))}
           </div>

@@ -30,25 +30,39 @@ def run_job_simulation(
         raise ValueError("Job has no routing decision")
 
     created_events: List[Dict[str, Any]] = []
+    contact_message = (
+        f"Confirmed next contact through {routing_decision['selected_ground_station_id']}."
+        if routing_decision["selected_ground_station_id"]
+        else "Confirmed direct cloud execution path; no ground station required."
+    )
     transitions = [
         (
             "scheduled",
             "execution_scheduled",
             (
-                "Job scheduled on "
-                f"{routing_decision['selected_node_id']} via route "
-                f"{routing_decision['id']}."
+                f"Reserved simulated compute slot on {routing_decision['selected_node_id']} "
+                f"for route {routing_decision['id']}."
             ),
+        ),
+        (
+            "scheduled",
+            "contact_window_confirmed",
+            contact_message,
         ),
         (
             "running",
             "execution_started",
-            "Mock inference started on selected simulated compute node.",
+            "Loaded mocked SAR scene and started deterministic inference pass.",
+        ),
+        (
+            "running",
+            "inference_completed",
+            "Inference pass completed; detections and confidence scores generated.",
         ),
         (
             "running",
             "downlink_complete",
-            "Simulated downlink and result packaging completed.",
+            "Packaged GeoJSON result and simulated downlink handoff completed.",
         ),
     ]
     for status, event_type, message in transitions:
@@ -63,7 +77,7 @@ def run_job_simulation(
             connection,
             job_id,
             "result_ready",
-            "Mock result is ready for retrieval.",
+            "Result manifest, summary, and detection features are ready for retrieval.",
         )
     )
 

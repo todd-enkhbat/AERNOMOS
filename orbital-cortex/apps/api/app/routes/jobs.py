@@ -35,11 +35,27 @@ def create_job(
             connection,
             job["id"],
             "job_created",
-            "Job accepted by the Orbital Cortex control plane.",
+            (
+                f"Accepted {job['sensor']} {job['job_type']} request with "
+                f"{job['priority']} priority and ${job['max_cost_usd']:.2f} max budget."
+            ),
         )
         compute_nodes = node_registry.list_compute_nodes(connection)
         ground_stations = node_registry.list_ground_stations(connection)
         routing_decision = build_routing_decision(job, compute_nodes, ground_stations)
+        eligible_count = sum(
+            1 for candidate in routing_decision["candidate_scores"]
+            if candidate["eligible"]
+        )
+        storage.create_event(
+            connection,
+            job["id"],
+            "routing_candidates_scored",
+            (
+                f"Scored {len(routing_decision['candidate_scores'])} compute nodes; "
+                f"{eligible_count} passed model, policy, and preference checks."
+            ),
+        )
         saved_decision = storage.save_routing_decision(connection, routing_decision)
         job = storage.update_job(
             connection,
@@ -51,9 +67,11 @@ def create_job(
             job["id"],
             "route_selected",
             (
-                f"Selected {saved_decision['selected_node_id']} with estimated "
-                f"latency {saved_decision['estimated_latency_minutes']:.0f} minutes "
-                f"and estimated cost ${saved_decision['estimated_cost_usd']:.2f}."
+                f"Selected {saved_decision['selected_node_id']} at "
+                f"{saved_decision['confidence']:.0%} route confidence; "
+                f"latency {saved_decision['estimated_latency_minutes']:.0f} minutes, "
+                f"cost ${saved_decision['estimated_cost_usd']:.2f}, "
+                f"fallback {saved_decision['fallback_node_id'] or 'none'}."
             ),
         )
         connection.commit()
