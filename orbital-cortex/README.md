@@ -13,6 +13,10 @@ Product vision and repo layout: see the root [`README.md`](../README.md).
 
 Production deployment: [`docs/deployment.md`](docs/deployment.md).
 
+Live ops and troubleshooting: [`docs/production-runbook.md`](docs/production-runbook.md).
+
+Frontend Phase B plan: [`docs/frontend-roadmap.md`](docs/frontend-roadmap.md).
+
 ## Current status (v0.1)
 
 Implemented and working:

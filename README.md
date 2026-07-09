@@ -18,9 +18,12 @@ AERNOMOS/
 ```
 
 The **deployable stack** lives under [`orbital-cortex/`](orbital-cortex/). See
-[`orbital-cortex/README.md`](orbital-cortex/README.md) for local development and
+[`orbital-cortex/README.md`](orbital-cortex/README.md) for local development,
 [`orbital-cortex/docs/deployment.md`](orbital-cortex/docs/deployment.md) for
-production deployment (Fly.io, Neon, Redis, Cloudflare R2, Vercel).
+production deployment, and [`orbital-cortex/docs/production-runbook.md`](orbital-cortex/docs/production-runbook.md)
+for live ops.
+
+**AI agents:** start with [`AGENTS.md`](AGENTS.md).
 
 ## Status: MVS skeleton (v0.1)
 

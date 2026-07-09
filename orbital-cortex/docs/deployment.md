@@ -1,5 +1,7 @@
 # Deployment (Group F)
 
+**Live:** https://nomosorbital.com · API https://api.nomosorbital.com · Ops: [production-runbook.md](production-runbook.md)
+
 ## Topology
 
 | Piece | Where | Notes |

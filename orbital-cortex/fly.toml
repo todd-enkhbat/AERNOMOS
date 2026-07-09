@@ -36,6 +36,13 @@ primary_region = 'ewr'
     method = 'GET'
     path = '/readyz'
 
+# Keep the ARQ worker running so queued jobs are processed (workers do not
+# receive HTTP traffic and otherwise auto-stop when idle).
+[[restart]]
+  policy = 'always'
+  retries = 10
+  processes = ['worker']
+
 [[vm]]
   size = 'shared-cpu-1x'
   memory = '512mb'
