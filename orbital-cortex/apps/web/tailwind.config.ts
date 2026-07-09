@@ -20,6 +20,8 @@ const config: Config = {
         brass: "#a8842c",
         teal: "#5f97ad",
         "teal-deep": "#25495a",
+        silver: "#b8b4ac",
+        "silver-dim": "#6f6c66",
         muted: "#a49b8b",
         "muted-dark": "#6f6a5e",
         line: "rgba(244, 239, 230, 0.08)"

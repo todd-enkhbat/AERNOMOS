@@ -16,7 +16,7 @@ export function RouteExplain({ route }: { route: RoutingDecision }) {
           </div>
           <div>
             <dt className="text-muted-dark">Decision hash</dt>
-            <dd className="metric-value mt-1 truncate text-xs text-teal">
+            <dd className="metric-value mt-1 truncate text-xs text-silver">
               {route.decision_hash ?? "n/a"}
             </dd>
           </div>
@@ -68,7 +68,7 @@ function EliminatedNode({ candidate }: { candidate: CandidateScore }) {
     <li className="rounded-lg border border-line bg-void/40 p-3.5">
       <p className="font-medium text-cream">{candidate.node_id}</p>
       {binding ? (
-        <p className="mt-1 text-sm text-teal">Binding constraint: {labelize(binding)}</p>
+        <p className="mt-1 text-sm text-silver">Binding constraint: {labelize(binding)}</p>
       ) : null}
       <ul className="mt-2 space-y-1 text-sm text-muted">
         {failures.map((failure) => (

@@ -28,7 +28,7 @@ export function MetricCard({
           className={`grid h-10 w-10 place-items-center rounded-xl border ${
             highlight
               ? "border-gold/30 bg-gold/10 text-gold-bright"
-              : "border-line bg-cream/5 text-teal"
+              : "border-line bg-cream/5 text-silver"
           }`}
         >
           <Icon size={18} strokeWidth={1.8} />

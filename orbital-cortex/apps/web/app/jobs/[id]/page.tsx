@@ -441,7 +441,7 @@ export default function JobDetailPage() {
                               const artifact = artifacts.find((a) => a.key === file);
                               return artifact ? (
                                 <a
-                                  className="metric-value block text-xs text-teal underline decoration-dotted underline-offset-2 transition hover:text-gold-bright"
+                                  className="metric-value block text-xs text-silver underline decoration-dotted underline-offset-2 transition hover:text-gold-bright"
                                   href={artifact.url}
                                   key={file}
                                   rel="noreferrer"
@@ -450,7 +450,7 @@ export default function JobDetailPage() {
                                   {file}
                                 </a>
                               ) : (
-                                <p className="metric-value text-xs text-teal" key={file}>
+                                <p className="metric-value text-xs text-silver" key={file}>
                                   {file}
                                 </p>
                               );
@@ -561,7 +561,7 @@ function DetectionTable({ result }: { result: Result }) {
           <tbody>
             {detections.map((detection) => (
               <tr key={detection.id}>
-                <td className="metric-value text-sm text-teal">{detection.id}</td>
+                <td className="metric-value text-sm text-silver">{detection.id}</td>
                 <td className="text-sm text-cream/85">{labelize(detection.vesselType)}</td>
                 <td className="text-sm text-muted">{detection.zone}</td>
                 <td className="metric-value text-sm text-cream/85">

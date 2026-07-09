@@ -94,7 +94,7 @@ export function DemoLauncher() {
   }
 
   return (
-    <div className="glass-strong w-full max-w-md p-6 sm:p-7" id="demo">
+    <div className="aave-glass w-full max-w-md p-6 sm:p-7" id="demo">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="chart-label text-gold">Live demo</p>
@@ -103,7 +103,7 @@ export function DemoLauncher() {
           </h2>
         </div>
         <span className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5">
-          <span className="pulse-dot bg-teal" />
+          <span className="pulse-dot bg-[#8fd6ab]" />
           <span className="chart-label text-muted">shared queue</span>
         </span>
       </div>
@@ -144,7 +144,7 @@ export function DemoLauncher() {
                   <button
                     className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
                       priority === value
-                        ? "border-teal/60 bg-teal/15 text-teal"
+                        ? "border-gold/50 bg-gold/12 text-gold-bright"
                         : "border-line text-muted hover:border-cream/25 hover:text-cream"
                     }`}
                     key={value}
@@ -171,7 +171,7 @@ export function DemoLauncher() {
             ) : null}
 
             <motion.button
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3.5 text-[15px] font-semibold text-void transition-colors hover:bg-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-gold mt-6 flex w-full disabled:cursor-not-allowed disabled:opacity-60"
               disabled={submitting}
               onClick={handleRun}
               type="button"

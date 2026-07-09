@@ -58,7 +58,7 @@ export default function DashboardPage() {
         if (mounted) {
           setNotice(
             error instanceof Error
-              ? `${error.message} — is the API running at ${API_BASE_URL}?`
+              ? `${error.message}. Is the API running at ${API_BASE_URL}?`
               : `Backend data is not available. Is the API running at ${API_BASE_URL}?`
           );
         }
@@ -116,7 +116,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Control plane"
         title="Mission operations"
-        description="Live orbital compute availability, route quality, execution latency, and recent space-data jobs — straight from the production API."
+        description="Live orbital compute availability, route quality, execution latency, and recent space-data jobs, straight from the production API."
         action={
           <Link
             className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                       <td>
                         <StatusBadge status={job.status} />
                       </td>
-                      <td className="metric-value text-sm text-teal">
+                      <td className="metric-value text-sm text-silver">
                         {route?.selected_node_id ?? "pending"}
                       </td>
                       <td className="metric-value text-sm text-cream/85">

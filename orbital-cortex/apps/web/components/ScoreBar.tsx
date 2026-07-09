@@ -17,7 +17,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
   ];
 
   return (
-    <div className="glass glass-hover p-5">
+    <div className="liquid-panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-medium text-cream">{candidate.node_id}</p>
@@ -36,7 +36,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
           Binding: {candidate.binding_constraint.replaceAll("_", " ")}
         </p>
       ) : null}
-      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-cream/10">
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/40">
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-brass to-gold-bright"
           initial={{ width: 0 }}
@@ -48,7 +48,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
       <div className="mt-4 grid grid-cols-4 gap-2 lg:grid-cols-7">
         {factors.map(([label, value]) => (
           <div
-            className="rounded-lg border border-line bg-void/40 px-2.5 py-2"
+            className="rounded-lg border border-gold/10 bg-black/30 px-2.5 py-2"
             key={label}
           >
             <p className="chart-label text-[0.58rem] text-muted-dark">{label}</p>
@@ -62,7 +62,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
         <div className="mt-4 space-y-1.5">
           {candidate.reasons.slice(0, 4).map((reason) => (
             <p
-              className="rounded-lg bg-cream/5 px-3 py-2 text-xs leading-5 text-muted"
+              className="rounded-lg bg-black/25 px-3 py-2 text-xs leading-snug text-muted"
               key={reason}
             >
               {reason}

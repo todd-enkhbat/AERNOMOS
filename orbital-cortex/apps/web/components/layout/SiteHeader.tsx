@@ -9,6 +9,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/jobs", label: "Jobs" },
   { href: "/network", label: "Network" },
+  { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }
 ];
 
@@ -17,30 +18,30 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="page-shell pt-4">
-        <div className="glass-strong flex min-h-[60px] items-center justify-between gap-4 rounded-2xl px-4 sm:px-5">
-          <Link className="group flex items-center gap-3" href="/">
-            <NomosMark size={34} spinning />
-            <span className="min-w-0 leading-tight">
-              <span className="block text-[15px] font-semibold tracking-wide text-cream">
+      <div className="page-shell pt-3">
+        <div className="aave-glass flex min-h-[52px] items-center justify-between gap-3 rounded-2xl px-3.5 sm:px-4">
+          <Link className="group flex items-center gap-2.5" href="/">
+            <NomosMark size={30} spinning />
+            <span className="min-w-0 leading-none">
+              <span className="block text-sm font-semibold tracking-wide text-cream">
                 Nomos Orbital
               </span>
-              <span className="chart-label hidden text-muted sm:block">
+              <span className="chart-label hidden text-muted-dark sm:block">
                 Orbital compute orchestration
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-0.5 md:flex">
             {navItems.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
-                  className={`rounded-lg px-3.5 py-2 text-sm transition-colors ${
+                  className={`rounded-lg px-3 py-1.5 text-[13px] transition-colors ${
                     active
-                      ? "bg-cream/10 text-cream"
-                      : "text-muted hover:bg-cream/5 hover:text-cream"
+                      ? "bg-white/10 text-cream"
+                      : "text-muted hover:bg-white/5 hover:text-cream"
                   }`}
                   href={item.href}
                   key={item.href}
@@ -51,21 +52,21 @@ export function SiteHeader() {
             })}
           </nav>
 
-          <Link
-            className="hidden items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-void transition hover:bg-gold-bright sm:inline-flex"
+            <Link
+            className="btn-gold hidden items-center rounded-lg px-3.5 py-2 text-[13px] font-semibold sm:inline-flex"
             href="/#demo"
           >
-            Run live demo
+            Run demo
           </Link>
         </div>
 
-        <nav className="mt-2 flex gap-1 overflow-x-auto pb-1 md:hidden">
+        <nav className="mt-1.5 flex gap-1 overflow-x-auto pb-1 md:hidden">
           {navItems.map((item) => {
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
-                className={`glass shrink-0 rounded-lg px-3.5 py-2 text-sm ${
+                className={`glass shrink-0 rounded-lg px-3 py-1.5 text-[13px] ${
                   active ? "text-gold" : "text-muted"
                 }`}
                 href={item.href}

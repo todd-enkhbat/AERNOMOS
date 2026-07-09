@@ -126,7 +126,7 @@ export default function JobsPage() {
       <PageHeader
         eyebrow="Jobs"
         title="Task the network"
-        description="Compose a space-data request, route it across orbital and cloud compute, then follow the mission from queue to signed result. Open demo — no key required."
+        description="Compose a space-data request, route it across orbital and cloud compute, then follow the mission from queue to signed result. Open demo, no key required."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}

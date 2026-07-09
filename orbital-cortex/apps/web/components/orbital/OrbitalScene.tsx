@@ -6,7 +6,7 @@ import * as THREE from "three";
 const GOLD = new THREE.Color("#c9a227");
 const GOLD_BRIGHT = new THREE.Color("#e3c05c");
 const CREAM = new THREE.Color("#f4efe6");
-const TEAL = new THREE.Color("#5f97ad");
+const SILVER = new THREE.Color("#b8b4ac");
 
 type OrbitSpec = {
   radius: number;
@@ -19,7 +19,7 @@ type OrbitSpec = {
 
 const ORBITS: OrbitSpec[] = [
   { radius: 1.55, inclination: 0.9, ascending: 0.2, speed: 0.22, phase: 0, color: GOLD },
-  { radius: 1.78, inclination: 1.72, ascending: 1.4, speed: 0.17, phase: 2.1, color: TEAL },
+  { radius: 1.78, inclination: 1.72, ascending: 1.4, speed: 0.17, phase: 2.1, color: SILVER },
   { radius: 2.02, inclination: 0.55, ascending: 2.6, speed: 0.13, phase: 4.2, color: GOLD_BRIGHT },
   { radius: 1.66, inclination: 1.15, ascending: 4.1, speed: 0.19, phase: 1.2, color: CREAM }
 ];

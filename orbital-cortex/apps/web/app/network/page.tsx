@@ -7,28 +7,30 @@ import { useEffect, useMemo, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
 import { MetricCard } from "@/components/MetricCard";
-import { ContactWindowTimeline } from "@/components/network/ContactWindowTimeline";
+import { ScrollSketchfab } from "@/components/motion/ScrollSketchfab";
+import { OrbitalScrollStage } from "@/components/motion/OrbitalScrollStage";
 import { PageHeader } from "@/components/PageHeader";
-import { API_BASE_URL, getContactWindows, getNodes, getSatellites, listJobs } from "@/lib/api";
+import { API_BASE_URL, getNodes, listJobs } from "@/lib/api";
 import { EMPTY_NODES } from "@/lib/constants";
-import type {
-  ComputeNode,
-  ContactWindow,
-  GroundStation,
-  NodesResponse,
-  Satellite
-} from "@/lib/types";
+import type { ComputeNode, NodesResponse } from "@/lib/types";
 import { formatMinutes, formatPercent, labelize } from "@/lib/format";
+
+const NetworkConsole = dynamic(
+  () =>
+    import("@/components/platform/NetworkConsole").then((m) => m.NetworkConsole),
+  { ssr: false }
+);
 
 const OrbitalScene = dynamic(
   () => import("@/components/orbital/OrbitalScene"),
   { ssr: false }
 );
 
+const SKETCHFAB_SATELLITE =
+  "https://sketchfab.com/models/f397bb9fe5124a0a9db13b138af516d8/embed?autostart=1&preload=1&ui_theme=dark&ui_infos=0&ui_watermark=0";
+
 export default function NetworkPage() {
   const [nodes, setNodes] = useState<NodesResponse>(EMPTY_NODES);
-  const [satellites, setSatellites] = useState<Satellite[]>([]);
-  const [contactWindows, setContactWindows] = useState<ContactWindow[]>([]);
   const [activeJobs, setActiveJobs] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -36,19 +38,14 @@ export default function NetworkPage() {
     let mounted = true;
     async function load() {
       try {
-        const [nodeResponse, jobsResponse, satellitesResponse, windowsResponse] =
-          await Promise.all([
-            getNodes(),
-            listJobs(),
-            getSatellites(),
-            getContactWindows({ upcoming: true, limit: 20 })
-          ]);
+        const [nodeResponse, jobsResponse] = await Promise.all([
+          getNodes(),
+          listJobs()
+        ]);
         if (!mounted) {
           return;
         }
         setNodes(nodeResponse);
-        setSatellites(satellitesResponse.satellites);
-        setContactWindows(windowsResponse.contact_windows);
         setActiveJobs(
           jobsResponse.jobs.filter(
             (job) => job.status !== "complete" && job.status !== "failed"
@@ -58,7 +55,7 @@ export default function NetworkPage() {
         if (mounted) {
           setNotice(
             error instanceof Error
-              ? `${error.message} — is the API running at ${API_BASE_URL}?`
+              ? `${error.message}. Is the API running at ${API_BASE_URL}?`
               : `Backend data is not available. Is the API running at ${API_BASE_URL}?`
           );
         }
@@ -80,17 +77,16 @@ export default function NetworkPage() {
   );
 
   return (
-    <div className="relative pb-16">
+    <div className="relative pb-10">
       <div className="page-shell">
         <PageHeader
+          description="Ground mesh, SGP4 passes, orbital nodes, and cloud fallback. Live data from the routing engine."
           eyebrow="Network"
           title="The orbital fabric"
-          description="Orbital nodes, ground stations, cloud fallback, and the SGP4 contact windows the routing engine schedules against."
         />
-
         {notice ? <InlineNotice message={notice} /> : null}
 
-        <section className="mt-5 grid gap-4 md:grid-cols-4">
+        <section className="grid gap-3 md:grid-cols-4">
           <MetricCard
             detail="Orbital candidates"
             icon={SatelliteIcon}
@@ -117,35 +113,39 @@ export default function NetworkPage() {
             value={String(activeJobs)}
           />
         </section>
+      </div>
 
-        {/* orbital picture + contact windows */}
-        <section className="mt-8 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="glass relative min-h-[380px] overflow-hidden p-6">
-            <p className="chart-label relative z-10 text-gold">Constellation</p>
-            <h2 className="display relative z-10 mt-2 text-xl text-cream">
-              Live pass geometry
-            </h2>
-            <OrbitalScene className="absolute inset-0 opacity-80" />
-          </div>
+      <section className="section-gap">
+        <div className="page-shell mb-4">
+          <p className="chart-label text-gold">Fleet geometry</p>
+          <h2 className="display mt-1 text-xl text-cream">Scroll the constellation</h2>
+        </div>
+        <OrbitalScrollStage scrollHeight="120vh">
+          <OrbitalScene className="h-[min(420px,70vw)] w-[min(420px,70vw)]" />
+        </OrbitalScrollStage>
+      </section>
 
-          <div className="glass p-6">
-            <p className="chart-label text-gold">Contact windows</p>
-            <h2 className="display mt-2 text-xl text-cream">
-              Upcoming passes
-            </h2>
-            <div className="mt-6">
-              <ContactWindowTimeline windows={contactWindows} />
-            </div>
-          </div>
-        </section>
+      <section className="section-gap">
+        <div className="page-shell mb-4">
+          <p className="chart-label text-gold">Communications satellite</p>
+          <p className="prose-compact mt-1 max-w-lg text-muted">
+            Interactive model drifts with scroll. Drag to inspect the bus.
+          </p>
+        </div>
+        <ScrollSketchfab scrollHeight="130vh" src={SKETCHFAB_SATELLITE} title="Communications Satellite" />
+      </section>
 
-        {/* route model */}
-        <section className="glass mt-8 overflow-hidden p-6 sm:p-8">
-          <div className="flex items-center gap-3">
-            <Server className="text-gold" size={18} strokeWidth={1.8} />
-            <h2 className="text-lg font-semibold text-cream">Network route model</h2>
+      <section className="section-gap page-shell">
+        <NetworkConsole />
+      </section>
+
+      <section className="page-shell mt-8">
+        <div className="liquid-panel overflow-hidden p-5">
+          <div className="flex items-center gap-2.5">
+            <Server className="text-gold" size={17} strokeWidth={1.8} />
+            <h2 className="text-base font-semibold text-cream">Route model</h2>
           </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
+          <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
             <TopologyColumn
               icon={SatelliteIcon}
               label="Orbital compute"
@@ -164,39 +164,13 @@ export default function NetworkPage() {
               nodes={cloud.map((node) => node.id)}
             />
           </div>
-        </section>
+        </div>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <NodeGroup title="Orbital nodes" nodes={orbital} />
           <NodeGroup title="Cloud fallback" nodes={cloud} />
-        </section>
-
-        <section className="mt-10">
-          <h2 className="mb-4 text-lg font-semibold text-cream">Ground stations</h2>
-          {nodes.ground_stations.length === 0 ? (
-            <p className="text-sm text-muted">No ground station data available.</p>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {nodes.ground_stations.map((station) => (
-                <GroundStationCard key={station.id} station={station} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="mt-10">
-          <h2 className="mb-4 text-lg font-semibold text-cream">Satellites</h2>
-          {satellites.length === 0 ? (
-            <p className="text-sm text-muted">No satellite registry data available.</p>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {satellites.map((satellite) => (
-                <SatelliteCard key={satellite.id} satellite={satellite} />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -211,20 +185,21 @@ function TopologyColumn({
   nodes: string[];
 }) {
   return (
-    <div className="rounded-xl border border-line bg-void/40 p-4">
+    <div className="rounded-xl border border-gold/10 bg-black/30 p-3.5">
       <div className="flex items-center gap-2 text-gold">
-        <Icon size={17} strokeWidth={1.8} />
+        <Icon size={16} strokeWidth={1.8} />
         <p className="text-sm font-medium text-cream">{label}</p>
       </div>
-      <div className="mt-4 space-y-2">
-        {nodes.map((node) => (
-          <p
-            className="metric-value rounded-lg bg-cream/5 px-3 py-2 text-xs text-cream/80"
-            key={node}
-          >
-            {node}
-          </p>
-        ))}
+      <div className="mt-3 space-y-1.5">
+        {nodes.length === 0 ? (
+          <p className="text-xs text-muted">No nodes registered.</p>
+        ) : (
+          nodes.map((node) => (
+            <p className="metric-value text-[11px] text-cream/75" key={node}>
+              {node}
+            </p>
+          ))
+        )}
       </div>
     </div>
   );
@@ -232,8 +207,8 @@ function TopologyColumn({
 
 function Connector() {
   return (
-    <div className="hidden min-w-12 items-center justify-center lg:flex">
-      <div className="h-px w-full bg-gradient-to-r from-gold/40 via-gold/20 to-gold/40" />
+    <div className="hidden min-w-10 items-center justify-center lg:flex">
+      <div className="h-px w-full bg-gradient-to-r from-gold/25 via-gold/10 to-gold/25" />
     </div>
   );
 }
@@ -241,118 +216,38 @@ function Connector() {
 function NodeGroup({ title, nodes }: { title: string; nodes: ComputeNode[] }) {
   return (
     <div>
-      <h2 className="mb-4 text-lg font-semibold text-cream">{title}</h2>
-      <div className="grid gap-4">
-        {nodes.map((node) => (
-          <div className="glass glass-hover p-5" key={node.id}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h3 className="font-medium text-cream">{node.name}</h3>
-                <p className="metric-value mt-1 text-xs text-muted-dark">{node.id}</p>
+      <h2 className="mb-3 text-base font-semibold text-cream">{title}</h2>
+      {nodes.length === 0 ? (
+        <div className="liquid-panel p-5">
+          <p className="text-sm text-muted">No compute nodes in this tier.</p>
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {nodes.map((node) => (
+            <div className="liquid-panel p-4" key={node.id}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-medium text-cream">{node.name}</h3>
+                  <p className="metric-value mt-0.5 text-[11px] text-muted-dark">{node.id}</p>
+                </div>
+                <span className="metric-value text-[11px] text-gold-bright">
+                  {formatPercent(node.availability)}
+                </span>
               </div>
-              <span className="metric-value rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-xs text-gold-bright">
-                {formatPercent(node.availability)}
-              </span>
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <p className="rounded-lg bg-cream/5 p-3 text-sm">
-                <span className="chart-label block text-muted-dark">GPU</span>
-                <span className="mt-1.5 block font-medium text-cream/90">
-                  {node.gpu_class}
-                </span>
+              <p className="metric-value mt-2 text-[11px] text-muted">
+                {node.gpu_class} · {formatMinutes(node.latency_minutes)}
               </p>
-              <p className="rounded-lg bg-cream/5 p-3 text-sm">
-                <span className="chart-label block text-muted-dark">Latency</span>
-                <span className="metric-value mt-1.5 block text-cream/90">
-                  {formatMinutes(node.latency_minutes)}
-                </span>
-              </p>
-              <p className="rounded-lg bg-cream/5 p-3 text-sm">
-                <span className="chart-label block text-muted-dark">
-                  {node.type === "orbital" ? "Satellite" : "Contact"}
-                </span>
-                <span className="metric-value mt-1.5 block text-cream/90">
-                  {node.satellite_id ?? "direct"}
-                </span>
-              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {node.supported_models.map((model) => (
+                  <span className="text-[11px] text-muted" key={model}>
+                    {labelize(model)}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {node.supported_models.map((model) => (
-                <span
-                  className="rounded-full border border-line px-2.5 py-1 text-xs text-muted"
-                  key={model}
-                >
-                  {labelize(model)}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SatelliteCard({ satellite }: { satellite: Satellite }) {
-  return (
-    <div className="glass glass-hover p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h3 className="font-medium text-cream">{satellite.name}</h3>
-          <p className="metric-value mt-1 text-xs text-muted-dark">{satellite.id}</p>
+          ))}
         </div>
-        <span className="metric-value rounded-full border border-teal/40 bg-teal/10 px-3 py-1.5 text-xs text-teal">
-          NORAD {satellite.norad_id}
-        </span>
-      </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <p className="rounded-lg bg-cream/5 p-3 text-sm">
-          <span className="chart-label block text-muted-dark">TLE snapshot</span>
-          <span className="metric-value mt-1.5 block text-cream/90">
-            {satellite.snapshot_id}
-          </span>
-        </p>
-        <p className="rounded-lg bg-cream/5 p-3 text-sm">
-          <span className="chart-label block text-muted-dark">Downlink rate</span>
-          <span className="metric-value mt-1.5 block text-cream/90">
-            {satellite.downlink_rate_mbps} Mbps
-          </span>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function GroundStationCard({ station }: { station: GroundStation }) {
-  return (
-    <div className="glass glass-hover p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h3 className="font-medium text-cream">{station.name}</h3>
-          <p className="metric-value mt-1 text-xs text-muted-dark">{station.id}</p>
-        </div>
-        <span className="metric-value rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-xs text-gold-bright">
-          {formatPercent(station.availability)}
-        </span>
-      </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <p className="rounded-lg bg-cream/5 p-3 text-sm">
-          <span className="chart-label block text-muted-dark">Location</span>
-          <span className="mt-1.5 block font-medium text-cream/90">{station.location}</span>
-        </p>
-        <p className="rounded-lg bg-cream/5 p-3 text-sm">
-          <span className="chart-label block text-muted-dark">Latency</span>
-          <span className="metric-value mt-1.5 block text-cream/90">
-            {formatMinutes(station.latency_minutes)}
-          </span>
-        </p>
-        <p className="rounded-lg bg-cream/5 p-3 text-sm">
-          <span className="chart-label block text-muted-dark">Downlink</span>
-          <span className="metric-value mt-1.5 block text-cream/90">
-            {station.downlink_mbps} Mbps
-          </span>
-        </p>
-      </div>
+      )}
     </div>
   );
 }

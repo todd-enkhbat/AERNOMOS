@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, IBM_Plex_Mono, Inter } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono, Inter_Tight } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -13,8 +13,9 @@ const serif = Fraunces({
   variable: "--font-serif"
 });
 
-const sans = Inter({
+const sans = Inter_Tight({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans"
 });
 
@@ -26,11 +27,15 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nomos Orbital — Orchestration for orbital compute",
+    default: "Nomos Orbital | Orchestration for orbital compute",
     template: "%s · Nomos Orbital"
   },
   description:
-    "Submit a space-data AI job, watch it route across orbital and cloud compute, and inspect every decision. A live control plane demo — open to anyone.",
+    "Submit a space-data AI job, watch it route across orbital and cloud compute, and inspect every decision. A live control plane demo, open to anyone.",
+  icons: {
+    icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
+    apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
+  },
   openGraph: {
     title: "Nomos Orbital",
     description:
