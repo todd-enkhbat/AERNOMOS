@@ -41,18 +41,22 @@ export function HarborMap({
       style: {
         version: 8,
         sources: {
-          osm: {
+          carto: {
             type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            tiles: [
+              "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+              "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+              "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+            ],
             tileSize: 256,
-            attribution: "© OpenStreetMap contributors"
+            attribution: "© OpenStreetMap contributors © CARTO"
           }
         },
         layers: [
           {
-            id: "osm",
+            id: "carto",
             type: "raster",
-            source: "osm"
+            source: "carto"
           }
         ]
       },
@@ -100,10 +104,10 @@ export function HarborMap({
             "circle-color": [
               "case",
               ["==", ["get", "dark_ship"], true],
-              "#e0b16f",
-              "#25495a"
+              "#e3c05c",
+              "#5f97ad"
             ],
-            "circle-stroke-color": "#fffaf0",
+            "circle-stroke-color": "#0a0a0b",
             "circle-stroke-width": 2
           }
         });
@@ -133,7 +137,7 @@ export function HarborMap({
 
   return (
     <div
-      className="min-h-[380px] overflow-hidden rounded-lg border border-[rgba(86,67,42,0.22)]"
+      className="min-h-[380px] overflow-hidden rounded-xl border border-line"
       ref={containerRef}
     />
   );

@@ -70,7 +70,7 @@ cd ../web && npm run generate:api-types
 ## Phase status
 
 - **Phase A (done):** Branding, docs, OpenAPI TS types, frontend CI, production deploy
-- **Phase B (next):** Marketing site + UX polish — see `frontend-roadmap.md`
+- **Phase B (done, July 2026):** "Nomos Record" redesign — dark glass UI, Golden Record logo (`components/brand/NomosMark.tsx`), three.js orbital hero (`components/orbital/OrbitalScene.tsx`), demo-first homepage (`DemoLauncher`), contact-window Gantt, Fraunces/Inter/Plex Mono via next/font. No API key field in UI; demo uses shared `oc_demo_public` (API has no auth yet; POST /v1/jobs is rate-limited per IP). `CORS_ORIGINS` on Fly includes localhost:3000 for local dev against prod API.
 - **Phase C:** Auth, real node adapters, constraint routing
 
 ## Commit / deploy

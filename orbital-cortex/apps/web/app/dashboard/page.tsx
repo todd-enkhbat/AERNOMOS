@@ -115,15 +115,15 @@ export default function DashboardPage() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Control plane"
-        title="Mission operations dashboard"
-        description="Track simulated orbital compute availability, route quality, execution latency, and recent space-data jobs from one local console."
+        title="Mission operations"
+        description="Live orbital compute availability, route quality, execution latency, and recent space-data jobs — straight from the production API."
         action={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-[#17140f] px-4 py-3 font-bold text-[#fffaf0] transition hover:bg-[#2a241b]"
+            className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
             href="/jobs"
           >
-            <Activity size={18} strokeWidth={1.8} />
-            Submit Job
+            <Activity size={17} strokeWidth={2} />
+            Submit mission
           </Link>
         }
       />
@@ -135,7 +135,7 @@ export default function DashboardPage() {
           icon={Activity}
           label="Active Jobs"
           value={String(metrics.activeJobs)}
-          detail="Queued, scheduled, or running simulations"
+          detail="Queued, scheduled, or running"
           tone="dark"
         />
         <MetricCard
@@ -158,9 +158,9 @@ export default function DashboardPage() {
         />
         <MetricCard
           icon={RadioTower}
-          label="Ground Stations Available"
+          label="Ground Stations"
           value={String(metrics.groundStationsAvailable)}
-          detail="Simulated downlink partners"
+          detail="Downlink partners"
         />
         <MetricCard
           icon={DollarSign}
@@ -170,10 +170,13 @@ export default function DashboardPage() {
         />
       </section>
 
-      <section className="mt-8">
+      <section className="mt-10">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold text-[#17140f]">Recent jobs</h2>
-          <Link className="text-sm font-bold text-[#25495a]" href="/jobs">
+          <h2 className="text-lg font-semibold text-cream">Recent missions</h2>
+          <Link
+            className="text-sm text-muted underline decoration-line underline-offset-4 transition hover:text-cream"
+            href="/jobs"
+          >
             View all
           </Link>
         </div>
@@ -193,7 +196,7 @@ export default function DashboardPage() {
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td className="text-[#6f604c]" colSpan={6}>
+                  <td className="text-muted" colSpan={6}>
                     No jobs have been submitted.
                   </td>
                 </tr>
@@ -203,26 +206,29 @@ export default function DashboardPage() {
                   return (
                     <tr key={job.id}>
                       <td>
-                        <Link className="font-bold text-[#17140f]" href={`/jobs/${job.id}`}>
+                        <Link
+                          className="font-medium text-cream transition hover:text-gold-bright"
+                          href={`/jobs/${job.id}`}
+                        >
                           {labelize(job.job_type)}
                         </Link>
-                        <p className="metric-value mt-1 text-xs text-[#6f604c]">
+                        <p className="metric-value mt-1 text-xs text-muted-dark">
                           {job.id}
                         </p>
                       </td>
                       <td>
                         <StatusBadge status={job.status} />
                       </td>
-                      <td className="metric-value text-sm text-[#25495a]">
+                      <td className="metric-value text-sm text-teal">
                         {route?.selected_node_id ?? "pending"}
                       </td>
-                      <td className="metric-value text-sm">
+                      <td className="metric-value text-sm text-cream/85">
                         {route ? formatMinutes(route.estimated_latency_minutes) : "0m"}
                       </td>
-                      <td className="metric-value text-sm">
+                      <td className="metric-value text-sm text-cream/85">
                         {route ? formatCurrency(route.estimated_cost_usd) : "$0"}
                       </td>
-                      <td className="text-sm text-[#6f604c]">
+                      <td className="text-sm text-muted">
                         {formatDateTime(job.updated_at)}
                       </td>
                     </tr>
@@ -234,42 +240,45 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-3">
-        <div className="dark-panel p-6 lg:col-span-2">
+      <section className="mt-10 grid gap-4 lg:grid-cols-3">
+        <div className="glass p-6 lg:col-span-2">
           <div className="flex items-center gap-3">
-            <Server className="text-[#e0b16f]" size={20} strokeWidth={1.8} />
-            <h2 className="text-2xl font-bold">Routing posture</h2>
+            <Server className="text-gold" size={18} strokeWidth={1.8} />
+            <h2 className="text-lg font-semibold text-cream">Routing posture</h2>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
             {["Model support", "Contact window", "Fallback path"].map((item) => (
               <div
-                className="rounded-lg border border-[#fffaf0]/10 bg-[#fffaf0]/5 p-4"
+                className="rounded-xl border border-line bg-void/40 p-4"
                 key={item}
               >
-                <p className="text-sm text-[#d8cbb8]">{item}</p>
-                <p className="mt-2 font-bold text-[#fffaf0]">Ready</p>
+                <p className="chart-label text-muted-dark">{item}</p>
+                <p className="mt-2 flex items-center gap-2 font-medium text-cream">
+                  <span className="pulse-dot bg-[#6fbf8f]" />
+                  Ready
+                </p>
               </div>
             ))}
           </div>
         </div>
-        <div className="panel p-6">
-          <h2 className="text-2xl font-bold text-[#17140f]">Network mix</h2>
+        <div className="glass p-6">
+          <h2 className="text-lg font-semibold text-cream">Network mix</h2>
           <div className="mt-5 space-y-3">
-            <p className="flex justify-between text-sm">
-              <span className="text-[#6f604c]">Orbital</span>
-              <span className="metric-value">
+            <p className="flex justify-between border-b border-line pb-2.5 text-sm">
+              <span className="text-muted">Orbital</span>
+              <span className="metric-value text-cream/90">
                 {nodes.compute_nodes.filter((node) => node.type === "orbital").length}
               </span>
             </p>
-            <p className="flex justify-between text-sm">
-              <span className="text-[#6f604c]">Cloud</span>
-              <span className="metric-value">
+            <p className="flex justify-between border-b border-line pb-2.5 text-sm">
+              <span className="text-muted">Cloud</span>
+              <span className="metric-value text-cream/90">
                 {nodes.compute_nodes.filter((node) => node.type === "ground_cloud").length}
               </span>
             </p>
             <p className="flex justify-between text-sm">
-              <span className="text-[#6f604c]">Ground stations</span>
-              <span className="metric-value">{nodes.ground_stations.length}</span>
+              <span className="text-muted">Ground stations</span>
+              <span className="metric-value text-cream/90">{nodes.ground_stations.length}</span>
             </p>
           </div>
         </div>

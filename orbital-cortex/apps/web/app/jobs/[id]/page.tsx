@@ -3,7 +3,6 @@
 import {
   Activity,
   ChevronLeft,
-  Clock3,
   FileJson,
   Loader2,
   MapPinned,
@@ -22,6 +21,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DetectionPanel } from "@/components/DetectionPanel";
 import { HarborMap } from "@/components/HarborMap";
 import { InlineNotice } from "@/components/InlineNotice";
+import { JobStepper } from "@/components/jobs/JobStepper";
 import { PageHeader } from "@/components/PageHeader";
 import { RouteExplain } from "@/components/RouteExplain";
 import { ScoreBar } from "@/components/ScoreBar";
@@ -193,22 +193,22 @@ export default function JobDetailPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Job detail"
-        title={job ? `${labelize(job.job_type)} control run` : "Job"}
+        eyebrow="Mission"
+        title={job ? `${labelize(job.job_type)} run` : "Mission"}
         description={
           job
-            ? `${job.sensor} scene over New York Harbor / ${labelize(job.priority)} / ${labelize(
+            ? `${job.sensor} scene over New York Harbor · ${labelize(job.priority)} · ${labelize(
                 job.compute_preference
               )}`
-            : "Loading job state."
+            : "Loading mission state."
         }
         action={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg border border-[rgba(86,67,42,0.22)] px-4 py-3 font-bold text-[#17140f] transition hover:bg-[#eadcc8]"
+            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream transition hover:border-gold/50 hover:text-gold-bright"
             href="/jobs"
           >
-            <ChevronLeft size={18} strokeWidth={1.8} />
-            Jobs
+            <ChevronLeft size={17} strokeWidth={2} />
+            All missions
           </Link>
         }
       />
@@ -216,123 +216,137 @@ export default function JobDetailPage() {
       {notice ? <InlineNotice message={notice} /> : null}
 
       {loading ? (
-        <div className="panel mt-5 flex items-center gap-3 p-6 text-[#6f604c]">
+        <div className="glass mt-5 flex items-center gap-3 p-6 text-muted">
           <Loader2 className="animate-spin" size={18} strokeWidth={1.8} />
-          Loading job detail
+          Loading mission detail
         </div>
       ) : job ? (
         <>
-          <section className="mt-5 grid gap-4 lg:grid-cols-4">
-            <div className="dark-panel p-5">
-              <p className="text-sm text-[#d8cbb8]">Status</p>
-              <div className="mt-4">
+          {/* mission phase strip */}
+          <section className="glass mt-5 p-6 sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-6">
+              <div className="flex items-center gap-4">
                 <StatusBadge status={job.status} />
+                <span className="metric-value text-xs text-muted-dark">{job.id}</span>
               </div>
+              <span className="metric-value text-xs text-muted-dark">
+                updated {formatDateTime(job.updated_at)}
+              </span>
             </div>
-            <div className="panel p-5">
-              <p className="text-sm text-[#6f604c]">Selected route</p>
-              <p className="metric-value mt-3 text-xl font-bold text-[#25495a]">
+            <JobStepper status={job.status} />
+          </section>
+
+          <section className="mt-4 grid gap-4 lg:grid-cols-3">
+            <div className="glass glass-hover p-5">
+              <p className="chart-label text-muted">Selected route</p>
+              <p className="metric-value mt-3 text-xl text-gold-bright">
                 {route?.selected_node_id ?? "pending"}
               </p>
             </div>
-            <div className="panel p-5">
-              <p className="text-sm text-[#6f604c]">Latency</p>
-              <p className="metric-value mt-3 text-xl font-bold">
+            <div className="glass glass-hover p-5">
+              <p className="chart-label text-muted">Latency estimate</p>
+              <p className="metric-value mt-3 text-xl text-cream">
                 {formatMinutes(route?.estimated_latency_minutes)}
               </p>
             </div>
-            <div className="panel p-5">
-              <p className="text-sm text-[#6f604c]">Estimated cost</p>
-              <p className="metric-value mt-3 text-xl font-bold">
+            <div className="glass glass-hover p-5">
+              <p className="chart-label text-muted">Cost estimate</p>
+              <p className="metric-value mt-3 text-xl text-cream">
                 {route ? formatCurrency(route.estimated_cost_usd) : "$0"}
               </p>
             </div>
           </section>
 
           <section className="mt-6 grid gap-6 xl:grid-cols-[0.75fr_1.25fr]">
-            <aside className="panel p-6">
+            <aside className="glass h-fit p-6">
               <div className="flex items-center gap-3">
-                <Route className="text-[#25495a]" size={20} strokeWidth={1.8} />
-                <h2 className="text-2xl font-bold text-[#17140f]">Routing decision</h2>
+                <Route className="text-gold" size={18} strokeWidth={1.8} />
+                <h2 className="text-lg font-semibold text-cream">Routing decision</h2>
               </div>
               {route ? (
                 <div className="mt-5 space-y-4">
                   {route.reasons.map((reason) => (
                     <div
-                      className="rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/70 p-4 text-sm leading-6 text-[#5d5244]"
+                      className="rounded-xl border border-line bg-void/40 p-4 text-sm leading-6 text-muted"
                       key={reason}
                     >
                       {reason}
                     </div>
                   ))}
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <p className="rounded-lg bg-[#eadcc8] p-4 text-sm">
-                      <span className="block text-[#6f604c]">Ground station</span>
-                      <span className="metric-value mt-1 block font-bold text-[#17140f]">
+                    <p className="rounded-xl bg-cream/5 p-4 text-sm">
+                      <span className="chart-label block text-muted-dark">Ground station</span>
+                      <span className="metric-value mt-2 block text-cream/90">
                         {route.selected_ground_station_id ?? "not required"}
                       </span>
                     </p>
-                    <p className="rounded-lg bg-[#eadcc8] p-4 text-sm">
-                      <span className="block text-[#6f604c]">Fallback</span>
-                      <span className="metric-value mt-1 block font-bold text-[#17140f]">
+                    <p className="rounded-xl bg-cream/5 p-4 text-sm">
+                      <span className="chart-label block text-muted-dark">Fallback</span>
+                      <span className="metric-value mt-2 block text-cream/90">
                         {route.fallback_node_id ?? "none"}
                       </span>
                     </p>
                   </div>
                   {scene ? (
-                    <div className="rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/70 p-4 text-sm">
-                      <p className="font-bold text-[#17140f]">Scene metadata</p>
-                      <p className="mt-2 text-[#5d5244]">
+                    <div className="rounded-xl border border-line bg-void/40 p-4 text-sm">
+                      <p className="chart-label text-muted">Scene metadata</p>
+                      <p className="mt-2 text-cream/85">
                         {scene.sensor} · {scene.mode} · {scene.resolution_m}m ·{" "}
                         {scene.provenance}
                       </p>
                       {scene.stac_item_id ? (
-                        <p className="metric-value mt-1 text-xs text-[#6f604c]">
+                        <p className="metric-value mt-1 text-xs text-muted-dark">
                           STAC: {scene.stac_item_id}
                         </p>
                       ) : null}
                     </div>
                   ) : null}
                   <button
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[rgba(86,67,42,0.22)] px-5 py-3 font-bold text-[#17140f] transition hover:bg-[#eadcc8] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-5 py-3 text-sm font-medium text-cream transition hover:border-gold/50 hover:text-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={replaying || !route}
                     onClick={handleReplayRouting}
                     type="button"
                   >
                     {replaying ? (
-                      <Loader2 className="animate-spin" size={18} strokeWidth={1.8} />
+                      <Loader2 className="animate-spin" size={17} strokeWidth={2} />
                     ) : (
-                      <Route size={18} strokeWidth={1.8} />
+                      <Route size={17} strokeWidth={2} />
                     )}
                     Replay routing
                   </button>
                   {replayResult ? (
-                    <div className="rounded-lg bg-[#eadcc8] p-4 text-sm">
-                      <p className="font-bold text-[#17140f]">
+                    <div
+                      className={`rounded-xl border p-4 text-sm ${
+                        replayResult.match
+                          ? "border-[#6fbf8f]/40 bg-[#6fbf8f]/10"
+                          : "border-[#be543c]/40 bg-[#be543c]/10"
+                      }`}
+                    >
+                      <p className="font-medium text-cream">
                         Audit {replayResult.match ? "match" : "mismatch"}
                       </p>
-                      <p className="metric-value mt-2 break-all text-xs text-[#6f604c]">
+                      <p className="metric-value mt-2 break-all text-xs text-muted">
                         {replayResult.replay_decision_hash}
                       </p>
                     </div>
                   ) : null}
                   <button
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#17140f] px-5 py-3 font-bold text-[#fffaf0] transition hover:bg-[#2a241b] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-sm font-semibold text-void transition-colors hover:bg-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={running || job.status === "complete"}
                     onClick={handleRunSimulation}
                     type="button"
                   >
                     {running ? (
-                      <Loader2 className="animate-spin" size={18} strokeWidth={1.8} />
+                      <Loader2 className="animate-spin" size={17} strokeWidth={2} />
                     ) : (
-                      <Play size={18} strokeWidth={1.8} />
+                      <Play size={17} strokeWidth={2} />
                     )}
-                    {job.status === "complete" ? "Simulation Complete" : "Run Simulation"}
+                    {job.status === "complete" ? "Simulation complete" : "Run simulation"}
                   </button>
                 </div>
               ) : (
-                <p className="mt-5 text-[#6f604c]">
-                  No route is attached to this job.
+                <p className="mt-5 text-sm text-muted">
+                  No route is attached to this job yet.
                 </p>
               )}
             </aside>
@@ -342,16 +356,16 @@ export default function JobDetailPage() {
                 {detailTabs.map(({ value, label, icon: Icon }) => {
                   return (
                     <button
-                      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 font-bold transition ${
+                      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
                         tab === value
-                          ? "bg-[#17140f] text-[#fffaf0]"
-                          : "border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/60 text-[#4f4436] hover:bg-[#eadcc8]"
+                          ? "bg-gold text-void"
+                          : "border border-line text-muted hover:border-cream/25 hover:text-cream"
                       }`}
                       key={value}
                       onClick={() => setTab(value)}
                       type="button"
                     >
-                      <Icon size={16} strokeWidth={1.8} />
+                      <Icon size={15} strokeWidth={2} />
                       {label}
                     </button>
                   );
@@ -368,63 +382,66 @@ export default function JobDetailPage() {
               ) : null}
 
               {tab === "timeline" ? (
-                <div className="panel p-6">
-                  <div className="space-y-5">
-                    {events.map((event) => (
-                      <div className="flex gap-4" key={event.id}>
-                        <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-[#25495a]" />
+                <div className="glass p-6">
+                  <div className="space-y-6">
+                    {events.map((event, index) => (
+                      <div className="relative flex gap-4" key={event.id}>
+                        {index < events.length - 1 ? (
+                          <span className="absolute left-[5px] top-5 h-full w-px bg-line" />
+                        ) : null}
+                        <span className="relative mt-1.5 h-[11px] w-[11px] shrink-0 rounded-full border-2 border-gold bg-void" />
                         <div>
-                          <p className="font-bold text-[#17140f]">
+                          <p className="font-medium text-cream">
                             {labelize(event.event_type)}
                           </p>
-                          <p className="mt-1 text-sm leading-6 text-[#5d5244]">
+                          <p className="mt-1 text-sm leading-6 text-muted">
                             {event.message}
                           </p>
-                          <p className="metric-value mt-1 text-xs text-[#6f604c]">
+                          <p className="metric-value mt-1 text-xs text-muted-dark">
                             {formatDateTime(event.ts_utc)}
                           </p>
                         </div>
                       </div>
                     ))}
                     {events.length === 0 ? (
-                      <p className="text-[#6f604c]">No lifecycle events recorded.</p>
+                      <p className="text-muted">No lifecycle events recorded.</p>
                     ) : null}
                   </div>
                 </div>
               ) : null}
 
               {tab === "result" ? (
-                <div className="panel p-6">
+                <div className="glass p-6">
                   {result ? (
                     <>
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                          <h2 className="text-2xl font-bold text-[#17140f]">
-                            Mock inference result
+                          <h2 className="text-lg font-semibold text-cream">
+                            Inference result
                           </h2>
-                          <p className="mt-2 max-w-2xl leading-7 text-[#5d5244]">
+                          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
                             {result.summary}
                           </p>
                         </div>
-                        <span className="metric-value rounded-lg bg-[#eadcc8] px-3 py-2 text-sm font-bold text-[#25495a]">
+                        <span className="metric-value rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-bright">
                           {formatPercent(result.confidence)}
                         </span>
                       </div>
                       <div className="mt-6 grid gap-3 md:grid-cols-3">
-                        <div className="rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/70 p-4">
-                          <p className="text-sm text-[#6f604c]">Detections</p>
-                          <p className="metric-value mt-2 text-2xl font-bold">
+                        <div className="rounded-xl border border-line bg-void/40 p-4">
+                          <p className="chart-label text-muted-dark">Detections</p>
+                          <p className="metric-value mt-2 text-2xl text-cream">
                             {result.geojson.features.length}
                           </p>
                         </div>
-                        <div className="rounded-lg border border-[rgba(86,67,42,0.22)] bg-[#fffaf0]/70 p-4 md:col-span-2">
-                          <p className="text-sm text-[#6f604c]">Output files</p>
+                        <div className="rounded-xl border border-line bg-void/40 p-4 md:col-span-2">
+                          <p className="chart-label text-muted-dark">Output files</p>
                           <div className="mt-2 space-y-1">
                             {result.output_files.map((file) => {
                               const artifact = artifacts.find((a) => a.key === file);
                               return artifact ? (
                                 <a
-                                  className="metric-value block text-xs text-[#25495a] underline decoration-dotted underline-offset-2 hover:text-[#17140f]"
+                                  className="metric-value block text-xs text-teal underline decoration-dotted underline-offset-2 transition hover:text-gold-bright"
                                   href={artifact.url}
                                   key={file}
                                   rel="noreferrer"
@@ -433,7 +450,7 @@ export default function JobDetailPage() {
                                   {file}
                                 </a>
                               ) : (
-                                <p className="metric-value text-xs text-[#25495a]" key={file}>
+                                <p className="metric-value text-xs text-teal" key={file}>
                                   {file}
                                 </p>
                               );
@@ -444,15 +461,15 @@ export default function JobDetailPage() {
                       <div className="relative mt-6">
                         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
-                            <MapPinned className="text-[#25495a]" size={18} strokeWidth={1.8} />
-                            <h3 className="text-xl font-bold text-[#17140f]">
+                            <MapPinned className="text-gold" size={17} strokeWidth={1.8} />
+                            <h3 className="font-semibold text-cream">
                               New York Harbor detection map
                             </h3>
                           </div>
-                          <label className="inline-flex items-center gap-2 text-sm font-bold text-[#4f4436]">
+                          <label className="inline-flex items-center gap-2 text-sm text-muted">
                             <input
                               checked={darkShipsOnly}
-                              className="h-4 w-4"
+                              className="h-4 w-4 accent-[#c9a227]"
                               onChange={(event) => setDarkShipsOnly(event.target.checked)}
                               type="checkbox"
                             />
@@ -477,7 +494,7 @@ export default function JobDetailPage() {
                       <DetectionTable result={result} />
                     </>
                   ) : (
-                    <div className="flex items-center gap-3 text-[#6f604c]">
+                    <div className="flex items-center gap-3 text-muted">
                       <FileJson size={18} strokeWidth={1.8} />
                       Result not ready.
                     </div>
@@ -492,7 +509,7 @@ export default function JobDetailPage() {
           </section>
         </>
       ) : (
-        <div className="panel mt-5 p-6 text-[#6f604c]">Job not found.</div>
+        <div className="glass mt-5 p-6 text-muted">Job not found.</div>
       )}
     </div>
   );
@@ -525,8 +542,8 @@ function DetectionTable({ result }: { result: Result }) {
   return (
     <section className="mt-6">
       <div className="mb-3 flex items-center gap-2">
-        <Table2 className="text-[#25495a]" size={18} strokeWidth={1.8} />
-        <h3 className="text-xl font-bold text-[#17140f]">Detection table</h3>
+        <Table2 className="text-gold" size={17} strokeWidth={1.8} />
+        <h3 className="font-semibold text-cream">Detection table</h3>
       </div>
       <div className="table-shell">
         <table className="data-table">
@@ -544,16 +561,16 @@ function DetectionTable({ result }: { result: Result }) {
           <tbody>
             {detections.map((detection) => (
               <tr key={detection.id}>
-                <td className="metric-value text-sm text-[#25495a]">{detection.id}</td>
-                <td>{labelize(detection.vesselType)}</td>
-                <td className="text-sm text-[#6f604c]">{detection.zone}</td>
-                <td className="metric-value text-sm">
+                <td className="metric-value text-sm text-teal">{detection.id}</td>
+                <td className="text-sm text-cream/85">{labelize(detection.vesselType)}</td>
+                <td className="text-sm text-muted">{detection.zone}</td>
+                <td className="metric-value text-sm text-cream/85">
                   {formatPercent(detection.confidence)}
                 </td>
-                <td className="metric-value text-sm">{detection.lengthMeters} m</td>
-                <td className="metric-value text-sm">{detection.headingDegrees} deg</td>
+                <td className="metric-value text-sm text-cream/85">{detection.lengthMeters} m</td>
+                <td className="metric-value text-sm text-cream/85">{detection.headingDegrees} deg</td>
                 <td>
-                  <span className="rounded-lg bg-[#eadcc8] px-2.5 py-1 text-xs font-bold uppercase text-[#25495a]">
+                  <span className="chart-label rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 text-gold-bright">
                     {detection.priority}
                   </span>
                 </td>

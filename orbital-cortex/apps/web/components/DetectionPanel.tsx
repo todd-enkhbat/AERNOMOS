@@ -19,17 +19,17 @@ export function DetectionPanel({ feature, onClose }: DetectionPanelProps) {
   const darkShip = props.dark_ship === true;
 
   return (
-    <aside className="panel absolute bottom-4 left-4 right-4 z-10 max-w-md p-4 shadow-lg md:left-auto">
+    <aside className="glass-strong absolute bottom-4 left-4 right-4 z-10 max-w-md p-4 md:left-auto">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Ship className="text-[#25495a]" size={18} strokeWidth={1.8} />
-          <h3 className="font-bold text-[#17140f]">
+          <Ship className="text-gold" size={18} strokeWidth={1.8} />
+          <h3 className="font-medium text-cream">
             {String(props.detection_id ?? "Detection")}
           </h3>
         </div>
         <button
           aria-label="Close detection panel"
-          className="rounded-lg p-1 text-[#6f604c] hover:bg-[#eadcc8]"
+          className="rounded-lg p-1 text-muted transition hover:bg-cream/10 hover:text-cream"
           onClick={onClose}
           type="button"
         >
@@ -52,9 +52,9 @@ export function DetectionPanel({ feature, onClose }: DetectionPanelProps) {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-[rgba(86,67,42,0.12)] pb-2">
-      <dt className="text-[#6f604c]">{label}</dt>
-      <dd className="font-bold text-[#17140f]">{value}</dd>
+    <div className="flex justify-between gap-4 border-b border-line pb-2">
+      <dt className="text-muted-dark">{label}</dt>
+      <dd className="font-medium text-cream/90">{value}</dd>
     </div>
   );
 }

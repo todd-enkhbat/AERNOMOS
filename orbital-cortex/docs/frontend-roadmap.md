@@ -1,28 +1,30 @@
 # Frontend roadmap — Phase B and beyond
 
-Phase A shipped a functional demo UI wired to the full API. Phase B turns **nomosorbital.com** into a credible product surface.
+Phase A shipped a functional demo UI wired to the full API. **Phase B (shipped July 2026)** rebuilt **nomosorbital.com** as the "Nomos Record" design: dark glass UI, Golden Record brand mark, three.js orbital hero, demo-first homepage.
 
-## Current frontend (Phase A baseline)
+## Current frontend (Phase B)
 
-- **Stack:** Next.js 14 App Router, TypeScript, Tailwind, MapLibre GL
+- **Stack:** Next.js 14 App Router, TypeScript, Tailwind, MapLibre GL, framer-motion, three.js
 - **Location:** `orbital-cortex/apps/web/`
 - **Data:** Client-side `fetch` via `lib/api.ts`; types from OpenAPI (`npm run generate:api-types`)
 - **Pages:** `/`, `/dashboard`, `/jobs`, `/jobs/[id]`, `/network`, `/docs`
 - **Deployed:** Vercel, root `orbital-cortex/apps/web`
+- **Fonts:** Fraunces (display serif), Inter (UI), IBM Plex Mono (data) via `next/font`
 
-### What works today
+### Phase B highlights
 
-- Submit job, poll status, view routing scores, timeline, GeoJSON map
-- Network: nodes, ground stations, satellites, contact windows
-- Job detail: scene metadata, routing replay audit hash
-- Honest empty states when API is down (no fake mock data)
+- **Brand:** `components/brand/NomosMark.tsx` — Golden Record homage SVG (pulsar burst, hydrogen atom, playback arc, waveform); favicon at `app/icon.svg`
+- **Orbital hero:** `components/orbital/OrbitalScene.tsx` — three.js graticule globe, gold orbit rings, animated satellites, ground-station pins; mouse parallax; `prefers-reduced-motion` respected; camera pulls back on narrow viewports
+- **Demo-first:** `components/jobs/DemoLauncher.tsx` glass panel in the hero — one-click job submit (no API key field), inline animated `JobStepper`, link to full mission view
+- **Glass system:** `.glass` / `.glass-strong` / `.editorial` utilities in `globals.css`; dark void base with warm cream editorial islands (VAST-style dark/light mesh)
+- **Network page:** contact-window Gantt (`components/network/ContactWindowTimeline.tsx`) + shared orbital scene
+- **Job detail:** mission phase stepper, dark CARTO map tiles, audit match/mismatch styling
 
 ### Known limitations
 
-- Demo aesthetic ("Orbital Cortex" desert theme); not yet a marketing site
 - No OpenAPI-generated fetch client (types only)
 - Client-only data fetching (no React Query / SSR)
-- Fake Bearer token in job form
+- API has no real auth; demo uses shared `oc_demo_public` bearer (server rate-limits POST /v1/jobs per IP)
 - Dashboard N+1 routing calls
 
 ---

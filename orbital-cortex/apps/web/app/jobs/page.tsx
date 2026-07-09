@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2, Plus, SendHorizontal } from "lucide-react";
+import { motion } from "framer-motion";
+import { Loader2, SendHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -9,6 +10,7 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { createJob, listJobs } from "@/lib/api";
+import { DEMO_API_KEY } from "@/lib/constants";
 import { defaultJobPayload } from "@/lib/default-job-payload";
 import type {
   ComputePreference,
@@ -33,7 +35,6 @@ const preferences: ComputePreference[] = [
 export default function JobsPage() {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [apiKey, setApiKey] = useState("oc_test_123");
   const [jobType, setJobType] = useState<JobType>(defaultJobPayload.job_type);
   const [sensor, setSensor] = useState<Sensor>(defaultJobPayload.sensor);
   const [priority, setPriority] = useState<Priority>(defaultJobPayload.priority);
@@ -108,7 +109,7 @@ export default function JobsPage() {
 
     setSubmitting(true);
     try {
-      const response = await createJob(payloadPreview, apiKey);
+      const response = await createJob(payloadPreview, DEMO_API_KEY);
       setJobs((current) => [response.job, ...current]);
       router.push(`/jobs/${response.job.id}`);
     } catch (error) {
@@ -124,37 +125,24 @@ export default function JobsPage() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Jobs"
-        title="Submit a mission job"
-        description="Create a deterministic space-data request, route it across simulated orbital and cloud compute, then inspect the operator log and result."
+        title="Task the network"
+        description="Compose a space-data request, route it across orbital and cloud compute, then follow the mission from queue to signed result. Open demo — no key required."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
 
       <section className="mt-5 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <form className="panel p-6" onSubmit={handleSubmit}>
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-lg bg-[#17140f] text-[#fffaf0]">
-              <Plus size={18} strokeWidth={1.8} />
-            </span>
-            <div>
-              <h2 className="text-2xl font-bold text-[#17140f]">New maritime run</h2>
-              <p className="text-sm text-[#6f604c]">
-                Default AOI: New York Harbor SAR scene
-              </p>
-            </div>
+        <form className="glass p-6 sm:p-7" onSubmit={handleSubmit}>
+          <div>
+            <h2 className="text-lg font-semibold text-cream">New mission</h2>
+            <p className="mt-1 text-sm text-muted">
+              Default scene: SAR pass over New York Harbor
+            </p>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">API key</span>
-              <input
-                className="input-field"
-                onChange={(event) => setApiKey(event.target.value)}
-                value={apiKey}
-              />
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">Job type</span>
+              <span className="chart-label mb-2 block text-muted">Job type</span>
               <select
                 className="input-field"
                 onChange={(event) => setJobType(event.target.value as JobType)}
@@ -168,7 +156,7 @@ export default function JobsPage() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">Sensor</span>
+              <span className="chart-label mb-2 block text-muted">Sensor</span>
               <select
                 className="input-field"
                 onChange={(event) => setSensor(event.target.value as Sensor)}
@@ -182,7 +170,7 @@ export default function JobsPage() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">Priority</span>
+              <span className="chart-label mb-2 block text-muted">Priority</span>
               <select
                 className="input-field"
                 onChange={(event) => setPriority(event.target.value as Priority)}
@@ -195,8 +183,18 @@ export default function JobsPage() {
                 ))}
               </select>
             </label>
+            <label className="block">
+              <span className="chart-label mb-2 block text-muted">Max cost USD</span>
+              <input
+                className="input-field"
+                min="1"
+                onChange={(event) => setMaxCost(event.target.value)}
+                type="number"
+                value={maxCost}
+              />
+            </label>
             <label className="block md:col-span-2">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">
+              <span className="chart-label mb-2 block text-muted">
                 Compute preference
               </span>
               <select
@@ -214,47 +212,36 @@ export default function JobsPage() {
               </select>
             </label>
             <label className="block md:col-span-2">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">
-                Max cost USD
-              </span>
-              <input
-                className="input-field"
-                min="1"
-                onChange={(event) => setMaxCost(event.target.value)}
-                type="number"
-                value={maxCost}
-              />
-            </label>
-            <label className="block md:col-span-2">
-              <span className="mb-2 block text-sm font-bold text-[#4f4436]">
+              <span className="chart-label mb-2 block text-muted">
                 Area of interest
               </span>
               <textarea
-                className="input-field min-h-[156px] resize-y font-mono text-sm"
+                className="input-field metric-value min-h-[140px] resize-y text-sm"
                 onChange={(event) => setAoi(event.target.value)}
                 value={aoi}
               />
             </label>
           </div>
 
-          <button
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#17140f] px-5 py-3 font-bold text-[#fffaf0] transition hover:bg-[#2a241b] disabled:cursor-not-allowed disabled:opacity-60"
+          <motion.button
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3.5 font-semibold text-void transition-colors hover:bg-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
             disabled={submitting}
             type="submit"
+            whileTap={{ scale: 0.98 }}
           >
             {submitting ? (
-              <Loader2 className="animate-spin" size={18} strokeWidth={1.8} />
+              <Loader2 className="animate-spin" size={18} strokeWidth={2} />
             ) : (
-              <SendHorizontal size={18} strokeWidth={1.8} />
+              <SendHorizontal size={18} strokeWidth={2} />
             )}
-            Submit Job
-          </button>
+            Submit mission
+          </motion.button>
         </form>
 
         <section>
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="text-2xl font-bold text-[#17140f]">Job queue</h2>
-            <span className="metric-value text-sm text-[#6f604c]">
+            <h2 className="text-lg font-semibold text-cream">Mission queue</h2>
+            <span className="metric-value text-sm text-muted">
               {loading ? "loading" : `${jobs.length} jobs`}
             </span>
           </div>
@@ -272,7 +259,7 @@ export default function JobsPage() {
               <tbody>
                 {jobs.length === 0 ? (
                   <tr>
-                    <td className="text-[#6f604c]" colSpan={5}>
+                    <td className="text-muted" colSpan={5}>
                       No jobs have been submitted.
                     </td>
                   </tr>
@@ -280,23 +267,26 @@ export default function JobsPage() {
                   jobs.map((job) => (
                     <tr key={job.id}>
                       <td>
-                        <Link className="font-bold text-[#17140f]" href={`/jobs/${job.id}`}>
+                        <Link
+                          className="font-medium text-cream transition hover:text-gold-bright"
+                          href={`/jobs/${job.id}`}
+                        >
                           {labelize(job.job_type)}
                         </Link>
-                        <p className="metric-value mt-1 text-xs text-[#6f604c]">
+                        <p className="metric-value mt-1 text-xs text-muted-dark">
                           {job.id}
                         </p>
                       </td>
                       <td>
                         <StatusBadge status={job.status} />
                       </td>
-                      <td className="metric-value text-sm">
+                      <td className="metric-value text-sm text-cream/85">
                         {formatCurrency(job.max_cost_usd)}
                       </td>
-                      <td className="text-sm text-[#6f604c]">
+                      <td className="text-sm text-muted">
                         {labelize(job.compute_preference)}
                       </td>
-                      <td className="text-sm text-[#6f604c]">
+                      <td className="text-sm text-muted">
                         {formatDateTime(job.updated_at)}
                       </td>
                     </tr>

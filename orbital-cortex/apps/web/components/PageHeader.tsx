@@ -14,16 +14,12 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-5 py-10 md:flex-row md:items-end md:justify-between">
       <div className="max-w-3xl">
-        {eyebrow ? (
-          <p className="mb-3 text-sm font-bold uppercase text-[#a86f35]">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h1 className="text-4xl font-bold leading-tight text-[#17140f] md:text-5xl">
+        {eyebrow ? <p className="chart-label mb-3 text-gold">{eyebrow}</p> : null}
+        <h1 className="display text-4xl leading-tight text-cream md:text-5xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#5d5244]">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
             {description}
           </p>
         ) : null}

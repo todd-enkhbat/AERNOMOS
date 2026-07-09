@@ -10,11 +10,14 @@
     "generate:api-types": "openapi-typescript ../../openapi.json -o lib/generated/api-types.ts"
   },
   "dependencies": {
+    "@types/three": "^0.185.1",
+    "framer-motion": "^12.42.2",
     "lucide-react": "^0.468.0",
     "maplibre-gl": "^4.7.1",
     "next": "^14.2.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

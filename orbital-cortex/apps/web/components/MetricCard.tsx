@@ -13,32 +13,28 @@ export function MetricCard({
   icon: LucideIcon;
   tone?: "light" | "dark";
 }) {
-  const dark = tone === "dark";
+  const highlight = tone === "dark";
 
   return (
-    <div className={dark ? "dark-panel p-5" : "panel p-5"}>
+    <div className={`glass glass-hover p-5 ${highlight ? "border-gold/25" : ""}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className={dark ? "text-sm text-[#d8cbb8]" : "text-sm text-[#6f604c]"}>
-            {label}
+          <p className="chart-label text-muted">{label}</p>
+          <p className="metric-value mt-3 text-3xl font-medium text-cream">
+            {value}
           </p>
-          <p className="metric-value mt-3 text-3xl font-semibold">{value}</p>
         </div>
         <span
-          className={
-            dark
-              ? "grid h-10 w-10 place-items-center rounded-lg bg-[#fffaf0]/10 text-[#e0b16f]"
-              : "grid h-10 w-10 place-items-center rounded-lg bg-[#eadcc8] text-[#25495a]"
-          }
+          className={`grid h-10 w-10 place-items-center rounded-xl border ${
+            highlight
+              ? "border-gold/30 bg-gold/10 text-gold-bright"
+              : "border-line bg-cream/5 text-teal"
+          }`}
         >
           <Icon size={18} strokeWidth={1.8} />
         </span>
       </div>
-      {detail ? (
-        <p className={dark ? "mt-5 text-sm text-[#d8cbb8]" : "mt-5 text-sm text-[#6f604c]"}>
-          {detail}
-        </p>
-      ) : null}
+      {detail ? <p className="mt-4 text-sm text-muted-dark">{detail}</p> : null}
     </div>
   );
 }
