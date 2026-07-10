@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 
 const pillars = [
   {
@@ -27,11 +28,27 @@ export function AboutScrollStory() {
   const sectionRef = useRef<HTMLElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
+  const reduced = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"]
   });
+
+  useEffect(() => {
+    const unsub = scrollYProgress.on("change", (v) => {
+      progressRef.current = v;
+      if (v < 0.34) {
+        setActiveIndex(0);
+      } else if (v < 0.67) {
+        setActiveIndex(1);
+      } else {
+        setActiveIndex(2);
+      }
+    });
+    return unsub;
+  }, [scrollYProgress]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -77,13 +94,13 @@ export function AboutScrollStory() {
     scene.add(key);
 
     let raf = 0;
-    const unsub = scrollYProgress.on("change", (v) => {
-      progressRef.current = v;
-    });
 
     const resize = () => {
       const w = mount.clientWidth;
       const h = mount.clientHeight;
+      if (w === 0 || h === 0) {
+        return;
+      }
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -103,61 +120,64 @@ export function AboutScrollStory() {
 
     return () => {
       cancelAnimationFrame(raf);
-      unsub();
       window.removeEventListener("resize", resize);
       texture.dispose();
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
-  }, [scrollYProgress]);
+  }, []);
 
-  const p0 = useTransform(scrollYProgress, [0, 0.28, 0.32], [1, 1, 0]);
-  const p1 = useTransform(scrollYProgress, [0.28, 0.35, 0.62, 0.66], [0, 1, 1, 0]);
-  const p2 = useTransform(scrollYProgress, [0.62, 0.68, 0.95, 1], [0, 1, 1, 0]);
-  const opacities = [p0, p1, p2];
+  const pillar = pillars[activeIndex];
 
   return (
-    <section className="relative" ref={sectionRef} style={{ height: "240vh" }}>
-      <div className="sticky top-0 grid h-screen items-center lg:grid-cols-[1fr_1fr]">
-        <div className="relative flex h-full items-center justify-center">
+    <section className="relative isolate" ref={sectionRef} style={{ height: "180vh" }}>
+      <div className="sticky top-0 z-0 grid h-[min(100vh,900px)] items-center lg:grid-cols-[1fr_1fr]">
+        <div className="relative flex h-full items-center justify-center py-10">
           <div
             aria-hidden
-            className="pointer-events-none absolute h-[380px] w-[380px] rounded-full bg-gold/12 blur-[90px]"
+            className="pointer-events-none absolute h-[320px] w-[320px] rounded-full bg-gold/10 blur-[80px]"
           />
           <div
-            className="relative h-[min(380px,72vw)] w-[min(380px,72vw)]"
+            className="relative h-[min(340px,68vw)] w-[min(340px,68vw)]"
             ref={mountRef}
           />
         </div>
 
-        <div className="relative hidden h-full items-center lg:flex">
-          {pillars.map((pillar, index) => (
+        <div className="relative hidden h-full min-h-[280px] items-center overflow-hidden lg:flex">
+          <AnimatePresence mode="wait">
             <motion.article
+              animate={{ opacity: 1, y: 0 }}
               className="absolute inset-0 flex flex-col justify-center pr-8"
+              exit={{ opacity: 0, y: -16 }}
+              initial={{ opacity: 0, y: 16 }}
               key={pillar.label}
-              style={{ opacity: opacities[index], pointerEvents: "none" }}
+              transition={
+                reduced
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 320, damping: 32 }
+              }
             >
               <p className="chart-label text-gold">{pillar.label}</p>
               <h3 className="display gold-shine mt-3 text-3xl leading-tight">
                 {pillar.title}
               </h3>
-              <p className="prose-compact mt-4 max-w-md text-muted">{pillar.body}</p>
+              <p className="prose-compact mt-4 max-w-md text-silver">{pillar.body}</p>
             </motion.article>
-          ))}
+          </AnimatePresence>
         </div>
       </div>
 
-      <div className="page-shell space-y-16 pb-16 lg:hidden">
-        {pillars.map((pillar) => (
-          <article key={pillar.label}>
-            <p className="chart-label text-gold">{pillar.label}</p>
-            <h3 className="display mt-2 text-2xl text-cream">{pillar.title}</h3>
-            <p className="prose-compact mt-3 text-muted">{pillar.body}</p>
+      <div className="page-shell space-y-12 pb-12 lg:hidden">
+        {pillars.map((item) => (
+          <article key={item.label}>
+            <p className="chart-label text-gold">{item.label}</p>
+            <h3 className="display mt-2 text-2xl text-cream">{item.title}</h3>
+            <p className="prose-compact mt-3 text-muted">{item.body}</p>
           </article>
         ))}
-        <Link className="btn-gold inline-flex" href="/about">
+        <LiquidButton href="/about" variant="outline">
           Full story
-        </Link>
+        </LiquidButton>
       </div>
     </section>
   );

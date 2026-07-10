@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 
+import { LiquidCard } from "@/components/liquid/LiquidCard";
 import type { CandidateScore } from "@/lib/types";
 
 export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
@@ -17,7 +18,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
   ];
 
   return (
-    <div className="liquid-panel p-5">
+    <LiquidCard>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-medium text-cream">{candidate.node_id}</p>
@@ -70,6 +71,6 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
           ))}
         </div>
       ) : null}
-    </div>
+    </LiquidCard>
   );
 }

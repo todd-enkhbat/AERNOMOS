@@ -1,15 +1,14 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Cloud, RadioTower, Satellite as SatelliteIcon, Server, Signal } from "lucide-react";
+import { Cloud, RadioTower, Satellite as SatelliteIcon, Server } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
-import { MetricCard } from "@/components/MetricCard";
-import { ScrollSketchfab } from "@/components/motion/ScrollSketchfab";
-import { OrbitalScrollStage } from "@/components/motion/OrbitalScrollStage";
+import { NetworkMetricsCarousel } from "@/components/network/NetworkMetricsCarousel";
 import { PageHeader } from "@/components/PageHeader";
+import { LiquidCard, LiquidSection } from "@/components/liquid";
 import { API_BASE_URL, getNodes, listJobs } from "@/lib/api";
 import { EMPTY_NODES } from "@/lib/constants";
 import type { ComputeNode, NodesResponse } from "@/lib/types";
@@ -18,16 +17,14 @@ import { formatMinutes, formatPercent, labelize } from "@/lib/format";
 const NetworkConsole = dynamic(
   () =>
     import("@/components/platform/NetworkConsole").then((m) => m.NetworkConsole),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="liquid-glass liquid-glass--card min-h-[320px] animate-pulse" /> }
 );
 
-const OrbitalScene = dynamic(
-  () => import("@/components/orbital/OrbitalScene"),
-  { ssr: false }
+const SputnikScrollStory = dynamic(
+  () =>
+    import("@/components/network/SputnikScrollStory").then((m) => m.SputnikScrollStory),
+  { ssr: false, loading: () => <div className="h-[180vh] animate-pulse" /> }
 );
-
-const SKETCHFAB_SATELLITE =
-  "https://sketchfab.com/models/f397bb9fe5124a0a9db13b138af516d8/embed?autostart=1&preload=1&ui_theme=dark&ui_infos=0&ui_watermark=0";
 
 export default function NetworkPage() {
   const [nodes, setNodes] = useState<NodesResponse>(EMPTY_NODES);
@@ -78,7 +75,7 @@ export default function NetworkPage() {
 
   return (
     <div className="relative pb-10">
-      <div className="page-shell">
+      <LiquidSection className="page-shell">
         <PageHeader
           description="Ground mesh, SGP4 passes, orbital nodes, and cloud fallback. Live data from the routing engine."
           eyebrow="Network"
@@ -86,61 +83,30 @@ export default function NetworkPage() {
         />
         {notice ? <InlineNotice message={notice} /> : null}
 
-        <section className="grid gap-3 md:grid-cols-4">
-          <MetricCard
-            detail="Orbital candidates"
-            icon={SatelliteIcon}
-            label="Orbital Nodes"
-            value={String(orbital.length)}
-            tone="dark"
-          />
-          <MetricCard
-            detail="Downlink locations"
-            icon={RadioTower}
-            label="Ground Stations"
-            value={String(nodes.ground_stations.length)}
-          />
-          <MetricCard
-            detail="Fallback compute"
-            icon={Cloud}
-            label="Cloud Nodes"
-            value={String(cloud.length)}
-          />
-          <MetricCard
-            detail="Queued or running"
-            icon={Signal}
-            label="Active Jobs"
-            value={String(activeJobs)}
-          />
-        </section>
-      </div>
+        <NetworkMetricsCarousel
+          activeJobs={activeJobs}
+          cloudCount={cloud.length}
+          groundStationCount={nodes.ground_stations.length}
+          orbitalCount={orbital.length}
+        />
+      </LiquidSection>
 
-      <section className="section-gap">
-        <div className="page-shell mb-4">
+      <section className="section-gap relative">
+        <div className="page-shell mb-1">
           <p className="chart-label text-gold">Fleet geometry</p>
-          <h2 className="display mt-1 text-xl text-cream">Scroll the constellation</h2>
+          <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
+            Scroll Sputnik through the mesh
+          </h2>
         </div>
-        <OrbitalScrollStage scrollHeight="120vh">
-          <OrbitalScene className="h-[min(420px,70vw)] w-[min(420px,70vw)]" />
-        </OrbitalScrollStage>
+        <SputnikScrollStory />
       </section>
 
-      <section className="section-gap">
-        <div className="page-shell mb-4">
-          <p className="chart-label text-gold">Communications satellite</p>
-          <p className="prose-compact mt-1 max-w-lg text-muted">
-            Interactive model drifts with scroll. Drag to inspect the bus.
-          </p>
-        </div>
-        <ScrollSketchfab scrollHeight="130vh" src={SKETCHFAB_SATELLITE} title="Communications Satellite" />
-      </section>
-
-      <section className="section-gap page-shell">
+      <LiquidSection className="section-gap page-shell">
         <NetworkConsole />
-      </section>
+      </LiquidSection>
 
-      <section className="page-shell mt-8">
-        <div className="liquid-panel overflow-hidden p-5">
+      <LiquidSection className="section-gap page-shell">
+        <LiquidCard>
           <div className="flex items-center gap-2.5">
             <Server className="text-gold" size={17} strokeWidth={1.8} />
             <h2 className="text-base font-semibold text-cream">Route model</h2>
@@ -164,13 +130,13 @@ export default function NetworkPage() {
               nodes={cloud.map((node) => node.id)}
             />
           </div>
-        </div>
+        </LiquidCard>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <NodeGroup title="Orbital nodes" nodes={orbital} />
           <NodeGroup title="Cloud fallback" nodes={cloud} />
         </div>
-      </section>
+      </LiquidSection>
     </div>
   );
 }
@@ -185,7 +151,7 @@ function TopologyColumn({
   nodes: string[];
 }) {
   return (
-    <div className="rounded-xl border border-gold/10 bg-black/30 p-3.5">
+    <div className="rounded-xl border border-gold/10 bg-black/25 p-3.5">
       <div className="flex items-center gap-2 text-gold">
         <Icon size={16} strokeWidth={1.8} />
         <p className="text-sm font-medium text-cream">{label}</p>
@@ -218,13 +184,13 @@ function NodeGroup({ title, nodes }: { title: string; nodes: ComputeNode[] }) {
     <div>
       <h2 className="mb-3 text-base font-semibold text-cream">{title}</h2>
       {nodes.length === 0 ? (
-        <div className="liquid-panel p-5">
+        <LiquidCard>
           <p className="text-sm text-muted">No compute nodes in this tier.</p>
-        </div>
+        </LiquidCard>
       ) : (
         <div className="grid gap-3">
           {nodes.map((node) => (
-            <div className="liquid-panel p-4" key={node.id}>
+            <LiquidCard key={node.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-medium text-cream">{node.name}</h3>
@@ -244,7 +210,7 @@ function NodeGroup({ title, nodes }: { title: string; nodes: ComputeNode[] }) {
                   </span>
                 ))}
               </div>
-            </div>
+            </LiquidCard>
           ))}
         </div>
       )}

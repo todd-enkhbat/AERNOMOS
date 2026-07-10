@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { JobStepper } from "@/components/jobs/JobStepper";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
+import { LiquidCard } from "@/components/liquid/LiquidCard";
+import { LiquidChip } from "@/components/liquid/LiquidChip";
 import { createJob, getJob, getRouting } from "@/lib/api";
 import { DEMO_API_KEY } from "@/lib/constants";
 import { defaultJobPayload } from "@/lib/default-job-payload";
@@ -94,7 +97,7 @@ export function DemoLauncher() {
   }
 
   return (
-    <div className="aave-glass w-full max-w-md p-6 sm:p-7" id="demo">
+    <LiquidCard className="w-full max-w-md" id="demo">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="chart-label text-gold">Live demo</p>
@@ -102,10 +105,12 @@ export function DemoLauncher() {
             Task the network
           </h2>
         </div>
-        <span className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5">
-          <span className="pulse-dot bg-[#8fd6ab]" />
-          <span className="chart-label text-muted">shared queue</span>
-        </span>
+        <div className="liquid-glass liquid-glass--inset !rounded-full">
+          <span className="flex items-center gap-2 px-3 py-1.5">
+            <span className="pulse-dot bg-[#8fd6ab]" />
+            <span className="chart-label text-muted">shared queue</span>
+          </span>
+        </div>
       </div>
 
       <AnimatePresence initial={false} mode="wait">
@@ -121,18 +126,13 @@ export function DemoLauncher() {
               <p className="chart-label text-muted">Mission</p>
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {jobTypes.map((value) => (
-                  <button
-                    className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
-                      jobType === value
-                        ? "border-gold/60 bg-gold/15 text-gold-bright"
-                        : "border-line text-muted hover:border-cream/25 hover:text-cream"
-                    }`}
+                  <LiquidChip
+                    active={jobType === value}
                     key={value}
                     onClick={() => setJobType(value)}
-                    type="button"
                   >
                     {labelize(value)}
-                  </button>
+                  </LiquidChip>
                 ))}
               </div>
             </div>
@@ -141,28 +141,23 @@ export function DemoLauncher() {
               <p className="chart-label text-muted">Priority</p>
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {priorities.map((value) => (
-                  <button
-                    className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
-                      priority === value
-                        ? "border-gold/50 bg-gold/12 text-gold-bright"
-                        : "border-line text-muted hover:border-cream/25 hover:text-cream"
-                    }`}
+                  <LiquidChip
+                    active={priority === value}
                     key={value}
                     onClick={() => setPriority(value)}
-                    type="button"
                   >
                     {labelize(value)}
-                  </button>
+                  </LiquidChip>
                 ))}
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl border border-line bg-void/40 px-4 py-3">
+            <LiquidCard className="mt-5" inset>
               <p className="chart-label text-muted-dark">Scene</p>
-              <p className="metric-value mt-1 text-sm text-cream/85">
+              <p className="metric-value mt-1 text-sm text-cream/90">
                 SAR · New York Harbor · bbox −74.3, 40.3, −73.5, 41.0
               </p>
-            </div>
+            </LiquidCard>
 
             {error ? (
               <p className="mt-4 rounded-xl border border-[#be543c]/40 bg-[#be543c]/10 px-4 py-3 text-sm text-[#e8a08e]">
@@ -170,19 +165,20 @@ export function DemoLauncher() {
               </p>
             ) : null}
 
-            <motion.button
-              className="btn-gold mt-6 flex w-full disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={submitting}
-              onClick={handleRun}
-              type="button"
-              whileTap={{ scale: 0.98 }}
-            >
-              {submitting ? (
-                <Loader2 className="animate-spin" size={18} strokeWidth={2} />
-              ) : null}
-              Run live demo
-              {!submitting ? <ArrowRight size={17} strokeWidth={2} /> : null}
-            </motion.button>
+            <div className="mt-6">
+              <LiquidButton
+                disabled={submitting}
+                fullWidth
+                onClick={handleRun}
+                variant="primary"
+              >
+                {submitting ? (
+                  <Loader2 className="animate-spin" size={18} strokeWidth={2} />
+                ) : null}
+                Run live demo
+                {!submitting ? <ArrowRight size={17} strokeWidth={2} /> : null}
+              </LiquidButton>
+            </div>
             <p className="mt-3 text-center text-xs text-muted-dark">
               No account needed. Runs against the real production API.
             </p>
@@ -220,26 +216,18 @@ export function DemoLauncher() {
             </div>
 
             <div className="mt-6 flex gap-2.5">
-              <Link
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gold px-4 py-3 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
-                href={`/jobs/${job.id}`}
-              >
+              <LiquidButton className="flex-1" href={`/jobs/${job.id}`} variant="primary">
                 Open mission view
                 <ArrowRight size={15} strokeWidth={2} />
-              </Link>
-              <button
-                aria-label="Run another demo"
-                className="grid h-11 w-11 place-items-center rounded-xl border border-line text-muted transition hover:border-cream/25 hover:text-cream"
-                onClick={reset}
-                type="button"
-              >
+              </LiquidButton>
+              <LiquidButton className="!px-3" onClick={reset} variant="outline">
                 <RotateCcw size={16} strokeWidth={2} />
-              </button>
+              </LiquidButton>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </LiquidCard>
   );
 }
 
@@ -253,10 +241,10 @@ function ProgressRow({
   accent?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-line pb-2">
+    <div className="flex items-center justify-between gap-4 border-b border-white/8 pb-2">
       <span className="chart-label text-muted-dark">{label}</span>
       <span
-        className={`metric-value text-sm ${accent ? "text-gold-bright" : "text-cream/85"}`}
+        className={`metric-value text-sm ${accent ? "text-gold-bright" : "text-cream/90"}`}
       >
         {value}
       </span>

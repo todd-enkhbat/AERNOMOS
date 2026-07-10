@@ -1,15 +1,10 @@
 import dynamic from "next/dynamic";
-import Link from "next/link";
 
 import { NomosMark } from "@/components/brand/NomosMark";
 import { DemoLauncher } from "@/components/jobs/DemoLauncher";
 import { ImmersiveScrollBand } from "@/components/motion/ImmersiveScrollBand";
 import { FadeIn } from "@/components/motion/primitives";
-
-const SideScrollDisk = dynamic(
-  () => import("@/components/motion/SideScrollDisk").then((m) => m.SideScrollDisk),
-  { ssr: false }
-);
+import { LiquidButton, LiquidCard, LiquidSection } from "@/components/liquid";
 
 const AboutScrollStory = dynamic(
   () =>
@@ -20,7 +15,7 @@ const AboutScrollStory = dynamic(
 const SdkResultPreview = dynamic(
   () =>
     import("@/components/platform/SdkResultPreview").then((m) => m.SdkResultPreview),
-  { ssr: false, loading: () => <div className="aave-glass min-h-[280px] animate-pulse" /> }
+  { ssr: false, loading: () => <div className="liquid-glass liquid-glass--card min-h-[280px] animate-pulse" /> }
 );
 
 const OrbitalScene = dynamic(
@@ -38,12 +33,10 @@ const pipeline = [
 export default function HomePage() {
   return (
     <div className="relative pb-6">
-      <SideScrollDisk />
-
-      <section className="relative overflow-hidden">
+      <LiquidSection className="relative overflow-hidden">
         <OrbitalScene className="pointer-events-none absolute inset-0 -top-16 h-[calc(100%+4rem)] w-full opacity-45" />
         <div className="page-shell relative">
-          <div className="grid min-h-[calc(100vh-110px)] items-center gap-8 py-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="grid gap-8 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-12">
             <div>
               <FadeIn>
                 <p className="chart-label flex items-center gap-2 text-silver">
@@ -59,7 +52,7 @@ export default function HomePage() {
                 </h1>
               </FadeIn>
               <FadeIn delay={0.12}>
-                <p className="prose-compact mt-4 max-w-md text-muted">
+                <p className="prose-compact mt-4 max-w-md text-silver">
                   Nomos routes space-data AI jobs across satellites and clouds,
                   scoring every node, explaining every decision, signing every
                   result.
@@ -67,15 +60,12 @@ export default function HomePage() {
               </FadeIn>
               <FadeIn delay={0.18}>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <Link className="btn-gold" href="/#demo">
+                  <LiquidButton href="/#demo" variant="primary">
                     Run live demo
-                  </Link>
-                  <Link
-                    className="text-sm text-muted transition hover:text-gold-bright"
-                    href="/network"
-                  >
+                  </LiquidButton>
+                  <LiquidButton href="/network" variant="ghost">
                     Network console →
-                  </Link>
+                  </LiquidButton>
                 </div>
               </FadeIn>
             </div>
@@ -83,46 +73,53 @@ export default function HomePage() {
               <DemoLauncher />
             </FadeIn>
           </div>
+
+          <div className="border-t border-gold/10 pt-10 lg:pt-12" id="sdk-output">
+            <SdkResultPreview />
+          </div>
         </div>
-      </section>
+      </LiquidSection>
 
-      <section className="section-gap page-shell">
-        <SdkResultPreview />
-      </section>
-
-      <section className="section-gap page-shell">
+      <LiquidSection className="section-gap page-shell">
         <p className="chart-label text-gold">Pipeline</p>
-        <div className="aave-glass mt-4 grid sm:grid-cols-4">
-          {pipeline.map((item) => (
-            <div className="border-b border-white/8 px-4 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0" key={item.step}>
-              <p className="metric-value text-[11px] text-gold">{item.step}</p>
-              <p className="mt-1 text-sm font-medium text-cream">{item.title}</p>
-              <p className="metric-value mt-1 text-[11px] text-muted">{item.detail}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+        <LiquidCard className="mt-4 !p-0">
+          <div className="grid sm:grid-cols-4">
+            {pipeline.map((item) => (
+              <div
+                className="border-b border-white/8 px-4 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0"
+                key={item.step}
+              >
+                <p className="metric-value text-[11px] text-gold">{item.step}</p>
+                <p className="mt-1 text-sm font-medium text-cream">{item.title}</p>
+                <p className="metric-value mt-1 text-[11px] text-muted">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </LiquidCard>
+      </LiquidSection>
 
       <ImmersiveScrollBand
-        imageAlt="Mission control corridor of displays"
-        imageSrc="/images/control-room-tunnel.png"
+        posterSrc="/images/control-room-tunnel.png"
         scrollHeight="130vh"
+        videoSrc="/videos/video-immersive.mp4"
       >
         <FadeIn>
-          <div className="aave-glass max-w-lg p-6 sm:p-7">
-            <p className="chart-label text-gold">The problem</p>
-            <h2 className="display mt-3 text-2xl leading-tight text-cream sm:text-3xl">
-              Satellites collect more than they can send home.
-            </h2>
-            <p className="prose-compact mt-4 text-muted">
-              Every ground-station pass is minutes long. Nomos runs inference where
-              it is fastest and downlinks only the answer.
-            </p>
+          <div className="max-w-lg">
+            <LiquidCard>
+              <p className="chart-label text-gold">The problem</p>
+              <h2 className="display mt-3 text-2xl leading-tight text-cream sm:text-3xl">
+                Satellites collect more than they can send home.
+              </h2>
+              <p className="prose-compact mt-4 text-muted">
+                Every ground-station pass is minutes long. Nomos runs inference where
+                it is fastest and downlinks only the answer.
+              </p>
+            </LiquidCard>
           </div>
         </FadeIn>
       </ImmersiveScrollBand>
 
-      <section className="section-gap" id="about">
+      <section className="section-gap relative z-[1]" id="about">
         <div className="page-shell mb-1">
           <p className="chart-label text-gold">About</p>
           <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
@@ -132,10 +129,10 @@ export default function HomePage() {
         <AboutScrollStory />
       </section>
 
-      <section className="section-gap page-shell pb-4">
+      <LiquidSection className="section-gap relative z-[2] page-shell pb-4">
         <div className="grid gap-5 lg:grid-cols-2">
           <FadeIn>
-            <div className="aave-glass h-full p-6">
+            <LiquidCard className="h-full">
               <p className="chart-label text-gold">For developers</p>
               <h2 className="display mt-2 text-xl text-cream">
                 A control plane, not a black box.
@@ -144,10 +141,12 @@ export default function HomePage() {
                 Routing scores, lifecycle events, replayable decision hashes.
                 Public and documented.
               </p>
-              <Link className="btn-gold-outline mt-4 inline-flex" href="/docs">
-                API reference
-              </Link>
-            </div>
+              <div className="mt-4">
+                <LiquidButton href="/docs" variant="outline">
+                  API reference
+                </LiquidButton>
+              </div>
+            </LiquidCard>
           </FadeIn>
           <FadeIn delay={0.06}>
             <pre className="code-block h-full !text-[12px]">
@@ -158,7 +157,7 @@ export default function HomePage() {
             </pre>
           </FadeIn>
         </div>
-      </section>
+      </LiquidSection>
     </div>
   );
 }

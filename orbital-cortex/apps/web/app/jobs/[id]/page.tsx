@@ -76,7 +76,6 @@ export default function JobDetailPage() {
   const [scene, setScene] = useState<SceneRecord | null>(null);
   const [replayResult, setReplayResult] = useState<ReplayResponse | null>(null);
   const [selectedDetection, setSelectedDetection] = useState<GeoJsonFeature | null>(null);
-  const [darkShipsOnly, setDarkShipsOnly] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -459,25 +458,13 @@ export default function JobDetailPage() {
                         </div>
                       </div>
                       <div className="relative mt-6">
-                        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            <MapPinned className="text-gold" size={17} strokeWidth={1.8} />
-                            <h3 className="font-semibold text-cream">
-                              New York Harbor detection map
-                            </h3>
-                          </div>
-                          <label className="inline-flex items-center gap-2 text-sm text-muted">
-                            <input
-                              checked={darkShipsOnly}
-                              className="h-4 w-4 accent-[#c9a227]"
-                              onChange={(event) => setDarkShipsOnly(event.target.checked)}
-                              type="checkbox"
-                            />
-                            Dark ships only (no AIS)
-                          </label>
+                        <div className="mb-3 flex items-center gap-2">
+                          <MapPinned className="text-gold" size={17} strokeWidth={1.8} />
+                          <h3 className="font-semibold text-cream">
+                            New York Harbor detection map
+                          </h3>
                         </div>
                         <HarborMap
-                          darkShipsOnly={darkShipsOnly}
                           features={detections.length > 0 ? detections : mapFeaturesFromResult(result)}
                           onSelect={setSelectedDetection}
                           selectedId={
@@ -485,6 +472,8 @@ export default function JobDetailPage() {
                               ? String(selectedDetection.properties.detection_id ?? "")
                               : null
                           }
+                          subtitle="Filter vessels · live pulse · explore or cinema"
+                          title="Harbor AOI"
                         />
                         <DetectionPanel
                           feature={selectedDetection}

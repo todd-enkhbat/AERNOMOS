@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { LiquidCard } from "@/components/liquid/LiquidCard";
 import { ScoreBar } from "@/components/ScoreBar";
 import { ContactWindowTimeline } from "@/components/network/ContactWindowTimeline";
 import {
@@ -20,7 +21,7 @@ import { formatDateTime, formatMinutes, formatPercent } from "@/lib/format";
 const NetworkGlobeMap = dynamic(
   () =>
     import("@/components/network/NetworkGlobeMap").then((m) => m.NetworkGlobeMap),
-  { ssr: false, loading: () => <div className="min-h-[320px] animate-pulse rounded-[18px] bg-black/40" /> }
+  { ssr: false, loading: () => <div className="liquid-glass liquid-glass--card min-h-[320px] animate-pulse" /> }
 );
 
 /** Network console: ground mesh map, passes, routing, registry. Lives on /network. */
@@ -82,7 +83,7 @@ export function NetworkConsole() {
 
   return (
     <div className="space-y-6">
-      <section className="liquid-panel overflow-hidden p-4 sm:p-5">
+      <LiquidCard className="overflow-hidden">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="chart-label text-gold">Ground mesh</p>
@@ -106,18 +107,18 @@ export function NetworkConsole() {
             </li>
           ))}
         </ul>
-      </section>
+      </LiquidCard>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <section className="liquid-panel p-4 sm:p-5">
+        <LiquidCard>
           <p className="chart-label text-gold">Contact windows</p>
           <h3 className="display mt-1 text-lg text-cream">SGP4 pass schedule</h3>
           <div className="mt-4">
             <ContactWindowTimeline windows={windows} />
           </div>
-        </section>
+        </LiquidCard>
 
-        <section className="liquid-panel p-4 sm:p-5">
+        <LiquidCard>
           <p className="chart-label text-gold">Satellite registry</p>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -139,7 +140,7 @@ export function NetworkConsole() {
               </tbody>
             </table>
           </div>
-        </section>
+        </LiquidCard>
       </div>
 
       {route && recentJob ? (

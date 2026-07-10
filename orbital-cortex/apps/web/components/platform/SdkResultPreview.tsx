@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { LiquidButton } from "@/components/liquid/LiquidButton";
+import { LiquidCard } from "@/components/liquid/LiquidCard";
 import { ScoreBar } from "@/components/ScoreBar";
 import { API_BASE_URL, getDetections, getResult, getRouting, listJobs } from "@/lib/api";
 import type { DetectionsGeoJson, Job, ResultResponse, RoutingDecision } from "@/lib/types";
@@ -63,17 +65,19 @@ export function SdkResultPreview() {
 
   if (error && !job) {
     return (
-      <div className="aave-glass p-6 text-center">
+      <LiquidCard className="text-center">
         <p className="text-sm text-muted">Run a demo job to populate SDK results.</p>
-        <Link className="btn-gold mt-4 inline-flex" href="/#demo">
-          Run live demo
-        </Link>
-      </div>
+        <div className="mt-4">
+          <LiquidButton href="/#demo" variant="primary">
+            Run live demo
+          </LiquidButton>
+        </div>
+      </LiquidCard>
     );
   }
 
   if (!job || !geojson) {
-    return <div className="aave-glass min-h-[200px] animate-pulse" />;
+    return <div className="liquid-glass liquid-glass--card min-h-[200px] animate-pulse" />;
   }
 
   const features = geojson.features ?? [];
@@ -89,25 +93,24 @@ export function SdkResultPreview() {
           <h2 className="display mt-2 text-2xl text-cream">
             Detections from the live pipeline.
           </h2>
-          <p className="prose-compact mt-1 max-w-lg text-muted">
+          <p className="prose-compact mt-1 max-w-lg text-silver">
             GeoJSON features, signed artifact URLs, and routing scores returned by
             the Python SDK against {API_BASE_URL}.
           </p>
         </div>
-        <Link className="btn-gold-outline text-sm" href={`/jobs/${job.id}`}>
+        <LiquidButton href={`/jobs/${job.id}`} variant="outline">
           Open mission view
-        </Link>
+        </LiquidButton>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="aave-glass overflow-hidden p-3 sm:p-4">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-            <span className="text-cream/90">{labelize(job.job_type)}</span>
-            <span className="metric-value text-[11px] text-silver">
-              {features.length} detections · {route?.selected_node_id ?? "routing"}
-            </span>
-          </div>
-          <HarborMap features={features} />
+      <div className="grid items-start gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="harbor-map-frame overflow-hidden rounded-[18px] border border-gold/12 bg-[#0a0c10]">
+          <HarborMap
+            compact
+            features={features}
+            subtitle={`${features.length} detections · ${route?.selected_node_id ?? "routing"}`}
+            title={labelize(job.job_type)}
+          />
         </div>
 
         <div className="space-y-4">

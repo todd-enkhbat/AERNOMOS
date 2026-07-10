@@ -1,8 +1,10 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 
 import { FadeIn } from "@/components/motion/primitives";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
+import { LiquidCard } from "@/components/liquid/LiquidCard";
+import { LiquidSection } from "@/components/liquid/LiquidSection";
 
 const AboutScrollStory = dynamic(
   () =>
@@ -26,39 +28,43 @@ export default function AboutPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-void/50 via-void/90 to-void" />
         </div>
-        <div className="page-shell relative py-12 md:py-16">
-          <FadeIn>
-            <p className="chart-label text-gold">About</p>
-            <h1 className="display mt-2 max-w-2xl text-3xl leading-tight text-cream md:text-5xl">
-              Law, signal, and plasma discipline.
-            </h1>
-            <p className="prose-compact mt-3 max-w-xl text-muted">
-              Scroll to spin the Golden Record. Three lineages define Nomos Orbital:
-              the Greek idea of order, the Voyager disc as distilled downlink, and
-              Columbia plasma physics as engineering culture.
-            </p>
-            <Link className="btn-gold mt-6 inline-flex" href="/#demo">
-              Run live demo
-            </Link>
-          </FadeIn>
-        </div>
+        <LiquidSection className="relative py-12 md:py-16" orbs={false}>
+          <div className="page-shell">
+            <FadeIn>
+              <p className="chart-label text-gold">About</p>
+              <h1 className="display mt-2 max-w-2xl text-3xl leading-tight text-cream md:text-5xl">
+                Law, signal, and plasma discipline.
+              </h1>
+              <p className="prose-compact mt-3 max-w-xl text-silver">
+                Scroll to spin the Golden Record. Three lineages define Nomos Orbital:
+                the Greek idea of order, the Voyager disc as distilled downlink, and
+                Columbia plasma physics as engineering culture.
+              </p>
+              <div className="mt-6">
+                <LiquidButton href="/#demo" variant="primary">
+                  Run live demo
+                </LiquidButton>
+              </div>
+            </FadeIn>
+          </div>
+        </LiquidSection>
       </div>
 
       <AboutScrollStory />
 
-      <section className="section-gap page-shell">
-        <div className="aave-glass max-w-2xl p-6 sm:p-8">
+      <LiquidSection className="section-gap page-shell">
+        <LiquidCard className="max-w-2xl">
           <p className="chart-label text-gold">Nomos Orbital</p>
           <h2 className="display mt-2 text-2xl text-cream">One name on the door.</h2>
-          <div className="prose-compact mt-4">
+          <div className="prose-compact mt-4 text-silver">
             <p>
               The repo behind the product is AERNOMOS. The company you interact
               with is Nomos Orbital. Same stack, same API, production at
               api.nomosorbital.com.
             </p>
           </div>
-        </div>
-      </section>
+        </LiquidCard>
+      </LiquidSection>
     </div>
   );
 }
