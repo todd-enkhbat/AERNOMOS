@@ -5,9 +5,9 @@ import {
   BriefcaseBusiness,
   Gauge,
   Network,
-  Orbit,
   Satellite
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -27,9 +27,14 @@ export function AppFrame({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-[rgba(86,67,42,0.22)] bg-[#f5eddf]/90 backdrop-blur">
         <div className="page-shell flex min-h-[72px] items-center justify-between gap-4 py-3">
           <Link className="flex items-center gap-3" href="/">
-            <span className="grid h-10 w-10 place-items-center rounded-lg bg-[#17140f] text-[#fffaf0]">
-              <Orbit size={20} strokeWidth={1.8} />
-            </span>
+            <Image
+              alt="Nomos Orbital"
+              className="h-10 w-10 rounded-lg object-cover"
+              height={40}
+              priority
+              src="/images/nomos-logo.png"
+              width={40}
+            />
             <span className="min-w-0">
               <span className="block text-lg font-bold leading-tight text-[#17140f]">
                 Nomos Orbital
