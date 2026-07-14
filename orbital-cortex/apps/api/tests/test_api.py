@@ -2,9 +2,9 @@ import os
 
 # Deterministic tests: point the queue at an unreachable Redis so job
 # creation always falls back to manual (synchronous) execution.
-os.environ.setdefault("REDIS_URL", "redis://127.0.0.1:1/0")
+os.environ["REDIS_URL"] = "redis://127.0.0.1:1/0"
 # The suite posts more jobs per minute than the production limit allows.
-os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+os.environ["RATE_LIMIT_ENABLED"] = "false"
 
 import pytest
 from fastapi.testclient import TestClient

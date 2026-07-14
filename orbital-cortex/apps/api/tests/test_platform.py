@@ -3,8 +3,8 @@ rate limiting, and the demo-reset guard."""
 
 import os
 
-os.environ.setdefault("REDIS_URL", "redis://127.0.0.1:1/0")
-os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+os.environ["REDIS_URL"] = "redis://127.0.0.1:1/0"
+os.environ["RATE_LIMIT_ENABLED"] = "false"
 
 import time
 from urllib.parse import urlparse
