@@ -11,6 +11,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/jobs", label: "Jobs" },
   { href: "/network", label: "Network" },
+  { href: "/calendar", label: "Calendar" },
   { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }
 ];
@@ -47,6 +48,7 @@ export function SiteHeader() {
                   pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <Link
+                    aria-current={active ? "page" : undefined}
                     className={[
                       "liquid-nav-pill rounded-lg px-3 py-1.5 text-[13px]",
                       active ? "liquid-nav-pill--active" : "text-muted"
@@ -72,6 +74,7 @@ export function SiteHeader() {
               pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
+                aria-current={active ? "page" : undefined}
                 className={`liquid-nav-pill shrink-0 rounded-lg px-3 py-1.5 text-[13px] ${
                   active ? "liquid-nav-pill--active" : "text-muted"
                 }`}
