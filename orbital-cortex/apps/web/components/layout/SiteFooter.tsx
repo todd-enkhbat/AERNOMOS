@@ -11,22 +11,24 @@ const columns = [
       { href: "/jobs", label: "Jobs" },
       { href: "/network", label: "Network" },
       { href: "/about", label: "About" },
-      { href: "/calendar", label: "Calendar" }
+      { href: "/calendar", label: "Calendar" },
+      { href: "/about/final-symposium", label: "Final Symposium" }
     ]
   },
   {
     title: "Developers",
     links: [
       { href: "/docs", label: "API reference" },
-      { href: "/docs", label: "Python SDK" },
-      { href: "https://github.com", label: "GitHub" }
+      { href: "/docs#sdk", label: "Python SDK" },
+      { href: "https://api.nomosorbital.com/docs", label: "OpenAPI" }
     ]
   }
 ];
 
 export function SiteFooter() {
   return (
-    <footer className="atlas-footer relative mt-10 overflow-hidden">
+    <footer className="atlas-footer relative mt-16 overflow-hidden">
+      <div className="atlas-footer__bridge" aria-hidden />
       <div className="atlas-footer__bg" aria-hidden />
 
       <div className="page-shell relative py-10 md:py-12">
@@ -43,21 +45,19 @@ export function SiteFooter() {
               </div>
               <p className="prose-compact mt-4 max-w-sm text-parchment-muted">
                 Open control plane for space-data AI. Every job routed, every decision
-                explained, every artifact signed.
+                explained, every result returned with an auditable trail.
               </p>
-              <div className="mt-5 space-y-1.5">
-                <a
-                  className="metric-value block text-sm text-parchment-ink/80 transition hover:text-parchment-ink"
-                  href="mailto:hello@nomosorbital.com"
-                >
-                  hello@nomosorbital.com
-                </a>
+              <div className="mt-5 space-y-2">
                 <a
                   className="metric-value block text-sm text-parchment-muted transition hover:text-parchment-ink"
                   href="https://api.nomosorbital.com"
                 >
                   api.nomosorbital.com
                 </a>
+                <p className="max-w-sm text-xs leading-5 text-parchment-muted">
+                  Production API and real orbital math. Simulated compute execution
+                  and offline reference results.
+                </p>
               </div>
             </div>
 
@@ -91,7 +91,7 @@ export function SiteFooter() {
             className="text-[11px] text-parchment-muted transition hover:text-parchment-ink"
             href="/#demo"
           >
-            Run live demo
+            Run production API demo
           </Link>
         </div>
       </div>

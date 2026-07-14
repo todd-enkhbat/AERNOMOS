@@ -5,8 +5,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { useLiquidMouse } from "./useLiquidMouse";
+import { useFinePointer } from "./useFinePointer";
 
 const MotionLink = motion.create(Link);
+const easeOut = [0.23, 1, 0.32, 1] as const;
 
 type LiquidButtonProps = {
   children: ReactNode;
@@ -19,7 +21,7 @@ type LiquidButtonProps = {
   onClick?: () => void;
 };
 
-const spring = { type: "spring" as const, stiffness: 520, damping: 24 };
+const spring = { type: "spring" as const, stiffness: 460, damping: 34 };
 
 export function LiquidButton({
   children,
@@ -32,6 +34,7 @@ export function LiquidButton({
   onClick
 }: LiquidButtonProps) {
   const reduced = useReducedMotion();
+  const finePointer = useFinePointer();
   const { onMouseMove, onMouseLeave } = useLiquidMouse<HTMLElement>();
 
   const classes = [
@@ -46,15 +49,37 @@ export function LiquidButton({
     .join(" ");
 
   const interaction = {
-    onMouseLeave,
-    onMouseMove,
+    onMouseLeave: finePointer ? onMouseLeave : undefined,
+    onMouseMove: finePointer ? onMouseMove : undefined,
     whileHover:
-      reduced || disabled ? undefined : { y: -5, scale: 1.03, transition: spring },
-    whileTap: reduced || disabled ? undefined : { y: 1, scale: 0.97, transition: spring },
+      reduced || disabled || !finePointer
+        ? undefined
+        : {
+            y: -3,
+            transition: { duration: 0.18, ease: easeOut }
+          },
+    whileTap:
+      reduced || disabled
+        ? undefined
+        : { scale: 0.97, transition: { duration: 0.12, ease: easeOut } },
     transition: spring
   };
 
   if (href) {
+    const external = /^https?:\/\//i.test(href);
+    if (external) {
+      return (
+        <motion.a
+          {...interaction}
+          className={classes}
+          href={href}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <span className="liquid-glass__inner">{children}</span>
+        </motion.a>
+      );
+    }
     return (
       <MotionLink {...interaction} className={classes} href={href}>
         <span className="liquid-glass__inner">{children}</span>

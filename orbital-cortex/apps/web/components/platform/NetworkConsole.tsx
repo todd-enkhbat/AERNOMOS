@@ -87,9 +87,10 @@ export function NetworkConsole() {
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="chart-label text-gold">Ground mesh</p>
-            <h2 className="display mt-1 text-xl text-cream">Station registry</h2>
+            <h2 className="display mt-1 text-xl text-cream">Reference station registry</h2>
             <p className="prose-compact mt-1 text-muted">
-              {nodes.ground_stations.length} downlink sites across the production mesh.
+              {nodes.ground_stations.length} public reference locations. Coordinates are
+              real; operational availability and access are simulated.
             </p>
           </div>
         </div>
@@ -113,6 +114,10 @@ export function NetworkConsole() {
         <LiquidCard>
           <p className="chart-label text-gold">Contact windows</p>
           <h3 className="display mt-1 text-lg text-cream">SGP4 pass schedule</h3>
+          <p className="mt-2 text-xs leading-5 text-muted">
+            Precomputed from a dated, pinned public TLE snapshot. These are visibility
+            estimates, not booked ground-station sessions.
+          </p>
           <div className="mt-4">
             <ContactWindowTimeline windows={windows} />
           </div>
@@ -120,6 +125,10 @@ export function NetworkConsole() {
 
         <LiquidCard>
           <p className="chart-label text-gold">Satellite registry</p>
+          <p className="mt-2 text-xs leading-5 text-muted">
+            Real NORAD identities with pinned orbital elements. Downlink rates are
+            reference model inputs.
+          </p>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
@@ -146,7 +155,7 @@ export function NetworkConsole() {
       {route && recentJob ? (
         <section className="space-y-3">
           <div className="flex flex-wrap items-end justify-between gap-2">
-            <p className="chart-label text-gold">Latest routing decision</p>
+            <p className="chart-label text-gold">Latest demo routing decision</p>
             <Link className="text-sm text-muted hover:text-cream" href={`/jobs/${recentJob.id}`}>
               {recentJob.id.slice(0, 18)} →
             </Link>

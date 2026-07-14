@@ -16,7 +16,7 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { MetricCard } from "@/components/MetricCard";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
-import { API_BASE_URL, getNodes, getRouting, listJobs } from "@/lib/api";
+import { apiErrorMessage, getNodes, getRouting, listJobs } from "@/lib/api";
 import { EMPTY_NODES } from "@/lib/constants";
 import type { Job, NodesResponse, RoutingDecision } from "@/lib/types";
 import { formatCurrency, formatDateTime, formatMinutes, labelize } from "@/lib/format";
@@ -56,11 +56,7 @@ export default function DashboardPage() {
         }
       } catch (error) {
         if (mounted) {
-          setNotice(
-            error instanceof Error
-              ? `${error.message}. Is the API running at ${API_BASE_URL}?`
-              : `Backend data is not available. Is the API running at ${API_BASE_URL}?`
-          );
+          setNotice(apiErrorMessage(error));
         }
       }
     }
@@ -91,7 +87,7 @@ export default function DashboardPage() {
         ? routeValues.reduce((sum, route) => sum + route.estimated_latency_minutes, 0) /
           routeValues.length
         : 0;
-    const costSaved = jobs.reduce((sum, job) => {
+    const budgetHeadroom = jobs.reduce((sum, job) => {
       const route = routes[job.id];
       if (!route) {
         return sum;
@@ -107,7 +103,7 @@ export default function DashboardPage() {
         (node) => node.type === "orbital" && node.power_state === "nominal"
       ).length,
       groundStationsAvailable: nodes.ground_stations.length,
-      costSaved
+      budgetHeadroom
     };
   }, [jobs, nodes, routes]);
 
@@ -115,15 +111,15 @@ export default function DashboardPage() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Control plane"
-        title="Mission operations"
-        description="Live orbital compute availability, route quality, execution latency, and recent space-data jobs, straight from the production API."
+        title="Public demo operations"
+        description="A shared view of submitted jobs, modeled route estimates, and the reference network used by the production API."
         action={
           <Link
             className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
             href="/jobs"
           >
             <Activity size={17} strokeWidth={2} />
-            Submit mission
+            Create a job
           </Link>
         }
       />
@@ -152,21 +148,21 @@ export default function DashboardPage() {
         />
         <MetricCard
           icon={Satellite}
-          label="Orbital Nodes Online"
+          label="Simulated Orbital Nodes"
           value={String(metrics.orbitalNodesOnline)}
-          detail="Nominal orbital compute candidates"
+          detail="Reference compute candidates marked nominal"
         />
         <MetricCard
           icon={RadioTower}
           label="Ground Stations"
           value={String(metrics.groundStationsAvailable)}
-          detail="Downlink partners"
+          detail="Public reference sites in the registry"
         />
         <MetricCard
           icon={DollarSign}
-          label="Estimated Cost Saved"
-          value={formatCurrency(metrics.costSaved)}
-          detail="Budget headroom across routed jobs"
+          label="Budget Headroom"
+          value={formatCurrency(metrics.budgetHeadroom)}
+          detail="Requested budget minus modeled route cost"
         />
       </section>
 
@@ -197,7 +193,7 @@ export default function DashboardPage() {
               {jobs.length === 0 ? (
                 <tr>
                   <td className="text-muted" colSpan={6}>
-                    No jobs have been submitted.
+                    No jobs yet. Create one to inspect its route, lifecycle, and result.
                   </td>
                 </tr>
               ) : (
@@ -244,18 +240,21 @@ export default function DashboardPage() {
         <div className="glass p-6 lg:col-span-2">
           <div className="flex items-center gap-3">
             <Server className="text-gold" size={18} strokeWidth={1.8} />
-            <h2 className="text-lg font-semibold text-cream">Routing posture</h2>
+            <h2 className="text-lg font-semibold text-cream">How to read this dashboard</h2>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {["Model support", "Contact window", "Fallback path"].map((item) => (
+            {[
+              ["Jobs", "Persisted records from the shared public queue."],
+              ["Routes", "Deterministic scores over simulated compute candidates."],
+              ["Estimates", "Modeled latency and cost, not provider telemetry."]
+            ].map(([item, detail]) => (
               <div
                 className="rounded-xl border border-line bg-void/40 p-4"
                 key={item}
               >
                 <p className="chart-label text-muted-dark">{item}</p>
-                <p className="mt-2 flex items-center gap-2 font-medium text-cream">
-                  <span className="pulse-dot bg-[#6fbf8f]" />
-                  Ready
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  {detail}
                 </p>
               </div>
             ))}

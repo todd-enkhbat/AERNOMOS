@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "framer-motion";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Crosshair, Minus, Plus, Radar, Ship, Sparkles } from "lucide-react";
@@ -60,6 +61,7 @@ export function HarborMap({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const pulseRef = useRef(0);
   const onSelectRef = useRef(onSelect);
+  const reduced = useReducedMotion();
 
   const [internalFilter, setInternalFilter] = useState<HarborFilter>(
     darkShipsOnly ? "dark" : "all"
@@ -67,12 +69,35 @@ export function HarborMap({
   const [livePulse, setLivePulse] = useState(true);
   const [mode, setMode] = useState<HarborMode>("explore");
   const [mapReady, setMapReady] = useState(false);
+  const [mapInView, setMapInView] = useState(true);
+  const [pageVisible, setPageVisible] = useState(true);
 
   const activeFilter = filter ?? internalFilter;
 
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
+
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setMapInView(entry.isIntersecting),
+      { rootMargin: "120px" }
+    );
+    const onVisibilityChange = () => setPageVisible(document.visibilityState === "visible");
+
+    observer.observe(shell);
+    onVisibilityChange();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
 
   const setFilter = (next: HarborFilter) => {
     if (onFilterChange) {
@@ -276,7 +301,7 @@ export function HarborMap({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady || !livePulse) {
+    if (!map || !mapReady || !livePulse || reduced || !mapInView || !pageVisible) {
       return;
     }
 
@@ -293,7 +318,7 @@ export function HarborMap({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [livePulse, visibleFeatures, mapReady]);
+  }, [livePulse, visibleFeatures, mapReady, reduced, mapInView, pageVisible]);
 
   const zoomBy = (delta: number) => {
     const map = mapRef.current;
@@ -348,10 +373,13 @@ export function HarborMap({
               Dark ships
             </span>
           </LiquidChip>
-          <LiquidChip active={livePulse} onClick={() => setLivePulse((value) => !value)}>
+          <LiquidChip
+            active={livePulse && !reduced}
+            onClick={() => setLivePulse((value) => !value)}
+          >
             <span className="inline-flex items-center gap-1.5">
               <Sparkles size={12} strokeWidth={1.8} />
-              Live pulse
+              Highlight pulse
             </span>
           </LiquidChip>
           <LiquidChip

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: "%s · Nomos Orbital"
   },
   description:
-    "Submit a space-data AI job, watch it route across orbital and cloud compute, and inspect every decision. A live control plane demo, open to anyone.",
+    "Submit a space-data AI job, compare simulated compute candidates with real orbital math, and inspect every routing decision.",
   icons: {
     icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
     apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
@@ -39,14 +39,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nomos Orbital",
     description:
-      "Orchestration for orbital compute. Submit a live job, watch it route across satellites and clouds.",
+      "Orbital compute orchestration. Production API, deterministic routing, and an open simulated execution demo.",
     siteName: "Nomos Orbital",
     type: "website"
   }
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0b"
+  themeColor: "#050506"
 };
 
 export default function RootLayout({
@@ -57,10 +57,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
         <div className="starfield" aria-hidden />
         <div className="relative z-10 flex min-h-screen flex-col">
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1" id="main-content">
+            {children}
+          </main>
           <SiteFooter />
         </div>
       </body>

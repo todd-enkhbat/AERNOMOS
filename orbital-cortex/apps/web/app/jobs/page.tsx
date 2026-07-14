@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { DemoBoundary } from "@/components/archive/ArchivePrimitives";
 import { Loader2, SendHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +10,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
-import { createJob, listJobs } from "@/lib/api";
+import { apiErrorMessage, createJob, listJobs } from "@/lib/api";
 import { DEMO_API_KEY } from "@/lib/constants";
 import { defaultJobPayload } from "@/lib/default-job-payload";
 import type {
@@ -31,6 +32,12 @@ const preferences: ComputePreference[] = [
   "cheapest",
   "fastest"
 ];
+
+const missionHelp: Record<JobType, string> = {
+  ship_detection: "Rich reference flow using an offline New York Harbor SAR scene.",
+  crop_health: "Deterministic demo output for testing routing and result retrieval.",
+  disaster_response: "Deterministic demo output for testing urgent routing priorities."
+};
 
 export default function JobsPage() {
   const router = useRouter();
@@ -60,11 +67,7 @@ export default function JobsPage() {
         }
       } catch (error) {
         if (mounted) {
-          setNotice(
-            error instanceof Error
-              ? error.message
-              : "Backend data is not available."
-          );
+          setNotice(apiErrorMessage(error));
         }
       } finally {
         if (mounted) {
@@ -113,9 +116,7 @@ export default function JobsPage() {
       setJobs((current) => [response.job, ...current]);
       router.push(`/jobs/${response.job.id}`);
     } catch (error) {
-      setNotice(
-        error instanceof Error ? error.message : "Job submission failed."
-      );
+      setNotice(apiErrorMessage(error, "Job submission is temporarily unavailable."));
     } finally {
       setSubmitting(false);
     }
@@ -125,18 +126,21 @@ export default function JobsPage() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Jobs"
-        title="Task the network"
-        description="Compose a space-data request, route it across orbital and cloud compute, then follow the mission from queue to signed result. Open demo, no key required."
+        title="Create a space-data AI job"
+        description="Describe the task, area, budget, and preference. Nomos scores eligible compute candidates, selects a route, and records the decision."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
+      <div className="mt-5">
+        <DemoBoundary compact />
+      </div>
 
       <section className="mt-5 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <form className="glass p-6 sm:p-7" onSubmit={handleSubmit}>
           <div>
             <h2 className="text-lg font-semibold text-cream">New mission</h2>
             <p className="mt-1 text-sm text-muted">
-              Default scene: SAR pass over New York Harbor
+              {missionHelp[jobType]}
             </p>
           </div>
 
@@ -154,6 +158,9 @@ export default function JobsPage() {
                   </option>
                 ))}
               </select>
+              <span className="mt-1.5 block text-xs leading-5 text-muted-dark">
+                The AI task the selected node must support.
+              </span>
             </label>
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Sensor</span>
@@ -168,6 +175,9 @@ export default function JobsPage() {
                   </option>
                 ))}
               </select>
+              <span className="mt-1.5 block text-xs leading-5 text-muted-dark">
+                The requested observation type. SAR is used by the Harbor reference scene.
+              </span>
             </label>
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Priority</span>
@@ -182,6 +192,9 @@ export default function JobsPage() {
                   </option>
                 ))}
               </select>
+              <span className="mt-1.5 block text-xs leading-5 text-muted-dark">
+                Changes the scoring weights, not the underlying orbital geometry.
+              </span>
             </label>
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Max cost USD</span>
@@ -192,6 +205,9 @@ export default function JobsPage() {
                 type="number"
                 value={maxCost}
               />
+              <span className="mt-1.5 block text-xs leading-5 text-muted-dark">
+                A hard ceiling used to eliminate routes whose modeled cost is too high.
+              </span>
             </label>
             <label className="block md:col-span-2">
               <span className="chart-label mb-2 block text-muted">
@@ -210,6 +226,9 @@ export default function JobsPage() {
                   </option>
                 ))}
               </select>
+              <span className="mt-1.5 block text-xs leading-5 text-muted-dark">
+                A routing preference. Hard constraints are always checked first.
+              </span>
             </label>
             <label className="block md:col-span-2">
               <span className="chart-label mb-2 block text-muted">
@@ -220,8 +239,22 @@ export default function JobsPage() {
                 onChange={(event) => setAoi(event.target.value)}
                 value={aoi}
               />
+              <span className="mt-1.5 block text-xs leading-5 text-muted-dark">
+                GeoJSON-style bounding box or polygon. The default covers New York Harbor.
+              </span>
             </label>
           </div>
+
+          <details className="mt-5 rounded-xl border border-line bg-void/40 p-4">
+            <summary className="cursor-pointer text-sm font-medium text-cream">
+              Preview API request
+            </summary>
+            <pre className="code-block mt-3 !text-[11px]">
+              {payloadPreview
+                ? JSON.stringify(payloadPreview, null, 2)
+                : "Area of interest is not valid JSON."}
+            </pre>
+          </details>
 
           <motion.button
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3.5 font-semibold text-void transition-colors hover:bg-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
@@ -240,7 +273,12 @@ export default function JobsPage() {
 
         <section>
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold text-cream">Mission queue</h2>
+            <div>
+              <h2 className="text-lg font-semibold text-cream">Shared demo queue</h2>
+              <p className="mt-1 text-xs text-muted">
+                Jobs submitted by all public demo visitors appear here.
+              </p>
+            </div>
             <span className="metric-value text-sm text-muted">
               {loading ? "loading" : `${jobs.length} jobs`}
             </span>

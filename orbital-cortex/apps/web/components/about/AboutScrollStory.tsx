@@ -20,7 +20,7 @@ const pillars = [
   {
     label: "Columbia",
     title: "Plasma lab roots",
-    body: "Nomos grew out of Columbia plasma physics research: high-energy plasmas, precision instrumentation, and measuring what you cannot see directly. Routing is physics-aware scheduling. Every job emits a signed event log like a lab shot record."
+    body: "Nomos grew out of Columbia plasma physics research: high-energy plasmas, precision instrumentation, and measuring what you cannot see directly. Routing is physics-aware scheduling. Every job emits an append-only event trail and a hashed route, like a lab shot record."
   }
 ];
 
@@ -94,6 +94,8 @@ export function AboutScrollStory() {
     scene.add(key);
 
     let raf = 0;
+    let inView = true;
+    let pageVisible = document.visibilityState === "visible";
 
     const resize = () => {
       const w = mount.clientWidth;
@@ -109,29 +111,58 @@ export function AboutScrollStory() {
     window.addEventListener("resize", resize);
 
     const tick = () => {
-      raf = requestAnimationFrame(tick);
-      const p = progressRef.current;
-      disc.rotation.z = p * Math.PI * 2.6 + performance.now() * 0.00006;
+      raf = 0;
+      const p = reduced ? 0.5 : progressRef.current;
+      disc.rotation.z =
+        p * Math.PI * 2.6 + (reduced ? 0 : performance.now() * 0.00006);
       disc.rotation.y = Math.sin(p * Math.PI) * 0.4;
       ring.rotation.z = disc.rotation.z;
       renderer.render(scene, camera);
+      if (!reduced && inView && pageVisible) {
+        raf = requestAnimationFrame(tick);
+      }
     };
+    const requestRender = () => {
+      if (raf === 0) {
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    const visibility = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        if (inView && pageVisible && !reduced) {
+          requestRender();
+        }
+      },
+      { rootMargin: "120px" }
+    );
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState === "visible";
+      if (pageVisible && inView && !reduced) {
+        requestRender();
+      }
+    };
+
+    visibility.observe(mount);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     tick();
 
     return () => {
       cancelAnimationFrame(raf);
+      visibility.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", resize);
       texture.dispose();
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [reduced]);
 
   const pillar = pillars[activeIndex];
 
   return (
-    <section className="relative isolate" ref={sectionRef} style={{ height: "180vh" }}>
-      <div className="sticky top-0 z-0 grid h-[min(100vh,900px)] items-center lg:grid-cols-[1fr_1fr]">
+    <section className="scroll-story-stage relative isolate" ref={sectionRef}>
+      <div className="scroll-story-stage__sticky z-0 grid items-center lg:grid-cols-[1fr_1fr]">
         <div className="relative flex h-full items-center justify-center py-10">
           <div
             aria-hidden

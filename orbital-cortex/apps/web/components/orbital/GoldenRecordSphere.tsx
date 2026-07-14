@@ -3,6 +3,7 @@
 import { useScroll, useTransform } from "framer-motion";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
 
 type GoldenRecordSphereProps = {
@@ -21,6 +22,7 @@ export function GoldenRecordSphere({
 }: GoldenRecordSphereProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -78,6 +80,8 @@ export function GoldenRecordSphere({
 
     let raf = 0;
     let progress = 0;
+    let inView = true;
+    let pageVisible = document.visibilityState === "visible";
 
     const unsub = scrollYProgress.on("change", (v) => {
       progress = v;
@@ -94,24 +98,56 @@ export function GoldenRecordSphere({
     window.addEventListener("resize", resize);
 
     const tick = () => {
-      raf = requestAnimationFrame(tick);
-      disc.rotation.z = progress * Math.PI * 2.4 + performance.now() * 0.00008;
-      disc.rotation.y = Math.sin(progress * Math.PI) * 0.35;
-      disc.rotation.x = Math.PI / 2 + Math.cos(progress * Math.PI * 0.5) * 0.18;
+      raf = 0;
+      const staticProgress = reduced ? 0.5 : progress;
+      disc.rotation.z =
+        staticProgress * Math.PI * 2.4 + (reduced ? 0 : performance.now() * 0.00008);
+      disc.rotation.y = Math.sin(staticProgress * Math.PI) * (reduced ? 0 : 0.35);
+      disc.rotation.x =
+        Math.PI / 2 + Math.cos(staticProgress * Math.PI * 0.5) * (reduced ? 0 : 0.18);
       ring.rotation.z = disc.rotation.z;
       renderer.render(scene, camera);
+      if (!reduced && inView && pageVisible) {
+        raf = requestAnimationFrame(tick);
+      }
     };
+
+    const requestRender = () => {
+      if (raf === 0) {
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    const visibility = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        if (inView && pageVisible && !reduced) {
+          requestRender();
+        }
+      },
+      { rootMargin: "120px" }
+    );
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState === "visible";
+      if (pageVisible && inView && !reduced) {
+        requestRender();
+      }
+    };
+
+    visibility.observe(mount);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     tick();
 
     return () => {
       cancelAnimationFrame(raf);
       unsub();
+      visibility.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", resize);
       texture.dispose();
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
-  }, [scrollYProgress]);
+  }, [reduced, scrollYProgress]);
 
   return (
     <section

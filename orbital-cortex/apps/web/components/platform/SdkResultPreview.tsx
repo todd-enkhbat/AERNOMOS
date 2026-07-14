@@ -33,6 +33,7 @@ export function SdkResultPreview() {
   const [result, setResult] = useState<ResultResponse | null>(null);
   const [route, setRoute] = useState<RoutingDecision | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -58,26 +59,55 @@ export function SdkResultPreview() {
         if (mounted) {
           setError(err instanceof Error ? err.message : "No SDK results yet");
         }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
     load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  if (error && !job) {
+  if (loading) {
+    return <div className="liquid-glass liquid-glass--card min-h-[140px] animate-pulse" />;
+  }
+
+  if (!job) {
     return (
-      <LiquidCard className="text-center">
-        <p className="text-sm text-muted">Run a demo job to populate SDK results.</p>
-        <div className="mt-4">
+      <LiquidCard className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+        <div>
+          <p className="chart-label text-gold">SDK output</p>
+          <p className="mt-2 text-sm text-muted">
+            {error
+              ? "The public result feed is unavailable right now."
+              : "Run a demo job to populate the result preview."}
+          </p>
+        </div>
+        <div className="shrink-0">
           <LiquidButton href="/#demo" variant="primary">
-            Run live demo
+            Run demo job
           </LiquidButton>
         </div>
       </LiquidCard>
     );
   }
 
-  if (!job || !geojson) {
-    return <div className="liquid-glass liquid-glass--card min-h-[200px] animate-pulse" />;
+  if (error && !geojson) {
+    return (
+      <LiquidCard>
+        <p className="chart-label text-gold">SDK output</p>
+        <p className="mt-2 text-sm text-muted">
+          The latest job exists, but its result preview could not be loaded.
+        </p>
+      </LiquidCard>
+    );
+  }
+
+  if (!geojson) {
+    return <div className="liquid-glass liquid-glass--card min-h-[140px] animate-pulse" />;
   }
 
   const features = geojson.features ?? [];
@@ -91,7 +121,7 @@ export function SdkResultPreview() {
         <div>
           <p className="chart-label text-gold">SDK output</p>
           <h2 className="display mt-2 text-2xl text-cream">
-            Detections from the live pipeline.
+            Offline reference detections returned through the production pipeline.
           </h2>
           <p className="prose-compact mt-1 max-w-lg text-silver">
             GeoJSON features, signed artifact URLs, and routing scores returned by

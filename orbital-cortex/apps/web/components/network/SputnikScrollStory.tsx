@@ -1,17 +1,18 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion, useScroll } from "framer-motion";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-const SPUTNIK_URL = "/3d-models/sputnik_satellite.glb";
+const SPUTNIK_URL = "/3d-models/sputnik_satellite.opt.glb";
 
 const pillars = [
   {
     label: "Sputnik",
     title: "First signal from orbit",
-    body: "The first artificial satellite proved a relay could survive above the atmosphere. Nomos treats every node in the mesh the same way — as a candidate with windows, scores, and constraints."
+    body: "The first artificial satellite proved a relay could survive above the atmosphere. Nomos treats every node in the mesh as a candidate with windows, scores, and constraints."
   },
   {
     label: "Fleet geometry",
@@ -21,7 +22,7 @@ const pillars = [
   {
     label: "Live mesh",
     title: "Into the registry",
-    body: "SGP4 passes and contact windows update in real time. What you inspect here hands off to the live ground mesh — no hard cut, no separate demo canvas."
+    body: "SGP4 passes are precomputed from a pinned public TLE snapshot. The visual hands off to the reference registry, where real orbital geometry and simulated compute candidates remain clearly labeled."
   }
 ];
 
@@ -122,7 +123,14 @@ export function SputnikScrollStory() {
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
     camera.position.set(0, 0, 4.2);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    } catch {
+      setLoadError(true);
+      setReady(true);
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
@@ -189,7 +197,6 @@ export function SputnikScrollStory() {
     window.addEventListener("resize", resize);
 
     const tick = () => {
-      raf = requestAnimationFrame(tick);
       const p = progressRef.current;
       const drift = reduced ? 0 : performance.now() * 0.00007;
 
@@ -202,6 +209,9 @@ export function SputnikScrollStory() {
       ring.rotation.x = Math.PI / 2 + Math.sin(p * Math.PI) * 0.06;
 
       renderer.render(scene, camera);
+      if (!reduced) {
+        raf = requestAnimationFrame(tick);
+      }
     };
     tick();
 
@@ -220,8 +230,8 @@ export function SputnikScrollStory() {
   const pillar = pillars[activeIndex];
 
   return (
-    <section className="relative isolate" ref={sectionRef} style={{ height: "180vh" }}>
-      <div className="sticky top-0 z-0 grid h-[min(100vh,900px)] items-center lg:grid-cols-[1fr_1fr]">
+    <section className="scroll-story-stage relative isolate" ref={sectionRef}>
+      <div className="scroll-story-stage__sticky z-0 grid items-center lg:grid-cols-[1fr_1fr]">
         <div className="relative flex h-full items-center justify-center py-10">
           <div
             aria-hidden
@@ -234,9 +244,16 @@ export function SputnikScrollStory() {
             ref={mountRef}
           />
           {loadError ? (
-            <p className="chart-label absolute text-[11px] text-muted">
-              Model failed to load — check /3d-models/sputnik_satellite.glb
-            </p>
+            <div className="absolute inset-[10%] overflow-hidden rounded-[28px] border border-gold/15 opacity-75">
+              <Image
+                alt="Orbital spacecraft above Earth"
+                className="object-cover"
+                fill
+                sizes="320px"
+                src="/images/network/orbital-nodes.png"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(5,5,6,0.2),rgba(5,5,6,0.72))]" />
+            </div>
           ) : null}
         </div>
 

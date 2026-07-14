@@ -2,6 +2,18 @@
 
 Read this file first in any new chat session before making changes.
 
+## Canonical product soul
+
+Before writing site copy, changing product language, or touching visual design, read
+[`SOUL.md`](SOUL.md). It is the canonical source for positioning, product truth,
+terminology, voice, visual direction, and the simulation boundary. When a lasting
+decision is not covered there, make it in that spirit and add it back.
+
+For UI or motion work, also follow
+[`orbital-cortex/docs/design-engineering-workflow.md`](orbital-cortex/docs/design-engineering-workflow.md).
+Review the whole page in-browser at desktop and mobile widths; do not approve isolated
+components while section rhythm, imagery, or fallbacks remain unverified.
+
 ## What this repo is
 
 | Layer | Path | Purpose |
@@ -44,6 +56,9 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 | [orbital-cortex/docs/frontend-roadmap.md](orbital-cortex/docs/frontend-roadmap.md) | Phase B UI work |
 | [orbital-cortex/docs/architecture.md](orbital-cortex/docs/architecture.md) | System design |
 | [orbital-cortex/docs/api-spec.md](orbital-cortex/docs/api-spec.md) | REST contract |
+| [orbital-cortex/docs/capability-truth.md](orbital-cortex/docs/capability-truth.md) | Customer-safe claims and demo boundaries |
+| [orbital-cortex/docs/design-engineering-workflow.md](orbital-cortex/docs/design-engineering-workflow.md) | UI, imagery, motion, and visual QA gates |
+| [SOUL.md](SOUL.md) | Canonical product, copy, and design direction |
 | [README.md](README.md) | Product vision |
 
 ## Common production issues

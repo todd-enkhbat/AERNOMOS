@@ -1,4 +1,6 @@
 import { API_BASE_URL } from "@/lib/api";
+import { DemoBoundary } from "@/components/archive/ArchivePrimitives";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { PageHeader } from "@/components/PageHeader";
 
 const curlExample = (baseUrl: string) => `curl -X POST ${baseUrl}/v1/jobs \\
@@ -57,8 +59,12 @@ export default function DocsPage() {
       <PageHeader
         eyebrow="Docs"
         title="API and SDK reference"
-        description="The Nomos Orbital console and Python SDK share the same FastAPI contract. Everything below runs against the live production API."
+        description="The web console and Python SDK share one FastAPI contract. Use the public demo to create a job, inspect its route, and retrieve its result."
       />
+
+      <div className="mb-6">
+        <DemoBoundary />
+      </div>
 
       <section className="glass mb-6 p-5 sm:p-6">
         <p className="chart-label text-gold">Quickstart</p>
@@ -73,6 +79,32 @@ export default function DocsPage() {
           </code>{" "}
           works for everyone. Creation is rate-limited per IP.
         </p>
+        <p className="mt-3 max-w-2xl text-xs leading-5 text-muted-dark">
+          The credential identifies the shared demo in examples. It is not customer
+          authentication. The async worker normally completes jobs automatically.
+        </p>
+        <div className="mt-4">
+          <LiquidButton
+            href="https://api.nomosorbital.com/docs"
+            variant="outline"
+          >
+            Open interactive API docs
+          </LiquidButton>
+        </div>
+      </section>
+
+      <section className="mb-6 grid gap-3 md:grid-cols-4">
+        {[
+          ["01 Request", "POST a job with an area, sensor, priority, and budget."],
+          ["02 Poll", "Read the persisted lifecycle until complete or failed."],
+          ["03 Explain", "Inspect candidates, hard constraints, scores, and replay hash."],
+          ["04 Return", "Fetch GeoJSON plus the signed artifact manifest."]
+        ].map(([title, detail]) => (
+          <div className="glass p-4" key={title}>
+            <p className="chart-label text-gold">{title}</p>
+            <p className="mt-2 text-sm leading-6 text-muted">{detail}</p>
+          </div>
+        ))}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -111,9 +143,13 @@ export default function DocsPage() {
             <pre className="code-block mt-3">{curlExample(API_BASE_URL)}</pre>
           </section>
 
-          <section className="glass p-5">
+          <section className="glass p-5" id="sdk">
             <h2 className="text-base font-semibold text-cream">Python SDK</h2>
             <pre className="code-block mt-3">{sdkExample}</pre>
+            <p className="mt-3 text-xs leading-5 text-muted">
+              The hand-written wrapper adds retries, sync and async clients, and
+              `wait_for_job` polling over the generated OpenAPI types.
+            </p>
           </section>
         </div>
       </section>

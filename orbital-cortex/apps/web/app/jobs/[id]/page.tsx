@@ -18,6 +18,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import {
+  DemoBoundary,
+  ProvenancePlate
+} from "@/components/archive/ArchivePrimitives";
 import { DetectionPanel } from "@/components/DetectionPanel";
 import { HarborMap } from "@/components/HarborMap";
 import { InlineNotice } from "@/components/InlineNotice";
@@ -26,7 +30,16 @@ import { PageHeader } from "@/components/PageHeader";
 import { RouteExplain } from "@/components/RouteExplain";
 import { ScoreBar } from "@/components/ScoreBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { getDetections, getEvents, getJob, getResult, getScene, replayRouting, runSimulation } from "@/lib/api";
+import {
+  apiErrorMessage,
+  getDetections,
+  getEvents,
+  getJob,
+  getResult,
+  getScene,
+  replayRouting,
+  runSimulation
+} from "@/lib/api";
 import type {
   ArtifactRef,
   GeoJsonFeature,
@@ -58,7 +71,7 @@ const detailTabs: Array<{
   label: string;
   icon: LucideIcon;
 }> = [
-  { value: "route", label: "Scores", icon: Satellite },
+  { value: "route", label: "Routing", icon: Satellite },
   { value: "timeline", label: "Timeline", icon: Activity },
   { value: "result", label: "Result", icon: Ship },
   { value: "api", label: "API", icon: Terminal }
@@ -117,7 +130,7 @@ export default function JobDetailPage() {
         }
       } catch (error) {
         if (!silent) {
-          setNotice(error instanceof Error ? error.message : "Job detail is not available.");
+          setNotice(apiErrorMessage(error, "This job detail is temporarily unavailable."));
         }
       } finally {
         if (!silent) {
@@ -150,7 +163,7 @@ export default function JobDetailPage() {
       const response = await replayRouting(jobId);
       setReplayResult(response);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Routing replay failed.");
+      setNotice(apiErrorMessage(error, "Routing replay is temporarily unavailable."));
     } finally {
       setReplaying(false);
     }
@@ -167,7 +180,9 @@ export default function JobDetailPage() {
       setEvents(eventResponse.events);
       setTab("result");
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Simulation failed.");
+      setNotice(
+        apiErrorMessage(error, "The manual worker fallback is temporarily unavailable.")
+      );
     } finally {
       setRunning(false);
     }
@@ -196,9 +211,9 @@ export default function JobDetailPage() {
         title={job ? `${labelize(job.job_type)} run` : "Mission"}
         description={
           job
-            ? `${job.sensor} scene over New York Harbor · ${labelize(job.priority)} · ${labelize(
+            ? `${job.sensor} · ${labelize(job.priority)} priority · ${labelize(
                 job.compute_preference
-              )}`
+              )} compute preference`
             : "Loading mission state."
         }
         action={
@@ -213,6 +228,9 @@ export default function JobDetailPage() {
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
+      <div className="mt-5">
+        <DemoBoundary compact />
+      </div>
 
       {loading ? (
         <div className="glass mt-5 flex items-center gap-3 p-6 text-muted">
@@ -313,6 +331,10 @@ export default function JobDetailPage() {
                     )}
                     Replay routing
                   </button>
+                  <p className="text-xs leading-5 text-muted-dark">
+                    Replay recomputes the stored routing inputs and verifies that the
+                    decision hash is identical.
+                  </p>
                   {replayResult ? (
                     <div
                       className={`rounded-xl border p-4 text-sm ${
@@ -329,19 +351,30 @@ export default function JobDetailPage() {
                       </p>
                     </div>
                   ) : null}
-                  <button
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-sm font-semibold text-void transition-colors hover:bg-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={running || job.status === "complete"}
-                    onClick={handleRunSimulation}
-                    type="button"
-                  >
-                    {running ? (
-                      <Loader2 className="animate-spin" size={17} strokeWidth={2} />
-                    ) : (
-                      <Play size={17} strokeWidth={2} />
-                    )}
-                    {job.status === "complete" ? "Simulation complete" : "Run simulation"}
-                  </button>
+                  {job.status === "queued" ? (
+                    <details className="rounded-xl border border-line bg-void/40 p-3">
+                      <summary className="cursor-pointer text-xs text-muted">
+                        Manual worker fallback
+                      </summary>
+                      <p className="mt-2 text-xs leading-5 text-muted-dark">
+                        The production worker normally advances this job automatically.
+                        Use this only if the shared queue is unavailable.
+                      </p>
+                      <button
+                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream transition hover:border-gold/40"
+                        disabled={running}
+                        onClick={handleRunSimulation}
+                        type="button"
+                      >
+                        {running ? (
+                          <Loader2 className="animate-spin" size={17} strokeWidth={2} />
+                        ) : (
+                          <Play size={17} strokeWidth={2} />
+                        )}
+                        Advance job manually
+                      </button>
+                    </details>
+                  ) : null}
                 </div>
               ) : (
                 <p className="mt-5 text-sm text-muted">
@@ -373,6 +406,20 @@ export default function JobDetailPage() {
 
               {tab === "route" ? (
                 <div className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <ProvenancePlate
+                      detail="Public orbital data pinned for deterministic routing."
+                      label="Orbital inputs"
+                      tone="cobalt"
+                      value={route?.tle_snapshot_id ?? "Pinned TLE snapshot"}
+                    />
+                    <ProvenancePlate
+                      detail="Scores and constraints are preserved for replay."
+                      label="Decision evidence"
+                      tone="gold"
+                      value="Append-only audit + sha256 hash"
+                    />
+                  </div>
                   {route ? <RouteExplain route={route} /> : null}
                   {route?.candidate_scores.map((candidate) => (
                     <ScoreBar candidate={candidate} key={candidate.node_id} />
@@ -472,12 +519,23 @@ export default function JobDetailPage() {
                               ? String(selectedDetection.properties.detection_id ?? "")
                               : null
                           }
-                          subtitle="Filter vessels · live pulse · explore or cinema"
-                          title="Harbor AOI"
+                          subtitle="Offline reference detections · illustrative AIS correlation"
+                          title="New York Harbor demo AOI"
                         />
                         <DetectionPanel
                           feature={selectedDetection}
                           onClose={() => setSelectedDetection(null)}
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <ProvenancePlate
+                          detail="This public demo does not perform live satellite tasking, live SAR processing, or live AIS matching."
+                          label="Result provenance"
+                          tone="cobalt"
+                          value={
+                            scene?.provenance ??
+                            "Deterministic demo output from the reference pipeline."
+                          }
                         />
                       </div>
                       <DetectionTable result={result} />

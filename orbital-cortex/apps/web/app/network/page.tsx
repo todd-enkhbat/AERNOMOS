@@ -9,7 +9,7 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { NetworkMetricsCarousel } from "@/components/network/NetworkMetricsCarousel";
 import { PageHeader } from "@/components/PageHeader";
 import { LiquidCard, LiquidSection } from "@/components/liquid";
-import { API_BASE_URL, getNodes, listJobs } from "@/lib/api";
+import { apiErrorMessage, getNodes, listJobs } from "@/lib/api";
 import { EMPTY_NODES } from "@/lib/constants";
 import type { ComputeNode, NodesResponse } from "@/lib/types";
 import { formatMinutes, formatPercent, labelize } from "@/lib/format";
@@ -50,11 +50,7 @@ export default function NetworkPage() {
         );
       } catch (error) {
         if (mounted) {
-          setNotice(
-            error instanceof Error
-              ? `${error.message}. Is the API running at ${API_BASE_URL}?`
-              : `Backend data is not available. Is the API running at ${API_BASE_URL}?`
-          );
+          setNotice(apiErrorMessage(error));
         }
       }
     }
@@ -77,9 +73,9 @@ export default function NetworkPage() {
     <div className="relative pb-10">
       <LiquidSection className="page-shell">
         <PageHeader
-          description="Ground mesh, SGP4 passes, orbital nodes, and cloud fallback. Live data from the routing engine."
+          description="Inspect the reference registry used by the router: real public orbital geometry, pinned TLEs, reference ground sites, and simulated compute candidates."
           eyebrow="Network"
-          title="The orbital fabric"
+          title="How the reference network fits together"
         />
         {notice ? <InlineNotice message={notice} /> : null}
 
@@ -91,19 +87,23 @@ export default function NetworkPage() {
         />
       </LiquidSection>
 
-      <section className="section-gap relative">
-        <div className="page-shell mb-1">
-          <p className="chart-label text-gold">Fleet geometry</p>
-          <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
-            Scroll Sputnik through the mesh
-          </h2>
-        </div>
-        <SputnikScrollStory />
-      </section>
-
       <LiquidSection className="section-gap page-shell">
         <NetworkConsole />
       </LiquidSection>
+
+      <section className="section-gap relative">
+        <div className="page-shell mb-1">
+          <p className="chart-label text-gold">Orbital context</p>
+          <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
+            From first signal to an explainable network
+          </h2>
+          <p className="prose-compact mt-3 max-w-2xl text-muted">
+            This visual is historical context. The registry and pass schedule above
+            are the product evidence.
+          </p>
+        </div>
+        <SputnikScrollStory />
+      </section>
 
       <LiquidSection className="section-gap page-shell">
         <LiquidCard>
@@ -133,8 +133,8 @@ export default function NetworkPage() {
         </LiquidCard>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          <NodeGroup title="Orbital nodes" nodes={orbital} />
-          <NodeGroup title="Cloud fallback" nodes={cloud} />
+          <NodeGroup title="Simulated orbital candidates" nodes={orbital} />
+          <NodeGroup title="Simulated cloud fallback" nodes={cloud} />
         </div>
       </LiquidSection>
     </div>

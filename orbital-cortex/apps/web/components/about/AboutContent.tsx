@@ -26,7 +26,7 @@ const pillars = [
     title: "Plasma lab roots",
     body: [
       "Nomos grew out of Columbia plasma physics research: high-energy plasmas, precision instrumentation, and the discipline of measuring what you cannot see directly. Tokamaks and satellite constellations both demand closed-loop control over hostile, noisy environments.",
-      "That background shapes the product. Routing is physics-aware scheduling. Every job emits a signed event log the way a lab run emits a shot record. The console is a mission control surface, not a marketing shell."
+      "That background shapes the product. Routing is physics-aware scheduling. Every job emits an append-only event trail and a hashed routing decision, the way a lab run emits a shot record. The console is a working control surface, not a marketing shell."
     ]
   }
 ];
@@ -81,12 +81,13 @@ export function AboutContent({ compact = false }: { compact?: boolean }) {
                 <p className="prose-compact mt-4 text-muted">
                   We are building the orchestration layer for space-data AI: submit a
                   job once, route it across orbital and cloud compute, inspect every
-                  score, and retrieve signed artifacts. The live demo on this site runs
-                  against production infrastructure at api.nomosorbital.com.
+                  score, and retrieve artifacts through signed URLs. The demo runs
+                  against production infrastructure at api.nomosorbital.com, with
+                  simulated compute execution and offline reference results.
                 </p>
                 <p className="prose-compact mt-3 text-muted">
-                  The repo behind the product is AERNOMOS. The company you interact
-                  with is Nomos Orbital. Same stack, same API, one name on the door.
+                  Nomos is not a satellite operator or ground-station provider. It is
+                  the routing, orchestration, and verification layer above them.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link

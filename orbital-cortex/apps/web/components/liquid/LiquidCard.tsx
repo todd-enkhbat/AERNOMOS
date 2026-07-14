@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 import { useLiquidMouse } from "./useLiquidMouse";
+import { useFinePointer } from "./useFinePointer";
 
 type LiquidCardProps = {
   children: ReactNode;
@@ -13,7 +14,8 @@ type LiquidCardProps = {
   id?: string;
 };
 
-const spring = { type: "spring" as const, stiffness: 460, damping: 28 };
+const spring = { type: "spring" as const, stiffness: 420, damping: 34 };
+const easeOut = [0.23, 1, 0.32, 1] as const;
 
 export function LiquidCard({
   children,
@@ -23,6 +25,7 @@ export function LiquidCard({
   id
 }: LiquidCardProps) {
   const reduced = useReducedMotion();
+  const finePointer = useFinePointer();
   const { ref, onMouseMove, onMouseLeave } = useLiquidMouse<HTMLDivElement>();
 
   return (
@@ -37,10 +40,14 @@ export function LiquidCard({
         .filter(Boolean)
         .join(" ")}
       id={id}
-      onMouseLeave={onMouseLeave}
-      onMouseMove={onMouseMove}
+      onMouseLeave={finePointer ? onMouseLeave : undefined}
+      onMouseMove={finePointer ? onMouseMove : undefined}
       ref={ref}
-      whileHover={reduced || inset ? undefined : { y: -5, scale: 1.008 }}
+      whileHover={
+        reduced || inset || !finePointer
+          ? undefined
+          : { y: -2, transition: { duration: 0.2, ease: easeOut } }
+      }
       transition={spring}
     >
       <div className="liquid-glass__content relative z-[1]">{children}</div>

@@ -30,6 +30,16 @@ export class ApiError extends Error {
   }
 }
 
+export function apiErrorMessage(
+  error: unknown,
+  fallback = "The public API is temporarily unavailable. You can still explore the interface and documentation."
+): string {
+  if (!(error instanceof Error) || error.message === "Failed to fetch") {
+    return fallback;
+  }
+  return error.message;
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");

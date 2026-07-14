@@ -9,7 +9,7 @@ import { JobStepper } from "@/components/jobs/JobStepper";
 import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { LiquidCard } from "@/components/liquid/LiquidCard";
 import { LiquidChip } from "@/components/liquid/LiquidChip";
-import { createJob, getJob, getRouting } from "@/lib/api";
+import { apiErrorMessage, createJob, getJob, getRouting } from "@/lib/api";
 import { DEMO_API_KEY } from "@/lib/constants";
 import { defaultJobPayload } from "@/lib/default-job-payload";
 import type { Job, JobType, Priority, RoutingDecision } from "@/lib/types";
@@ -79,11 +79,7 @@ export function DemoLauncher() {
       setRoute(null);
       poll(response.job.id);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "The live API is unreachable right now."
-      );
+      setError(apiErrorMessage(err, "The production API demo is temporarily unavailable."));
     } finally {
       setSubmitting(false);
     }
@@ -100,7 +96,7 @@ export function DemoLauncher() {
     <LiquidCard className="w-full max-w-md" id="demo">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="chart-label text-gold">Live demo</p>
+          <p className="chart-label text-gold">Production API demo</p>
           <h2 className="mt-1.5 text-lg font-semibold text-cream">
             Task the network
           </h2>
@@ -175,12 +171,12 @@ export function DemoLauncher() {
                 {submitting ? (
                   <Loader2 className="animate-spin" size={18} strokeWidth={2} />
                 ) : null}
-                Run live demo
+                Run demo job
                 {!submitting ? <ArrowRight size={17} strokeWidth={2} /> : null}
               </LiquidButton>
             </div>
             <p className="mt-3 text-center text-xs text-muted-dark">
-              No account needed. Runs against the real production API.
+              No account needed. Real API and orbital math, simulated execution.
             </p>
           </motion.div>
         ) : (

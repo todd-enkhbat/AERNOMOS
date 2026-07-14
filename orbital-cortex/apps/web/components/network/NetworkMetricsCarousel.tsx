@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { ChevronLeft, ChevronRight, Cloud, RadioTower, Satellite, Signal } from "lucide-react";
 import Image from "next/image";
@@ -26,7 +26,7 @@ const slides: Slide[] = [
     step: "01",
     title: "Orbital nodes",
     caption:
-      "On-orbit compute candidates registered in the routing mesh — scored for model fit, contact windows, and downlink budget.",
+      "Simulated on-orbit compute candidates scored for model fit, contact windows, and downlink budget.",
     image: "/images/network/orbital-nodes.png",
     imageAlt: "Hubble Space Telescope in the shuttle cargo bay above Earth",
     imageScale: 1.08,
@@ -38,7 +38,7 @@ const slides: Slide[] = [
     step: "02",
     title: "Ground stations",
     caption:
-      "Downlink sites across the production ground mesh. SGP4 passes schedule when orbital nodes can ship results home.",
+      "Public reference locations used for SGP4 visibility calculations. Nomos does not operate or book these sites.",
     image: "/images/network/ground-stations.png",
     imageAlt: "Satellite dish farm on a hillside ground station",
     icon: RadioTower
@@ -48,7 +48,7 @@ const slides: Slide[] = [
     step: "03",
     title: "Cloud nodes",
     caption:
-      "Fallback compute when passes are missed or policy routes workloads to terrestrial GPUs. Same signed audit trail as orbital.",
+      "Simulated terrestrial fallback when a pass is missed or policy prefers a cloud route. The same decision audit applies.",
     image: "/images/network/cloud-nodes.png",
     imageAlt: "Twin satellites in low Earth orbit above the cloud layer",
     icon: Cloud
@@ -58,7 +58,7 @@ const slides: Slide[] = [
     step: "04",
     title: "Active jobs",
     caption:
-      "Jobs queued or running right now across the fabric — each one scored, routed, and logged before a byte moves.",
+      "Shared public demo jobs currently queued or running through the production API and worker.",
     image: "/images/network/active-jobs.png",
     imageAlt: "Multiplexed signal map of active routing jobs",
     icon: Signal
@@ -85,11 +85,12 @@ function valueForSlide(id: string, props: NetworkMetricsCarouselProps): string {
     case "jobs":
       return String(props.activeJobs);
     default:
-      return "—";
+      return "n/a";
   }
 }
 
 export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
+  const reduced = useReducedMotion();
   const [active, setActive] = useState(0);
   const [offset, setOffset] = useState(0);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -126,33 +127,22 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
     [total]
   );
 
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "ArrowLeft") {
-        go(-1);
-      }
-      if (event.key === "ArrowRight") {
-        go(1);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
-
   const markerIndex = Math.round((active / (total - 1)) * (TICK_COUNT - 1));
 
   return (
     <div className="mt-8">
       <h2 className="display max-w-3xl text-2xl leading-tight text-cream md:text-[2rem]">
-        Network mesh development progress
+        Four inputs the router can explain
       </h2>
 
       <div className="relative mt-6 overflow-hidden" ref={viewportRef}>
         <motion.div
-          animate={{ x: offset }}
+          animate={{ transform: `translateX(${offset}px)` }}
           className="flex items-end gap-3 md:gap-4"
           ref={trackRef}
-          transition={{ type: "spring", stiffness: 280, damping: 32 }}
+          transition={
+            reduced ? { duration: 0 } : { type: "spring", stiffness: 280, damping: 32 }
+          }
         >
           {slides.map((slide, index) => {
             const isActive = index === active;
@@ -163,25 +153,42 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
               <motion.article
                 animate={{
                   opacity: isActive ? 1 : 0.38,
-                  filter: isActive ? "brightness(1)" : "brightness(0.62)"
+                  transform: isActive ? "scale(1)" : "scale(0.84)"
                 }}
                 aria-current={isActive ? "true" : undefined}
+                aria-label={`Show ${slide.title}`}
                 className={[
-                  "relative shrink-0 cursor-pointer overflow-hidden rounded-[18px] border bg-[#050506] transition-shadow duration-500",
+                  "relative shrink-0 origin-center cursor-pointer overflow-hidden rounded-[18px] border bg-[#050506] transition-shadow duration-200",
                   isActive
                     ? "z-20 border-gold/35 shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
                     : "z-10 border-white/8"
                 ].join(" ")}
                 key={slide.id}
                 onClick={() => setActive(index)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setActive(index);
+                  } else if (event.key === "ArrowLeft") {
+                    go(-1);
+                  } else if (event.key === "ArrowRight") {
+                    go(1);
+                  }
+                }}
                 ref={(node) => {
                   slideRefs.current[index] = node;
                 }}
                 style={{
-                  width: isActive ? "min(78vw, 860px)" : "min(34vw, 300px)",
-                  height: isActive ? "min(52vh, 500px)" : "min(40vh, 360px)"
+                  width: "min(78vw, 680px)",
+                  height: "min(48vh, 440px)"
                 }}
-                transition={{ type: "spring", stiffness: 280, damping: 32 }}
+                role="button"
+                tabIndex={0}
+                transition={
+                  reduced
+                    ? { duration: 0 }
+                    : { type: "spring", stiffness: 280, damping: 32 }
+                }
               >
                 <Image
                   alt={slide.imageAlt}
@@ -250,7 +257,7 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
 
       <div className="mt-6 grid items-end gap-4 md:grid-cols-[1fr_auto_auto]">
         <p className="chart-label max-w-xs text-[10px] leading-relaxed text-muted-dark md:text-[11px]">
-          LIVE ROUTING MESH
+          REFERENCE ROUTING REGISTRY
           <br />
           ORBITAL · GROUND · CLOUD · JOBS
         </p>
@@ -258,7 +265,7 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
         <div
           aria-label={`Section ${active + 1} of ${total}`}
           className="flex flex-col items-center gap-2 justify-self-center"
-          role="tablist"
+          role="status"
         >
           <div className="flex items-end gap-[2px]">
             {Array.from({ length: TICK_COUNT }).map((_, index) => {

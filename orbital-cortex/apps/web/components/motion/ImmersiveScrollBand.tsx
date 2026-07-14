@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
@@ -31,6 +31,7 @@ export function ImmersiveScrollBand({
 }: ImmersiveScrollBandProps) {
   const ref = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"]
@@ -42,27 +43,38 @@ export function ImmersiveScrollBand({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) {
+    if (!video || reduced) {
+      video?.pause();
       return;
     }
     video.play().catch(() => {
       /* autoplay may be blocked until interaction */
     });
-  }, [videoSrc]);
+  }, [reduced, videoSrc]);
 
   return (
     <section className="relative" ref={ref} style={{ height: scrollHeight }}>
-      <div className="sticky top-0 h-screen overflow-hidden">
-        <motion.div className="absolute inset-0 will-change-transform" style={{ scale, y }}>
+      <div
+        className="sticky overflow-hidden"
+        style={{
+          top: "var(--header-offset)",
+          height: "calc(100dvh - var(--header-offset))"
+        }}
+      >
+        <motion.div
+          className="absolute inset-0 will-change-transform"
+          style={reduced ? undefined : { scale, y }}
+        >
           {videoSrc ? (
             <video
-              autoPlay
+              autoPlay={!reduced}
+              aria-hidden
               className="h-full w-full object-cover object-center"
               loop
               muted
               playsInline
               poster={posterSrc}
-              preload="auto"
+              preload="metadata"
               ref={videoRef}
               src={videoSrc}
             />

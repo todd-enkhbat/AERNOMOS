@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useRef, type ReactNode } from "react";
 
 type OrbitalScrollStageProps = {
@@ -14,6 +14,7 @@ export function OrbitalScrollStage({
   scrollHeight = "140vh"
 }: OrbitalScrollStageProps) {
   const ref = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"]
@@ -21,9 +22,16 @@ export function OrbitalScrollStage({
   const y = useTransform(scrollYProgress, [0, 1], [40, -40]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.4, 1, 1, 0.4]);
 
+  if (reduced) {
+    return <section className="relative py-10">{children}</section>;
+  }
+
   return (
     <section className="relative" ref={ref} style={{ height: scrollHeight }}>
-      <div className="sticky top-[64px] flex h-[min(75vh,680px)] items-center justify-center">
+      <div
+        className="sticky flex h-[min(75vh,680px)] items-center justify-center"
+        style={{ top: "var(--header-offset)" }}
+      >
         <motion.div className="absolute inset-0 flex items-center justify-center" style={{ opacity }}>
           {children}
         </motion.div>
