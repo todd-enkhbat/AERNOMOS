@@ -57,6 +57,7 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 | [orbital-cortex/docs/architecture.md](orbital-cortex/docs/architecture.md) | System design |
 | [orbital-cortex/docs/api-spec.md](orbital-cortex/docs/api-spec.md) | REST contract |
 | [orbital-cortex/docs/capability-truth.md](orbital-cortex/docs/capability-truth.md) | Customer-safe claims and demo boundaries |
+| [orbital-cortex/docs/current-system-audit.md](orbital-cortex/docs/current-system-audit.md) | Pre-mission-planner system audit: simulation points, privacy risks |
 | [orbital-cortex/docs/design-engineering-workflow.md](orbital-cortex/docs/design-engineering-workflow.md) | UI, imagery, motion, and visual QA gates |
 | [SOUL.md](SOUL.md) | Canonical product, copy, and design direction |
 | [README.md](README.md) | Product vision |
