@@ -1,0 +1,80 @@
+---
+description: Nomos mission-planner build loop — one phase at a time with acceptance criteria
+alwaysApply: true
+---
+
+# Nomos build workflow
+
+The master implementation plan is located at:
+
+`docs/NOMOS_BUILD_PLAN.md`
+
+Progress is tracked in:
+
+`docs/BUILD_PROGRESS.md`
+
+## Loop (goal-based, per phase)
+
+Primary loop condition: continue until the **current phase’s acceptance criteria** pass.
+
+Use turn/time limits only as safety caps (conceptually ~20–30 turns or 60–120 minutes). Stop on:
+
+- required external credential
+- irreversible production change
+- unclear product decision
+- repeated test failure after three distinct repair attempts
+
+Do **not** run phases A–T as one giant one-shot task.
+
+## Default entry
+
+When the user says “continue the build”, “next phase”, “work on Nomos”, or “continue Nomos”:
+
+1. Read `docs/NOMOS_BUILD_PLAN.md` and `docs/BUILD_PROGRESS.md`.
+2. Execute only the phase listed as current / in progress.
+3. Follow this rule until that phase’s acceptance criteria pass.
+4. Update `docs/BUILD_PROGRESS.md` and stop (do not start the next phase unless asked).
+5. Commit only when the user explicitly asks, unless the phase prompt already requests the phase commit.
+
+## For every implementation task
+
+1. Read both `docs/NOMOS_BUILD_PLAN.md` and `docs/BUILD_PROGRESS.md` before making changes.
+2. Identify the current phase (follow the **canonical execution order** table in the master plan, not alphabetical letter order, unless the user overrides).
+3. Inspect the existing implementation relevant to that phase.
+4. Write a short execution plan before editing.
+5. Implement only the current phase unless explicitly instructed otherwise.
+6. Do not rewrite unrelated systems.
+7. Add or update tests.
+8. Run all validation relevant to the changed code.
+9. Fix failures before declaring the phase complete.
+10. Review the final diff for security, regressions, fabricated data, and misleading user claims.
+11. Update `docs/BUILD_PROGRESS.md` with: work completed, files changed, tests run, unresolved issues, architecture decisions, next phase.
+12. Commit the completed phase using the commit message specified in the master plan (only when the user asks to commit, unless they already instructed phase commits).
+13. Stop after the phase is fully validated and report the result.
+
+## Phase completion definition
+
+Never mark a phase complete merely because code was written.
+
+A phase is complete only when:
+
+- its acceptance criteria are satisfied
+- relevant tests pass
+- builds pass
+- migrations succeed where applicable
+- documentation is updated
+- no high-severity known issue remains
+
+## Truth-status rule
+
+Never fabricate provider data, execution results, pricing, availability, confidence, or satellite activity.
+
+When real data is unavailable, use the correct truth status:
+
+- OBSERVED
+- CALCULATED
+- PROVIDER_REPORTED
+- ESTIMATED
+- SIMULATED
+- STALE
+- UNAVAILABLE

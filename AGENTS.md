@@ -51,9 +51,11 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 
 | Doc | Use when |
 | --- | --- |
+| [docs/NOMOS_BUILD_PLAN.md](docs/NOMOS_BUILD_PLAN.md) | **Mission-planner master plan (phases A–T)** — persistent build context |
+| [docs/BUILD_PROGRESS.md](docs/BUILD_PROGRESS.md) | **Current build phase / blockers / decisions** — update after every phase |
 | [orbital-cortex/docs/production-runbook.md](orbital-cortex/docs/production-runbook.md) | Ops, debugging prod, secrets checklist |
 | [orbital-cortex/docs/deployment.md](orbital-cortex/docs/deployment.md) | First-time deploy |
-| [orbital-cortex/docs/frontend-roadmap.md](orbital-cortex/docs/frontend-roadmap.md) | Phase B UI work |
+| [orbital-cortex/docs/frontend-roadmap.md](orbital-cortex/docs/frontend-roadmap.md) | Legacy frontend roadmap (Nomos Record UI) |
 | [orbital-cortex/docs/architecture.md](orbital-cortex/docs/architecture.md) | System design |
 | [orbital-cortex/docs/api-spec.md](orbital-cortex/docs/api-spec.md) | REST contract |
 | [orbital-cortex/docs/capability-truth.md](orbital-cortex/docs/capability-truth.md) | Customer-safe claims and demo boundaries |
@@ -61,6 +63,42 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 | [orbital-cortex/docs/design-engineering-workflow.md](orbital-cortex/docs/design-engineering-workflow.md) | UI, imagery, motion, and visual QA gates |
 | [SOUL.md](SOUL.md) | Canonical product, copy, and design direction |
 | [README.md](README.md) | Product vision |
+
+## Nomos build workflow (mission planner)
+
+Master plan: [`docs/NOMOS_BUILD_PLAN.md`](docs/NOMOS_BUILD_PLAN.md).  
+Progress: [`docs/BUILD_PROGRESS.md`](docs/BUILD_PROGRESS.md).  
+Always-applied Cursor rule: [`.cursor/rules/nomos-build-loop.mdc`](.cursor/rules/nomos-build-loop.mdc).
+
+**Do not** execute phases A–T as one giant one-shot task. Use a **goal-based loop per phase**: continue until the current phase’s acceptance criteria pass (turn/time limits are safety caps only).
+
+### Default entry
+
+When the user says “continue the build”, “next phase”, “work on Nomos”, or “continue Nomos”:
+
+1. Read both plan and progress files.
+2. Execute **only** the phase listed as current / in progress (canonical order in the master plan — not alphabetical letter order).
+3. Follow the build-loop rule until acceptance criteria pass.
+4. Update `docs/BUILD_PROGRESS.md` and stop (do not start the next phase unless asked).
+5. Commit only when the user explicitly asks, unless the phase prompt already requests the phase commit.
+
+### For every implementation task
+
+1. Read both plan and progress files before making changes.
+2. Identify the current phase; inspect existing implementation; write a short execution plan.
+3. Implement only that phase; do not rewrite unrelated systems.
+4. Add or update tests; run validation; fix failures before declaring done.
+5. Review the diff for security, regressions, fabricated data, and misleading claims.
+6. Update `docs/BUILD_PROGRESS.md` (completed work, files, tests, issues, decisions, next phase).
+7. Stop after the phase is fully validated and report the result.
+
+A phase is complete only when acceptance criteria, tests, builds, applicable migrations, and docs are done — and no high-severity known issue remains. Never mark complete merely because code was written.
+
+Never fabricate provider data, execution results, pricing, availability, confidence, or satellite activity. When real data is unavailable, use: OBSERVED, CALCULATED, PROVIDER_REPORTED, ESTIMATED, SIMULATED, STALE, UNAVAILABLE.
+
+Stop and ask the user on: required external credential, irreversible production change, unclear product decision, or three distinct failed repair attempts on the same tests.
+
+**Naming note:** Older “Phase A/B/C” bullets below refer to the pre-mission-planner product track (branding / Nomos Record UI / auth). For the mission-planner build, trust `docs/NOMOS_BUILD_PLAN.md` and `docs/BUILD_PROGRESS.md` (Phase A = audit, Phase B = data model, etc.).
 
 ## Common production issues
 
@@ -92,4 +130,4 @@ cd ../web && npm run generate:api-types
 ## Commit / deploy
 
 - CI: `.github/workflows/deploy.yml` — API tests + web build + Fly deploy on `main` (needs `FLY_API_TOKEN` secret)
-- Do not commit secrets, `.env`, or `.cursor/`
+- Do not commit secrets or `.env`. Commit `.cursor/rules/*.mdc` project rules; do not commit other local `.cursor/` state
