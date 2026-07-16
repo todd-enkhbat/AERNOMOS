@@ -92,3 +92,26 @@ cd ../web && npm run generate:api-types
 
 - CI: `.github/workflows/deploy.yml` — API tests + web build + Fly deploy on `main` (needs `FLY_API_TOKEN` secret)
 - Do not commit secrets, `.env`, or `.cursor/`
+
+## Cursor Cloud specific instructions
+
+The cloud VM runs the stack **natively (no Docker)**. Postgres 16 + PostGIS and Redis are installed as system packages; the startup update script only refreshes code deps (Python venvs + `npm ci`). Services and infra are **not** auto-started — start them yourself each session:
+
+```bash
+# Infra (once per VM boot; data persists in the snapshot)
+sudo pg_ctlcluster 16 main start        # Postgres+PostGIS on :5432 (db orbital_cortex, user/pass postgres/postgres)
+sudo redis-server --daemonize yes        # Redis on :6379
+
+# App services (dev mode, hot reload) — run each in its own tmux session
+cd orbital-cortex/apps/api && . .venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+cd orbital-cortex/apps/api && . .venv/bin/activate && arq app.workers.executor.WorkerSettings   # async job worker
+cd orbital-cortex/apps/web && npm run dev            # UI on :3000
+```
+
+- Python deps live in two gitignored venvs: **API/worker/SDK** at `orbital-cortex/apps/api/.venv`, **MVS skeleton** at repo-root `.venv`.
+- API config is read from `orbital-cortex/apps/api/.env` (gitignored) — already points `DATABASE_URL`/`REDIS_URL` at the local services. The API auto-runs Alembic migrations and seeds simulator data on startup, so a fresh DB self-populates.
+- **Test gotcha:** run tests with the module form — `python -m pytest tests` (from `apps/api` or `sdk/python`). Bare `pytest tests` fails with `ModuleNotFoundError: No module named 'app'` (the repo has no src-layout/pythonpath config; this also fails in the current CI).
+- **Lint scope:** API lint is `ruff check app tests scripts` (CI scope). `ruff check .` reports pre-existing failures in `migrations/`, which are intentionally out of scope.
+- **Web lint gotcha:** there is no committed ESLint config, so `npm run lint` (`next lint`) prompts interactively on a PTY. To lint non-interactively, first create `orbital-cortex/apps/web/.eslintrc.json` = `{ "extends": "next/core-web-vitals" }` (CI auto-generates this in its non-TTY shell); do not commit it.
+- Web typegen needs `orbital-cortex/openapi.json` (gitignored): regenerate with `python -m scripts.export_openapi ../../openapi.json` from `apps/api`, then `npm run generate:api-types`. Committed `lib/generated/api-types.ts` already matches the current schema.
+- Handy API facts: completed job status string is `complete`; result manifest is at `GET /v1/jobs/{id}/result` (not `/v1/results/{id}`); local artifacts are served via signed URLs under `/v1/artifacts/...`.
