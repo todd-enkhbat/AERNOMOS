@@ -1,7 +1,8 @@
-"""SQLAlchemy 2.x ORM models mirroring the original SQLite schema.
+"""SQLAlchemy 2.x ORM models for the orbital-cortex control plane.
 
-Spatial columns stay JSONB for now; they convert to PostGIS geometry in
-Group D (staged schema plan).
+Legacy demo tables (jobs, scenes, detections, routing, …) use string IDs.
+Mission-planning tables live in ``mission_orm`` (UUID PKs + PostGIS) and are
+imported at the bottom so Alembic sees a single ``Base.metadata``.
 """
 
 from __future__ import annotations
@@ -258,3 +259,7 @@ class Result(Base):
     geojson_json: Mapped[Any] = mapped_column(JSONB, nullable=False)
     output_files_json: Mapped[Any] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[str] = mapped_column(String, nullable=False)
+
+
+# Register mission-planning models on Base.metadata (Phase B).
+from app.db import mission_orm as _mission_orm  # noqa: E402,F401
