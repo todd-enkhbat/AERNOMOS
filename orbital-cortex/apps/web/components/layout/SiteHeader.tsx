@@ -38,7 +38,7 @@ export function SiteHeader() {
                   Nomos Orbital
                 </span>
                 <span className="chart-label hidden text-muted-dark sm:block">
-                  Orbital compute orchestration
+                  Mission planning for space data
                 </span>
               </span>
             </Link>

@@ -14,9 +14,9 @@
 
 Nomos Orbital brings **order to the orbital age**.
 
-Space is filling with compute, sensors, and satellites faster than anyone can coordinate them. Every satellite collects more than it can send home. Ground-station passes last minutes, and most sensor data is discarded before a human asks a question of it. The bottleneck is no longer collection. It is orchestration: deciding where a job should run, routing it, and proving what happened.
+Space is filling with compute, sensors, and satellites faster than anyone can coordinate them. Every satellite collects more than it can send home. Ground-station passes last minutes, and most sensor data is discarded before a human asks a question of it. The bottleneck is no longer collection. It is deciding where a space-data workload should move, and proving why.
 
-Nomos is that layer. It routes space-data AI jobs across satellites and clouds, scores every node, explains every decision, and returns every result with an auditable trail. It is a control plane, not a black box.
+Nomos helps operators plan that movement across satellite, ground, and cloud infrastructure. It searches real public data, calculates contact opportunities, compares feasible routes, and returns a source-backed mission brief with labeled assumptions. Live tasking, reservation, and onboard execution require provider integrations that Nomos does not pretend to have.
 
 Nomos means order, law, and the act of binding things together. Astronomy is star-arranging. The long mission is to make machinery in orbit legible and accountable so that intelligence moving off-planet remains something humans can direct, audit, and trust.
 
@@ -27,13 +27,33 @@ Intellectual lineage: Carl Sagan and the Golden Record, engineering humility, Ru
 ## 2. Positioning
 
 - **Primary tagline:** *Order, for the orbital age.*
-- **Category:** Orbital compute orchestration.
-- **Elevator:** Nomos routes space-data AI jobs across satellites and clouds, scoring every node, explaining every decision, and returning every result with an auditable trail.
-- **Developer framing:** A control plane, not a black box.
+- **Category:** Mission planning for space-data workloads.
+- **Elevator:** Nomos plans how space-data workloads should move across satellite, ground, and cloud infrastructure, using real orbital and catalog data, and returns a source-backed execution plan.
+- **Homepage promise:** Describe your mission and constraints. Nomos generates a source-backed execution plan using real orbital and infrastructure data.
+- **Developer framing (docs / deep technical only):** A control plane for routing and audit when jobs are submitted. Do not lead the homepage with this language.
 - **Internal analogy only:** Stripe for orbital compute. Kubernetes for orbital infrastructure.
-- **Problem:** Satellites collect more than they can send home.
+- **Problem:** Satellites collect more than they can send home. Operators need a traceable plan before they commit to a route.
 
-Nomos is not a satellite operator, launch company, ground-station provider, or data reseller. It is the routing, orchestration, and verification layer above those systems.
+Nomos is not a satellite operator, launch company, ground-station provider, or data reseller. It is the planning and verification layer above those systems.
+
+### Homepage-facing language (prefer)
+
+- Plan how your space-data workload should move
+- Source-backed execution plan
+- Real orbital and infrastructure data
+- Technical mission brief
+- Assumptions and unavailable integrations
+
+### Language to demote from hero / first screen
+
+Keep these in `/docs` or deep technical sections only:
+
+- orchestration layer
+- deterministic routing
+- control plane
+- compliance-aware infrastructure
+- autonomous orbital intelligence
+- multi-domain workload placement
 
 ## 3. Source of truth
 
@@ -45,16 +65,28 @@ Nomos is not a satellite operator, launch company, ground-station provider, or d
 - **Founder:** Tsogt "Todd" Enkhbat
 - **Team experience:** NASA-adjacent quantum satellite research (T-REX, Brown University) and astrophysics research (Harvard-Smithsonian / TESS). Describe this as experience, never endorsement.
 
-### Product primitives
+### Product primitives (customer path)
 
-- **Job:** a space-data AI task submitted to the network.
-- **Node:** a possible compute target, orbital or cloud.
+- **Mission:** a private customer plan for a space-data workload.
+- **Plan:** a ranked, source-backed recommendation with ordered steps and evidence.
+- **Truth status:** OBSERVED, CALCULATED, PROVIDER_REPORTED, ESTIMATED, SIMULATED, STALE, or UNAVAILABLE on user-facing values.
+- **Brief:** the technical mission result: recommendation, feasibility, timeline, geography, assumptions, next actions.
+
+### Product primitives (developer job demo)
+
+- **Job:** a space-data AI task submitted to the legacy demo network.
+- **Node:** a possible compute target, orbital or cloud (simulated availability).
 - **Score:** seven weighted factors used to rank nodes for a job and priority.
 - **Route:** the selected path. Every route carries a sha256 replay hash.
 - **Return:** GeoJSON plus signed artifact URLs.
-- **Control plane:** the public API exposing routes, lifecycle events, and replayable decisions.
 
-### Canonical pipeline
+### Canonical customer pipeline
+
+1. **Describe** — guided builder at `/plan`
+2. **Evaluate** — catalogs, contact windows, infrastructure comparison
+3. **Recommend** — source-backed mission brief at `/missions/[id]`
+
+### Legacy demo pipeline
 
 1. **Request** — `POST /v1/jobs`
 2. **Score** — seven weighted factors
@@ -63,19 +95,21 @@ Nomos is not a satellite operator, launch company, ground-station provider, or d
 
 ### Demo truth
 
-- The API, database, async queue, worker, routing audit, PostGIS storage, and artifact delivery run on production infrastructure.
-- Contact windows are real SGP4 calculations over a dated, pinned public TLE snapshot and public ground-station coordinates.
-- Compute nodes, operational availability, provider costs, execution, and inference are simulated.
-- Ship detections use an offline, canned New York Harbor reference scene. There is no live satellite tasking or live SAR processing.
-- The shared demo credential is not customer authentication. Job creation is rate-limited by IP.
+- Mission planning searches real public catalogs (Microsoft Planetary Computer), calculates SGP4 contact windows from CelesTrak TLEs (live or pinned), and compares feasible infrastructure patterns.
+- Plans label assumptions, unavailable integrations, and truth status. Cost estimates are UNAVAILABLE until a real pricing source exists.
+- Satellite tasking, ground-station reservation, onboard execution, private telemetry, and commercial pricing guarantees require provider integration and are not claimed as live.
+- The legacy Job API, database, async queue, worker, routing audit, PostGIS storage, and artifact delivery run on production infrastructure with simulated compute execution and canned ship-detection output.
+- Anonymous private sessions protect visitor missions. Share links are explicit. Missions are not publicly enumerable.
+- The shared demo credential `oc_demo_public` is not customer authentication. Job creation is rate-limited by IP.
 - Event trails are append-only and decisions are hashed. Events are not cryptographically signed.
 
 ### Demo vocabulary
 
-- Missions: Ship Detection, Crop Health, Disaster Response
+- Customer path: Build a mission plan → recommended brief
+- Developer demo missions: Ship Detection, Crop Health, Disaster Response
 - Priorities: Fastest, Cheapest, Most Reliable
 - Reference scene: SAR, New York Harbor, bbox −74.3, 40.3, −73.5, 41.0
-- Promise: No account needed. Runs against the production API with simulated execution.
+- Promise: No account needed for private planning. Job demo runs against the production API with simulated execution.
 
 ### Unknowns
 
@@ -85,32 +119,34 @@ Nomos is not a satellite operator, launch company, ground-station provider, or d
 
 The site has two jobs:
 
-1. Prove the system is real to developers with the demo, docs, and exact primitives.
-2. Convey the mission to investors and believers.
+1. Help a non-technical visitor understand Nomos in about five seconds and start a private mission plan.
+2. Prove the system is real to developers with docs, the job demo, and exact primitives.
 
-The developer proof is the spine. The mission earns its place around it.
+The customer planning path is the spine. The developer demo and mission narrative sit around it.
 
 ### Homepage order
 
-1. Hero: category, promise, demo
-2. Pipeline: Request → Score → Route → Return
-3. Problem: satellites collect more than they can send home
-4. Developer proof: public control plane, curl, routing audit
-5. About: Golden Record, research roots, mission
-6. Contact and footer
+1. Hero: mission-planning promise, primary CTA to `/plan`, secondary CTA to `/examples`
+2. Three steps: describe → evaluate → recommended plan
+3. What Nomos does today / What requires provider integration
+4. Demoted developer job demo link (not the primary action)
+5. About, contact, and footer elsewhere in the site chrome
 
-Keep the main navigation product-first: Dashboard, Jobs, Network, Calendar, About, Docs. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
+Keep the main navigation product-first: Dashboard, Plan, Missions, Network, Calendar, About, Docs. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
 
 ## 5. Hero narrative
 
-The hero is a four-phase scroll narrative:
+The marketing hero is plain and outcome-led:
 
-1. **SIGNVM / Flux:** granular signal, particles, nodes, raw intent.
-2. **FVSIO / Fusion:** energetic orbital paths reveal a connected planetary system.
-3. **SPHÆRA / Convergence:** paths become deliberate and form an ordered celestial network.
-4. **LITHOGRAPHIA / Golden Record:** motion resolves into a still engraved record.
+1. Brand: Nomos Orbital
+2. One headline about planning workload movement across satellite, ground, and cloud
+3. One subhead about source-backed plans from real data
+4. Primary and secondary CTAs
+5. One dominant visual (`OrbitalScene`)
 
-The arc is chaos to order, energy to stillness. The final frame should feel launchable as an etched artifact. Reduced-motion users see Phase 4.
+Readability beats decorative complexity in the first viewport. No stat strips, fake metrics, or demo launcher in the hero.
+
+The longer four-phase scroll narrative (SIGNVM → FVSIO → SPHÆRA → LITHOGRAPHIA) may still appear on About and immersive story surfaces. Reduced-motion users see the ordered final frame.
 
 ## 6. Visual direction
 
@@ -151,27 +187,28 @@ Avoid neon SaaS gradients, excessive blur, cartoon rockets, stock astronaut imag
 - Quietly grand, never inflated.
 - No em dashes in shipped copy.
 - Product copy is spare and technical. Mission copy may be lyrical but remains restrained.
-- Never obscure simulation boundaries.
+- Never obscure simulation boundaries or missing provider integrations.
 
 ## 8. Approved copy
 
-- **Hero:** Order, for the orbital age.
-- **Hero subline:** Nomos routes space-data AI jobs across satellites and clouds, scoring every node, explaining every decision, and returning every result with an auditable trail.
-- **Eyebrow:** Orbital compute orchestration
+- **Hero:** Plan how your space-data workload should move across satellite, ground, and cloud infrastructure.
+- **Hero subline:** Describe your mission and constraints. Nomos generates a source-backed execution plan using real orbital and infrastructure data.
+- **Primary CTA:** Build a mission plan
+- **Secondary CTA:** View example plan
+- **Tagline (brand):** Order, for the orbital age.
 - **Problem:** Satellites collect more than they can send home.
-- **Problem body:** Every ground-station pass is minutes long. Nomos runs inference where it is fastest and downlinks only the answer.
-- **Developer header:** A control plane, not a black box.
-- **Developer body:** Routing scores, lifecycle events, replayable decision hashes. Public and documented.
-- **About:** Nomos, the Golden Record, and source-backed orbital control.
-- **Demo:** No account needed. Production API, real orbital math, simulated execution.
-- **Footer:** est. among the stars · Open control plane for space-data AI. Every job routed, every decision explained, every artifact returned.
+- **Does today:** Searches real public catalogs; calculates contact opportunities; compares feasible routes; labels assumptions; generates a technical mission brief.
+- **Requires provider:** Satellite tasking; ground-station reservation; onboard execution; private telemetry; commercial pricing guarantees.
+- **About:** Nomos, the Golden Record, and source-backed orbital planning.
+- **Demo (jobs):** No account needed. Production API, real orbital math, simulated execution.
+- **Footer:** est. among the stars · Source-backed mission plans for space-data workloads.
 
 ## 9. Instructions for agents
 
-1. Preserve Request → Score → Route → Return.
-2. Lead with the working product.
-3. Do not claim live tasking, operational ground-station access, real orbital compute, live inference, real authentication, or cryptographically signed events.
+1. Lead the homepage and customer path with mission planning, not the job demo.
+2. Preserve Request → Score → Route → Return for the developer job demo and docs.
+3. Do not claim live tasking, operational ground-station access, real orbital compute, live inference, commercial pricing guarantees, real authentication, or cryptographically signed events.
 4. Design toward an instrument archive, not generic space technology.
-5. End motion in order.
+5. Prefer readability over decorative complexity on first-viewport surfaces.
 6. Prefer the shorter and truer sentence.
 7. Write lasting decisions back into this file.

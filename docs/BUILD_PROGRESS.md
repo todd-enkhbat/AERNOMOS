@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: D (next)
+Current phase: K (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -12,9 +12,10 @@ Current phase: D (next)
 - Phase G: Source provenance and truth-status labeling (API envelope + truth UI components)
 - Phase I: Source-backed mission feasibility and planning engine
 - Phase J: Customer-facing mission result experience at `/missions/[id]`
+- Phase D: Homepage rewrite around mission planning outcomes
 
 ## In progress
-None — Phase J complete. Next is Phase D (homepage rewrite).
+None — Phase D complete. Next is Phase K (exports).
 
 ## Blockers
 None
@@ -60,30 +61,28 @@ None
 - Phase J: the recommendation is the dominant result-page element; legacy simulated detections remain isolated to the legacy Job demo and are not rendered on mission briefs.
 - Phase J: mission geography uses MapLibre with only the mission AOI, the recommended plan's selected scene, and ground stations referenced by generated plan steps. Satellite tracks remain explicitly `UNAVAILABLE` because the mission API does not expose trajectory coordinates.
 - Phase J: list responses are hydrated through each plan-detail endpoint so ordered steps and source evidence are available after refresh; communication windows are filtered client-side to IDs referenced by mission plans.
+- Phase D: homepage leads with mission-planning outcomes; job demo is demoted to a secondary “Also available” link. `/examples` is a stub until Phase L.
 
-## Phase I — work completed
-- Planner package: generate → estimate → hard-constrain → soft-rank → explain → persist
-- Patterns: existing imagery→cloud, imagery→edge, satellite→ground→cloud, onboard
-- APIs: `POST/GET /v1/missions/{id}/plans`, `GET .../plans/{plan_id}` (owner generate; owner/share/example read)
-- Persists `MissionPlan`, ordered `MissionPlanStep`, and `SourceEvidence` (catalog + TLE + estimate methods)
-- Deterministic plan/input hashes for same mission inputs + source snapshot + config version
-- Minimal `/missions/[id]` Generate plans trigger + recommendation summary
+## Phase D — work completed
+- Rewrote homepage hero: mission-planning headline/subhead, primary CTA → `/plan`, secondary CTA → `/examples`, OrbitalScene + NomosMark retained, DemoLauncher removed from first viewport.
+- Added three-step explanation and accurate “does today” / “requires provider integration” sections.
+- Added stub `/examples` page for the secondary CTA.
+- Updated `SOUL.md`, `capability-truth.md`, and `AGENTS.md` phase notes to match homepage claims.
+- Softened header/footer first-screen language away from “control plane / orchestration” lead.
 
-## Phase I — files changed
-- API: `app/planner/` (`__init__.py`, `types.py`, `hash.py`, `constraints.py`, `preferences.py`, `patterns.py`, `estimates.py`, `explain.py`, `engine.py`)
-- API: `app/routes/missions.py`, `app/models/mission.py`
-- API tests: `tests/test_planner.py` (new)
-- Web: `app/missions/[id]/page.tsx`, `lib/api.ts`
-- Generated: `orbital-cortex/openapi.json`, `lib/generated/api-types.ts`
+## Phase D — files changed
+- `orbital-cortex/apps/web/app/page.tsx`
+- `orbital-cortex/apps/web/app/examples/page.tsx` (new)
+- `orbital-cortex/apps/web/components/layout/SiteHeader.tsx`
+- `orbital-cortex/apps/web/components/layout/SiteFooter.tsx`
+- `SOUL.md`
+- `orbital-cortex/docs/capability-truth.md`
+- `AGENTS.md`
 - `docs/BUILD_PROGRESS.md`
 
-## Phase I — tests run
-- `pytest tests/test_planner.py -q` — 8 passed
-- `pytest tests -q` — 69 passed, 1 skipped
-- `ruff check app/planner app/routes/missions.py …` — pass
-- `npm run generate:api-types` — pass
+## Phase D — tests run
 - `npm run lint` — pass
-- `npm run build` — pass
+- `npm run build` — pass (`/examples` route present)
 
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
@@ -96,6 +95,7 @@ None
 - Phase I does not execute tasking/reservation; satellite paths remain conditional.
 - Mission satellite tracks cannot be drawn until an API exposes trajectory coordinates; the result page labels this `UNAVAILABLE`.
 - Contact-window retrieval still uses the existing public pass-cache endpoint and filters the response to plan-referenced IDs in the browser; a mission-scoped endpoint would be cleaner in a later API phase.
+- `/examples` is a placeholder until Phase L publishes curated public missions.
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
@@ -109,6 +109,7 @@ None
 - No LLM in the feasibility path; `explain.py` emits structured fields only.
 - The Phase J page renders a complete eight-section brief for feasible, conditional, and fully rejected plan sets. Missions without plans get an honest `Generate plan` empty state.
 - Heavy MapLibre code is dynamically loaded only when the geographic section renders.
+- Homepage primary action is private mission planning; Job API and `/jobs` remain for developers but are not the marketing spine.
 
 ## Phase J — work completed
 - Replaced the catalog-first mission detail layout with a recommendation-first technical mission brief.
@@ -136,7 +137,7 @@ None
 - Fully rejected-plan smoke: no false recommendation; all eight sections still render — pass.
 
 ## Next phase
-Phase D — homepage rewrite.
+Phase K — mission plan exports.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/10-phase-D-homepage.md`](phase-prompts/10-phase-D-homepage.md)
+**Agent prompt to copy-paste:** [`docs/phase-prompts/11-phase-K-exports.md`](phase-prompts/11-phase-K-exports.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

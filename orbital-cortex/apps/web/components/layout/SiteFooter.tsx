@@ -45,8 +45,8 @@ export function SiteFooter() {
                 </div>
               </div>
               <p className="prose-compact mt-4 max-w-sm text-parchment-muted">
-                Open control plane for space-data AI. Every job routed, every decision
-                explained, every result returned with an auditable trail.
+                Source-backed mission plans for space-data workloads. Real orbital
+                and catalog data, labeled assumptions, no false execution claims.
               </p>
               <div className="mt-5 space-y-2">
                 <a
