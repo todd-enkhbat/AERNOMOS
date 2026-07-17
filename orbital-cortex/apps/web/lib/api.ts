@@ -170,16 +170,8 @@ export function runSimulation(jobId: string): Promise<SimulateRunResponse> {
   });
 }
 
-export type MissionSummary = {
-  id: string;
-  title: string;
-  objective_type: string;
-  status: string;
-  is_example: boolean;
-  created_at: string;
-  notes?: string | null;
-  area_of_interest?: Record<string, unknown>;
-};
+export type MissionSummary =
+  import("@/lib/generated/api-types").components["schemas"]["MissionOut"];
 
 export type SessionResponse = {
   session: {
@@ -345,6 +337,49 @@ export function getMissionInfrastructure(
   );
 }
 
+export type MissionPlanStep = {
+  id: string;
+  mission_plan_id: string;
+  sequence: number;
+  step_type: string;
+  provider_name: string;
+  resource_id?: string | null;
+  title: string;
+  description: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  duration_seconds?: number | null;
+  estimated_cost_usd?: number | null;
+  input_artifact?: string | null;
+  output_artifact?: string | null;
+  truth_status: string;
+  source_metadata?: Record<string, unknown>;
+  feasibility_status: string;
+  rejection_reason?: string | null;
+};
+
+export type SourceEvidence = {
+  id: string;
+  mission_id: string;
+  mission_plan_id?: string | null;
+  mission_plan_step_id?: string | null;
+  source_name: string;
+  source_type: string;
+  source_url?: string | null;
+  retrieved_at?: string | null;
+  effective_at?: string | null;
+  raw_value?: Record<string, unknown>;
+  transformed_value?: Record<string, unknown>;
+  transformation_method?: string | null;
+  truth_status: string;
+};
+
+export type PlanEstimate = {
+  value?: number | null;
+  truth_status?: string;
+  method?: string | null;
+};
+
 export type MissionPlan = {
   id: string;
   mission_id: string;
@@ -369,22 +404,15 @@ export type MissionPlan = {
     rejection_reasons?: Array<{ code?: string; message?: string }>;
   } | null;
   estimates?: {
-    duration?: { value?: number | null; truth_status?: string; method?: string | null };
-    data_movement_mb?: { value?: number | null; truth_status?: string; method?: string | null };
-    cost_usd?: { value?: number | null; truth_status?: string; method?: string | null };
+    duration?: PlanEstimate;
+    data_movement_mb?: PlanEstimate;
+    cost_usd?: PlanEstimate;
   } | null;
   score?: number | null;
-  steps?: Array<{
-    id: string;
-    sequence: number;
-    step_type: string;
-    title: string;
-    description: string;
-    truth_status: string;
-    feasibility_status: string;
-    rejection_reason?: string | null;
-    duration_seconds?: number | null;
-  }>;
+  planner_config_version?: string | null;
+  input_hash?: string | null;
+  steps?: MissionPlanStep[] | null;
+  evidence?: SourceEvidence[] | null;
 };
 
 export type MissionPlansGenerateResponse = {
@@ -412,5 +440,20 @@ export function listMissionPlans(
     headers["X-Nomos-Share-Token"] = shareToken;
   }
   return missionRequest(`/v1/missions/${missionId}/plans`, { headers });
+}
+
+export function getMissionPlan(
+  missionId: string,
+  planId: string,
+  shareToken?: string
+): Promise<{ plan: MissionPlan }> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<{ plan: MissionPlan }>(
+    `/v1/missions/${missionId}/plans/${planId}`,
+    { headers }
+  );
 }
 

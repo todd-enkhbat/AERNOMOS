@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: J (next)
+Current phase: D (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -11,9 +11,10 @@ Current phase: J (next)
 - Phase E: Guided customer-facing mission builder at `/plan`
 - Phase G: Source provenance and truth-status labeling (API envelope + truth UI components)
 - Phase I: Source-backed mission feasibility and planning engine
+- Phase J: Customer-facing mission result experience at `/missions/[id]`
 
 ## In progress
-None — Phase I complete. Next is Phase J (mission result experience).
+None — Phase J complete. Next is Phase D (homepage rewrite).
 
 ## Blockers
 None
@@ -56,6 +57,9 @@ None
 - Phase I: cost estimates are always `UNAVAILABLE` until a real pricing source exists; a mission `max_cost_usd` with no pricing → reject with `cost_unavailable` (never invent AWS/GPU prices).
 - Phase I: satellite→ground→cloud is typically `conditional` (`tasking_api_unavailable`); onboard is `rejected` (`onboard_provider_unavailable`).
 - Phase I: AOI coverage threshold is **5%** footprint∩AOI / AOI area via PostGIS.
+- Phase J: the recommendation is the dominant result-page element; legacy simulated detections remain isolated to the legacy Job demo and are not rendered on mission briefs.
+- Phase J: mission geography uses MapLibre with only the mission AOI, the recommended plan's selected scene, and ground stations referenced by generated plan steps. Satellite tracks remain explicitly `UNAVAILABLE` because the mission API does not expose trajectory coordinates.
+- Phase J: list responses are hydrated through each plan-detail endpoint so ordered steps and source evidence are available after refresh; communication windows are filtered client-side to IDs referenced by mission plans.
 
 ## Phase I — work completed
 - Planner package: generate → estimate → hard-constrain → soft-rank → explain → persist
@@ -65,7 +69,7 @@ None
 - Deterministic plan/input hashes for same mission inputs + source snapshot + config version
 - Minimal `/missions/[id]` Generate plans trigger + recommendation summary
 
-## Files changed
+## Phase I — files changed
 - API: `app/planner/` (`__init__.py`, `types.py`, `hash.py`, `constraints.py`, `preferences.py`, `patterns.py`, `estimates.py`, `explain.py`, `engine.py`)
 - API: `app/routes/missions.py`, `app/models/mission.py`
 - API tests: `tests/test_planner.py` (new)
@@ -73,7 +77,7 @@ None
 - Generated: `orbital-cortex/openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
-## Tests run
+## Phase I — tests run
 - `pytest tests/test_planner.py -q` — 8 passed
 - `pytest tests -q` — 69 passed, 1 skipped
 - `ruff check app/planner app/routes/missions.py …` — pass
@@ -90,7 +94,8 @@ None
 - Live TLE refresh depends on CelesTrak availability; worker cron falls back to pinned snapshot with `STALE`.
 - mapbox-gl-draw is Mapbox-licensed UI chrome on MapLibre; acceptable for planner MVP; terra-draw remains an option if we need a pure MapLibre draw stack later.
 - Phase I does not execute tasking/reservation; satellite paths remain conditional.
-- Full mission result UX (executive recommendation layout, comparison tables) is Phase J.
+- Mission satellite tracks cannot be drawn until an API exposes trajectory coordinates; the result page labels this `UNAVAILABLE`.
+- Contact-window retrieval still uses the existing public pass-cache endpoint and filters the response to plan-referenced IDs in the browser; a mission-scoped endpoint would be cleaner in a later API phase.
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
@@ -102,9 +107,36 @@ None
 - Provenance envelope is API/UI-only for Out models; DB rows and internal routing helpers remain flat scalars.
 - Planner meta (pattern, hashes, scores, estimates, explanation) stored inside `MissionPlan.assumptions` JSON under `kind=planner_meta` so Phase B schema stays unchanged.
 - No LLM in the feasibility path; `explain.py` emits structured fields only.
+- The Phase J page renders a complete eight-section brief for feasible, conditional, and fully rejected plan sets. Missions without plans get an honest `Generate plan` empty state.
+- Heavy MapLibre code is dynamically loaded only when the geographic section renders.
+
+## Phase J — work completed
+- Replaced the catalog-first mission detail layout with a recommendation-first technical mission brief.
+- Added all eight required sections: executive recommendation, feasibility summary, mission timeline, scoped geography, plan comparison, assumptions and sources, next actions, and persistent demo disclosure.
+- Added full plan-detail hydration for steps and evidence, clear loading/error states, and a no-plans `Generate plan` action.
+- Added truth/source inspection to plan duration, cost, movement, feasibility counts, assumptions, timeline values, orbital snapshots, and unavailable capabilities.
+- Added a mission-scoped MapLibre view for AOI, selected scene footprint, referenced ground stations, destination region, and communication-window context.
+- Preserved private share-link creation for owned missions; export is honestly disabled until Phase K.
+- Verified the result page with a local mission/API flow at desktop and 390 px mobile widths. Confirmed no page-level horizontal overflow, all eight landmarks/headings, rejected-plan fallback, empty state, source controls, disabled export, and visible demo disclosure.
+
+## Phase J — files changed
+- `orbital-cortex/apps/web/app/missions/[id]/page.tsx`
+- `orbital-cortex/apps/web/components/missions/MissionBrief.tsx` (new)
+- `orbital-cortex/apps/web/components/missions/MissionGeographyMap.tsx` (new)
+- `orbital-cortex/apps/web/lib/api.ts`
+- `docs/BUILD_PROGRESS.md`
+
+## Phase J — tests and QA
+- `npm run lint` — pass
+- `npm run build` — pass
+- Responsive smoke: desktop and 390 × 844 mobile viewport — pass; no document-level horizontal overflow.
+- Accessibility smoke: heading/section hierarchy, labeled map region, source buttons, disabled export state, private share action, and persistent disclosure present in the accessibility tree.
+- End-to-end local smoke: anonymous session → private mission → persisted candidate → four generated plans → recommended mission brief — pass.
+- Empty-state smoke: mission without plans shows `Generate plan` and catalog-discovery actions — pass.
+- Fully rejected-plan smoke: no false recommendation; all eight sections still render — pass.
 
 ## Next phase
-Phase J — mission result experience.
+Phase D — homepage rewrite.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/09-phase-J-mission-result.md`](phase-prompts/09-phase-J-mission-result.md)  
+**Agent prompt to copy-paste:** [`docs/phase-prompts/10-phase-D-homepage.md`](phase-prompts/10-phase-D-homepage.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)
