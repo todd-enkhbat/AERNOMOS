@@ -214,7 +214,7 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
 
                 <div
                   className={[
-                    "absolute bottom-0 left-0 right-0 p-4 transition-all duration-500 md:p-5",
+                    "absolute bottom-0 left-0 right-0 p-4 transition-opacity duration-200 md:p-5",
                     isActive ? "max-w-lg" : "max-w-[90%]"
                   ].join(" ")}
                 >

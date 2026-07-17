@@ -260,10 +260,10 @@ export function SputnikScrollStory() {
         <div className="relative hidden h-full min-h-[280px] items-center overflow-hidden lg:flex">
           <AnimatePresence mode="wait">
             <motion.article
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, transform: "translateY(0px)" }}
               className="absolute inset-0 flex flex-col justify-center pr-8"
-              exit={{ opacity: 0, y: -16 }}
-              initial={{ opacity: 0, y: 16 }}
+              exit={{ opacity: 0, transform: "translateY(-16px)" }}
+              initial={{ opacity: 0, transform: "translateY(16px)" }}
               key={pillar.label}
               transition={
                 reduced

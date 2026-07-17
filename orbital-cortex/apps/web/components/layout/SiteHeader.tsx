@@ -30,7 +30,8 @@ export function SiteHeader() {
           onMouseMove={onMouseMove}
           ref={ref}
         >
-          <div className="flex min-h-[52px] items-center justify-between gap-3 px-3.5 sm:px-4">
+          <span aria-hidden className="liquid-glass__specular" data-liquid-specular />
+          <div className="relative z-[1] flex min-h-[52px] items-center justify-between gap-3 px-3.5 sm:px-4">
             <Link className="group flex min-w-0 items-center gap-2.5" href="/">
               <NomosMark size={30} spinning />
               <span className="min-w-0 leading-none">

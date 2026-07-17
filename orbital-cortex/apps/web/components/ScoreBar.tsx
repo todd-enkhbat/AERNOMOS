@@ -42,7 +42,9 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
         <motion.div
           className="h-full w-full origin-left rounded-full bg-gradient-to-r from-brass to-gold-bright"
           initial={reduced ? false : { scaleX: 0 }}
-          transition={reduced ? { duration: 0 } : { duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
+          transition={
+            reduced ? { duration: 0 } : { duration: 0.28, ease: [0.32, 0.72, 0, 1] }
+          }
           viewport={{ once: true }}
           whileInView={{ scaleX: width / 100 }}
         />

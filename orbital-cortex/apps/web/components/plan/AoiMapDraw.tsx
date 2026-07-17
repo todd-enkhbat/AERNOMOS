@@ -168,14 +168,14 @@ export function AoiMapDraw({ value, onChange }: AoiMapDrawProps) {
       <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-black/30 px-3 py-2 text-xs text-muted">
         <span>Draw a polygon on the map, or use coordinates / upload below.</span>
         <button
-          className="rounded-md border border-white/15 px-2 py-1 text-cream transition hover:border-gold/40"
+          className="rounded-md border border-white/15 px-2 py-1 text-cream 	ransition-colors hover:border-gold/40"
           onClick={() => drawRef.current?.changeMode("draw_polygon")}
           type="button"
         >
           Draw polygon
         </button>
         <button
-          className="rounded-md border border-white/15 px-2 py-1 text-cream transition hover:border-gold/40"
+          className="rounded-md border border-white/15 px-2 py-1 text-cream 	ransition-colors hover:border-gold/40"
           onClick={() => {
             drawRef.current?.deleteAll();
             onChange(null);

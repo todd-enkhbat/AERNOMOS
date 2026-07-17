@@ -102,7 +102,7 @@ export default function MissionsPage() {
               {missions.map((mission) => (
                 <li key={mission.id}>
                   <Link
-                    className="block rounded-xl border border-white/10 px-3 py-3 transition hover:border-gold/30"
+                    className="block rounded-xl border border-white/10 px-3 py-3 	ransition-colors hover:border-gold/30"
                     href={`/missions/${mission.id}`}
                   >
                     <p className="text-sm font-medium text-cream">{mission.title}</p>
@@ -129,7 +129,7 @@ export default function MissionsPage() {
             {examples.map((mission) => (
               <li key={mission.id}>
                 <Link
-                  className="block rounded-xl border border-white/10 px-3 py-3 transition hover:border-gold/30"
+                  className="block rounded-xl border border-white/10 px-3 py-3 	ransition-colors hover:border-gold/30"
                   href={`/missions/${mission.id}`}
                 >
                   <p className="text-sm font-medium text-cream">{mission.title}</p>

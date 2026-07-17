@@ -206,7 +206,7 @@ export function MissionPlanBuilder() {
               <button
                 aria-current={active ? "step" : undefined}
                 className={[
-                  "rounded-lg border px-3 py-1.5 text-xs transition",
+                  "rounded-lg border px-3 py-1.5 text-xs transition-colors",
                   active
                     ? "border-gold/50 bg-gold/10 text-cream"
                     : done
@@ -243,7 +243,7 @@ export function MissionPlanBuilder() {
                 return (
                   <label
                     className={[
-                      "block cursor-pointer rounded-xl border px-4 py-3 transition",
+                      "block cursor-pointer rounded-xl border px-4 py-3 transition-colors",
                       selected
                         ? "border-gold/40 bg-gold/5"
                         : "border-white/10 hover:border-white/25"

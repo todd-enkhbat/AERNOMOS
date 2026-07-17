@@ -219,7 +219,7 @@ export default function JobDetailPage() {
         }
         action={
           <Link
-            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream transition hover:border-gold/50 hover:text-gold-bright"
+            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream 	ransition-colors hover:border-gold/50 hover:text-gold-bright"
             href="/jobs"
           >
             <ChevronLeft size={17} strokeWidth={2} />
@@ -324,7 +324,7 @@ export default function JobDetailPage() {
                     </div>
                   ) : null}
                   <button
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-5 py-3 text-sm font-medium text-cream transition hover:border-gold/50 hover:text-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-5 py-3 text-sm font-medium text-cream 	ransition-colors hover:border-gold/50 hover:text-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={replaying || !route}
                     onClick={handleReplayRouting}
                     type="button"
@@ -366,7 +366,7 @@ export default function JobDetailPage() {
                         Use this only if the shared queue is unavailable.
                       </p>
                       <button
-                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream transition hover:border-gold/40"
+                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream 	ransition-colors hover:border-gold/40"
                         disabled={running}
                         onClick={handleRunSimulation}
                         type="button"
@@ -393,7 +393,7 @@ export default function JobDetailPage() {
                 {detailTabs.map(({ value, label, icon: Icon }) => {
                   return (
                     <button
-                      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
+                      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                         tab === value
                           ? "bg-gold text-void"
                           : "border border-line text-muted hover:border-cream/25 hover:text-cream"
@@ -500,7 +500,7 @@ export default function JobDetailPage() {
                               const artifact = artifacts.find((a) => a.key === file);
                               return artifact ? (
                                 <a
-                                  className="metric-value block text-xs text-silver underline decoration-dotted underline-offset-2 transition hover:text-gold-bright"
+                                  className="metric-value block text-xs text-silver underline decoration-dotted underline-offset-2 	ransition-colors hover:text-gold-bright"
                                   href={artifact.url}
                                   key={file}
                                   rel="noreferrer"

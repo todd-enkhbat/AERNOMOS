@@ -29,7 +29,7 @@ export function DetectionPanel({ feature, onClose }: DetectionPanelProps) {
         </div>
         <button
           aria-label="Close detection panel"
-          className="rounded-lg p-1 text-muted transition hover:bg-cream/10 hover:text-cream"
+          className="rounded-lg p-1 text-muted 	ransition-colors hover:bg-cream/10 hover:text-cream"
           onClick={onClose}
           type="button"
         >

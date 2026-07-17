@@ -51,7 +51,7 @@ export function SiteFooter() {
               </p>
               <div className="mt-5 space-y-2">
                 <a
-                  className="metric-value block text-sm text-parchment-muted transition hover:text-parchment-ink"
+                  className="metric-value block text-sm text-parchment-muted 	ransition-colors hover:text-parchment-ink"
                   href="https://api.nomosorbital.com"
                 >
                   api.nomosorbital.com
@@ -71,7 +71,7 @@ export function SiteFooter() {
                     {column.links.map((link) => (
                       <li key={`${column.title}-${link.label}`}>
                         <Link
-                          className="text-sm text-parchment-ink/75 transition hover:text-parchment-ink"
+                          className="text-sm text-parchment-ink/75 	ransition-colors hover:text-parchment-ink"
                           href={link.href}
                         >
                           {link.label}
@@ -90,7 +90,7 @@ export function SiteFooter() {
             © {new Date().getFullYear()} Nomos Orbital
           </p>
           <Link
-            className="text-[11px] text-parchment-muted transition hover:text-parchment-ink"
+            className="text-[11px] text-parchment-muted 	ransition-colors hover:text-parchment-ink"
             href="/plan"
           >
             Build a mission plan

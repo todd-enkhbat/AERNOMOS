@@ -54,10 +54,16 @@ export function LiquidCard({
       whileHover={
         reduced || inset || !trackPointer
           ? undefined
-          : { y: -2, transition: { duration: 0.2, ease: easeOut } }
+          : {
+              transform: "translateY(-2px)",
+              transition: { duration: 0.2, ease: easeOut }
+            }
       }
       transition={spring}
     >
+      {trackPointer ? (
+        <span aria-hidden className="liquid-glass__specular" data-liquid-specular />
+      ) : null}
       <div className="liquid-glass__content relative z-[1]">{children}</div>
     </motion.div>
   );

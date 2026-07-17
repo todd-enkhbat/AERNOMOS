@@ -91,13 +91,13 @@ export function AboutContent({ compact = false }: { compact?: boolean }) {
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link
-                    className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition hover:bg-gold-bright"
+                    className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void 	ransition-colors hover:bg-gold-bright"
                     href="/#demo"
                   >
                     Run live demo
                   </Link>
                   <Link
-                    className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-cream transition hover:border-white/25"
+                    className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-cream 	ransition-colors hover:border-white/25"
                     href="/docs"
                   >
                     API reference

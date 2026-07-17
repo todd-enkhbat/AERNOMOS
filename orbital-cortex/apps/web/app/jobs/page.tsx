@@ -312,7 +312,7 @@ export default function JobsPage() {
                     <tr key={job.id}>
                       <td>
                         <Link
-                          className="font-medium text-cream transition hover:text-gold-bright"
+                          className="font-medium text-cream 	ransition-colors hover:text-gold-bright"
                           href={`/jobs/${job.id}`}
                         >
                           {labelize(job.job_type)}

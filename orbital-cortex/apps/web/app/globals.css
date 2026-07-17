@@ -735,19 +735,12 @@ textarea {
   isolation: isolate;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.22);
-  background:
-    radial-gradient(
-      circle 90px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.1),
-      rgba(255, 255, 255, 0.035) 42%,
-      transparent 68%
-    ),
-    linear-gradient(
-      148deg,
-      rgba(255, 255, 255, 0.14) 0%,
-      rgba(255, 255, 255, 0.05) 45%,
-      rgba(201, 162, 39, 0.06) 100%
-    );
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(201, 162, 39, 0.06) 100%
+  );
   backdrop-filter: blur(32px) saturate(165%) contrast(105%);
   -webkit-backdrop-filter: blur(32px) saturate(165%) contrast(105%);
   box-shadow:
@@ -759,6 +752,24 @@ textarea {
     transform 200ms var(--ease-out),
     box-shadow 200ms var(--ease-out),
     border-color 200ms var(--ease-out);
+}
+
+/* Specular highlight lives on a dedicated layer so pointer CSS vars don't
+   restyle the full glass subtree on every mousemove. */
+.liquid-glass__specular {
+  --x: 50%;
+  --y: 32%;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 90px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.035) 42%,
+    transparent 68%
+  );
 }
 
 .liquid-glass::before {
@@ -811,37 +822,41 @@ textarea {
   border-radius: 16px;
   padding: 0.85rem 1rem;
   border-color: rgba(255, 255, 255, 0.12);
-  background:
-    radial-gradient(
-      circle 70px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.015) 45%,
-      transparent 70%
-    ),
-    rgba(5, 5, 6, 0.35);
+  background: rgba(5, 5, 6, 0.35);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     inset 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+.liquid-glass--inset > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 70px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.015) 45%,
+    transparent 70%
+  );
+}
+
 .liquid-glass--light {
   border-color: rgba(28, 25, 22, 0.12);
-  background:
-    radial-gradient(
-      circle 100px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.18),
-      rgba(255, 252, 245, 0.08) 40%,
-      transparent 68%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.28),
-      rgba(232, 226, 212, 0.14) 55%,
-      rgba(201, 162, 39, 0.06)
-    );
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(232, 226, 212, 0.14) 55%,
+    rgba(201, 162, 39, 0.06)
+  );
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
     0 18px 44px rgba(28, 25, 22, 0.12);
+}
+
+.liquid-glass--light > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 100px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 252, 245, 0.08) 40%,
+    transparent 68%
+  );
 }
 
 .liquid-glass--light::before {
@@ -856,14 +871,7 @@ textarea {
   padding: 0;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background:
-    radial-gradient(
-      circle 56px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.09),
-      rgba(255, 255, 255, 0.025) 48%,
-      transparent 72%
-    ),
-    rgba(10, 10, 12, 0.45);
+  background: rgba(10, 10, 12, 0.45);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
@@ -871,23 +879,36 @@ textarea {
     0 6px 20px rgba(0, 0, 0, 0.28);
 }
 
+.liquid-glass--chip > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 56px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.025) 48%,
+    transparent 72%
+  );
+}
+
 .liquid-glass--chip-active {
   border-color: rgba(227, 192, 92, 0.55);
-  background:
-    radial-gradient(
-      circle 56px at var(--x) var(--y),
-      rgba(227, 192, 92, 0.12),
-      rgba(201, 162, 39, 0.05) 50%,
-      transparent 72%
-    ),
-    rgba(201, 162, 39, 0.1);
+  background: rgba(201, 162, 39, 0.1);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
     0 10px 24px rgba(0, 0, 0, 0.32),
     0 0 12px rgba(201, 162, 39, 0.08);
 }
 
+.liquid-glass--chip-active > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 56px at var(--x) var(--y),
+    rgba(227, 192, 92, 0.12),
+    rgba(201, 162, 39, 0.05) 50%,
+    transparent 72%
+  );
+}
+
 .liquid-glass__chip-label {
+  position: relative;
+  z-index: 1;
   display: block;
   padding: 0.45rem 0.95rem;
   font-size: 0.8125rem;
@@ -917,6 +938,8 @@ textarea {
 }
 
 .liquid-glass__inner {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1069,6 +1092,10 @@ textarea {
 
   .liquid-glass:hover::after {
     opacity: 0;
+  }
+
+  .liquid-glass__specular {
+    display: none;
   }
 }
 
@@ -1436,6 +1463,25 @@ textarea {
 
   html {
     scroll-behavior: auto;
+  }
+}
+
+@keyframes feedback-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.feedback-success-fade {
+  animation: feedback-fade 160ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-success-fade {
+    animation: none;
   }
 }
 

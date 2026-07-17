@@ -83,7 +83,11 @@ export function JobStepper({
                   animate={{ scaleX: done ? 1 : 0 }}
                   className="absolute inset-y-0 left-0 w-full origin-left bg-gold"
                   initial={false}
-                  transition={reduced ? { duration: 0 } : { duration: 0.6, ease: "easeOut" }}
+                  transition={
+                    reduced
+                      ? { duration: 0 }
+                      : { duration: 0.24, ease: [0.23, 1, 0.32, 1] }
+                  }
                 />
               </div>
             ) : null}

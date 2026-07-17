@@ -88,7 +88,7 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
                         setSelected(isSelected ? null : pass)
                       }
                       style={{ left: `${left}%`, width: `${width}%` }}
-                      transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                      transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
                       type="button"
                     />
                   );

@@ -15,6 +15,7 @@ export const springSoft = {
   damping: 28
 };
 
+/** Prefer full transform strings — Framer `x`/`y`/`scale` shorthands are main-thread. */
 export function FadeIn({
   children,
   delay = 0,
@@ -30,12 +31,13 @@ export function FadeIn({
   when?: "view" | "mount";
 }) {
   const reduced = useReducedMotion();
-  const visible = { opacity: 1, y: 0 };
+  const visible = { opacity: 1, transform: "translateY(0px)" };
+  const hidden = { opacity: 0, transform: `translateY(${y}px)` };
 
   return (
     <motion.div
       className={className}
-      initial={reduced ? false : { opacity: 0, y }}
+      initial={reduced ? false : hidden}
       transition={{ ...springSoft, delay }}
       {...(when === "mount"
         ? { animate: visible }
@@ -94,8 +96,8 @@ export function StaggerItem({
       className={className}
       transition={springSoft}
       variants={{
-        hidden: { opacity: 0, y: 14 },
-        show: { opacity: 1, y: 0 }
+        hidden: { opacity: 0, transform: "translateY(14px)" },
+        show: { opacity: 1, transform: "translateY(0px)" }
       }}
     >
       {children}
