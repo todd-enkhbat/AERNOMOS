@@ -101,7 +101,7 @@ function FeaturedSpecimen({
   const costStatus = plan.estimates?.cost_usd?.truth_status ?? "UNAVAILABLE";
 
   return (
-    <FadeIn>
+    <FadeIn when="mount">
       <LiquidCard className="overflow-visible">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -295,7 +295,7 @@ export function ExamplesLibrary() {
             </div>
           ) : null}
 
-          <FadeIn delay={0.05}>
+          <FadeIn delay={0.05} when="mount">
             <div className="mt-8 rounded-2xl border border-line bg-void/30 px-4 py-4">
               <p className="chart-label text-silver">How to read the labels</p>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -313,7 +313,7 @@ export function ExamplesLibrary() {
 
           <div className="mt-10">
             <p className="chart-label text-silver">All curated examples</p>
-            <Stagger className="mt-4 grid gap-5 lg:grid-cols-2">
+            <Stagger className="mt-4 grid gap-5 lg:grid-cols-2" when="mount">
               {missions.map((mission) => {
                 const disclosure = disclosureFromMission(mission);
                 return (
