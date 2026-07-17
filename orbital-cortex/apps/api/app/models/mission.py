@@ -2,9 +2,34 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+from app.core.mission_geo import validate_area_of_interest
+
+
+class ObjectiveType(str, Enum):
+    """Customer-facing mission objectives (stable API string values)."""
+
+    analyze_imagery = "analyze_imagery"
+    plan_data_delivery = "plan_data_delivery"
+    compare_processing = "compare_processing"
+    remote_sensing_workflow = "remote_sensing_workflow"
+    other = "other"
+
+
+# Legacy demo / seed values still accepted for existing rows and tests.
+LEGACY_OBJECTIVE_TYPES = frozenset(
+    {"ship_detection", "crop_health", "disaster_response"}
+)
+
+OBJECTIVE_TYPE_VALUES = frozenset(item.value for item in ObjectiveType) | LEGACY_OBJECTIVE_TYPES
+
+MISSION_CREATE_STATUS_VALUES = frozenset({"draft", "exploratory", "active"})
+
+ONBOARD_PROCESSING_VALUES = frozenset({"required", "preferred", "unnecessary"})
 
 
 class AnonymousSessionOut(BaseModel):
@@ -28,13 +53,75 @@ class MissionCreate(BaseModel):
     start_time: Optional[str] = None
     end_time: Optional[str] = None
     deadline: Optional[str] = None
-    max_cost_usd: Optional[float] = None
-    max_data_volume_mb: Optional[float] = None
-    preferred_compute_location: Optional[str] = None
+    max_cost_usd: Optional[float] = Field(default=None, ge=0)
+    max_data_volume_mb: Optional[float] = Field(default=None, ge=0)
+    preferred_compute_location: Optional[str] = Field(default=None, max_length=64)
     allowed_regions: List[Any] = Field(default_factory=list)
     data_source_preference: List[Any] = Field(default_factory=list)
     customer_systems: List[Any] = Field(default_factory=list)
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(default=None, max_length=8_000)
+    # Optional builder fields packed into customer_systems / notes on create.
+    organization_name: Optional[str] = Field(default=None, max_length=256)
+    use_case: Optional[str] = Field(default=None, max_length=2_000)
+    max_age_days: Optional[int] = Field(default=None, ge=1, le=3650)
+    onboard_processing: Optional[str] = None
+    data_residency: Optional[str] = Field(default=None, max_length=256)
+
+    @field_validator("title")
+    @classmethod
+    def title_not_blank(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("title is required")
+        return cleaned
+
+    @field_validator("objective_type")
+    @classmethod
+    def objective_type_allowed(cls, value: str) -> str:
+        cleaned = value.strip()
+        if cleaned not in OBJECTIVE_TYPE_VALUES:
+            allowed = ", ".join(sorted(OBJECTIVE_TYPE_VALUES))
+            raise ValueError(f"objective_type must be one of: {allowed}")
+        return cleaned
+
+    @field_validator("status")
+    @classmethod
+    def status_allowed(cls, value: str) -> str:
+        cleaned = value.strip()
+        if cleaned not in MISSION_CREATE_STATUS_VALUES:
+            allowed = ", ".join(sorted(MISSION_CREATE_STATUS_VALUES))
+            raise ValueError(f"status must be one of: {allowed}")
+        return cleaned
+
+    @field_validator("area_of_interest")
+    @classmethod
+    def area_must_be_valid(cls, value: Dict[str, Any]) -> Dict[str, Any]:
+        return validate_area_of_interest(value)
+
+    @field_validator("onboard_processing")
+    @classmethod
+    def onboard_processing_allowed(cls, value: Optional[str]) -> Optional[str]:
+        if value is None or value == "":
+            return None
+        cleaned = value.strip()
+        if cleaned not in ONBOARD_PROCESSING_VALUES:
+            allowed = ", ".join(sorted(ONBOARD_PROCESSING_VALUES))
+            raise ValueError(f"onboard_processing must be one of: {allowed}")
+        return cleaned
+
+    @field_validator("preferred_compute_location")
+    @classmethod
+    def blank_compute_to_none(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        cleaned = value.strip()
+        return cleaned or None
+
+    @model_validator(mode="after")
+    def time_range_order(self) -> MissionCreate:
+        if self.start_time and self.end_time and self.start_time > self.end_time:
+            raise ValueError("start_time must be before or equal to end_time")
+        return self
 
 
 class MissionOut(BaseModel):

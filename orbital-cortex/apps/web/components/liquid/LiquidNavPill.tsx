@@ -7,6 +7,7 @@ import { LiquidCard } from "./LiquidCard";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/plan", label: "Plan" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
   { href: "/about", label: "About" },

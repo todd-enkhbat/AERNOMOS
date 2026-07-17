@@ -8,6 +8,7 @@ const columns = [
     title: "Product",
     links: [
       { href: "/dashboard", label: "Dashboard" },
+      { href: "/plan", label: "Build a plan" },
       { href: "/missions", label: "Missions" },
       { href: "/network", label: "Network" },
       { href: "/about", label: "About" },
@@ -89,9 +90,9 @@ export function SiteFooter() {
           </p>
           <Link
             className="text-[11px] text-parchment-muted transition hover:text-parchment-ink"
-            href="/missions"
+            href="/plan"
           >
-            Open private missions
+            Build a mission plan
           </Link>
         </div>
       </div>

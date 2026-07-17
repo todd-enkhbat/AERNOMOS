@@ -9,6 +9,7 @@ import { useLiquidMouse } from "@/components/liquid/useLiquidMouse";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/plan", label: "Plan" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
   { href: "/calendar", label: "Calendar" },
@@ -62,8 +63,8 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <LiquidButton className="hidden sm:inline-flex" href="/missions" variant="primary">
-              Missions
+            <LiquidButton className="hidden sm:inline-flex" href="/plan" variant="primary">
+              Build a plan
             </LiquidButton>
           </div>
         </div>

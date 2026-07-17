@@ -114,6 +114,38 @@ def share_link_to_dict(
     return payload
 
 
+def _pack_builder_preferences(payload: Dict[str, Any]) -> List[Any]:
+    """Merge guided-builder fields into customer_systems JSON (no extra columns)."""
+    systems: List[Any] = list(payload.get("customer_systems") or [])
+
+    def _has_kind(kind: str) -> bool:
+        return any(
+            isinstance(item, dict) and item.get("kind") == kind for item in systems
+        )
+
+    org = payload.get("organization_name")
+    if org and not _has_kind("organization"):
+        systems.append({"kind": "organization", "name": str(org).strip()})
+
+    use_case = payload.get("use_case")
+    if use_case and not _has_kind("use_case"):
+        systems.append({"kind": "use_case", "value": str(use_case).strip()})
+
+    max_age = payload.get("max_age_days")
+    if max_age is not None and not _has_kind("data_freshness"):
+        systems.append({"kind": "data_freshness", "max_age_days": int(max_age)})
+
+    onboard = payload.get("onboard_processing")
+    if onboard and not _has_kind("onboard_processing"):
+        systems.append({"kind": "onboard_processing", "preference": str(onboard)})
+
+    residency = payload.get("data_residency")
+    if residency and not _has_kind("data_residency"):
+        systems.append({"kind": "data_residency", "requirement": str(residency).strip()})
+
+    return systems
+
+
 def create_mission(
     session: Session,
     *,
@@ -121,7 +153,12 @@ def create_mission(
     payload: Dict[str, Any],
 ) -> Mission:
     now = utc_now()
-    wkt = geojson_to_wkt(payload["area_of_interest"])
+    # Re-validate geo at persistence boundary (Pydantic also validates on the route).
+    from app.core.mission_geo import validate_area_of_interest
+
+    area = validate_area_of_interest(payload["area_of_interest"])
+    wkt = geojson_to_wkt(area)
+    customer_systems = _pack_builder_preferences(payload)
     mission = Mission(
         id=uuid.uuid4(),
         anonymous_session_id=owner.id,
@@ -138,7 +175,7 @@ def create_mission(
         preferred_compute_location=payload.get("preferred_compute_location"),
         allowed_regions=payload.get("allowed_regions") or [],
         data_source_preference=payload.get("data_source_preference") or [],
-        customer_systems=payload.get("customer_systems") or [],
+        customer_systems=customer_systems,
         notes=payload.get("notes"),
         is_example=False,
         created_at=now,

@@ -216,12 +216,29 @@ export function listExampleMissions(): Promise<MissionsListResponse> {
   return missionRequest<MissionsListResponse>("/v1/missions/examples");
 }
 
-export function createMission(payload: {
+export type MissionCreatePayload = {
   title: string;
   objective_type: string;
   area_of_interest: Record<string, unknown>;
+  status?: string;
+  start_time?: string;
+  end_time?: string;
+  deadline?: string;
+  max_cost_usd?: number;
+  max_data_volume_mb?: number;
+  preferred_compute_location?: string;
+  allowed_regions?: unknown[];
+  data_source_preference?: unknown[];
+  customer_systems?: unknown[];
   notes?: string;
-}): Promise<MissionResponse> {
+  organization_name?: string;
+  use_case?: string;
+  max_age_days?: number;
+  onboard_processing?: string;
+  data_residency?: string;
+};
+
+export function createMission(payload: MissionCreatePayload): Promise<MissionResponse> {
   return missionRequest<MissionResponse>("/v1/missions", {
     method: "POST",
     body: JSON.stringify(payload)

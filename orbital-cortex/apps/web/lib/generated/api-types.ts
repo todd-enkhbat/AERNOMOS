@@ -955,12 +955,16 @@ export interface components {
             };
             /** Customer Systems */
             customer_systems?: unknown[];
+            /** Data Residency */
+            data_residency?: string | null;
             /** Data Source Preference */
             data_source_preference?: unknown[];
             /** Deadline */
             deadline?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Max Age Days */
+            max_age_days?: number | null;
             /** Max Cost Usd */
             max_cost_usd?: number | null;
             /** Max Data Volume Mb */
@@ -969,6 +973,10 @@ export interface components {
             notes?: string | null;
             /** Objective Type */
             objective_type: string;
+            /** Onboard Processing */
+            onboard_processing?: string | null;
+            /** Organization Name */
+            organization_name?: string | null;
             /** Preferred Compute Location */
             preferred_compute_location?: string | null;
             /** Start Time */
@@ -980,6 +988,8 @@ export interface components {
             status: string;
             /** Title */
             title: string;
+            /** Use Case */
+            use_case?: string | null;
         };
         /** MissionGroundStationOut */
         MissionGroundStationOut: {

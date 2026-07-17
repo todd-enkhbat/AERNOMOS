@@ -305,6 +305,19 @@ textarea {
   display: none !important;
 }
 
+/* AOI planner map — keep MapLibre + draw controls visible */
+.aoi-map .maplibregl-map,
+.aoi-map .maplibregl-canvas-container,
+.aoi-map .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.aoi-map .mapbox-gl-draw_ctrl-draw-btn {
+  background-color: rgba(12, 14, 18, 0.92);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 @media (min-width: 768px) {
   .section-gap {
     margin-top: 5.5rem;
