@@ -20,3 +20,7 @@ limiter = Limiter(
 def jobs_rate_limit() -> str:
     # Callable so tests and env changes take effect per-request.
     return get_settings().rate_limit_jobs
+
+
+def leads_rate_limit() -> str:
+    return get_settings().rate_limit_leads

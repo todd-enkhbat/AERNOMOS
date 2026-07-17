@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: O (next)
+Current phase: Q (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -17,9 +17,11 @@ Current phase: O (next)
 - Phase L: Isolate simulations into clearly labeled examples (`/examples`, historical job demo)
 - Phase M: Lightweight real CPU execution — `crop_geotiff` + `thumbnail` on the ARQ worker with OBSERVED metrics, plus mission-brief **Run CPU demo** UI (OBSERVED thumbnail + timeline)
 - Phase N: Extensible infrastructure provider registry — versioned YAML under `orbital-cortex/config/providers/`, idempotent `python -m app.scripts.ingest_providers`, demo CLI `python -m app.scripts.show_registry`, planner reads registry for cloud/edge steps (Job demo still uses `sample_nodes.json`)
+- Phase O: Privacy-safe product and planning analytics — allowlisted `app/analytics/schemas.py`, Postgres `analytics_events`, HMAC session hashes, `GET /v1/admin/analytics/summary` + `python -m app.scripts.show_analytics_summary`, leak/rejection tests
+- Phase P: Mission feedback + design-partner capture — private tables, honeypot + rate limit, admin export, `MissionFeedbackCapture` on `/missions/[id]` after plans exist, `show_leads_summary` CLI
 
 ## In progress
-None — Phase N complete. Next is Phase O (analytics and ops metrics).
+None — Phase P complete. Next is Phase Q (do not start unless asked).
 
 ## Blockers
 None
@@ -255,7 +257,7 @@ Tests run (refinement):
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
 - Local mission APIs rely on `/api/oc` rewrite; job demo still uses `NEXT_PUBLIC_API_BASE_URL` without cookies.
-- `GET /v1/jobs` now returns curated `is_example` jobs only; non-example rows remain in DB and reachable by ID (not deleted). Ops analytics still TBD (Phase O).
+- `GET /v1/jobs` now returns curated `is_example` jobs only; non-example rows remain in DB and reachable by ID (not deleted).
 - Live Planetary Computer search depends on upstream availability; SAS signing for asset download is deferred to Phase M.
 - Discover defaults to last 30 days when mission has no start/end times.
 - Live TLE refresh depends on CelesTrak availability; worker cron falls back to pinned snapshot with `STALE`.
@@ -289,6 +291,17 @@ Tests run (refinement):
 - Phase N: planner cloud steps use explicit `simulated-customer-cloud`; edge selection honors a named `preferred_compute_location`, then ranks integration readiness deterministically.
 - Phase N: `IntegrationStatusChip` on mission brief step timeline distinguishes `public_data_only` / `sandbox_requested` from `simulated`.
 - Phase N: only `sandbox_connected` and `partner_connected` count as connected. `documented_api` and `sandbox_requested` remain public-information states and never imply live access.
+- Phase O: analytics contracts live in exactly one module, `app/analytics/schemas.py`; each event has one Pydantic payload with `extra='forbid'` — unknown keys raise `AnalyticsPayloadError` at emit time.
+- Phase O: storage is Postgres `analytics_events` (`event_name`, allowlisted `payload` JSONB, `created_at`); schema doc regenerated from models via `python -m app.scripts.generate_analytics_schema_doc`.
+- Phase O: `session_id_hash` is HMAC-SHA256 of the anonymous session row UUID using `ANALYTICS_HASH_SALT` (never the raw cookie token). Share tokens are never logged.
+- Phase O: `planning_failure_reason` events use the `PlanningFailureReason` enum only — no raw exception strings.
+- Phase O: `mission_completed` fires when a recommended plan is generated (planning flow complete for accelerator metrics).
+- Phase O: admin summary at `GET /v1/admin/analytics/summary` (excluded from OpenAPI); auth via `X-Nomos-Admin-Token` + `hmac.compare_digest` against `ADMIN_TOKEN`.
+- Phase P: feedback/leads contracts live in `app/leads/schemas.py`; tables are private write-only (no public GET). Admin export reuses `app/deps/admin.require_admin_token`.
+- Phase P: comment length capped at 500 chars with server-side reject (not truncate); `permission_to_contact` must be `true` or 422.
+- Phase P: honeypot field `website` is stripped at the API boundary — filled honeypot returns 201 but does not persist.
+- Phase P: rate limit uses existing slowapi (`RATE_LIMIT_LEADS`, default `5/hour` per IP).
+- Phase P: UI (`MissionFeedbackCapture`) renders only inside `MissionBrief` after plans exist; share/read-only views hide the forms.
 
 ## Phase N — work completed
 - `InfrastructureResource` Pydantic contract + `IntegrationStatus` enum in `app/db/infrastructure_types.py`
@@ -342,8 +355,73 @@ Still requires manual follow-up before claiming live integration:
 - Ground-station / orbital_compute provider YAML (planner still uses Phase H fleet + contact windows for those paths)
 - OpenAPI schema changes (registry is internal/planner-facing via step `source_metadata`; no new public API routes)
 
-## Next phase
-Phase O — privacy-safe product and planning analytics.
+## Phase O — work completed
+- `app/analytics/` module: `schemas.py` (versioned allowlists per event), `emitter.py` (strict validation), `hashing.py` (HMAC-SHA256), `helpers.py` (route hooks), `metrics.py` (ops + traction summary), `orm.py`
+- Alembic migration `a1b2c3d4e5f6` — `analytics_events` table
+- Events wired: mission create, catalog discover (+ failure enum), plan generate (+ provider connection requested), exports (JSON/PDF), share links, example mission views, session resume (`user_returned`)
+- Admin: `GET /v1/admin/analytics/summary` (not public, not in OpenAPI)
+- CLI: `python -m app.scripts.show_analytics_summary` (readable table; `--json` for raw dump)
+- Doc: `orbital-cortex/docs/analytics-schema.md` generated from Pydantic models
+- Config: `ANALYTICS_HASH_SALT`, `ADMIN_TOKEN`
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/15-phase-O-analytics.md`](phase-prompts/15-phase-O-analytics.md)
+## Phase O — files changed
+- `orbital-cortex/apps/api/app/analytics/{__init__,schemas,emitter,hashing,helpers,metrics,orm}.py` (new)
+- `orbital-cortex/apps/api/app/routes/admin.py` (new)
+- `orbital-cortex/apps/api/app/routes/missions.py`, `app/routes/sessions.py`
+- `orbital-cortex/apps/api/app/core/config.py`, `app/main.py`
+- `orbital-cortex/apps/api/app/scripts/{show_analytics_summary,generate_analytics_schema_doc}.py` (new)
+- `orbital-cortex/apps/api/migrations/versions/a1b2c3d4e5f6_analytics_events.py` (new)
+- `orbital-cortex/apps/api/tests/test_analytics_phase_o.py` (new, 10 tests incl. leak test)
+- `orbital-cortex/docs/analytics-schema.md` (generated)
+- `docs/BUILD_PROGRESS.md`
+
+## Phase O — tests run
+- `pytest tests/test_analytics_phase_o.py -v` — 10 passed (incl. `test_leak_test_no_sensitive_mission_content_in_analytics`, rejection, hash, admin auth, enum enforcement)
+- `pytest tests -q` — **109 passed**, 2 skipped
+- `ruff check` on Phase O files — pass
+- `python -m app.scripts.generate_analytics_schema_doc` — wrote `orbital-cortex/docs/analytics-schema.md`
+- `python -m app.scripts.show_analytics_summary` — table output verified (traction, catalog p50/p95, planner p50/p95, missions by status, exports, sharing, CPU execution, orbital freshness)
+- Self-audit: admin 401 without token; `AnalyticsPayloadError` on injected `aoi_geometry`; grep zero matches for `LEAK_MARKER_PHASE_O_XYZZY_42` and raw session UUID in `analytics_events`
+
+## Phase O — skipped / deferred
+- OpenAPI exposure of analytics admin route (internal only by design)
+- Frontend analytics (server-side only per phase scope)
+
+## Phase P — work completed
+- `app/leads/` module: schemas (FeedbackRating, MissionFeedback, DesignPartnerRequest), ORM tables, service helpers
+- Alembic migration `b2c3d4e5f6a7` — `mission_feedback` + `design_partner_requests`
+- Write endpoints: `POST /v1/missions/{id}/feedback`, `POST /v1/design-partner-requests` (honeypot + rate limit)
+- Admin: `GET /v1/admin/leads/export` via shared `require_admin_token` (Phase O pattern extracted to `app/deps/admin.py`)
+- CLI: `python -m app.scripts.show_leads_summary`
+- Web: `MissionFeedbackCapture` on `/missions/[id]` after plans exist (yes/partly/no + design-partner form; submit disabled until permission checkbox)
+- Config: `RATE_LIMIT_LEADS` (default `5/hour`); `email-validator` dependency for `EmailStr`
+
+## Phase P — files changed
+- `orbital-cortex/apps/api/app/leads/{__init__,schemas,orm,service}.py` (new)
+- `orbital-cortex/apps/api/app/routes/leads.py` (new)
+- `orbital-cortex/apps/api/app/deps/admin.py` (new; shared admin auth)
+- `orbital-cortex/apps/api/app/routes/admin.py` (leads export + reuse require_admin_token)
+- `orbital-cortex/apps/api/app/core/{config,ratelimit}.py`, `app/main.py`
+- `orbital-cortex/apps/api/app/scripts/show_leads_summary.py` (new)
+- `orbital-cortex/apps/api/migrations/versions/b2c3d4e5f6a7_feedback_leads.py` (new)
+- `orbital-cortex/apps/api/tests/test_feedback_leads_phase_p.py` (new, 7 tests)
+- `orbital-cortex/apps/api/requirements.txt` (+ email-validator)
+- `orbital-cortex/apps/web/components/missions/MissionFeedbackCapture.tsx` (new)
+- `orbital-cortex/apps/web/components/missions/MissionBrief.tsx`, `lib/api.ts`
+- `docs/BUILD_PROGRESS.md`
+
+## Phase P — tests run
+- `pytest tests/test_feedback_leads_phase_p.py -v` — 7 passed (non-blocking, permission, comment cap, honeypot, rate limit, export auth, no public reads)
+- `pytest tests -q` — **116 passed**, 2 skipped
+- `npm run lint` + `npm run build` — pass
+- Self-audit: honeypot 201 with zero rows; rate limit 429 on N+1; export 401 without token; GET public lead paths 404/405
+
+## Phase P — skipped / deferred
+- Email notification / CRM sync for inbound leads
+- OpenAPI regeneration for write-only lead routes (optional; admin export stays out of schema)
+
+## Next phase
+Phase Q — Documentation and Python SDK for missions.
+
+**Agent prompt to copy-paste:** [`docs/phase-prompts/17-phase-Q-docs-sdk.md`](phase-prompts/17-phase-Q-docs-sdk.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

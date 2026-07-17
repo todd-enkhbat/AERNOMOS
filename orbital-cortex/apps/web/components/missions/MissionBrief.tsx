@@ -5,6 +5,7 @@ import { Check, CircleAlert, ExternalLink, LockKeyhole } from "lucide-react";
 
 import { ContactWindowTimeline } from "@/components/network/ContactWindowTimeline";
 import { ExecutionDemoPanel } from "@/components/missions/ExecutionDemoPanel";
+import { MissionFeedbackCapture } from "@/components/missions/MissionFeedbackCapture";
 import {
   AssumptionPanel,
   IntegrationStatusChip,
@@ -846,7 +847,13 @@ export function MissionBrief({
         </div>
       </Section>
 
-      <Section index="08" title="Demo disclosure">
+      {!readOnly ? (
+        <Section index="08" title="Feedback and design partners">
+          <MissionFeedbackCapture missionId={mission.id} readOnly={readOnly} />
+        </Section>
+      ) : null}
+
+      <Section index={readOnly ? "08" : "09"} title="Demo disclosure">
         <aside className="flex gap-4 rounded-xl border border-gold/25 bg-gold/5 p-5 text-sm leading-6 text-silver">
           <LockKeyhole aria-hidden className="mt-0.5 shrink-0 text-gold" size={20} />
           <p>

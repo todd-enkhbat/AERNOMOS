@@ -616,3 +616,42 @@ export function getExecutionStatus(
   );
 }
 
+
+export type FeedbackRating = "yes" | "partly" | "no";
+
+export type MissionFeedbackPayload = {
+  rating: FeedbackRating;
+  comment?: string;
+};
+
+export type DesignPartnerRequestPayload = {
+  mission_id?: string;
+  name: string;
+  work_email: string;
+  organization: string;
+  role: string;
+  mission_type: string;
+  requested_integration: string;
+  permission_to_contact: boolean;
+  /** Honeypot — humans leave empty; bots often fill it. */
+  website?: string;
+};
+
+export function submitMissionFeedback(
+  missionId: string,
+  payload: MissionFeedbackPayload
+): Promise<{ feedback: Record<string, unknown> }> {
+  return missionRequest(`/v1/missions/${missionId}/feedback`, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function submitDesignPartnerRequest(
+  payload: DesignPartnerRequestPayload
+): Promise<{ request: Record<string, unknown> }> {
+  return missionRequest("/v1/design-partner-requests", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}

@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import time
 from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.analytics import helpers as analytics
+from app.analytics.schemas import PlanningFailureReason
 from app.catalog import service as catalog_service
 from app.catalog.errors import (
     CatalogError,
@@ -25,6 +28,7 @@ from app.db.mission_orm import (
     AnonymousSession,
     ExecutionJob,
     Mission,
+    MissionDataCandidate,
     MissionExport,
     MissionPlan,
     MissionPlanStep,
@@ -51,6 +55,7 @@ from app.execution.types import (
 )
 from app.exports import service as export_service
 from app.exports.json_document import build_mission_export_json
+from app.exports.service import STATUS_READY
 from app.models.errors import ErrorResponse
 from app.models.mission import (
     CatalogCandidatesResponse,
@@ -162,6 +167,7 @@ def create_mission(
         mission = mission_store.create_mission(db, owner=owner, payload=data)
     except ValueError as exc:
         raise _api_error(422, "validation_error", str(exc)) from exc
+    analytics.track_mission_started(db, mission=mission, owner=owner)
     db.commit()
     db.refresh(mission)
     return {"mission": mission_store.mission_to_dict(db, mission)}
@@ -181,6 +187,7 @@ def get_mission(
     mission: Mission = Depends(get_mission_for_read),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
+    analytics.track_example_viewed(db, mission=mission)
     db.commit()
     return {"mission": mission_store.mission_to_dict(db, mission)}
 
@@ -212,17 +219,49 @@ def discover_mission_catalog(
     payload: Optional[DiscoverRequest] = Body(default=None),
 ) -> Dict[str, Any]:
     body = payload or DiscoverRequest()
+    timer = analytics.CatalogSearchTimer()
     try:
-        rows = catalog_service.discover_for_mission(
+        with timer:
+            rows = catalog_service.discover_for_mission(
+                db,
+                mission,
+                start=_parse_optional_dt(body.start_time),
+                end=_parse_optional_dt(body.end_time),
+                collections=body.collections,
+                limit=body.limit,
+            )
+    except CatalogRateLimitedError as exc:
+        analytics.track_planning_failure(
             db,
-            mission,
-            start=_parse_optional_dt(body.start_time),
-            end=_parse_optional_dt(body.end_time),
-            collections=body.collections,
-            limit=body.limit,
+            mission_id=mission.id,
+            reason=PlanningFailureReason.PROVIDER_TIMEOUT,
         )
-    except CatalogError as exc:
+        db.commit()
         raise _catalog_http_error(exc) from exc
+    except CatalogUnavailableError as exc:
+        analytics.track_planning_failure(
+            db,
+            mission_id=mission.id,
+            reason=PlanningFailureReason.PROVIDER_TIMEOUT,
+        )
+        db.commit()
+        raise _catalog_http_error(exc) from exc
+    except CatalogError as exc:
+        analytics.track_planning_failure(
+            db,
+            mission_id=mission.id,
+            reason=PlanningFailureReason.UNKNOWN,
+        )
+        db.commit()
+        raise _catalog_http_error(exc) from exc
+    provider_id = rows[0].source_provider if rows else "microsoft-planetary-computer"
+    analytics.track_data_candidates_found(
+        db,
+        mission_id=mission.id,
+        candidate_count=len(rows),
+        provider_id=provider_id,
+        search_duration_seconds=timer.duration_seconds,
+    )
     db.commit()
     return {
         "candidates": [catalog_service.candidate_to_dict(db, row) for row in rows],
@@ -296,7 +335,52 @@ def generate_mission_plans(
     mission: Mission = Depends(get_owned_mission),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
+    candidate_count = int(
+        db.scalar(
+            select(func.count())
+            .select_from(MissionDataCandidate)
+            .where(MissionDataCandidate.mission_id == mission.id)
+        )
+        or 0
+    )
+    if candidate_count == 0:
+        analytics.track_planning_failure(
+            db,
+            mission_id=mission.id,
+            reason=PlanningFailureReason.NO_CANDIDATES_FOUND,
+        )
+    started = time.perf_counter()
     rows = planner_engine.generate_plans_for_mission(db, mission)
+    generation_seconds = time.perf_counter() - started
+    owner = (
+        db.get(AnonymousSession, mission.anonymous_session_id)
+        if mission.anonymous_session_id
+        else None
+    )
+    target = next((row for row in rows if row.recommended), rows[0] if rows else None)
+    if target is not None and owner is not None:
+        step_count = int(
+            db.scalar(
+                select(func.count())
+                .select_from(MissionPlanStep)
+                .where(MissionPlanStep.mission_plan_id == target.id)
+            )
+            or 0
+        )
+        analytics.track_plan_generated(
+            db,
+            mission=mission,
+            owner=owner,
+            plan=target,
+            step_count=step_count,
+            candidate_count=candidate_count,
+            generation_seconds=generation_seconds,
+        )
+        analytics.track_provider_connection_requests(
+            db,
+            mission_id=mission.id,
+            providers=analytics.providers_from_plan(db, target),
+        )
     db.commit()
     plans = [
         planner_engine.plan_to_dict(db, row, include_steps=True, include_evidence=True)
@@ -544,6 +628,13 @@ def create_share_link(
         expires_at=expires_at,
         permissions=payload.permissions,
     )
+    owner = (
+        db.get(AnonymousSession, mission.anonymous_session_id)
+        if mission.anonymous_session_id
+        else None
+    )
+    if owner is not None:
+        analytics.track_plan_shared(db, mission=mission, owner=owner, link=link)
     db.commit()
     return {
         "share_link": mission_store.share_link_to_dict(link, include_token=raw),
@@ -650,6 +741,12 @@ def export_mission_json(
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     document = build_mission_export_json(db, mission)
+    analytics.track_plan_exported(
+        db,
+        mission_id=mission.id,
+        export_type="json",
+        success=True,
+    )
     db.commit()
     return document
 
@@ -675,6 +772,12 @@ def create_pdf_export(
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     row = export_service.create_and_generate_pdf_export(db, mission)
+    analytics.track_plan_exported(
+        db,
+        mission_id=mission.id,
+        export_type="pdf",
+        success=row.status == STATUS_READY,
+    )
     db.commit()
     return {"export": export_service.export_to_dict(row)}
 

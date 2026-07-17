@@ -45,6 +45,8 @@ class Settings(BaseSettings):
 
     # slowapi rate limit applied to POST /v1/jobs (per client IP).
     rate_limit_jobs: str = "10/minute"
+    # Feedback + design-partner submissions (per client IP).
+    rate_limit_leads: str = "5/hour"
     rate_limit_enabled: bool = True
 
     # Sentry error reporting; disabled when the DSN is empty.
@@ -80,6 +82,13 @@ class Settings(BaseSettings):
     session_cookie_domain: str = ""
     session_ttl_days: int = 30
     share_link_default_ttl_days: int = 7
+
+    # --- Privacy-safe analytics (Phase O) ----------------------------------
+    # Dedicated salt for HMAC-SHA256 session/share hashes in analytics payloads.
+    # Separate from artifact signing and auth secrets.
+    analytics_hash_salt: str = "dev-only-analytics-hash-salt"
+    # Shared token for GET /v1/admin/analytics/summary (constant-time compare).
+    admin_token: str = ""
 
 
 @lru_cache

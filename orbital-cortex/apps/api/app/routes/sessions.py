@@ -7,10 +7,11 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.orm import Session
 
+from app.analytics import helpers as analytics
 from app.core import sessions as session_store
 from app.core.config import get_settings
 from app.db import get_db
-from app.deps.auth import get_optional_anonymous_session, require_anonymous_session
+from app.deps.auth import require_anonymous_session
 from app.models.errors import ErrorResponse
 from app.models.mission import SessionResponse
 
@@ -39,16 +40,25 @@ def ensure_session(
     settings = get_settings()
     session_store.cleanup_expired_sessions(db)
 
-    existing = get_optional_anonymous_session(request, db)
-    if existing is not None:
-        db.commit()
-        response.status_code = 200
-        return {"session": session_store.session_to_dict(existing), "created": False}
+    raw = request.cookies.get(settings.session_cookie_name)
+    if raw:
+        existing = session_store.get_session_by_raw_token(db, raw)
+        if existing is not None:
+            previous_last_seen = existing.last_seen_at
+            session_store.touch_session(existing)
+            analytics.track_user_returned(
+                db,
+                session_row=existing,
+                previous_last_seen=previous_last_seen,
+            )
+            db.commit()
+            response.status_code = 200
+            return {"session": session_store.session_to_dict(existing), "created": False}
 
-    row, raw = session_store.create_anonymous_session(db, settings=settings)
+    row, raw_token = session_store.create_anonymous_session(db, settings=settings)
     db.commit()
     session_store.set_session_cookie(
-        response, raw, settings=settings, expires_at=row.expires_at
+        response, raw_token, settings=settings, expires_at=row.expires_at
     )
     response.status_code = 201
     return {"session": session_store.session_to_dict(row), "created": True}

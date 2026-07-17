@@ -21,7 +21,18 @@ from app.core.logging import configure_logging, get_logger
 from app.core.ratelimit import limiter
 from app.db import SessionLocal, get_engine
 from app.db.migrate import run_migrations
-from app.routes import artifacts, jobs, missions, nodes, registry, results, routing, sessions
+from app.routes import (
+    admin,
+    artifacts,
+    jobs,
+    leads,
+    missions,
+    nodes,
+    registry,
+    results,
+    routing,
+    sessions,
+)
 from app.seed import seed_database
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -237,6 +248,8 @@ def readyz() -> JSONResponse:
 
 
 app.include_router(sessions.router)
+app.include_router(admin.router)
+app.include_router(leads.router)
 app.include_router(missions.router)
 app.include_router(jobs.router)
 app.include_router(nodes.router)
