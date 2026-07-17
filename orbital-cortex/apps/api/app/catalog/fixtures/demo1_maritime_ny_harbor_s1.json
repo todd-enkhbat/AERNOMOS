@@ -1,0 +1,194 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "stac_version": "1.1.0",
+      "id": "S1A_IW_GRDH_1SDV_20240628T225131_20240628T225156_054530_06A2E6",
+      "collection": "sentinel-1-grd",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -75.490326,
+              41.741886
+            ],
+            [
+              -72.462608,
+              42.136311
+            ],
+            [
+              -72.151955,
+              40.635189
+            ],
+            [
+              -75.11116,
+              40.239628
+            ],
+            [
+              -75.490326,
+              41.741886
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        -75.490326,
+        40.239628,
+        -72.151955,
+        42.136311
+      ],
+      "properties": {
+        "datetime": "2024-06-28T22:51:43.853869Z",
+        "platform": "SENTINEL-1A",
+        "constellation": "Sentinel-1",
+        "sar:product_type": "GRD",
+        "sat:orbit_state": "ascending",
+        "sar:instrument_mode": "IW"
+      },
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-grd/items/S1A_IW_GRDH_1SDV_20240628T225131_20240628T225156_054530_06A2E6",
+          "type": "application/geo+json"
+        }
+      ],
+      "assets": {
+        "vv": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/6/28/IW/DV/S1A_IW_GRDH_1SDV_20240628T225131_20240628T225156_054530_06A2E6_023F/measurement/iw-vv.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "VV: vertical transmit, vertical receive",
+          "roles": [
+            "data"
+          ]
+        },
+        "vh": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/6/28/IW/DV/S1A_IW_GRDH_1SDV_20240628T225131_20240628T225156_054530_06A2E6_023F/measurement/iw-vh.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "VH: vertical transmit, horizontal receive",
+          "roles": [
+            "data"
+          ]
+        },
+        "thumbnail": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/6/28/IW/DV/S1A_IW_GRDH_1SDV_20240628T225131_20240628T225156_054530_06A2E6_023F/preview/quick-look.png",
+          "type": "image/png",
+          "title": "Preview Image",
+          "roles": [
+            "thumbnail"
+          ]
+        },
+        "rendered_preview": {
+          "href": "https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png?collection=sentinel-1-grd&item=S1A_IW_GRDH_1SDV_20240628T225131_20240628T225156_054530_06A2E6&assets=vv&assets=vh&expression=vv%3Bvh%3Bvv%2Fvh&rescale=0%2C600&rescale=0%2C270&rescale=0%2C9&asset_as_band=True&tile_format=png&format=png",
+          "type": "image/png",
+          "title": "Rendered preview",
+          "roles": [
+            "overview"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.1.0",
+      "id": "S1A_IW_GRDH_1SDV_20240628T225106_20240628T225131_054530_06A2E6",
+      "collection": "sentinel-1-grd",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -75.111137,
+              40.239536
+            ],
+            [
+              -72.153107,
+              40.63496
+            ],
+            [
+              -71.839447,
+              39.134079
+            ],
+            [
+              -74.733841,
+              38.737438
+            ],
+            [
+              -75.111137,
+              40.239536
+            ]
+          ]
+        ]
+      },
+      "bbox": [
+        -75.111137,
+        38.737438,
+        -71.839447,
+        40.63496
+      ],
+      "properties": {
+        "datetime": "2024-06-28T22:51:18.854332Z",
+        "platform": "SENTINEL-1A",
+        "constellation": "Sentinel-1",
+        "sar:product_type": "GRD",
+        "sat:orbit_state": "ascending",
+        "sar:instrument_mode": "IW"
+      },
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-grd/items/S1A_IW_GRDH_1SDV_20240628T225106_20240628T225131_054530_06A2E6",
+          "type": "application/geo+json"
+        }
+      ],
+      "assets": {
+        "vv": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/6/28/IW/DV/S1A_IW_GRDH_1SDV_20240628T225106_20240628T225131_054530_06A2E6_F987/measurement/iw-vv.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "VV: vertical transmit, vertical receive",
+          "roles": [
+            "data"
+          ]
+        },
+        "vh": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/6/28/IW/DV/S1A_IW_GRDH_1SDV_20240628T225106_20240628T225131_054530_06A2E6_F987/measurement/iw-vh.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "VH: vertical transmit, horizontal receive",
+          "roles": [
+            "data"
+          ]
+        },
+        "thumbnail": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/6/28/IW/DV/S1A_IW_GRDH_1SDV_20240628T225106_20240628T225131_054530_06A2E6_F987/preview/quick-look.png",
+          "type": "image/png",
+          "title": "Preview Image",
+          "roles": [
+            "thumbnail"
+          ]
+        },
+        "rendered_preview": {
+          "href": "https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png?collection=sentinel-1-grd&item=S1A_IW_GRDH_1SDV_20240628T225106_20240628T225131_054530_06A2E6&assets=vv&assets=vh&expression=vv%3Bvh%3Bvv%2Fvh&rescale=0%2C600&rescale=0%2C270&rescale=0%2C9&asset_as_band=True&tile_format=png&format=png",
+          "type": "image/png",
+          "title": "Rendered preview",
+          "roles": [
+            "overview"
+          ]
+        }
+      }
+    }
+  ],
+  "nomos_fixture_meta": {
+    "source": "microsoft-planetary-computer",
+    "captured_at": "2026-07-17T00:00:00Z",
+    "bbox": [
+      -74.3,
+      40.3,
+      -73.5,
+      41.0
+    ],
+    "collection": "sentinel-1-grd",
+    "datetime_query": "2024-06-01/2024-06-30",
+    "note": "Pinned real STAC items captured once for offline accelerator demos. Not fabricated."
+  }
+}

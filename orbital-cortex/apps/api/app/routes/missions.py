@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.analytics import helpers as analytics
 from app.analytics.schemas import PlanningFailureReason
+from app.catalog import PLANETARY_COMPUTER_PROVIDER_ID
 from app.catalog import service as catalog_service
 from app.catalog.errors import (
     CatalogError,
@@ -81,10 +82,15 @@ from app.services import mission_infrastructure as infra_service
 router = APIRouter(prefix="/v1", tags=["missions"])
 
 
-def _api_error(status: int, code: str, message: str) -> HTTPException:
+def _api_error(
+    status: int, code: str, message: str, *, provider: Optional[str] = None
+) -> HTTPException:
+    error: Dict[str, Any] = {"code": code, "message": message}
+    if provider is not None:
+        error["provider"] = provider
     return HTTPException(
         status_code=status,
-        detail={"error": {"code": code, "message": message}},
+        detail={"error": error},
     )
 
 
@@ -98,13 +104,21 @@ def _parse_optional_dt(value: Optional[str]) -> Optional[datetime]:
 
 
 def _catalog_http_error(exc: CatalogError) -> HTTPException:
+    """Map a catalog provider error to an HTTP error envelope.
+
+    Includes the failing provider id so SDK clients can raise an actionable
+    UpstreamProviderUnavailable with provider_name populated.
+    """
+    provider = PLANETARY_COMPUTER_PROVIDER_ID
     if isinstance(exc, CatalogRateLimitedError):
-        return _api_error(503, exc.code, exc.message)
+        return _api_error(503, exc.code, exc.message, provider=provider)
     if isinstance(exc, CatalogNotFoundError):
-        return _api_error(502, exc.code, exc.message)
+        return _api_error(502, exc.code, exc.message, provider=provider)
     if isinstance(exc, CatalogUnavailableError):
-        return _api_error(503, exc.code, exc.message)
-    return _api_error(503, getattr(exc, "code", "catalog_error"), str(exc))
+        return _api_error(503, exc.code, exc.message, provider=provider)
+    return _api_error(
+        503, getattr(exc, "code", "catalog_error"), str(exc), provider=provider
+    )
 
 
 @router.get(

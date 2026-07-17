@@ -8,6 +8,7 @@ from app.catalog.errors import (
     CatalogRateLimitedError,
     CatalogUnavailableError,
 )
+from app.catalog.fixture_provider import FixtureCatalogProvider
 from app.catalog.planetary_computer import (
     PROVIDER_ID as PLANETARY_COMPUTER_PROVIDER_ID,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "CatalogSearchQuery",
     "CatalogUnavailableError",
     "DataCatalogProvider",
+    "FixtureCatalogProvider",
     "PLANETARY_COMPUTER_PROVIDER_ID",
     "PlanetaryComputerCatalog",
 ]

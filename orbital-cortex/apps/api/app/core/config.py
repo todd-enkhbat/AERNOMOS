@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     # the pinned simulator/tle_snapshot.json (deterministic default).
     live_tle: bool = False
 
+    # Catalog discovery mode (Phase R). "live" hits Microsoft Planetary Computer;
+    # "fixture" serves pinned real STAC FeatureCollections from
+    # app/catalog/fixtures/ so accelerator demos work offline. Production
+    # defaults to live; demos pass --demo / CATALOG_MODE=fixture.
+    catalog_mode: str = "live"
+
     # Contact-window precompute horizon.
     pass_horizon_hours: int = 48
 

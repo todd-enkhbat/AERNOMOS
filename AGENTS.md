@@ -60,6 +60,14 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 | [orbital-cortex/docs/architecture.md](orbital-cortex/docs/architecture.md) | System design |
 | [orbital-cortex/docs/api-spec.md](orbital-cortex/docs/api-spec.md) | REST contract |
 | [orbital-cortex/docs/capability-truth.md](orbital-cortex/docs/capability-truth.md) | Customer-safe claims and demo boundaries |
+| [orbital-cortex/docs/mission-planner-overview.md](orbital-cortex/docs/mission-planner-overview.md) | **Mission planner: what it does, who it's for** (Phase Q) |
+| [orbital-cortex/docs/data-sources.md](orbital-cortex/docs/data-sources.md) | STAC/orbital sources + provider registry (source of truth, Phase Q) |
+| [orbital-cortex/docs/truth-statuses.md](orbital-cortex/docs/truth-statuses.md) | **Canonical truth_status / integration_status vocabulary** (Phase Q) |
+| [orbital-cortex/docs/planning-engine.md](orbital-cortex/docs/planning-engine.md) | How a request resolves to a plan (Phase Q) |
+| [orbital-cortex/docs/privacy-model.md](orbital-cortex/docs/privacy-model.md) | Privacy/isolation model for a legal/security reader (Phase Q) |
+| [orbital-cortex/docs/provider-integrations.md](orbital-cortex/docs/provider-integrations.md) | Adding a provider + SDK error mapping (Phase Q) |
+| [orbital-cortex/docs/demo-limitations.md](orbital-cortex/docs/demo-limitations.md) | **Unhedged what-works / what-doesn't for a live call** (Phase Q) |
+| [orbital-cortex/docs/accelerator-demo-script.md](orbital-cortex/docs/accelerator-demo-script.md) | Demo arc skeleton (Phase R finishes it) |
 | [orbital-cortex/docs/current-system-audit.md](orbital-cortex/docs/current-system-audit.md) | Pre-mission-planner system audit: simulation points, privacy risks |
 | [orbital-cortex/docs/design-engineering-workflow.md](orbital-cortex/docs/design-engineering-workflow.md) | UI, imagery, motion, and visual QA gates |
 | [SOUL.md](SOUL.md) | Canonical product, copy, and design direction |

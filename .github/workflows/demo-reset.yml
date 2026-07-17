@@ -44,3 +44,12 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
         working-directory: orbital-cortex/apps/api
         run: python -m app.seed --reset --force
+
+      # Accelerator demos (Phase R): optional one-command reseeds for pitch
+      # rehearsal. Default uses pinned STAC fixtures (no live PC dependency).
+      # Uncomment to keep hosted demo DB primed with demos 1–3:
+      #   python -m app.seed --demo=1 --reset
+      #   python -m app.seed --demo=2 --reset
+      #   python -m app.seed --demo=3 --reset
+      # Local / CI rehearsal (no DEMO_DATABASE_URL required):
+      #   python -m pytest tests/test_accelerator_demos_phase_r.py -q

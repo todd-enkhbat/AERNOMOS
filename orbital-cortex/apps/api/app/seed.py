@@ -1,9 +1,14 @@
 """Seed Postgres reference data: compute nodes, ground stations, satellites.
 
-Also the demo-reset CLI (F4):
+Also the demo-reset CLI (F4 / Phase R):
 
-    python -m app.seed            # reseed reference data only
-    python -m app.seed --reset    # additionally wipe all job data first
+    python -m app.seed                 # reseed reference data only
+    python -m app.seed --reset         # wipe visitor jobs, then reseed
+    python -m app.seed --demo=1 --reset
+    python -m app.seed --demo=2 --reset
+    python -m app.seed --demo=3 --reset
+    python -m app.seed --demo=3 --reset --execute   # + real CPU crop
+    python -m app.seed --demo=1 --reset --live      # re-fetch STAC live
 
 With APP_ENV=production, --reset refuses to run unless --force is passed,
 so a fat-fingered local command can't wipe the hosted demo.
@@ -220,20 +225,43 @@ def reset_demo_data(session: Session) -> int:
 def main(argv: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser(
         prog="python -m app.seed",
-        description="Reseed reference data; optionally reset demo job data.",
+        description=(
+            "Reseed reference data; optionally reset demo job data or an "
+            "accelerator demo (Phase R)."
+        ),
     )
     parser.add_argument(
         "--reset",
         action="store_true",
         help=(
-            "wipe visitor job data (jobs, events, results, routing, scenes); "
-            "preserves curated is_example jobs and missions"
+            "with --demo=N: recreate that accelerator demo from fixtures; "
+            "without --demo: wipe visitor job data (preserves curated examples)"
         ),
     )
     parser.add_argument(
         "--force",
         action="store_true",
         help="required for --reset when APP_ENV=production",
+    )
+    parser.add_argument(
+        "--demo",
+        type=int,
+        choices=[1, 2, 3],
+        default=None,
+        help="accelerator demo number to reset/seed (1, 2, or 3)",
+    )
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help=(
+            "with --demo: re-fetch STAC from Planetary Computer instead of the "
+            "pinned fixture (requires network)"
+        ),
+    )
+    parser.add_argument(
+        "--execute",
+        action="store_true",
+        help="with --demo=3: also run the real Phase M CPU crop after seeding",
     )
     args = parser.parse_args(argv)
 
@@ -243,6 +271,9 @@ def main(argv: Optional[List[str]] = None) -> None:
             "Refusing --reset with APP_ENV=production. Pass --force if this "
             "really is the disposable demo environment."
         )
+    if args.demo is not None and not args.reset:
+        # --demo always implies a reset of that demo's mission.
+        args.reset = True
 
     from app.db import SessionLocal, get_engine
     from app.db.migrate import run_migrations
@@ -250,6 +281,36 @@ def main(argv: Optional[List[str]] = None) -> None:
     run_migrations()
     session = SessionLocal(bind=get_engine())
     try:
+        if args.demo is not None:
+            from app.demos.accelerator import (
+                reset_accelerator_demo,
+                run_demo_cpu_execution,
+            )
+
+            seed_counts = seed_database(session)
+            summary = reset_accelerator_demo(
+                session, args.demo, live=bool(args.live)
+            )
+            session.commit()
+            payload: Dict[str, Any] = {
+                "accelerator_demo": summary,
+                "seeded": seed_counts,
+            }
+            if args.execute:
+                if args.demo != 3:
+                    raise SystemExit("--execute is only supported with --demo=3")
+                execution = run_demo_cpu_execution(session, demo_number=3)
+                session.commit()
+                payload["cpu_execution"] = {
+                    "status": execution["status"].get("status"),
+                    "observed_truth_status": execution.get("observed_truth_status"),
+                    "observed_metrics": execution.get("observed_metrics"),
+                    "job_id": execution["job"].get("external_job_id")
+                    or execution["job"].get("id"),
+                }
+            print(json.dumps(payload, indent=2, default=str))
+            return
+
         jobs_deleted = reset_demo_data(session) if args.reset else 0
         counts = seed_database(session)
     finally:

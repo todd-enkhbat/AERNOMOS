@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: Q (next)
+Current phase: S (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -19,9 +19,11 @@ Current phase: Q (next)
 - Phase N: Extensible infrastructure provider registry — versioned YAML under `orbital-cortex/config/providers/`, idempotent `python -m app.scripts.ingest_providers`, demo CLI `python -m app.scripts.show_registry`, planner reads registry for cloud/edge steps (Job demo still uses `sample_nodes.json`)
 - Phase O: Privacy-safe product and planning analytics — allowlisted `app/analytics/schemas.py`, Postgres `analytics_events`, HMAC session hashes, `GET /v1/admin/analytics/summary` + `python -m app.scripts.show_analytics_summary`, leak/rejection tests
 - Phase P: Mission feedback + design-partner capture — private tables, honeypot + rate limit, admin export, `MissionFeedbackCapture` on `/missions/[id]` after plans exist, `show_leads_summary` CLI
+- Phase Q: Mission-planner documentation (8 docs under `orbital-cortex/docs/`) + Python SDK `missions` namespace with a typed `NomosError` hierarchy mapped to real API error codes; doc-drift + AGENTS-link checks
+- Phase R: Accelerator-ready curated demos 1–3 — pinned real STAC fixtures, one-command seed reset, cold/back-to-back/offline/disclosure tests, finished + timed 90s script
 
 ## In progress
-None — Phase P complete. Next is Phase Q (do not start unless asked).
+None — Phase R complete. Next is Phase S (do not start unless asked).
 
 ## Blockers
 None
@@ -83,6 +85,7 @@ None
 - Phase M: when Redis is unreachable (local dev/tests) submit falls back to running the real task synchronously in-process — same runner the ARQ worker calls; production enqueues `run_execution_job` on ARQ.
 - Phase M: plan steps flip `planned → running → executed/failed` via a new `mission_plan_steps.execution_status` column (+ `executed_at`); measured metrics land in `source_metadata.execution.observed` with `truth_status=OBSERVED`. Estimates on the step are untouched — observed values are additive, never overwrite planning provenance.
 - Phase M: outputs upload to the object store only after the task succeeds, so failed jobs cannot leave partial artifacts.
+- Phase R: accelerator demos default to pinned real Planetary Computer STAC fixtures (`--live` opt-in); Demo 3 CPU crops `fixture:sample.tif` with OBSERVED metrics (not a STAC download); private stable demo session tokens enable owner-only execute without cookie surgery.
 
 ## Phase L — work completed
 - Upgraded Phase L agent prompt with concrete file targets, seed/reset rules, and tests
@@ -420,8 +423,154 @@ Still requires manual follow-up before claiming live integration:
 - Email notification / CRM sync for inbound leads
 - OpenAPI regeneration for write-only lead routes (optional; admin export stays out of schema)
 
-## Next phase
-Phase Q — Documentation and Python SDK for missions.
+## Phase Q — work completed
+- Eight product-engineering docs under `orbital-cortex/docs/`, each with the
+  three-way `## Status` (Real today / Simulated / Not yet built) section using
+  the shared truth vocabulary:
+  `mission-planner-overview.md`, `data-sources.md`, `truth-statuses.md`
+  (canonical `truth_status` + `integration_status` vocabulary, defined once),
+  `planning-engine.md`, `privacy-model.md` (non-engineer / legal-security
+  reader), `provider-integrations.md` (adding a provider + SDK error-mapping
+  table), `demo-limitations.md` (unhedged, read-before-a-call), and
+  `accelerator-demo-script.md` (skeleton whose section order matches the real
+  demo arc; Phase R fills content).
+- All 8 docs linked from the AGENTS.md key-docs table (grep-verified by test).
+- Python SDK (`orbital-cortex/sdk/python`) `client.missions` namespace
+  (`create`, `retrieve`, `list`, `discover`, `candidates`, `infrastructure`,
+  `generate_plan`, `list_plans`, `get_plan`, `export_pdf`, `export_json`,
+  `create_share_link`). Inputs/outputs are customer-terminology JSON dicts; no
+  ORM/model names leak. Session cookie handled by a new cookie-jar transport +
+  `Client.ensure_session()`.
+- Typed error hierarchy in `orbitalcortex/exceptions.py`:
+  `NomosError` base (subclass of `APIError`) with `NoCatalogData`,
+  `NoFeasiblePlan`, `UpstreamProviderUnavailable` (`.provider_name`),
+  `UnauthorizedMission`, `ExpiredShareLink`, `StaleOrbitalData` (`.age_hours`),
+  `InvalidGeographicInput`, plus `MissionValidationError`. `error_from_response`
+  maps real API `(status, code)` envelopes to the typed exception; unmapped
+  codes still raise plain `APIError` (legacy job resources unchanged).
+- API: mission catalog error envelopes now include `provider` so the SDK can
+  populate `UpstreamProviderUnavailable.provider_name` (only additive change to
+  `app/routes/missions.py`).
+- SDK version bumped 0.2.0 → 0.3.0; `examples/plan_mission.py` added; SDK README
+  gained a mission-planner + typed-errors section.
+- Doc-drift guard: `python -m app.scripts.check_data_sources_drift` compares the
+  `data-sources.md` registry table against `config/providers/*.yaml`.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/17-phase-Q-docs-sdk.md`](phase-prompts/17-phase-Q-docs-sdk.md)
-**Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)
+## Phase Q — files changed
+- `orbital-cortex/docs/{mission-planner-overview,data-sources,truth-statuses,planning-engine,privacy-model,provider-integrations,demo-limitations,accelerator-demo-script}.md` (new)
+- `orbital-cortex/sdk/python/orbitalcortex/{missions.py (new),exceptions.py,transport.py,client.py,__init__.py}`
+- `orbital-cortex/sdk/python/{pyproject.toml,README.md}`, `examples/plan_mission.py` (new)
+- `orbital-cortex/sdk/python/tests/test_resilience.py` (patch opener, not urlopen, after cookie-jar transport refactor)
+- `orbital-cortex/apps/api/app/routes/missions.py` (provider in catalog error envelope)
+- `orbital-cortex/apps/api/app/scripts/check_data_sources_drift.py` (new)
+- `orbital-cortex/apps/api/tests/test_sdk_missions_phase_q.py` (new, 6 tests)
+- `orbital-cortex/apps/api/requirements-dev.txt` (+ tenacity for the SDK import in tests)
+- `AGENTS.md` (key-docs table + 8 doc links)
+
+## Phase Q — tests run
+- `pytest tests/test_sdk_missions_phase_q.py -v -s` — **6 passed**:
+  - SDK three-line example end to end (create → generate_plan → export_pdf):
+    mission + recommended plan + PDF `status=ready` with signed download_url
+  - error mapping: `UnauthorizedMission` (403 `mission_forbidden`),
+    `ExpiredShareLink` (403 `share_token_invalid`),
+    `InvalidGeographicInput` (422 `validation_error`, field `area_of_interest`)
+  - doc-drift check exits 0; all 8 docs linked from AGENTS.md
+- `pytest tests -q` (API) — **123 passed, 1 skipped**
+- SDK `pytest tests -q` — **16 passed** (updated two resilience tests for the
+  cookie-jar opener)
+- `ruff check` on changed API + SDK files — pass
+- `python -m mypy` on new SDK modules — clean (pre-existing `wait_for_job`
+  return-type note in `client.py:93` untouched)
+- `python -m app.scripts.check_data_sources_drift` — OK (6/6 providers in sync)
+
+## Phase Q — decisions
+- **Doc location:** the 8 docs are product-engineering docs → `orbital-cortex/docs/`
+  (the same home as `capability-truth.md`, `architecture.md`, etc.). The
+  top-level `docs/` is deliberately a **different purpose** (build orchestration:
+  master plan, this progress file, phase prompts) and is left as-is. No ninth
+  docs location was created.
+- **Error-mapping honesty (truth-status applied to code):** 5 typed errors map to
+  live API codes (`session_required`/`mission_forbidden`, `share_token_invalid`,
+  `catalog_not_found`, `catalog_unavailable`/`catalog_rate_limited`,
+  `validation_error`). `NoFeasiblePlan` is derived from the real 201 plan
+  response (`recommended_plan_id` null) — the API deliberately does **not** turn
+  an all-rejected plan set into an HTTP error because rejected plans are
+  first-class brief output. `StaleOrbitalData` is surfaced by the API as a
+  `STALE` truth status on the infrastructure payload, so the SDK raises it on
+  request via `infrastructure(raise_on_stale=True)`. Both are documented as such
+  rather than faked.
+- **Auth model:** missions use the cookie-based anonymous session (not the Bearer
+  API key used by the legacy job demo). The default transport now keeps a cookie
+  jar; `Client.ensure_session()` is idempotent.
+
+## Phase Q — skipped / deferred
+- OpenAPI regeneration: no new public API routes were added (only an additive
+  `provider` field inside the existing catalog error envelope), so the generated
+  `orbitalcortex_api` client is unchanged. The hand-written `orbitalcortex`
+  wrapper is where the mission ergonomics live.
+- `accelerator-demo-script.md` content (90s narration, curated missions,
+  reset/seed) is intentionally a skeleton — finished in Phase R.
+
+---
+
+## Phase R — work completed
+- Three accelerator demos with stable mission/session IDs, one-command reset:
+  `python -m app.seed --demo=1|2|3 --reset` (`--live` optional; `--execute` for Demo 3 CPU).
+- Pinned real Planetary Computer STAC fixtures (not fabricated) under
+  `app/catalog/fixtures/`; `FixtureCatalogProvider` + `catalog_mode=fixture|live`.
+- Demo 1: NY Harbor / Sentinel-1 / U.S. residency — feasible cloud, onboard rejected.
+- Demo 2: Disaster / Gulf urgent framing — feasibility comparison with truth labels.
+- Demo 3: Edge vs cloud + live Phase M `crop_geotiff` with non-zero `OBSERVED` metrics.
+- Seed summary includes `simulated_steps_visible` + accelerator disclosure in
+  `customer_systems`; MissionBrief renders disclosure + inline Simulated chips.
+- Finished `accelerator-demo-script.md` (9-section spoken script); timed at **94.2s**
+  via `say -r 150` / afinfo (cap ≤100s).
+- Updated `demo-limitations.md` (fixture-default disclosure) and `demo-reset.yml` comments.
+- Tests: cold-reset, back-to-back (1+3), offline (PC search blocked), disclosure, fixture IDs.
+
+## Phase R — files changed
+- `orbital-cortex/apps/api/app/catalog/fixture_provider.py` (new)
+- `orbital-cortex/apps/api/app/catalog/fixtures/*.json` (new — 3 pinned real scenes)
+- `orbital-cortex/apps/api/app/demos/accelerator.py` (new)
+- `orbital-cortex/apps/api/app/seed.py`, `app/core/config.py`, `app/catalog/service.py`
+- `orbital-cortex/apps/api/tests/test_accelerator_demos_phase_r.py` (new)
+- `orbital-cortex/apps/web/components/missions/MissionBrief.tsx` (accelerator disclosure UI)
+- `orbital-cortex/docs/accelerator-demo-script.md`, `demo-limitations.md`
+- `.github/workflows/demo-reset.yml`, `docs/BUILD_PROGRESS.md`
+
+## Phase R — tests run
+```
+cd orbital-cortex/apps/api
+pytest tests/test_accelerator_demos_phase_r.py -v -s   # 8 passed
+python -m app.seed --demo=1 --reset
+python -m app.seed --demo=2 --reset
+python -m app.seed --demo=3 --reset --execute
+# back-to-back demo 1 and demo 3 also run successfully via CLI
+```
+Self-audit highlights (2026-07-17):
+- Demo 3 CPU: `observed_truth_status=OBSERVED`, `execution_seconds≈0.09`, `output_bytes=2334`
+- Offline: all 3 demos complete with fixture mode + live PC search monkeypatched blocked
+- Disclosure: each demo returns `integration_status=simulated` / `truth_status=SIMULATED`
+  steps in `simulated_steps_visible`
+- Script timing: 94.2s (`say -r 150`)
+
+## Phase R — decisions
+- Demo catalog default is **fixture** (pinned real PC items); `--live` is opt-in proof.
+- Demo 3 CPU crops `fixture:sample.tif` (NY Harbor extent) — not a live STAC download;
+  disclosure states this explicitly. OBSERVED metrics are still real measurements.
+- Accelerator missions are private (`is_example=False`) with stable demo session tokens
+  so owner-only execute works without cookie surgery in tests/CLI.
+- Nightly `demo-reset.yml` keeps curated examples; accelerator demo reseeds documented
+  as optional (not forced on hosted DB without explicit enable).
+
+## Phase R — unresolved / deferred
+- Hosted production reseed of demos 1–3 on the nightly workflow is commented, not enabled
+  (needs product decision before writing demo missions into prod DB every night).
+- Working tree may still contain uncommitted Phase Q SDK/docs alongside Phase R; commit
+  when asked (message: `feat: add accelerator-ready mission planning demos`).
+
+## Next phase
+Phase S — see [`docs/NOMOS_BUILD_PLAN.md`](NOMOS_BUILD_PLAN.md) and
+[`docs/phase-prompts/README.md`](phase-prompts/README.md).
+
+**Do not start Phase S unless asked.**

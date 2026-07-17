@@ -32,6 +32,19 @@ DEFAULT_LOOKBACK_DAYS = 30
 
 
 def default_catalog_provider() -> DataCatalogProvider:
+    """Return the active catalog provider.
+
+    Phase R: ``CATALOG_MODE=fixture`` (or settings.catalog_mode) serves pinned
+    real STAC FeatureCollections so accelerator demos do not depend on live
+    Planetary Computer connectivity. Default remains ``live``.
+    """
+    from app.core.config import get_settings
+
+    mode = (get_settings().catalog_mode or "live").strip().lower()
+    if mode in {"fixture", "fixtures", "pinned", "demo"}:
+        from app.catalog.fixture_provider import FixtureCatalogProvider
+
+        return FixtureCatalogProvider()
     return PlanetaryComputerCatalog()
 
 

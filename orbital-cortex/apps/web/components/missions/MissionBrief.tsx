@@ -98,6 +98,37 @@ function statusLabel(status: string | null | undefined): string {
   return "Unavailable";
 }
 
+type AcceleratorDisclosure = {
+  kind: "accelerator_demo_disclosure";
+  demo_number?: number;
+  catalog_mode_default?: string;
+  summary?: string;
+  real_data?: string[];
+  real_calculations?: string[];
+  simulated_steps?: string[];
+  unavailable_integrations?: string[];
+  observed_execution?: string[];
+};
+
+function acceleratorDisclosureFromMission(
+  mission: MissionSummary
+): AcceleratorDisclosure | null {
+  const systems = Array.isArray(mission.customer_systems)
+    ? mission.customer_systems
+    : [];
+  for (const item of systems) {
+    if (
+      item &&
+      typeof item === "object" &&
+      !Array.isArray(item) &&
+      (item as { kind?: string }).kind === "accelerator_demo_disclosure"
+    ) {
+      return item as AcceleratorDisclosure;
+    }
+  }
+  return null;
+}
+
 function statusTruth(status: string | null | undefined): string {
   if (status === "feasible") return "CALCULATED";
   if (status === "conditional") return "ESTIMATED";
@@ -586,6 +617,7 @@ export function MissionBrief({
   const recommended = plans.find((plan) => plan.recommended) ?? null;
   const primary = recommended ?? plans[0];
   if (!primary) return null;
+  const acceleratorDisclosure = acceleratorDisclosureFromMission(mission);
   const chosenIds = selectedCandidateIds(primary);
   const selectedCandidates = candidates.filter((candidate) => chosenIds.has(candidate.id));
   const relevantWindowIds = plans.reduce((ids, plan) => {
@@ -856,13 +888,60 @@ export function MissionBrief({
       <Section index={readOnly ? "08" : "09"} title="Demo disclosure">
         <aside className="flex gap-4 rounded-xl border border-gold/25 bg-gold/5 p-5 text-sm leading-6 text-silver">
           <LockKeyhole aria-hidden className="mt-0.5 shrink-0 text-gold" size={20} />
-          <p>
-            This mission plan uses real public orbital and catalog data where available.
-            The optional CPU demo runs crop + thumbnail on a fixture GeoTIFF with measured
-            OBSERVED durations — not your STAC scene and not GPU inference. Satellite
-            tasking, provider reservation, onboard execution, and commercial guarantees
-            are not performed unless explicitly marked as connected.
-          </p>
+          <div className="min-w-0 space-y-3">
+            {acceleratorDisclosure ? (
+              <>
+                <p>
+                  {acceleratorDisclosure.summary ??
+                    `Accelerator demo ${acceleratorDisclosure.demo_number ?? ""}`.trim()}
+                  {acceleratorDisclosure.catalog_mode_default === "fixture" ? (
+                    <>
+                      {" "}
+                      Catalog mode: pinned real STAC fixtures (not a live third-party
+                      call during the pitch).
+                    </>
+                  ) : null}
+                </p>
+                {acceleratorDisclosure.simulated_steps?.length ? (
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.14em] text-gold">
+                      Simulated (visible on plan steps too)
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      {acceleratorDisclosure.simulated_steps.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {acceleratorDisclosure.unavailable_integrations?.length ? (
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.14em] text-gold">
+                      Unavailable
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      {acceleratorDisclosure.unavailable_integrations.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <p>
+                This mission plan uses real public orbital and catalog data where
+                available. The optional CPU demo runs crop + thumbnail on a fixture
+                GeoTIFF with measured OBSERVED durations — not your STAC scene and not
+                GPU inference. Satellite tasking, provider reservation, onboard
+                execution, and commercial guarantees are not performed unless
+                explicitly marked as connected.
+              </p>
+            )}
+            <p className="text-xs text-muted">
+              Every plan step with a simulated integration also shows a Simulated
+              chip and truth badge inline in the recommendation timeline above.
+            </p>
+          </div>
         </aside>
       </Section>
     </div>
