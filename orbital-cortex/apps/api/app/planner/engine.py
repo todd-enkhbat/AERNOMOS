@@ -541,6 +541,8 @@ def _step_to_dict(step: MissionPlanStep) -> Dict[str, Any]:
         "source_metadata": step.source_metadata,
         "feasibility_status": step.feasibility_status,
         "rejection_reason": step.rejection_reason,
+        "execution_status": step.execution_status or "planned",
+        "executed_at": step.executed_at.isoformat() if step.executed_at else None,
     }
 
 

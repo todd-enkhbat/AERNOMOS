@@ -284,6 +284,9 @@ class MissionPlanStepOut(BaseModel):
     source_metadata: Dict[str, Any] = Field(default_factory=dict)
     feasibility_status: str
     rejection_reason: Optional[str] = None
+    # Phase M: planned → running → executed / failed (real CPU execution).
+    execution_status: str = "planned"
+    executed_at: Optional[str] = None
 
 
 class SourceEvidenceOut(BaseModel):

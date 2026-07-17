@@ -19,12 +19,35 @@ from app.catalog.errors import (
 )
 from app.core import missions as mission_store
 from app.core.config import get_settings
+from app.core.object_store import get_object_store
 from app.db import get_db
-from app.db.mission_orm import AnonymousSession, Mission, MissionExport, MissionPlan, ShareLink
+from app.db.mission_orm import (
+    AnonymousSession,
+    ExecutionJob,
+    Mission,
+    MissionExport,
+    MissionPlan,
+    MissionPlanStep,
+    ShareLink,
+)
 from app.deps.auth import (
     get_mission_for_read,
     get_owned_mission,
     require_anonymous_session,
+)
+from app.execution.provider import (
+    ExecutionContext,
+    LocalCpuExecutionProvider,
+    derive_idempotency_key,
+)
+from app.execution.types import (
+    EXECUTABLE_STEP_TYPES,
+    STATUS_SUCCEEDED,
+    ExecuteStepRequest,
+    ExecuteStepResponse,
+    ExecutionStatusResponse,
+    ExecutionTask,
+    ExecutionValidationError,
 )
 from app.exports import service as export_service
 from app.exports.json_document import build_mission_export_json
@@ -351,6 +374,146 @@ def get_mission_plan(
             db, row, include_steps=True, include_evidence=True
         ),
     }
+
+
+def _load_owned_plan(db: Session, mission: Mission, plan_id: str) -> MissionPlan:
+    try:
+        pid = UUID(plan_id)
+    except ValueError as exc:
+        raise _api_error(404, "plan_not_found", "Plan not found.") from exc
+    plan = db.get(MissionPlan, pid)
+    if plan is None or plan.mission_id != mission.id:
+        raise _api_error(404, "plan_not_found", "Plan not found.")
+    return plan
+
+
+@router.post(
+    "/missions/{mission_id}/plans/{plan_id}/execute",
+    response_model=ExecuteStepResponse,
+    status_code=201,
+    summary="Execute a plan step on the local CPU provider (real, no GPUs)",
+    description=(
+        "Owner-only. Runs a real CPU task (crop_geotiff or thumbnail) for an "
+        "executable plan step on the existing ARQ worker. Durations and byte "
+        "counts are measured and persisted as OBSERVED; the step flips from "
+        "planned to executed/failed. Submits are idempotent per "
+        "idempotency_key — replays return the existing job unchanged."
+    ),
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Plan or step not found"},
+        422: {"model": ErrorResponse, "description": "Invalid task / disallowed input_ref"},
+    },
+)
+def execute_plan_step(
+    plan_id: str,
+    payload: ExecuteStepRequest,
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    plan = _load_owned_plan(db, mission, plan_id)
+
+    try:
+        sid = UUID(payload.step_id)
+    except ValueError as exc:
+        raise _api_error(404, "step_not_found", "Plan step not found.") from exc
+    step = db.get(MissionPlanStep, sid)
+    if step is None or step.mission_plan_id != plan.id:
+        raise _api_error(404, "step_not_found", "Plan step not found.")
+
+    if step.step_type not in EXECUTABLE_STEP_TYPES:
+        allowed = ", ".join(sorted(EXECUTABLE_STEP_TYPES))
+        raise _api_error(
+            422,
+            "step_not_executable",
+            f"Step type '{step.step_type}' is not executable. Allowed: {allowed}.",
+        )
+    if step.feasibility_status != "feasible":
+        raise _api_error(
+            422,
+            "step_not_feasible",
+            f"Only feasible steps can be executed (step is {step.feasibility_status}).",
+        )
+
+    task = ExecutionTask(
+        task_type=payload.task_type,
+        input_ref=payload.input_ref,
+        params=payload.params or {},
+    )
+    idempotency_key = payload.idempotency_key or derive_idempotency_key(
+        plan_id=plan.id, step_id=step.id, task=task
+    )
+    provider = LocalCpuExecutionProvider(
+        db,
+        ExecutionContext(
+            mission_id=mission.id,
+            mission_plan_id=plan.id,
+            mission_plan_step_id=step.id,
+        ),
+    )
+    try:
+        estimate = provider.estimate(task)
+        job = provider.submit(task, idempotency_key)
+    except ExecutionValidationError as exc:
+        raise _api_error(422, "execution_invalid", str(exc)) from exc
+    db.commit()
+    return {
+        "job": job.model_dump(),
+        "estimate": estimate.model_dump(),
+        "plan_step_id": str(step.id),
+        "provider_id": provider.capabilities().provider_id,
+    }
+
+
+@router.get(
+    "/missions/{mission_id}/plans/{plan_id}/execute/{external_job_id}",
+    response_model=ExecutionStatusResponse,
+    summary="Execution job status and result (OBSERVED metrics)",
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Execution job not found"},
+    },
+)
+def get_execution_status(
+    plan_id: str,
+    external_job_id: str,
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    plan = _load_owned_plan(db, mission, plan_id)
+    try:
+        jid = UUID(external_job_id)
+    except ValueError as exc:
+        raise _api_error(
+            404, "execution_job_not_found", "Execution job not found."
+        ) from exc
+    job = db.get(ExecutionJob, jid)
+    if job is None or job.mission_plan_id != plan.id or job.mission_id != mission.id:
+        raise _api_error(404, "execution_job_not_found", "Execution job not found.")
+
+    provider = LocalCpuExecutionProvider(db)
+    status = provider.status(external_job_id)
+    payload: Dict[str, Any] = {
+        "job": status.model_dump(),
+        "task_type": job.task_type,
+        "plan_step_id": (
+            str(job.mission_plan_step_id) if job.mission_plan_step_id else None
+        ),
+        "result": None,
+        "observed_truth_status": None,
+        "download_url": None,
+    }
+    if job.status == STATUS_SUCCEEDED:
+        result = provider.result(external_job_id)
+        payload["result"] = result.model_dump()
+        # Metrics were measured from the real run on this worker.
+        payload["observed_truth_status"] = "OBSERVED"
+        if job.output_key:
+            payload["download_url"] = get_object_store().signed_url(job.output_key)
+    db.commit()
+    return payload
 
 
 @router.post(

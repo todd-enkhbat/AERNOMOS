@@ -452,6 +452,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions/{mission_id}/plans/{plan_id}/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute a plan step on the local CPU provider (real, no GPUs)
+         * @description Owner-only. Runs a real CPU task (crop_geotiff or thumbnail) for an executable plan step on the existing ARQ worker. Durations and byte counts are measured and persisted as OBSERVED; the step flips from planned to executed/failed. Submits are idempotent per idempotency_key — replays return the existing job unchanged.
+         */
+        post: operations["execute_plan_step_v1_missions__mission_id__plans__plan_id__execute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/plans/{plan_id}/execute/{external_job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Execution job status and result (OBSERVED metrics) */
+        get: operations["get_execution_status_v1_missions__mission_id__plans__plan_id__execute__external_job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/missions/{mission_id}/share-links": {
         parameters: {
             query?: never;
@@ -849,6 +886,82 @@ export interface components {
         /** ErrorResponse */
         ErrorResponse: {
             error: components["schemas"]["ErrorDetail"];
+        };
+        /** ExecuteStepRequest */
+        ExecuteStepRequest: {
+            /** Idempotency Key */
+            idempotency_key?: string | null;
+            /** Input Ref */
+            input_ref: string;
+            /** Params */
+            params?: {
+                [key: string]: unknown;
+            };
+            /** Step Id */
+            step_id: string;
+            /** Task Type */
+            task_type: string;
+        };
+        /** ExecuteStepResponse */
+        ExecuteStepResponse: {
+            estimate: components["schemas"]["ExecutionEstimate"];
+            job: components["schemas"]["ExternalJob"];
+            /** Plan Step Id */
+            plan_step_id: string;
+            /** Provider Id */
+            provider_id: string;
+        };
+        /** ExecutionEstimate */
+        ExecutionEstimate: {
+            /** Estimated Cost Usd */
+            estimated_cost_usd: number;
+            /** Estimated Seconds */
+            estimated_seconds: number;
+        };
+        /** ExecutionResult */
+        ExecutionResult: {
+            /** External Job Id */
+            external_job_id: string;
+            observed: components["schemas"]["ObservedMetrics"];
+            /** Output Ref */
+            output_ref: string;
+        };
+        /** ExecutionStatusResponse */
+        ExecutionStatusResponse: {
+            /** Download Url */
+            download_url?: string | null;
+            job: components["schemas"]["ExternalJobStatus"];
+            /** Observed Truth Status */
+            observed_truth_status?: string | null;
+            /** Plan Step Id */
+            plan_step_id?: string | null;
+            result?: components["schemas"]["ExecutionResult"] | null;
+            /** Task Type */
+            task_type: string;
+        };
+        /** ExternalJob */
+        ExternalJob: {
+            /** External Job Id */
+            external_job_id: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "succeeded" | "failed";
+        };
+        /** ExternalJobStatus */
+        ExternalJobStatus: {
+            /** Error */
+            error?: string | null;
+            /** External Job Id */
+            external_job_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "succeeded" | "failed";
         };
         /** GroundStation */
         GroundStation: {
@@ -1341,6 +1454,13 @@ export interface components {
             end_time?: string | null;
             /** Estimated Cost Usd */
             estimated_cost_usd?: number | null;
+            /** Executed At */
+            executed_at?: string | null;
+            /**
+             * Execution Status
+             * @default planned
+             */
+            execution_status: string;
             /** Feasibility Status */
             feasibility_status: string;
             /** Id */
@@ -1440,6 +1560,19 @@ export interface components {
             compute_nodes: components["schemas"]["ComputeNode"][];
             /** Ground Stations */
             ground_stations: components["schemas"]["GroundStation"][];
+        };
+        /** ObservedMetrics */
+        ObservedMetrics: {
+            /** Execution Seconds */
+            execution_seconds: number;
+            /** Input Bytes */
+            input_bytes: number;
+            /** Output Bytes */
+            output_bytes: number;
+            /** Storage Location */
+            storage_location: string;
+            /** Transfer Seconds */
+            transfer_seconds: number;
         };
         /** OrbitalSnapshotOut */
         OrbitalSnapshotOut: {
@@ -3001,6 +3134,129 @@ export interface operations {
                 };
             };
             /** @description Plan not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_plan_step_v1_missions__mission_id__plans__plan_id__execute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExecuteStepRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecuteStepResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Plan or step not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid task / disallowed input_ref */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_execution_status_v1_missions__mission_id__plans__plan_id__execute__external_job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+                external_job_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecutionStatusResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Execution job not found */
             404: {
                 headers: {
                     [name: string]: unknown;

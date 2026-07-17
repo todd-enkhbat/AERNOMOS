@@ -337,6 +337,13 @@ class MissionPlanStep(Base):
     )
     feasibility_status: Mapped[str] = mapped_column(String(32), nullable=False)
     rejection_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # Phase M: planned → running → executed / failed (real CPU execution).
+    execution_status: Mapped[str] = mapped_column(
+        String(32), nullable=False, server_default=text("'planned'")
+    )
+    executed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class SourceEvidence(Base):
@@ -423,6 +430,63 @@ class ShareLink(Base):
     )
     permissions: Mapped[Any] = mapped_column(
         JSONB, nullable=False, server_default=text("'[\"read\"]'::jsonb")
+    )
+
+
+class ExecutionJob(Base):
+    """Phase M: real CPU execution jobs keyed by idempotency_key.
+
+    One row per unique idempotency_key. submit() with an existing key returns
+    the stored row unchanged — nothing is re-enqueued or re-run.
+    """
+
+    __tablename__ = "execution_jobs"
+    __table_args__ = (
+        UniqueConstraint("idempotency_key", name="uq_execution_jobs_idempotency_key"),
+        Index("ix_execution_jobs_mission_id", "mission_id"),
+        Index("ix_execution_jobs_mission_plan_step_id", "mission_plan_step_id"),
+        Index("ix_execution_jobs_created_at", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    idempotency_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    mission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("missions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    mission_plan_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("mission_plans.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    mission_plan_step_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("mission_plan_steps.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    provider_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    task_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    input_ref: Mapped[str] = mapped_column(Text, nullable=False)
+    params: Mapped[Any] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    output_key: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    # Measured metrics (transfer/execution seconds, byte counts, storage
+    # location) — populated only from real runs, truth status OBSERVED.
+    observed_metrics: Mapped[Optional[Any]] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    started_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    completed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
 
 

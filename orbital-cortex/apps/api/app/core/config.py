@@ -66,6 +66,14 @@ class Settings(BaseSettings):
     # Public base URL of this API, used to build local signed URLs.
     public_base_url: str = "http://127.0.0.1:8000"
 
+    # --- Real CPU execution (Phase M) --------------------------------------
+    # Allowlisted directory for fixture inputs (fixture:<name> input_refs).
+    execution_fixture_dir: str = str(API_DIR / "var" / "execution_fixtures")
+    # Resource guards: reject larger inputs before processing; kill runs that
+    # exceed the timeout instead of hanging.
+    execution_max_input_bytes: int = 100 * 1024 * 1024
+    execution_max_seconds: int = 120
+
     # --- Anonymous private sessions (Phase C) -----------------------------
     session_cookie_name: str = "nomos_session"
     # Empty locally (host-only cookie). Production: ".nomosorbital.com".

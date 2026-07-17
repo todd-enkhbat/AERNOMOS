@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: M (next)
+Current phase: N (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -15,9 +15,10 @@ Current phase: M (next)
 - Phase D: Homepage rewrite around mission planning outcomes
 - Phase K: Mission brief PDF/JSON export + private sharing UI (`/share/[token]`)
 - Phase L: Isolate simulations into clearly labeled examples (`/examples`, historical job demo)
+- Phase M: Lightweight real CPU execution — `crop_geotiff` + `thumbnail` on the ARQ worker with OBSERVED metrics
 
 ## In progress
-None — Phase L complete. Next is Phase M (lightweight real CPU execution).
+None — Phase M complete. Next is Phase N (provider registry).
 
 ## Blockers
 None
@@ -70,6 +71,15 @@ None
 - Phase L: four curated example missions use stable uuid5 IDs under `EXAMPLES_ORGANIZATION_ID`; disclosure metadata lives in `customer_systems` with `kind=example_disclosure`.
 - Phase L: `demo-reset` deletes visitor jobs only (`is_example=false`); curated example jobs and all example missions are preserved; seed upserts the four example missions.
 - Phase L: `/jobs` + DemoLauncher are labeled **Historical simulation demo**; mock_inference remains for that path only.
+- Phase M: execution data contracts live in exactly one module, `app/execution/types.py`; provider id is `local-cpu`.
+- Phase M: two tasks only — `crop_geotiff` (rasterio) and `thumbnail` (Pillow, PNG). Checksum was **not** added (kept scope to two fully solid tasks per the phase prompt).
+- Phase M: idempotency is a DB unique constraint on `execution_jobs.idempotency_key`; replayed submits return the stored job unchanged (no re-enqueue, no re-run). Clients may omit the key — a deterministic sha256 of (plan, step, task_type, input_ref, params) is derived.
+- Phase M: `input_ref` allowlist is `fixture:<name>` (files inside `EXECUTION_FIXTURE_DIR`, no paths) and `artifact:missions/{mission_id}/...` (same-mission object-store keys, enabling crop → thumbnail chaining). Everything else → 422 `execution_invalid`.
+- Phase M: resource guards — `EXECUTION_MAX_INPUT_BYTES` (default 100 MB, checked before processing) and `EXECUTION_MAX_SECONDS` timeout (default 120 s, thread-pool future timeout → job failed with a clear error, no hang).
+- Phase M: executable step types are `cloud_process` / `edge_process` only, and only steps with `feasibility_status=feasible`.
+- Phase M: when Redis is unreachable (local dev/tests) submit falls back to running the real task synchronously in-process — same runner the ARQ worker calls; production enqueues `run_execution_job` on ARQ.
+- Phase M: plan steps flip `planned → running → executed/failed` via a new `mission_plan_steps.execution_status` column (+ `executed_at`); measured metrics land in `source_metadata.execution.observed` with `truth_status=OBSERVED`. Estimates on the step are untouched — observed values are additive, never overwrite planning provenance.
+- Phase M: outputs upload to the object store only after the task succeeds, so failed jobs cannot leave partial artifacts.
 
 ## Phase L — work completed
 - Upgraded Phase L agent prompt with concrete file targets, seed/reset rules, and tests
@@ -141,6 +151,63 @@ Tests run (refinement):
 - `pytest tests/test_planner.py tests/test_mission_sessions.py tests/test_mission_builder.py tests/test_mission_model.py tests/test_api.py -q` — 32 passed
 - `npm run lint` — pass; `npm run build` — pass (`/examples` 7.11 kB)
 
+## Phase M — work completed
+- `app/execution/` module: `types.py` (single source of data contracts:
+  ProviderCapabilities, ExecutionTask, ExecutionEstimate, ExternalJob,
+  ExternalJobStatus, ExecutionResult, ObservedMetrics), `refs.py` (input_ref
+  allowlist), `tasks.py` (crop_geotiff + thumbnail), `provider.py`
+  (`ExecutionProvider` interface + `LocalCpuExecutionProvider`), `runner.py`
+  (staged transfer → guarded execution → upload, all phases measured).
+- `execution_jobs` table + `mission_plan_steps.execution_status`/`executed_at`
+  (alembic `f8a9b0c1d2e3`, upgrade + downgrade).
+- ARQ worker function `run_execution_job` registered; `enqueue_execution_job`
+  helper in `core/queue.py` with sync fallback when Redis is down.
+- API: `POST /v1/missions/{id}/plans/{plan_id}/execute` (owner-only) and
+  `GET .../execute/{external_job_id}` (status/result + signed download URL).
+- Plan step/detail responses now include `execution_status` + `executed_at`.
+- OpenAPI spec + web `api-types.ts` regenerated; web lint/build pass.
+- Deps: rasterio + pillow added to `requirements.txt`. Dockerfile unchanged —
+  both ship manylinux wheels (rasterio bundles GDAL), verified by running the
+  full test suite in the dev venv; no system libraries were needed.
+
+## Phase M — skipped / deferred
+- `checksum` task (prompt allowed it only after the first two were solid;
+  scope kept to the two fully tested tasks).
+- UI surfacing of executed steps on the mission page (API already returns
+  `execution_status`; visual treatment deferred to a UI phase).
+- Planetary Computer SAS input_refs (allowlist currently fixture + same-
+  mission artifacts; SAS signing remains deferred as noted since Phase F).
+- Pre-existing lint/type debt not touched: 3 ruff E501 in
+  `app/exports/presentation.py` / `tests/test_pdf_presentation.py` and mypy
+  errors in `services/contact_windows.py`, `planner/engine.py:382`,
+  `routes/missions.py` trailing `_ =` lines — all present before Phase M.
+
+## Phase M — files changed
+- `orbital-cortex/apps/api/app/execution/{__init__,types,refs,tasks,provider,runner}.py` (new)
+- `orbital-cortex/apps/api/migrations/versions/f8a9b0c1d2e3_execution_jobs.py` (new)
+- `orbital-cortex/apps/api/tests/test_execution_phase_m.py` (new, 8 tests)
+- `orbital-cortex/apps/api/app/db/mission_orm.py` (ExecutionJob, step columns)
+- `orbital-cortex/apps/api/app/core/{config,queue}.py`
+- `orbital-cortex/apps/api/app/workers/executor.py`
+- `orbital-cortex/apps/api/app/routes/missions.py` (execute endpoints)
+- `orbital-cortex/apps/api/app/models/mission.py`, `app/planner/engine.py` (step Out fields)
+- `orbital-cortex/apps/api/requirements.txt`
+- `orbital-cortex/openapi.json`, `orbital-cortex/apps/web/lib/generated/api-types.ts` (regenerated)
+
+## Phase M — tests run
+- `pytest tests/test_execution_phase_m.py -q` — 8 passed (end-to-end crop with
+  OBSERVED metrics + on-disk artifact, idempotent submit enqueues exactly one
+  ARQ job, corrupt-input failure with no orphaned artifact, oversized-input
+  guard, chained crop → thumbnail with valid openable PNG, input_ref
+  allowlist rejections, non-executable step rejection, owner-only auth)
+- `pytest tests -q` — 92 passed, 1 skipped (optional WeasyPrint smoke)
+- `ruff check` on all Phase M files — pass; `mypy app/execution` — pass
+- DB audit queries: `execution_jobs.observed_metrics` nonzero and matching
+  `ls -la` byte sizes; `mission_plan_steps.execution_status = 'executed'`
+  with `source_metadata.execution.truth_status = 'OBSERVED'`; failed jobs
+  carry human-readable errors with `output_key IS NULL` and zero files on disk
+- `npm run lint` + `npm run build` (web) — pass after typegen
+
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
 - Local mission APIs rely on `/api/oc` rewrite; job demo still uses `NEXT_PUBLIC_API_BASE_URL` without cookies.
@@ -175,7 +242,7 @@ Tests run (refinement):
 - Phase L keeps `mock_inference.py` for `/jobs` only; customer mission briefs remain free of fabricated detections.
 
 ## Next phase
-Phase M — lightweight real CPU execution (no GPUs).
+Phase N — execution provider registry.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/13-phase-M-cpu-execution.md`](phase-prompts/13-phase-M-cpu-execution.md)
+**Agent prompt to copy-paste:** [`docs/phase-prompts/14-phase-N-provider-registry.md`](phase-prompts/14-phase-N-provider-registry.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

@@ -74,6 +74,14 @@ async def generate_mission_pdf_export(ctx: Dict[str, Any], export_id: str) -> st
     return await asyncio.to_thread(generate_mission_pdf_export_sync, export_id)
 
 
+async def run_execution_job(ctx: Dict[str, Any], external_job_id: str) -> str:
+    """Phase M: real CPU plan-step execution (crop_geotiff, thumbnail)."""
+    from app.execution.runner import run_execution_job_sync
+
+    logger.info("running execution job %s", external_job_id)
+    return await asyncio.to_thread(run_execution_job_sync, external_job_id)
+
+
 async def startup(ctx: Dict[str, Any]) -> None:
     # Warm the contact-window cache so routing never waits on propagation.
     await precompute_passes(ctx)
@@ -85,6 +93,7 @@ class WorkerSettings:
         precompute_passes,
         refresh_tle_snapshot,
         generate_mission_pdf_export,
+        run_execution_job,
     ]
     # Refresh TLEs then recompute passes every 6 hours.
     cron_jobs = [
