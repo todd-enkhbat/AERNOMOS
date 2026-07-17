@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from app.exports.presentation import enrich_for_pdf
+
 _TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
 
 
@@ -19,7 +21,7 @@ def _env() -> Environment:
 
 def render_mission_brief_html(document: Dict[str, Any]) -> str:
     template = _env().get_template("mission_brief.html")
-    return template.render(doc=document)
+    return template.render(doc=document, view=enrich_for_pdf(document))
 
 
 def render_mission_brief_pdf(

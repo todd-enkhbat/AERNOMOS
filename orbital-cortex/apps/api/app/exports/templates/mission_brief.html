@@ -2,288 +2,558 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Nomos Mission Brief — {{ doc.mission_input.title }}</title>
+  <title>Mission Brief — {{ view.mission.title }}</title>
   <style>
     @page {
       size: Letter;
-      margin: 1.6cm 1.8cm 2cm 1.8cm;
-      @bottom-center {
-        content: "Nomos Orbital · Mission brief · page " counter(page);
-        font-size: 8pt;
-        color: #6b7280;
+      margin: 1.1cm 1.25cm 1.4cm 1.25cm;
+      @bottom-left {
+        content: "{{ view.control.reference }} · Confidential planning record";
+        font-size: 7pt;
+        color: #64748b;
+      }
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 7pt;
+        color: #64748b;
       }
     }
+
+    * { box-sizing: border-box; }
+
     body {
       font-family: "DejaVu Sans", Helvetica, Arial, sans-serif;
-      font-size: 10pt;
-      line-height: 1.45;
-      color: #111827;
-    }
-    h1 {
-      font-size: 20pt;
-      margin: 0 0 4pt 0;
-      letter-spacing: -0.02em;
-    }
-    h2 {
-      font-size: 12pt;
-      margin: 18pt 0 6pt 0;
-      border-bottom: 1px solid #d1d5db;
-      padding-bottom: 3pt;
+      font-size: 9pt;
+      line-height: 1.38;
       color: #0f172a;
+      margin: 0;
     }
-    h3 { font-size: 10.5pt; margin: 10pt 0 4pt 0; }
-    .eyebrow {
+
+    .cover {
+      border: 1px solid #cbd5e1;
+      border-top: 4px solid #92400e;
+      padding: 10pt 12pt 12pt;
+      margin-bottom: 10pt;
+      background: linear-gradient(180deg, #fafaf9 0%, #ffffff 100%);
+    }
+
+    .brand {
+      font-size: 7.5pt;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 8pt;
       color: #92400e;
-      margin-bottom: 6pt;
+      font-weight: 700;
+      margin-bottom: 4pt;
     }
-    .meta { color: #4b5563; font-size: 9pt; margin-bottom: 12pt; }
-    .disclosure {
-      background: #fffbeb;
-      border: 1px solid #f59e0b;
-      padding: 8pt 10pt;
-      margin: 10pt 0 16pt 0;
-      font-size: 9pt;
+
+    h1 {
+      font-size: 17pt;
+      line-height: 1.15;
+      margin: 0 0 6pt;
+      color: #0f172a;
+      font-weight: 700;
     }
-    .unavailable {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      padding: 6pt 8pt;
-      margin: 6pt 0;
-      font-size: 9pt;
+
+    .subtitle {
+      font-size: 9.5pt;
+      color: #475569;
+      margin: 0 0 8pt;
+      max-width: 95%;
     }
-    table {
+
+    .control-grid {
+      display: table;
       width: 100%;
       border-collapse: collapse;
-      font-size: 9pt;
-      margin-top: 4pt;
+      font-size: 8pt;
+      margin-top: 6pt;
     }
-    th, td {
-      border: 1px solid #e5e7eb;
-      padding: 4pt 6pt;
-      text-align: left;
+    .control-grid .row { display: table-row; }
+    .control-grid .cell {
+      display: table-cell;
+      width: 25%;
+      padding: 3pt 6pt 3pt 0;
       vertical-align: top;
     }
-    th { background: #f3f4f6; font-weight: 600; }
-    .badge {
+    .control-grid .label {
+      display: block;
+      color: #64748b;
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .callout {
+      border-left: 3px solid #d97706;
+      background: #fffbeb;
+      padding: 7pt 9pt;
+      margin: 8pt 0;
+      font-size: 8.5pt;
+    }
+    .callout strong { color: #92400e; }
+
+    .callout-danger {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+    }
+    .callout-danger strong { color: #b91c1c; }
+
+    .callout-info {
+      border-left-color: #2563eb;
+      background: #eff6ff;
+    }
+    .callout-info strong { color: #1d4ed8; }
+
+    section { margin-bottom: 10pt; page-break-inside: avoid; }
+
+    h2 {
+      font-size: 10.5pt;
+      margin: 0 0 4pt;
+      padding-bottom: 2pt;
+      border-bottom: 1.5px solid #0f172a;
+      color: #0f172a;
+      page-break-after: avoid;
+    }
+
+    h2 .num {
+      color: #92400e;
+      margin-right: 4pt;
+    }
+
+    .lead {
+      font-size: 8.5pt;
+      color: #475569;
+      margin: 0 0 6pt;
+    }
+
+    .exec {
+      font-size: 9.5pt;
+      line-height: 1.45;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 8pt 10pt;
+      margin-bottom: 8pt;
+    }
+
+    .stats {
+      display: table;
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 5pt 0;
+      margin: 6pt 0 4pt;
+    }
+    .stat {
+      display: table-cell;
+      width: 33.33%;
+      border: 1px solid #e2e8f0;
+      padding: 6pt 7pt;
+      vertical-align: top;
+      background: #ffffff;
+    }
+    .stat .k {
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 2pt;
+    }
+    .stat .v {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+
+    .two-col {
+      display: table;
+      width: 100%;
+    }
+    .two-col .col {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+      padding-right: 8pt;
+    }
+    .two-col .col:last-child { padding-right: 0; padding-left: 8pt; }
+
+    table.data {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      margin-top: 4pt;
+    }
+    table.data th {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 4pt 5pt;
+      text-align: left;
+      font-weight: 700;
+      color: #334155;
+    }
+    table.data td {
+      border: 1px solid #e2e8f0;
+      padding: 4pt 5pt;
+      vertical-align: top;
+    }
+    table.data tr:nth-child(even) td { background: #fafafa; }
+
+    .pill {
       display: inline-block;
-      font-size: 7.5pt;
+      font-size: 7pt;
+      font-weight: 700;
       padding: 1pt 5pt;
-      border: 1px solid #9ca3af;
       border-radius: 2pt;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
+      background: #e2e8f0;
+      color: #334155;
     }
-    ul { margin: 4pt 0 4pt 16pt; padding: 0; }
-    li { margin-bottom: 2pt; }
-    .muted { color: #6b7280; }
-    .grid { display: table; width: 100%; }
-    .grid .cell { display: table-cell; width: 50%; padding-right: 8pt; vertical-align: top; }
+    .pill-ok { background: #dcfce7; color: #166534; }
+    .pill-warn { background: #fef3c7; color: #92400e; }
+    .pill-bad { background: #fee2e2; color: #991b1b; }
+
+    ul.compact {
+      margin: 4pt 0 0 14pt;
+      padding: 0;
+    }
+    ul.compact li { margin-bottom: 3pt; }
+
+    .step-num {
+      font-weight: 700;
+      color: #92400e;
+      white-space: nowrap;
+    }
+
+    .muted { color: #64748b; font-size: 8pt; }
+
+    .appendix {
+      margin-top: 12pt;
+      padding-top: 8pt;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+    .appendix h2 {
+      font-size: 9pt;
+      border-bottom-color: #cbd5e1;
+    }
+
+    .signature-block {
+      margin-top: 10pt;
+      display: table;
+      width: 100%;
+    }
+    .signature-block .sig {
+      display: table-cell;
+      width: 50%;
+      padding-top: 16pt;
+      border-top: 1px solid #94a3b8;
+      font-size: 8pt;
+      color: #64748b;
+    }
   </style>
 </head>
 <body>
-  <div class="eyebrow">Nomos Orbital · Mission brief</div>
-  <h1>{{ doc.mission_input.title }}</h1>
-  <p class="meta">
-    Mission ID {{ doc.mission_input.id }} ·
-    Objective {{ doc.mission_input.objective_type }} ·
-    Status {{ doc.mission_input.status }} ·
-    Generated {{ doc.generated_at }}
-  </p>
 
-  <div class="disclosure">
-    <strong>Disclosure.</strong>
-    {{ doc.disclosures.simulation_boundary }}
-    Values labeled SIMULATED or UNAVAILABLE are not live operational capacity.
-  </div>
-
-  <h2>1. Mission summary</h2>
-  <div class="grid">
-    <div class="cell">
-      <p><strong>Timeframe</strong><br />
-        Start: {{ doc.mission_input.start_time or "—" }}<br />
-        End: {{ doc.mission_input.end_time or "—" }}<br />
-        Deadline: {{ doc.mission_input.deadline or "—" }}
-      </p>
-      {% if doc.mission_input.notes %}
-      <p><strong>Notes</strong><br />{{ doc.mission_input.notes }}</p>
-      {% endif %}
-    </div>
-    <div class="cell">
-      <p><strong>Area of interest (static summary)</strong><br />
-        Geometry: {{ doc.geographic_summary.geometry_type or "—" }}<br />
-        {% if doc.geographic_summary.bbox %}
-        BBox: {{ doc.geographic_summary.bbox | join(", ") }}
-        {% else %}
-        BBox: unavailable
-        {% endif %}
-      </p>
-      <p class="muted">{{ doc.geographic_summary.note }}</p>
+  <!-- Cover & document control -->
+  <div class="cover">
+    <div class="brand">Nomos Orbital · Mission Brief</div>
+    <h1>{{ view.mission.title }}</h1>
+    <p class="subtitle">{{ view.purpose }}</p>
+    <div class="control-grid">
+      <div class="row">
+        <div class="cell"><span class="label">Document ref</span>{{ view.control.reference }}</div>
+        <div class="cell"><span class="label">Generated</span>{{ view.control.generated }}</div>
+        <div class="cell"><span class="label">Plan version</span>v{{ view.control.plan_version }}</div>
+        <div class="cell"><span class="label">Record schema</span>v{{ view.control.schema_version }}</div>
+      </div>
     </div>
   </div>
 
-  <h2>2. Recommendation</h2>
-  {% if doc.selected_plan %}
-  <p>
-    <span class="badge">{{ doc.selected_plan.status }}</span>
-    {% if doc.selected_plan.recommended %}<span class="badge">recommended</span>{% endif %}
-  </p>
-  <p>{{ doc.selected_plan.summary }}</p>
-  {% if doc.selected_plan.explanation and doc.selected_plan.explanation.why_recommended %}
-  <p>{{ doc.selected_plan.explanation.why_recommended }}</p>
-  {% endif %}
-  <p class="muted">
-    Estimated time:
-    {% if doc.selected_plan.estimated_total_time_seconds is not none %}
-      {{ doc.selected_plan.estimated_total_time_seconds }} s
-    {% else %}
-      UNAVAILABLE
-    {% endif %}
-    · Estimated cost:
-    {% if doc.selected_plan.estimated_total_cost_usd is not none %}
-      ${{ doc.selected_plan.estimated_total_cost_usd }}
-    {% else %}
-      UNAVAILABLE (no pricing source)
-    {% endif %}
-  </p>
-  {% else %}
-  <div class="unavailable">No plan has been generated for this mission yet.</div>
-  {% endif %}
+  <div class="callout callout-danger">
+    <strong>{{ view.limitations.headline }}.</strong>
+    {{ view.limitations.body }}
+    {{ view.limitations.policy }}
+  </div>
 
-  <h2>3. Plan timeline</h2>
-  {% if doc.selected_plan and doc.selected_plan.steps %}
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Step</th>
-        <th>Provider</th>
-        <th>Feasibility</th>
-        <th>Truth</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for step in doc.selected_plan.steps %}
-      <tr>
-        <td>{{ step.sequence }}</td>
-        <td>
-          <strong>{{ step.title }}</strong><br />
-          <span class="muted">{{ step.description }}</span>
-          {% if step.rejection_reason %}
-          <br /><span class="unavailable">{{ step.rejection_reason }}</span>
+  <!-- 1 Executive summary -->
+  <section>
+    <h2><span class="num">1.</span> Executive summary</h2>
+    <p class="lead">Read this first. It states the recommendation and overall readiness in plain language.</p>
+    <div class="exec">{{ view.executive_summary }}</div>
+    {% if view.recommendation.present %}
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Readiness</div>
+        <div class="v">{{ view.recommendation.readiness }}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Estimated duration</div>
+        <div class="v">{{ view.recommendation.duration }}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Estimated cost</div>
+        <div class="v">{{ view.recommendation.cost }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 2 Mission scope -->
+  <section>
+    <h2><span class="num">2.</span> Mission scope</h2>
+    <p class="lead">What you asked Nomos to plan — objective, timing, and geography.</p>
+    <div class="two-col">
+      <div class="col">
+        <table class="data">
+          <tr><th colspan="2">Mission parameters</th></tr>
+          <tr><td style="width:32%"><strong>Objective</strong></td><td>{{ view.mission.objective }}</td></tr>
+          <tr><td><strong>Planning status</strong></td><td>{{ view.mission.status }}</td></tr>
+          <tr><td><strong>Collection window opens</strong></td><td>{{ view.mission.timeframe.start }}</td></tr>
+          <tr><td><strong>Collection window closes</strong></td><td>{{ view.mission.timeframe.end }}</td></tr>
+          <tr><td><strong>Decision deadline</strong></td><td>{{ view.mission.timeframe.deadline }}</td></tr>
+        </table>
+      </div>
+      <div class="col">
+        <table class="data">
+          <tr><th>Geographic area</th></tr>
+          <tr><td>{{ view.mission.area_narrative }}</td></tr>
+          <tr><th>Additional notes</th></tr>
+          <tr><td>{{ view.mission.notes }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Recommendation -->
+  <section>
+    <h2><span class="num">3.</span> Recommended execution path</h2>
+    <p class="lead">The highest-ranked plan Nomos generated for this mission, and why it leads the alternatives.</p>
+    {% if view.recommendation.present %}
+    <p><strong>{{ view.recommendation.headline }}</strong></p>
+    <p>{{ view.recommendation.why }}</p>
+    <p class="muted">Routing pattern evaluated: {{ view.recommendation.pattern }}</p>
+
+    <div class="two-col" style="margin-top:6pt;">
+      <div class="col">
+        <div class="callout callout-info" style="margin-top:0;">
+          <strong>Executable today</strong>
+          {% if view.recommendation.executable_now %}
+          <ul class="compact">
+            {% for item in view.recommendation.executable_now %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p style="margin:4pt 0 0;">No step is confirmed executable without further review.</p>
           {% endif %}
-        </td>
-        <td>{{ step.provider_name }}</td>
-        <td>{{ step.feasibility_status }}</td>
-        <td>{{ step.truth_status }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="muted">No timeline steps available.</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="callout callout-danger" style="margin-top:0;">
+          <strong>Requires provider access</strong>
+          {% if view.recommendation.needs_provider %}
+          <ul class="compact">
+            {% for item in view.recommendation.needs_provider %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p style="margin:4pt 0 0;">No additional provider gate identified for this path.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="callout">No plan has been generated. Open this mission in Nomos and run <em>Generate plan</em> before exporting again.</div>
+    {% endif %}
+  </section>
+
+  <!-- 4 Timeline -->
+  {% if view.timeline.steps %}
+  <section>
+    <h2><span class="num">4.</span> Step-by-step timeline</h2>
+    <p class="lead">{{ view.timeline.intro }}</p>
+    <table class="data">
+      <thead>
+        <tr>
+          <th style="width:5%">#</th>
+          <th style="width:22%">What happens</th>
+          <th style="width:18%">System involved</th>
+          <th style="width:14%">Readiness</th>
+          <th style="width:41%">Reviewer notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for step in view.timeline.steps %}
+        <tr>
+          <td class="step-num">{{ step.sequence }}</td>
+          <td>
+            <strong>{{ step.title }}</strong><br />
+            <span class="muted">{{ step.description }}</span>
+          </td>
+          <td>{{ step.provider_label }}</td>
+          <td>
+            {% if step.feasibility_status == 'feasible' %}
+            <span class="pill pill-ok">{{ step.feasibility_label }}</span>
+            {% elif step.feasibility_status == 'conditional' %}
+            <span class="pill pill-warn">{{ step.feasibility_label }}</span>
+            {% else %}
+            <span class="pill pill-bad">{{ step.feasibility_label }}</span>
+            {% endif %}
+            <br /><span class="muted">Data confidence: {{ step.truth_label }}</span>
+          </td>
+          <td>{{ step.narrative }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
   {% endif %}
 
-  <h2>4. Alternative plans</h2>
-  {% if doc.candidate_plans %}
-  <table>
-    <thead>
-      <tr>
-        <th>Version</th>
-        <th>Summary</th>
-        <th>Status</th>
-        <th>Recommended</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for plan in doc.candidate_plans %}
-      <tr>
-        <td>{{ plan.version }}</td>
-        <td>{{ plan.summary }}</td>
-        <td>{{ plan.status }}</td>
-        <td>{{ "yes" if plan.recommended else "no" }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="muted">No candidate plans.</p>
+  <!-- 5 Alternatives -->
+  {% if view.alternatives.rows %}
+  <section>
+    <h2><span class="num">5.</span> Alternative routes considered</h2>
+    <p class="lead">{{ view.alternatives.intro }}</p>
+    <table class="data">
+      <thead>
+        <tr>
+          <th style="width:8%">Ver.</th>
+          <th style="width:28%">Route summary</th>
+          <th style="width:18%">Readiness</th>
+          <th style="width:12%">Selected?</th>
+          <th style="width:34%">Why Nomos ranked it here</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.alternatives.rows %}
+        <tr>
+          <td>{{ row.version }}</td>
+          <td>{{ row.summary }}</td>
+          <td>{{ row.readiness }}</td>
+          <td>{{ row.recommended }}</td>
+          <td>{{ row.commentary }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
   {% endif %}
 
-  <h2>5. Assumptions</h2>
-  {% if doc.assumptions %}
-  <ul>
-    {% for item in doc.assumptions %}
-      {% if item is mapping %}
-        {% if item.kind == "planner_meta" %}
-        <li>Planner config {{ item.planner_config_version or "—" }}; pattern {{ item.pattern or "—" }}</li>
-        {% elif item.text %}
-        <li>{{ item.text }}</li>
-        {% elif item.message %}
-        <li>{{ item.message }}</li>
-        {% else %}
-        <li>{{ item }}</li>
-        {% endif %}
-      {% else %}
-      <li>{{ item }}</li>
-      {% endif %}
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p class="muted">No assumptions recorded.</p>
-  {% endif %}
+  <!-- 6 Assumptions -->
+  <section>
+    <h2><span class="num">6.</span> Assumptions &amp; constraints</h2>
+    <p class="lead">{{ view.assumptions.intro }}</p>
+    {% if view.assumptions.entries %}
+    <table class="data">
+      <thead><tr><th style="width:22%">Category</th><th>Statement</th></tr></thead>
+      <tbody>
+        {% for item in view.assumptions.entries %}
+        <tr><td>{{ item.category }}</td><td>{{ item.text }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No assumptions were recorded for the selected plan.</p>
+    {% endif %}
+  </section>
 
-  <h2>6. Sources</h2>
-  {% if doc.source_evidence %}
-  <table>
-    <thead>
-      <tr><th>Source</th><th>Type</th><th>Truth</th><th>Retrieved</th></tr>
-    </thead>
-    <tbody>
-      {% for ev in doc.source_evidence %}
-      <tr>
-        <td>{{ ev.source_name }}</td>
-        <td>{{ ev.source_type }}</td>
-        <td>{{ ev.truth_status }}</td>
-        <td>{{ ev.retrieved_at }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="muted">No source evidence attached to the selected plan.</p>
-  {% endif %}
+  <!-- 7 Sources -->
+  <section>
+    <h2><span class="num">7.</span> Data sources &amp; evidence</h2>
+    <p class="lead">{{ view.sources.intro }}</p>
+    {% if view.sources.rows %}
+    <table class="data">
+      <thead>
+        <tr>
+          <th style="width:30%">Source</th>
+          <th style="width:14%">Type</th>
+          <th style="width:22%">Confidence level</th>
+          <th style="width:18%">Retrieved</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.sources.rows %}
+        <tr>
+          <td>{{ row.name }}</td>
+          <td>{{ row.type }}</td>
+          <td>{{ row.confidence }}</td>
+          <td>{{ row.retrieved }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No source evidence is attached to the recommended plan.</p>
+    {% endif %}
+  </section>
 
-  <h2>7. Truth-status legend</h2>
-  <table>
-    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
-    <tbody>
-      {% for row in doc.truth_statuses.legend %}
-      <tr><td>{{ row.status }}</td><td>{{ row.meaning }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- 8 Missing integrations -->
+  <section>
+    <h2><span class="num">8.</span> Capabilities not yet connected</h2>
+    <p class="lead">{{ view.missing.intro }}</p>
+    <table class="data">
+      <thead><tr><th style="width:34%">Integration</th><th>Impact on this plan</th></tr></thead>
+      <tbody>
+        {% for row in view.missing.rows %}
+        <tr><td><strong>{{ row.integration }}</strong></td><td>{{ row.impact }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
 
-  <h2>8. Missing integrations</h2>
-  <div class="unavailable">
-    <ul>
-      {% for item in doc.missing_integrations %}
-      <li>{{ item }} — <strong>UNAVAILABLE</strong></li>
+  <!-- 9 Next actions -->
+  <section>
+    <h2><span class="num">9.</span> Recommended next actions</h2>
+    <p class="lead">{{ view.next_actions.intro }}</p>
+    <ol class="compact">
+      {% for action in view.next_actions.entries %}
+      <li><strong>{{ loop.index }}.</strong> {{ action }}</li>
       {% endfor %}
-    </ul>
+    </ol>
+
+    <div class="signature-block">
+      <div class="sig">Reviewed by (name / role) · Date</div>
+      <div class="sig">Approved for external sharing (Y/N) · Date</div>
+    </div>
+  </section>
+
+  <!-- Appendix A -->
+  <div class="appendix">
+    <section>
+      <h2>Appendix A — Data confidence definitions</h2>
+      <p class="lead">Nomos labels every important value with one of these statuses. Use this table when auditing numbers in sections 4–7.</p>
+      <table class="data">
+        <thead><tr><th style="width:22%">Status</th><th>Meaning for reviewers</th></tr></thead>
+        <tbody>
+          {% for row in view.truth_legend %}
+          <tr><td><strong>{{ row.status }}</strong></td><td>{{ row.meaning }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Appendix B — Technical record</h2>
+      <p class="lead">Identifiers for audit trails, JSON export cross-reference, and support requests. Not required for day-to-day reading.</p>
+      <table class="data">
+        <tr><td style="width:32%"><strong>Mission identifier</strong></td><td>{{ view.appendix.mission_id }}</td></tr>
+        <tr><td><strong>Plan identifier</strong></td><td>{{ view.control.plan_id }}</td></tr>
+        <tr><td><strong>Document type</strong></td><td>{{ view.appendix.document_type }}</td></tr>
+        <tr><td><strong>Export schema version</strong></td><td>{{ view.appendix.schema_version }}</td></tr>
+        <tr><td><strong>Generated (ISO)</strong></td><td>{{ view.appendix.generated_at }}</td></tr>
+        <tr><td><strong>Plan fingerprint</strong></td><td>{{ view.appendix.plan_hash or "—" }}</td></tr>
+        <tr><td><strong>Input fingerprint</strong></td><td>{{ view.appendix.input_hash or "—" }}</td></tr>
+        <tr><td><strong>Planner configuration</strong></td><td>{{ view.appendix.planner_config or "—" }}</td></tr>
+      </table>
+      <p class="muted" style="margin-top:6pt;">
+        Nomos Orbital · This document is generated from source-backed mission planning data.
+        It is not a contract, tasking order, or export-controlled technical specification.
+        Validate all operational decisions with your compliance and security teams.
+      </p>
+    </section>
   </div>
 
-  <h2>9. Next actions</h2>
-  <ul>
-    {% for action in doc.next_actions %}
-    <li>{{ action }}</li>
-    {% endfor %}
-  </ul>
-
-  <p class="meta" style="margin-top: 18pt;">
-    Schema version {{ doc.schema_version }} · Document type {{ doc.document_type }}
-  </p>
 </body>
 </html>

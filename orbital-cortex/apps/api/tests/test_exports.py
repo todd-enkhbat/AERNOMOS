@@ -263,9 +263,9 @@ def test_pdf_html_template_smoke():
     }
     html = render_mission_brief_html(doc)
     assert "Smoke brief" in html
-    assert "Disclosure" in html
-    assert "Truth-status legend" in html
-    assert "UNAVAILABLE" in html
+    assert "Executive summary" in html
+    assert "Appendix A" in html
+    assert "Planning only" in html
 
 
 def test_pdf_weasyprint_integration_optional():
