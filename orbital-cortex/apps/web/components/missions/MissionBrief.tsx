@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Check, CircleAlert, ExternalLink, LockKeyhole } from "lucide-react";
 
 import { ContactWindowTimeline } from "@/components/network/ContactWindowTimeline";
+import { ExecutionDemoPanel } from "@/components/missions/ExecutionDemoPanel";
 import {
   AssumptionPanel,
   SourcePopover,
@@ -234,6 +235,64 @@ function FeasibilitySummary({ plans }: { plans: MissionPlan[] }) {
   );
 }
 
+function executionStatusLabel(status: string | undefined): string {
+  switch (status) {
+    case "running":
+      return "Running";
+    case "executed":
+      return "Executed";
+    case "failed":
+      return "Failed";
+    default:
+      return "Planned";
+  }
+}
+
+function executionStatusTone(status: string | undefined): string {
+  switch (status) {
+    case "executed":
+      return "border-cobalt/40 bg-cobalt/10 text-cobalt";
+    case "running":
+      return "border-gold/40 bg-gold/10 text-gold";
+    case "failed":
+      return "border-vermilion/40 bg-vermilion/10 text-[#e8a08e]";
+    default:
+      return "border-white/15 bg-white/[0.04] text-muted";
+  }
+}
+
+function observedFromStep(step: MissionPlanStep): {
+  execution_seconds?: number;
+  output_bytes?: number;
+  error?: string;
+} | null {
+  const execution = step.source_metadata?.execution;
+  if (!execution || typeof execution !== "object") return null;
+  const record = execution as Record<string, unknown>;
+  const observed = record.observed;
+  if (observed && typeof observed === "object") {
+    const metrics = observed as Record<string, unknown>;
+    return {
+      execution_seconds:
+        typeof metrics.execution_seconds === "number"
+          ? metrics.execution_seconds
+          : undefined,
+      output_bytes:
+        typeof metrics.output_bytes === "number" ? metrics.output_bytes : undefined,
+      error: typeof record.error === "string" ? record.error : undefined,
+    };
+  }
+  if (typeof record.error === "string") {
+    return { error: record.error };
+  }
+  return null;
+}
+
+function formatObservedBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  return `${(bytes / 1024).toFixed(1)} KB`;
+}
+
 function MissionTimeline({ plan }: { plan: MissionPlan }) {
   const steps = [...(plan.steps ?? [])].sort((a, b) => a.sequence - b.sequence);
   return steps.length ? (
@@ -245,13 +304,22 @@ function MissionTimeline({ plan }: { plan: MissionPlan }) {
             : typeof step.source_metadata?.duration_truth_status === "string"
             ? step.source_metadata.duration_truth_status
             : step.truth_status;
+        const execStatus = step.execution_status ?? "planned";
+        const observed = observedFromStep(step);
         return (
           <li className="grid gap-4 border-l border-gold/25 pb-7 pl-7 last:pb-0 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]" key={step.id}>
             <span className="absolute -ml-[2.05rem] mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-gold/50 bg-void">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
             </span>
             <div>
-              <p className="chart-label text-gold">Step {step.sequence}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="chart-label text-gold">Step {step.sequence}</p>
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${executionStatusTone(execStatus)}`}
+                >
+                  {executionStatusLabel(execStatus)}
+                </span>
+              </div>
               <h3 className="mt-1 text-base text-cream">{step.title}</h3>
               <p className="mt-2 text-xs leading-5 text-muted">{step.description}</p>
             </div>
@@ -272,6 +340,18 @@ function MissionTimeline({ plan }: { plan: MissionPlan }) {
                   {formatDuration(step.duration_seconds)}
                   <TruthBadge compact status={durationTruth} />
                 </dd>
+                {observed?.execution_seconds != null ? (
+                  <dd className="mt-1 flex flex-wrap items-center gap-2 text-xs text-silver">
+                    Observed: {observed.execution_seconds.toFixed(3)}s
+                    {observed.output_bytes != null
+                      ? ` · ${formatObservedBytes(observed.output_bytes)} out`
+                      : ""}
+                    <TruthBadge compact status="OBSERVED" />
+                  </dd>
+                ) : null}
+                {execStatus === "failed" && observed?.error ? (
+                  <dd className="mt-1 text-xs leading-5 text-[#e8a08e]">{observed.error}</dd>
+                ) : null}
               </div>
               <div>
                 <dt className="text-muted-dark">Provider</dt>
@@ -429,6 +509,9 @@ export function MissionBrief({
   onExportPdf,
   onExportJson,
   readOnly,
+  canExecute,
+  onRefreshPlan,
+  onExecutionNotice,
 }: {
   mission: MissionSummary;
   plans: MissionPlan[];
@@ -449,6 +532,9 @@ export function MissionBrief({
   onExportPdf?: () => void;
   onExportJson?: () => void;
   readOnly?: boolean;
+  canExecute?: boolean;
+  onRefreshPlan?: () => Promise<void>;
+  onExecutionNotice?: (message: string | null) => void;
 }) {
   const recommended = plans.find((plan) => plan.recommended) ?? null;
   const primary = recommended ?? plans[0];
@@ -574,6 +660,15 @@ export function MissionBrief({
       </Section>
 
       <Section index="03" title="Mission timeline">
+        <div className="mb-6">
+          <ExecutionDemoPanel
+            canExecute={Boolean(canExecute && !readOnly)}
+            mission={mission}
+            onNotice={onExecutionNotice ?? (() => {})}
+            onRefreshPlan={onRefreshPlan ?? (async () => {})}
+            plan={primary}
+          />
+        </div>
         <MissionTimeline plan={primary} />
       </Section>
 
@@ -709,7 +804,11 @@ export function MissionBrief({
         <aside className="flex gap-4 rounded-xl border border-gold/25 bg-gold/5 p-5 text-sm leading-6 text-silver">
           <LockKeyhole aria-hidden className="mt-0.5 shrink-0 text-gold" size={20} />
           <p>
-            This mission plan uses real public orbital and catalog data where available. Satellite tasking, provider reservation, onboard execution, and commercial guarantees are not performed unless explicitly marked as connected.
+            This mission plan uses real public orbital and catalog data where available.
+            The optional CPU demo runs crop + thumbnail on a fixture GeoTIFF with measured
+            OBSERVED durations — not your STAC scene and not GPU inference. Satellite
+            tasking, provider reservation, onboard execution, and commercial guarantees
+            are not performed unless explicitly marked as connected.
           </p>
         </aside>
       </Section>

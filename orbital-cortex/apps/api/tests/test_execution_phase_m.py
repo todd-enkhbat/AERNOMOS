@@ -428,6 +428,20 @@ def test_non_executable_step_rejected(client: TestClient):
     assert denied.json()["error"]["code"] == "step_not_executable"
 
 
+def test_ensure_execution_fixtures_writes_sample_tif(tmp_path, monkeypatch):
+    monkeypatch.setenv("EXECUTION_FIXTURE_DIR", str(tmp_path))
+    get_settings.cache_clear()
+    from app.execution.fixtures import ensure_execution_fixtures, sample_fixture_path
+
+    path = ensure_execution_fixtures()
+    assert path == sample_fixture_path()
+    assert path.is_file()
+    assert path.stat().st_size > 0
+    # Idempotent second call.
+    assert ensure_execution_fixtures() == path
+    get_settings.cache_clear()
+
+
 def test_execute_owner_only(client: TestClient):
     ctx = _create_mission_with_plan(client)
 

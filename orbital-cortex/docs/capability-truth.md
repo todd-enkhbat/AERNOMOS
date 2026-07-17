@@ -32,6 +32,7 @@ Safe to claim on the homepage and customer surfaces:
 - labels assumptions and unavailable integrations with truth status
 - generates a technical mission brief at `/missions/[id]`
 - keeps visitor missions private to an anonymous browser session
+- runs an optional owner-only CPU demo (fixture crop + thumbnail) with OBSERVED metrics on the real worker
 
 Safe language: **source-backed execution plan**, **real orbital and
 infrastructure data**, **technical mission brief**, **labeled assumptions**,
@@ -63,6 +64,25 @@ Safe language: **requires provider integration**, **unavailable until connected*
 
 Safe language: **private mission**, **recommended plan**, **source evidence**,
 **feasibility summary**.
+
+### Real CPU demo execution (Phase M — mission brief, owner-only)
+
+Nomos can run a **lightweight real CPU demo** on the production ARQ worker for
+mission owners from `/missions/[id]`:
+
+- tasks: `crop_geotiff` (rasterio) then `thumbnail` (PNG) chained
+- input: **fixture GeoTIFF** (`fixture:sample.tif`), not the mission STAC scene
+- output: artifacts in object storage; durations and byte counts labeled **OBSERVED**
+- cost estimate: **$0** (local CPU on existing worker)
+- plan steps show **planned vs executed**; planner ESTIMATED durations are not overwritten
+
+Safe language: **real CPU demo**, **measured OBSERVED execution**, **fixture
+raster**, **owner-only**, **not live catalog download**.
+
+Do not claim: **GPU inference**, **onboard execution**, **your catalog scene was
+processed**, **operational cloud billing**, or **production imagery pipeline**.
+
+This is distinct from the `/jobs` historical simulation demo (SIMULATED detections).
 
 ### Production infrastructure (job demo and APIs)
 

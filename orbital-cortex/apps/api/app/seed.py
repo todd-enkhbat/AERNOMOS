@@ -79,6 +79,9 @@ def seed_database(session: Session) -> Dict[str, int]:
     example_missions = ensure_example_missions(session)
     example_jobs = ensure_curated_job_examples(session, limit=3)
     example_plans = ensure_example_plans(session)
+    from app.execution.fixtures import ensure_execution_fixtures
+
+    ensure_execution_fixtures()
     session.commit()
     return {
         "compute_nodes": len(compute_nodes),

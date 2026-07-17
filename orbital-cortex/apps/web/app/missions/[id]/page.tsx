@@ -157,12 +157,25 @@ function MissionDetailInner() {
     try {
       await ensureAnonymousSession();
       const response = await generateMissionPlans(params.id);
-      setPlans(response.plans);
-      if (!response.plans.length) setPlanError("No mission plans were generated.");
+      const detailed = await loadPlanDetails(params.id, response.plans, shareToken);
+      setPlans(detailed);
+      if (!detailed.length) setPlanError("No mission plans were generated.");
     } catch (error) {
       setPlanError(apiErrorMessage(error, "Could not generate mission plans."));
     } finally {
       setPlanning(false);
+    }
+  }
+
+  async function onRefreshPlan() {
+    if (!plans.length) return;
+    try {
+      const detailed = await loadPlanDetails(params.id, plans, shareToken);
+      setPlans(detailed);
+    } catch (error) {
+      setPlanError(
+        apiErrorMessage(error, "Could not refresh plan steps after execution.")
+      );
     }
   }
 
@@ -348,6 +361,7 @@ function MissionDetailInner() {
             </section>
           ) : (
             <MissionBrief
+              canExecute={canEdit}
               canExport={canEdit}
               canShare={canEdit}
               candidates={candidates}
@@ -356,12 +370,15 @@ function MissionDetailInner() {
               exportingPdf={exportingPdf}
               infrastructure={infrastructure}
               mission={mission}
+              onExecutionNotice={setNotice}
               onExportJson={onExportJson}
               onExportPdf={onExportPdf}
+              onRefreshPlan={onRefreshPlan}
               onRevokeShare={onRevokeShare}
               onShare={onShare}
               onShareExpiresDaysChange={setShareExpiresDays}
               plans={plans}
+              readOnly={Boolean(shareToken)}
               revoking={revoking}
               shareExpiresDays={shareExpiresDays}
               shareUrl={shareUrl}

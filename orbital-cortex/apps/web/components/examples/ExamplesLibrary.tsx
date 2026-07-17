@@ -194,6 +194,10 @@ function FeaturedSpecimen({
             Build your own
           </LiquidButton>
         </div>
+        <p className="mt-4 text-xs leading-5 text-muted">
+          Mission owners can run the real CPU demo (fixture crop + thumbnail with
+          OBSERVED metrics) from the mission brief timeline — not live catalog download.
+        </p>
       </LiquidCard>
     </FadeIn>
   );

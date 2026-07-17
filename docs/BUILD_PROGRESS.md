@@ -15,10 +15,10 @@ Current phase: N (next)
 - Phase D: Homepage rewrite around mission planning outcomes
 - Phase K: Mission brief PDF/JSON export + private sharing UI (`/share/[token]`)
 - Phase L: Isolate simulations into clearly labeled examples (`/examples`, historical job demo)
-- Phase M: Lightweight real CPU execution — `crop_geotiff` + `thumbnail` on the ARQ worker with OBSERVED metrics
+- Phase M: Lightweight real CPU execution — `crop_geotiff` + `thumbnail` on the ARQ worker with OBSERVED metrics, plus mission-brief **Run CPU demo** UI (OBSERVED thumbnail + timeline)
 
 ## In progress
-None — Phase M complete. Next is Phase N (provider registry).
+None — Phase M (backend + UI polish) complete. Next is Phase N (provider registry).
 
 ## Blockers
 None
@@ -170,11 +170,54 @@ Tests run (refinement):
   both ship manylinux wheels (rasterio bundles GDAL), verified by running the
   full test suite in the dev venv; no system libraries were needed.
 
+## Phase M UI polish — work completed
+- **`ExecutionDemoPanel`** on mission brief section 03: owner-only **Run CPU demo**
+  chains `crop_geotiff` → `thumbnail` on `fixture:sample.tif`, polls status,
+  shows OBSERVED metrics + signed PNG thumbnail; read-only shares see results
+  but not the run button.
+- **`MissionTimeline`** pills: Planned / Running / Executed / Failed; executed
+  steps show additive **Observed: Xs · Y out** under planner ESTIMATED duration.
+- **API client** (`lib/api.ts`): `executePlanStep`, `getExecutionStatus`, step
+  fields `execution_status` / `executed_at`; AOI crop bounds helper
+  (`lib/missionAoi.ts`).
+- **Production fixture**: `ensure_execution_fixtures()` writes
+  `{EXECUTION_FIXTURE_DIR}/sample.tif` (~9.5 KB synthetic GeoTIFF) at seed/
+  startup — no binary committed; Fly/Docker use default `var/execution_fixtures/`.
+- **Truth docs**: `capability-truth.md` “Real CPU demo execution (Phase M)”;
+  mission brief section 08 disclosure; `SOUL.md` demo-truth bullet;
+  `/examples` read-only note for owners.
+- **Mission page wiring**: `canExecute`, `onRefreshPlan`, plan detail reload
+  after execution; `InlineNotice` for errors/success.
+
+## Phase M UI polish — files changed
+- `orbital-cortex/apps/web/components/missions/ExecutionDemoPanel.tsx` (new)
+- `orbital-cortex/apps/web/lib/missionAoi.ts` (new)
+- `orbital-cortex/apps/web/lib/api.ts`
+- `orbital-cortex/apps/web/components/missions/MissionBrief.tsx`
+- `orbital-cortex/apps/web/app/missions/[id]/page.tsx`
+- `orbital-cortex/apps/web/components/examples/ExamplesLibrary.tsx`
+- `orbital-cortex/apps/api/app/execution/fixtures.py` (new)
+- `orbital-cortex/apps/api/app/seed.py`
+- `orbital-cortex/apps/api/tests/test_execution_phase_m.py` (fixture seed test)
+- `SOUL.md`, `orbital-cortex/docs/capability-truth.md`, `docs/BUILD_PROGRESS.md`
+
+## Phase M UI polish — tests run
+- `pytest tests -q` — **93 passed**, 1 skipped
+- `npm run lint` — pass; `npm run build` — pass
+- **Browser QA** (localhost:3015 prod build → API :8000):
+  - Desktop: `/plan` → mission → catalog candidate + generate plan → **Run CPU demo**
+    → thumbnail visible, OBSERVED **0.045s · 245 B out**, timeline **Executed** pill
+  - Mobile (~390px): timeline + execution panel render without horizontal clip
+  - Share link: no run button; owner-only message; **Executed** + **Observed** visible
+  - Failure/retry: API `test_failure_corrupt_input_no_partial_artifact` verifies
+    human-readable errors; UI shows vermilion error box + **Run CPU demo** retry
+    (`ExecutionDemoPanel` failed state)
+- **Note:** CPU demo panel requires a **feasible** `cloud_process` / `edge_process`
+  step — run catalog discovery (or seed candidates) before generating plans.
+
 ## Phase M — skipped / deferred
 - `checksum` task (prompt allowed it only after the first two were solid;
   scope kept to the two fully tested tasks).
-- UI surfacing of executed steps on the mission page (API already returns
-  `execution_status`; visual treatment deferred to a UI phase).
 - Planetary Computer SAS input_refs (allowlist currently fixture + same-
   mission artifacts; SAS signing remains deferred as noted since Phase F).
 - Pre-existing lint/type debt not touched: 3 ruff E501 in

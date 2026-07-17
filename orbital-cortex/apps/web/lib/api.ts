@@ -443,6 +443,57 @@ export type MissionPlanStep = {
   source_metadata?: Record<string, unknown>;
   feasibility_status: string;
   rejection_reason?: string | null;
+  execution_status?: string;
+  executed_at?: string | null;
+};
+
+export type ObservedMetrics = {
+  transfer_seconds: number;
+  execution_seconds: number;
+  input_bytes: number;
+  output_bytes: number;
+  storage_location: string;
+};
+
+export type ExecutionResult = {
+  external_job_id: string;
+  output_ref: string;
+  observed: ObservedMetrics;
+};
+
+export type ExecuteStepRequest = {
+  step_id: string;
+  task_type: string;
+  input_ref: string;
+  params?: Record<string, unknown>;
+  idempotency_key?: string | null;
+};
+
+export type ExecuteStepResponse = {
+  job: {
+    external_job_id: string;
+    idempotency_key: string;
+    status: "queued" | "running" | "succeeded" | "failed";
+  };
+  estimate: {
+    estimated_seconds: number;
+    estimated_cost_usd: number;
+  };
+  plan_step_id: string;
+  provider_id: string;
+};
+
+export type ExecutionStatusResponse = {
+  job: {
+    external_job_id: string;
+    status: "queued" | "running" | "succeeded" | "failed";
+    error?: string | null;
+  };
+  task_type: string;
+  plan_step_id?: string | null;
+  result?: ExecutionResult | null;
+  observed_truth_status?: string | null;
+  download_url?: string | null;
 };
 
 export type SourceEvidence = {
@@ -541,6 +592,27 @@ export function getMissionPlan(
   return missionRequest<{ plan: MissionPlan }>(
     `/v1/missions/${missionId}/plans/${planId}`,
     { headers }
+  );
+}
+
+export function executePlanStep(
+  missionId: string,
+  planId: string,
+  body: ExecuteStepRequest
+): Promise<ExecuteStepResponse> {
+  return missionRequest<ExecuteStepResponse>(
+    `/v1/missions/${missionId}/plans/${planId}/execute`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+}
+
+export function getExecutionStatus(
+  missionId: string,
+  planId: string,
+  externalJobId: string
+): Promise<ExecutionStatusResponse> {
+  return missionRequest<ExecutionStatusResponse>(
+    `/v1/missions/${missionId}/plans/${planId}/execute/${externalJobId}`
   );
 }
 

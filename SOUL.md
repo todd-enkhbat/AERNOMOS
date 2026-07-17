@@ -102,6 +102,7 @@ Label this path **Historical simulation demo**. It is not the primary CTA.
 
 - Mission planning searches real public catalogs (Microsoft Planetary Computer), calculates SGP4 contact windows from CelesTrak TLEs (live or pinned), and compares feasible infrastructure patterns.
 - Plans label assumptions, unavailable integrations, and truth status. Cost estimates are UNAVAILABLE until a real pricing source exists.
+- Mission owners can run a real CPU demo (fixture GeoTIFF crop + thumbnail) from the mission brief; measured durations are OBSERVED, not simulated. This is not live catalog download or GPU inference.
 - Satellite tasking, ground-station reservation, onboard execution, private telemetry, and commercial pricing guarantees require provider integration and are not claimed as live.
 - Curated public examples at `/examples` are `is_example` missions with explicit disclosures for real data, real calculations, estimated steps, simulated steps, and unavailable integrations.
 - The legacy Job API, database, async queue, worker, routing audit, PostGIS storage, and artifact delivery run on production infrastructure with simulated compute execution and canned ship-detection output. UI must scream SIMULATED.
