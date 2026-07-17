@@ -52,6 +52,7 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 | Doc | Use when |
 | --- | --- |
 | [docs/NOMOS_BUILD_PLAN.md](docs/NOMOS_BUILD_PLAN.md) | **Mission-planner master plan (phases A–T)** — persistent build context |
+| [docs/phase-prompts/](docs/phase-prompts/README.md) | **Copy-paste agent prompts per phase (F–T)** — detailed implementation instructions |
 | [docs/BUILD_PROGRESS.md](docs/BUILD_PROGRESS.md) | **Current build phase / blockers / decisions** — update after every phase |
 | [orbital-cortex/docs/production-runbook.md](orbital-cortex/docs/production-runbook.md) | Ops, debugging prod, secrets checklist |
 | [orbital-cortex/docs/deployment.md](orbital-cortex/docs/deployment.md) | First-time deploy |

@@ -7,6 +7,18 @@ credible, privacy-safe, source-backed mission-planning product.
 goal-based loop in [`.cursor/rules/nomos-build-loop.mdc`](../.cursor/rules/nomos-build-loop.mdc)
 and track status in [`BUILD_PROGRESS.md`](BUILD_PROGRESS.md).
 
+### Copy-paste agent prompts (detailed)
+
+Phases **A–C are complete**. For each remaining phase, use the standalone prompt in:
+
+**[`docs/phase-prompts/`](phase-prompts/README.md)**
+
+Those files are the implementation-level instructions (exact paths, checklists,
+non-goals, validation commands). The lettered sections below remain the product
+spec / acceptance source of truth; when they conflict on *how* to implement,
+prefer the phase-prompt file plus decisions already recorded in
+`BUILD_PROGRESS.md`.
+
 Companion audit (Phase A output):
 [`orbital-cortex/docs/current-system-audit.md`](../orbital-cortex/docs/current-system-audit.md).
 

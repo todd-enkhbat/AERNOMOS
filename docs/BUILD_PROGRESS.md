@@ -63,3 +63,6 @@ None
 
 ## Next phase
 Phase F — STAC catalog discovery (Microsoft Planetary Computer / Earth Search behind `DataCatalogProvider`).
+
+**Agent prompt to copy-paste:** [`docs/phase-prompts/04-phase-F-stac-catalog.md`](phase-prompts/04-phase-F-stac-catalog.md)  
+**Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)
