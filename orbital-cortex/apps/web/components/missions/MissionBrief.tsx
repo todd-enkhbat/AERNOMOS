@@ -7,8 +7,10 @@ import { ContactWindowTimeline } from "@/components/network/ContactWindowTimelin
 import { ExecutionDemoPanel } from "@/components/missions/ExecutionDemoPanel";
 import {
   AssumptionPanel,
+  IntegrationStatusChip,
   SourcePopover,
   TruthBadge,
+  integrationStatusFromStep,
   type ProvenancedMetric,
   type TruthStatus,
 } from "@/components/truth";
@@ -102,6 +104,16 @@ function statusTruth(status: string | null | undefined): string {
 }
 
 function availabilityForStep(step: MissionPlanStep): string {
+  const integration = integrationStatusFromStep(step.source_metadata);
+  if (integration === "simulated") {
+    return "Simulated registry entry — not live provider access";
+  }
+  if (integration === "public_data_only" || integration === "sandbox_requested") {
+    return "Public provider facts only — live access not verified";
+  }
+  if (integration === "sandbox_connected" || integration === "partner_connected") {
+    return "Connected provider integration";
+  }
   if (step.feasibility_status === "feasible" && step.truth_status !== "UNAVAILABLE") {
     return "Available for planning";
   }
@@ -367,6 +379,10 @@ function MissionTimeline({ plan }: { plan: MissionPlan }) {
                 <dt className="text-muted-dark">Current availability</dt>
                 <dd className="mt-1 flex flex-wrap items-center gap-2 text-cream">
                   {availabilityForStep(step)}
+                  <IntegrationStatusChip
+                    compact
+                    status={integrationStatusFromStep(step.source_metadata)}
+                  />
                   <TruthBadge compact status={step.truth_status} />
                 </dd>
               </div>
@@ -378,6 +394,19 @@ function MissionTimeline({ plan }: { plan: MissionPlan }) {
   ) : (
     <p className="text-sm text-muted">Plan steps are unavailable.</p>
   );
+}
+
+function providerIntegrationsForPlan(
+  plan: MissionPlan
+): Array<{ provider: string; status: string }> {
+  const integrations = new Map<string, { provider: string; status: string }>();
+  (plan.steps ?? []).forEach((step) => {
+    const status = integrationStatusFromStep(step.source_metadata);
+    if (!status) return;
+    const provider = step.provider_name || "Unknown provider";
+    integrations.set(`${provider}:${status}`, { provider, status });
+  });
+  return Array.from(integrations.values());
 }
 
 function AlternativesTable({ plans }: { plans: MissionPlan[] }) {
@@ -393,6 +422,7 @@ function AlternativesTable({ plans }: { plans: MissionPlan[] }) {
         </thead>
         <tbody>
           {plans.map((plan) => {
+            const providerIntegrations = providerIntegrationsForPlan(plan);
             const reason =
               plan.recommended
                 ? plan.explanation?.why_recommended
@@ -422,7 +452,23 @@ function AlternativesTable({ plans }: { plans: MissionPlan[] }) {
                   <SourcePopover metric={estimateMetric(plan, "data_movement_mb")} />
                 </td>
                 <td className="max-w-[180px] px-4 py-4 text-muted">
-                  {plan.explanation?.missing_integrations?.join(", ") || "No provider access flagged"}
+                  <span className="block">
+                    {plan.explanation?.missing_integrations?.join(", ") ||
+                      "No provider access flagged"}
+                  </span>
+                  {providerIntegrations.length ? (
+                    <span className="mt-2 flex flex-col items-start gap-1.5">
+                      {providerIntegrations.map(({ provider, status }) => (
+                        <span
+                          className="flex flex-wrap items-center gap-1.5"
+                          key={`${provider}:${status}`}
+                        >
+                          <span className="text-cream">{provider}</span>
+                          <IntegrationStatusChip compact status={status} />
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                 </td>
                 <td className="max-w-[260px] px-4 py-4 leading-5 text-muted">{reason}</td>
               </tr>

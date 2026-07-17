@@ -27,6 +27,7 @@ from app.services.mission_infrastructure import (
     GS_COORDINATE_METADATA,
     upsert_infrastructure_resources,
 )
+from app.services.provider_registry import ingest_providers_from_config
 
 SIMULATOR_DIR = REPO_ROOT / "simulator"
 
@@ -73,6 +74,7 @@ def seed_database(session: Session) -> Dict[str, int]:
     infra_counts = upsert_infrastructure_resources(
         session, snapshot=snapshot, ground_stations=ground_stations
     )
+    provider_registry = ingest_providers_from_config(session)
     from app.core.missions import ensure_example_missions
     from app.core.storage import ensure_curated_job_examples
 
@@ -89,6 +91,7 @@ def seed_database(session: Session) -> Dict[str, int]:
         "satellites": len(snapshot["satellites"]),
         "infrastructure_satellites": infra_counts["satellites"],
         "infrastructure_ground_stations": infra_counts["ground_stations"],
+        "infrastructure_providers": provider_registry["ingested"],
         "example_missions": example_missions,
         "example_jobs": example_jobs,
         "example_plans": example_plans,

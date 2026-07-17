@@ -111,7 +111,12 @@ def apply_constraint_outcome(
     codes = {f.code for f in failures}
 
     # Conditional: only missing provider integrations / environment gaps.
-    conditional_codes = {"tasking_api_unavailable", "customer_edge_unspecified"}
+    conditional_codes = {
+        "tasking_api_unavailable",
+        "customer_edge_unspecified",
+        "edge_provider_access_required",
+        "simulated_edge_provider",
+    }
     if codes and codes <= conditional_codes:
         if plan.pattern in (
             PlanPattern.SATELLITE_GROUND_CLOUD,
@@ -380,19 +385,55 @@ def _check_contact_window(
 
 
 def _check_edge_location(ctx: MissionPlannerContext) -> List[ConstraintFailure]:
-    preferred = (ctx.preferred_compute_location or "").strip().lower()
-    edge_hints = ("edge", "onprem", "on-prem", "customer", "local")
-    if preferred and any(h in preferred for h in edge_hints):
+    edge_resources = ctx.registry_resources.get("edge") or []
+    preferred = (ctx.preferred_compute_location or "").strip()
+    selected = None
+    if edge_resources:
+        from app.services import provider_registry
+
+        selected = provider_registry.select_provider(
+            edge_resources,
+            preferred_name=preferred or None,
+            prefer_non_simulated=True,
+        )
+
+    if selected:
+        status = str(selected.get("integration_status") or "")
+        if selected.get("is_simulated"):
+            return [
+                ConstraintFailure(
+                    code="simulated_edge_provider",
+                    message=(
+                        f"Edge provider '{selected.get('provider_name')}' is a "
+                        "SIMULATED registry entry — not live connected availability."
+                    ),
+                )
+            ]
+        if status in {"public_data_only", "sandbox_requested", "documented_api"}:
+            return [
+                ConstraintFailure(
+                    code="edge_provider_access_required",
+                    message=(
+                        f"Edge provider '{selected.get('provider_name')}' is "
+                        f"{status.replace('_', ' ')} — public facts only, no live "
+                        "sandbox or partner connection verified."
+                    ),
+                )
+            ]
+        if status in {"sandbox_connected", "partner_connected"}:
+            return []
         return []
-    # Edge plan is still generated as a candidate shell; without an explicit
-    # customer edge preference it is conditional on customer environment access.
+
+    preferred_lower = preferred.lower()
+    edge_hints = ("edge", "onprem", "on-prem", "customer", "local")
+    if preferred_lower and any(h in preferred_lower for h in edge_hints):
+        return []
     return [
         ConstraintFailure(
             code="customer_edge_unspecified",
             message=(
-                "No customer edge / preferred location is configured for "
-                "local processing. Set preferred_compute_location to an edge "
-                "environment to make this path executable."
+                "No registry-backed edge provider matched this mission. "
+                "Set preferred_compute_location or ingest a provider config."
             ),
         )
     ]

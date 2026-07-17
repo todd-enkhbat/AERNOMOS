@@ -101,6 +101,7 @@ Label this path **Historical simulation demo**. It is not the primary CTA.
 ### Demo truth
 
 - Mission planning searches real public catalogs (Microsoft Planetary Computer), calculates SGP4 contact windows from CelesTrak TLEs (live or pinned), and compares feasible infrastructure patterns.
+- Infrastructure provider records are versioned, source-cited public facts or explicitly SIMULATED placeholders. `documented_api` and `sandbox_requested` do not mean Nomos has live access; only `sandbox_connected` and `partner_connected` are treated as connected.
 - Plans label assumptions, unavailable integrations, and truth status. Cost estimates are UNAVAILABLE until a real pricing source exists.
 - Mission owners can run a real CPU demo (fixture GeoTIFF crop + thumbnail) from the mission brief; measured durations are OBSERVED, not simulated. This is not live catalog download or GPU inference.
 - Satellite tasking, ground-station reservation, onboard execution, private telemetry, and commercial pricing guarantees require provider integration and are not claimed as live.

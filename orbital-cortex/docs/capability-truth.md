@@ -59,11 +59,21 @@ Safe language: **requires provider integration**, **unavailable until connected*
 - private anonymous sessions and optional share links
 - STAC catalog candidates with `PROVIDER_REPORTED` metadata
 - contact windows as `CALCULATED` from TLEs (`PROVIDER_REPORTED` or `STALE`)
+- versioned provider-registry records with source URLs for every non-simulated entry
 - plan steps, feasibility, and source evidence on mission briefs
 - cost estimates remain `UNAVAILABLE` until a real pricing source exists
 
 Safe language: **private mission**, **recommended plan**, **source evidence**,
 **feasibility summary**.
+
+Provider integration status is separate from truth status:
+
+- `public_data_only`, `documented_api`, and `sandbox_requested` describe cited
+  public information; they do not claim live access
+- `sandbox_connected` and `partner_connected` are the only connected statuses
+- `simulated` identifies an authored placeholder and must carry `SIMULATED`
+- provider selection prefers a mission's named compute location, then ranks
+  integration readiness deterministically; the reason is stored on the plan step
 
 ### Real CPU demo execution (Phase M — mission brief, owner-only)
 

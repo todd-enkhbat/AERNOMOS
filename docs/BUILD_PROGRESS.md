@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: N (next)
+Current phase: O (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -16,9 +16,10 @@ Current phase: N (next)
 - Phase K: Mission brief PDF/JSON export + private sharing UI (`/share/[token]`)
 - Phase L: Isolate simulations into clearly labeled examples (`/examples`, historical job demo)
 - Phase M: Lightweight real CPU execution — `crop_geotiff` + `thumbnail` on the ARQ worker with OBSERVED metrics, plus mission-brief **Run CPU demo** UI (OBSERVED thumbnail + timeline)
+- Phase N: Extensible infrastructure provider registry — versioned YAML under `orbital-cortex/config/providers/`, idempotent `python -m app.scripts.ingest_providers`, demo CLI `python -m app.scripts.show_registry`, planner reads registry for cloud/edge steps (Job demo still uses `sample_nodes.json`)
 
 ## In progress
-None — Phase M (backend + UI polish) complete. Next is Phase N (provider registry).
+None — Phase N complete. Next is Phase O (analytics and ops metrics).
 
 ## Blockers
 None
@@ -283,9 +284,66 @@ Tests run (refinement):
 - Share pages resolve token → mission_id first, then load the mission with the share header — never enumerate other missions.
 - Phase L example disclosures reuse `customer_systems` JSON (`kind=example_disclosure`) instead of a new column.
 - Phase L keeps `mock_inference.py` for `/jobs` only; customer mission briefs remain free of fabricated detections.
+- Phase N: provider registry contracts live in exactly one module, `app/db/infrastructure_types.py`; ingestion validates before write and rejects non-simulated rows missing `source_url`.
+- Phase N: registry rows reuse existing `infrastructure_resources` with `source_metadata.kind=provider_registry`; fleet/GS rows from Phase H are unchanged.
+- Phase N: planner cloud steps use explicit `simulated-customer-cloud`; edge selection honors a named `preferred_compute_location`, then ranks integration readiness deterministically.
+- Phase N: `IntegrationStatusChip` on mission brief step timeline distinguishes `public_data_only` / `sandbox_requested` from `simulated`.
+- Phase N: only `sandbox_connected` and `partner_connected` count as connected. `documented_api` and `sandbox_requested` remain public-information states and never imply live access.
+
+## Phase N — work completed
+- `InfrastructureResource` Pydantic contract + `IntegrationStatus` enum in `app/db/infrastructure_types.py`
+- Six checked-in provider YAML files (Unibap, Ubotica, KP Labs, EDGX, Aethero + simulated cloud placeholder)
+- `app/services/provider_registry.py` — load, validate, idempotent upsert keyed on `(provider_name, external_id)`
+- CLI: `python -m app.scripts.ingest_providers`, `python -m app.scripts.show_registry`
+- App seed/startup automatically runs the same idempotent provider ingest, so a fresh deployment cannot silently start with an empty registry
+- Planner reads registry in `build_context`; patterns attach `integration_status`, `source_url`, `registry_truth_status` on cloud/edge steps
+- Mission brief timeline and alternatives table show provider name plus `IntegrationStatusChip` alongside truth badges
+
+## Phase N — files changed
+- `orbital-cortex/apps/api/app/db/infrastructure_types.py` (new)
+- `orbital-cortex/apps/api/app/services/provider_registry.py` (new)
+- `orbital-cortex/apps/api/app/scripts/{ingest_providers,show_registry}.py` (new)
+- `orbital-cortex/config/providers/*.yaml` (6 new)
+- `orbital-cortex/apps/api/app/planner/{engine,patterns,constraints,types}.py`
+- `orbital-cortex/apps/api/app/seed.py`
+- `orbital-cortex/apps/api/tests/test_infrastructure_registry_phase_n.py` (new, 7 tests)
+- `orbital-cortex/apps/web/components/truth/IntegrationStatusChip.tsx` (new)
+- `orbital-cortex/apps/web/components/missions/MissionBrief.tsx`
+- `orbital-cortex/apps/web/app/globals.css`
+- `orbital-cortex/apps/api/requirements.txt` (+ pyyaml)
+- `SOUL.md`, `orbital-cortex/docs/capability-truth.md`
+- `docs/BUILD_PROGRESS.md`
+
+## Phase N — tests run
+- `pytest tests/test_infrastructure_registry_phase_n.py -q` — 7 passed
+- `pytest tests -q` — **99 passed**, 2 skipped
+- `ruff check` on Phase N API files — pass
+- `npm run lint` + `npm run build` — pass
+- `python -m app.scripts.ingest_providers` (×2) — idempotent, 6 rows
+- `python -m app.scripts.show_registry` — table output verified
+- Seed `source_url` HTTP checks — all five design-partner URLs return 200
+- Browser QA on a fresh production build: desktop + 390px mobile; timeline shows
+  `Nomos simulated cloud` / **Simulated provider** and alternatives show
+  `KP Labs` / **Sandbox requested**; no console errors or unintended overflow
+
+## Phase N — design-partner follow-up research
+All five named targets are seeded from public web sources with cited URLs. Fields
+left **null** (not guessed): `geography`, `pricing_source`, `capacity_source` for
+every record — none publicly disclose per-unit pricing or firm capacity.
+
+Still requires manual follow-up before claiming live integration:
+- **KP Labs** — Smart Mission Lab sandbox access (`sandbox_requested`; no credentials connected)
+- **EDGX** — compute-as-a-service roadmap is public only; no API/sandbox wired
+- **Aethero** — public product pages only; no partner/sandbox connection
+- **Unibap / Ubotica** — public product docs only (`public_data_only`)
+
+## Phase N — skipped / deferred
+- Admin UI for registry (CLI `show_registry` is the demo artifact per phase spec)
+- Ground-station / orbital_compute provider YAML (planner still uses Phase H fleet + contact windows for those paths)
+- OpenAPI schema changes (registry is internal/planner-facing via step `source_metadata`; no new public API routes)
 
 ## Next phase
-Phase N — execution provider registry.
+Phase O — privacy-safe product and planning analytics.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/14-phase-N-provider-registry.md`](phase-prompts/14-phase-N-provider-registry.md)
+**Agent prompt to copy-paste:** [`docs/phase-prompts/15-phase-O-analytics.md`](phase-prompts/15-phase-O-analytics.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

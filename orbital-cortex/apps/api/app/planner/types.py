@@ -124,6 +124,7 @@ class MissionPlannerContext:
     contact_windows: List[Dict[str, Any]]
     coverage_by_candidate: Dict[str, float]
     planner_config_version: str
+    registry_resources: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
 
     def input_bundle(self) -> Dict[str, Any]:
         return {
@@ -158,4 +159,17 @@ class MissionPlannerContext:
             ],
             "coverage_by_candidate": self.coverage_by_candidate,
             "planner_config_version": self.planner_config_version,
+            "registry_resources": {
+                key: [
+                    {
+                        "id": item.get("id"),
+                        "provider_name": item.get("provider_name"),
+                        "integration_status": item.get("integration_status"),
+                        "registry_truth_status": item.get("registry_truth_status"),
+                        "is_simulated": item.get("is_simulated"),
+                    }
+                    for item in items
+                ]
+                for key, items in self.registry_resources.items()
+            },
         }

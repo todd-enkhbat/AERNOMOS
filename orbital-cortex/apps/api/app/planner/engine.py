@@ -43,7 +43,7 @@ from app.planner.types import (
 )
 from app.services import contact_windows as cw_service
 from app.services import mission_infrastructure as infra_service
-from app.services import tle_cache
+from app.services import provider_registry, tle_cache
 
 # AOI coverage uses PostGIS geography-safe area ratio when possible.
 
@@ -154,6 +154,8 @@ def build_context(
         mission.customer_systems or []
     )
 
+    registry = provider_registry.load_registry_for_planner(db)
+
     return MissionPlannerContext(
         mission_id=str(mission.id),
         objective_type=mission.objective_type,
@@ -176,6 +178,7 @@ def build_context(
         contact_windows=windows,
         coverage_by_candidate=coverage,
         planner_config_version=PLANNER_CONFIG_VERSION,
+        registry_resources=registry,
     )
 
 

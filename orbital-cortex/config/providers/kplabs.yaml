@@ -1,0 +1,22 @@
+provider_name: KP Labs
+resource_type: edge
+external_id: null
+api_available: false
+sandbox_available: true
+auth_required: false
+supported_task_types:
+  - edge_process
+supported_data_formats: []
+geography: null
+pricing_source: null
+capacity_source: null
+current_status: unknown
+data_freshness: "2026-07-17"
+contact_info: null
+integration_status: sandbox_requested
+truth_status: PUBLIC_SOURCE
+source_url: https://www.kplabs.space/solutions/hardware/leopard
+notes: >
+  Leopard DPU (FPGA, 3 TOPS), flew on Intuition-1 (Nov 2023, 192-band
+  hyperspectral). Smart Mission Lab offers remote DPU access for pre-purchase
+  testing -- most viable near-term sandbox target of the five.
