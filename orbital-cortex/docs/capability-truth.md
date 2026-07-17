@@ -14,9 +14,12 @@ Live satellite tasking, ground-station reservation, onboard execution, private
 telemetry, and commercial pricing guarantees require provider integrations that
 are not yet connected. Those gaps are labeled, not invented.
 
-A separate developer job demo remains available: production API, database,
-queue, worker, routing audit, and artifact delivery are real; compute execution
-and inference are simulated.
+A separate historical simulation demo remains at `/jobs`: production API,
+database, queue, worker, routing audit, and artifact delivery are real; compute
+execution, detections, and confidence scores are SIMULATED and labeled as such.
+
+Curated public example missions live at `/examples`. Each example discloses what
+is real, calculated, estimated, simulated, and unavailable.
 
 ## What Nomos does today
 
@@ -88,19 +91,22 @@ Safe language: **real orbital mechanics**, **SGP4 pass calculations**,
 Do not say: **live tasking**, **real-time scheduling**, **operational station
 network**, or **ground-station partners**.
 
-### Simulated execution (job demo)
+### Simulated execution (historical simulation demo only)
 
 - orbital and cloud compute nodes
 - hardware classes and model support
 - node availability, latency, and provider costs
 - workload reservation and execution
 - ship, crop, and disaster inference
+- confidence scores on demo detections
 
-Safe language: **simulated compute candidates**, **modeled estimates**,
-**deterministic demo inference**.
+Safe language: **historical simulation demo**, **simulated compute candidates**,
+**modeled estimates**, **deterministic demo inference**, **simulated confidence**.
 
-Do not say: **orbital nodes online**, **live orbital inference**, or
-**provider inventory**.
+Do not say: **orbital nodes online**, **live orbital inference**,
+**observed confidence**, or **provider inventory**.
+
+These outputs must never appear as the primary customer mission outcome.
 
 ### Offline reference data (job demo)
 
@@ -117,7 +123,10 @@ Do not say: **live SAR**, **live AIS**, **current vessel intelligence**, or
 
 ## Important qualifications
 
-- Homepage primary CTA is mission planning (`/plan`), not job submit.
+- Homepage primary CTA is mission planning (`/plan`), secondary is `/examples`.
+- `/jobs` is a labeled historical simulation demo, not the primary product path.
+- Curated examples are `missions.is_example=true` with disclosure metadata;
+  demo reset preserves or reseeds them and never deletes example missions.
 - `oc_demo_public` is a shared demo credential for the job path. Mission
   sessions use HttpOnly cookies, not that key.
 - Job creation is rate-limited by IP.
@@ -134,17 +143,18 @@ Do not say: **live SAR**, **live AIS**, **current vessel intelligence**, or
 | Proof | Endpoint / surface |
 | --- | --- |
 | Build a private mission | `/plan`, `POST /v1/missions` |
+| Browse curated examples | `/examples`, `GET /v1/missions/examples` |
 | Discover catalog candidates | `POST /v1/missions/{id}/catalog/discover` |
 | Generate plans | `POST /v1/missions/{id}/plans` |
 | Read mission brief | `/missions/[id]`, `GET /v1/missions/{id}/plans/{plan_id}` |
-| Submit and track a job (demo) | `POST /v1/jobs`, `GET /v1/jobs/{id}` |
+| Submit and track a job (historical demo) | `POST /v1/jobs`, `GET /v1/jobs/{id}` |
 | Inspect lifecycle | `GET /v1/jobs/{id}/events` |
 | Explain a route | `GET /v1/jobs/{id}/routing` |
 | Verify deterministic replay | `POST /v1/jobs/{id}/replay` |
 | Read orbital registry | `GET /v1/satellites` |
 | Inspect SGP4 passes | `GET /v1/contact-windows` |
 | Read scene provenance | `GET /v1/jobs/{id}/scene` |
-| Retrieve detections | `GET /v1/jobs/{id}/detections` |
+| Retrieve SIMULATED detections | `GET /v1/jobs/{id}/detections` |
 | Retrieve artifact manifest | `GET /v1/jobs/{id}/result` |
 | Check service health | `GET /healthz`, `GET /readyz` |
 
@@ -152,5 +162,4 @@ Do not say: **live SAR**, **live AIS**, **current vessel intelligence**, or
 
 Authentication and tenancy, real node adapters, live satellite tasking, provider
 station scheduling, live SAR processing, real orbital GPU execution, billing,
-webhooks, cryptographic event signing, and the curated public examples library
-(Phase L).
+webhooks, and cryptographic event signing.

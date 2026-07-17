@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: L (next)
+Current phase: M (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -14,9 +14,10 @@ Current phase: L (next)
 - Phase J: Customer-facing mission result experience at `/missions/[id]`
 - Phase D: Homepage rewrite around mission planning outcomes
 - Phase K: Mission brief PDF/JSON export + private sharing UI (`/share/[token]`)
+- Phase L: Isolate simulations into clearly labeled examples (`/examples`, historical job demo)
 
 ## In progress
-None — Phase K complete. Next is Phase L (isolate simulations).
+None — Phase L complete. Next is Phase M (lightweight real CPU execution).
 
 ## Blockers
 None
@@ -66,33 +67,79 @@ None
 - Phase K: private share URLs use `/share/{token}` (raw token in path; only hash stored). Legacy `?share_token=` on `/missions/[id]` still works via existing auth deps.
 - Phase K: `GET /v1/share/{token}` returns only `mission_id` + link metadata — never unrelated mission payloads.
 - Phase K: PDF deps are WeasyPrint + Jinja2; Dockerfile installs pango/cairo/gdk-pixbuf/fonts.
+- Phase L: four curated example missions use stable uuid5 IDs under `EXAMPLES_ORGANIZATION_ID`; disclosure metadata lives in `customer_systems` with `kind=example_disclosure`.
+- Phase L: `demo-reset` deletes visitor jobs only (`is_example=false`); curated example jobs and all example missions are preserved; seed upserts the four example missions.
+- Phase L: `/jobs` + DemoLauncher are labeled **Historical simulation demo**; mock_inference remains for that path only.
 
-## Phase K — work completed
-- Versioned JSON mission brief export (`schema_version: 1`) with inputs, plans/steps, evidence, disclosures
-- PDF brief via Jinja HTML → WeasyPrint; stored in object store; signed download URL
-- `MissionExport` table + Alembic migration `e7f8a9b0c1d2`
-- Owner PDF endpoints; JSON export for owner or valid share
-- Share resolve endpoint; list share links; `/share/[token]` read-only UI
-- Mission brief UI: PDF/JSON export, expiry select, copy link, revoke
-- Docker/API requirements updated for WeasyPrint system libraries
+## Phase L — work completed
+- Upgraded Phase L agent prompt with concrete file targets, seed/reset rules, and tests
+- Seeded four curated public example missions with real/calculated/estimated/simulated/unavailable disclosures
+- Replaced `/examples` placeholder with a disclosure-first examples library
+- Relabeled legacy job demo UI (list, detail, DemoLauncher, DetectionPanel, SdkResultPreview, DemoBoundary)
+- Made `reset_demo_data` preserve curated example jobs; demo-reset workflow documents safety rules
+- Updated `SOUL.md` and `capability-truth.md` for the examples / historical-demo boundary
 
-## Phase K — files changed
-- API: `app/exports/` (`json_document.py`, `pdf.py`, `service.py`, `templates/mission_brief.html`)
-- API: `app/db/mission_orm.py`, `migrations/versions/e7f8a9b0c1d2_mission_exports.py`
-- API: `app/routes/missions.py`, `app/models/mission.py`, `app/workers/executor.py`, `app/core/queue.py`, `app/core/object_store.py`
-- API: `Dockerfile`, `requirements.txt`, `tests/test_exports.py`
-- Web: `app/share/[token]/page.tsx`, `app/missions/[id]/page.tsx`, `components/missions/MissionBrief.tsx`, `lib/api.ts`
-- Generated: `orbital-cortex/openapi.json`, `lib/generated/api-types.ts`
-- `docs/BUILD_PROGRESS.md`
+## Phase L — files changed
+- `docs/phase-prompts/12-phase-L-isolate-simulations.md`
+- `orbital-cortex/apps/api/app/core/missions.py`
+- `orbital-cortex/apps/api/app/seed.py`
+- `orbital-cortex/apps/api/tests/test_examples_phase_l.py`
+- `orbital-cortex/apps/api/tests/test_mission_sessions.py`
+- `.github/workflows/demo-reset.yml`
+- `orbital-cortex/apps/web/app/examples/page.tsx`
+- `orbital-cortex/apps/web/components/examples/ExamplesLibrary.tsx`
+- `orbital-cortex/apps/web/app/page.tsx`, `layout.tsx`, `jobs/page.tsx`, `jobs/[id]/page.tsx`
+- `orbital-cortex/apps/web/components/jobs/DemoLauncher.tsx`
+- `orbital-cortex/apps/web/components/DetectionPanel.tsx`
+- `orbital-cortex/apps/web/components/archive/ArchivePrimitives.tsx`
+- `orbital-cortex/apps/web/components/platform/SdkResultPreview.tsx`
+- `orbital-cortex/apps/web/components/layout/SiteFooter.tsx`
+- `SOUL.md`, `orbital-cortex/docs/capability-truth.md`, `docs/BUILD_PROGRESS.md`
 
-## Phase K — tests run
-- `pytest tests/test_exports.py -q` — 5 passed, 1 skipped (WeasyPrint OS libs absent on host)
-- `pytest tests -q` — 74 passed, 2 skipped
-- `ruff check app tests scripts` — pass
-- `npm run generate:api-types` — pass
+## Phase L — tests run
+- `pytest tests/test_examples_phase_l.py -q` — 4 passed
+- `pytest tests -q` — 82 passed, 1 skipped
+- `ruff check` on changed API files — pass
 - `npm run lint` — pass
-- `npm run build` — pass (`/share/[token]` route present)
-- `docker build` — not available on this host (Dockerfile deps updated; verify in CI / machine with Docker)
+- `npm run build` — pass (`/examples` route present)
+
+## Phase L — investor-readiness refinement (July 2026)
+Goal: make the isolated examples read as a product proof (not a static disclosure
+catalog) and harden motion for a customer/investor walkthrough.
+
+Work completed:
+- Each curated example now seeds one authored reference scene labeled `SIMULATED`
+  (`ensure_example_plans` in `seed.py`) so the planner persists a real recommended
+  brief. Truth mix is honest: `SIMULATED` scene, `CALCULATED` orbital math,
+  `ESTIMATED` transfers, `UNAVAILABLE` cost/tasking. Idempotent — candidate keyed by
+  stable uuid5; plans generated only when a mission has none, so reboots/resets never
+  duplicate or overwrite curated plans.
+- `/examples` rebuilt around a **featured specimen** that fetches the recommended
+  plan live (summary, feasibility, estimate chips with truth badges, ordered step
+  timeline) plus a truth-label legend and a calm disclosure grid.
+- Example mission-detail back-link now returns to `/examples` (was `/missions`).
+- Motion hardening: `LiquidCard` gained an `interactive` opt-out (reading grids drop
+  pointer-tracking + hover lift); examples reveal uses restrained `FadeIn`/`Stagger`;
+  `ScoreBar` and `JobStepper` swapped layout `width` animations for GPU `scaleX`
+  (`origin-left`) with `prefers-reduced-motion` handling; `OrbitalScene` now pauses
+  its RAF loop when offscreen (IntersectionObserver) or the tab is hidden, and
+  reacts to live reduced-motion changes.
+
+Files changed (refinement):
+- `orbital-cortex/apps/api/app/core/missions.py` (per-example `collection`, `example_candidate_id`)
+- `orbital-cortex/apps/api/app/seed.py` (`ensure_example_plans`)
+- `orbital-cortex/apps/api/tests/test_examples_phase_l.py` (recommended-plan + reseed idempotency tests)
+- `orbital-cortex/apps/web/components/examples/ExamplesLibrary.tsx` (featured specimen + legend)
+- `orbital-cortex/apps/web/components/liquid/LiquidCard.tsx` (`interactive` prop)
+- `orbital-cortex/apps/web/app/missions/[id]/page.tsx` (example back-link)
+- `orbital-cortex/apps/web/components/ScoreBar.tsx`, `components/jobs/JobStepper.tsx` (GPU transforms + reduced motion)
+- `orbital-cortex/apps/web/components/orbital/OrbitalScene.tsx` (visibility/reduced-motion gating)
+
+Tests run (refinement):
+- Temporary PostGIS 3.6 cluster (postgresql@17) on port 5433 for local DB validation
+- `pytest tests/test_examples_phase_l.py -q` — 6 passed
+- `pytest tests/test_planner.py tests/test_mission_sessions.py tests/test_mission_builder.py tests/test_mission_model.py tests/test_api.py -q` — 32 passed
+- `npm run lint` — pass; `npm run build` — pass (`/examples` 7.11 kB)
 
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
@@ -107,6 +154,8 @@ None
 - Contact-window retrieval still uses the existing public pass-cache endpoint and filters the response to plan-referenced IDs in the browser; a mission-scoped endpoint would be cleaner in a later API phase.
 - Host CI images without WeasyPrint system libs skip the optional PDF integration test; Docker image must include those libs (updated).
 - Revoke UI on the mission page tracks the latest share link created in the current browser session (raw token is only returned once).
+- Curated example missions are seeded with disclosure metadata but without pre-generated planner plans; opening an example mission may show the generate-plan empty state until a visitor generates plans. Cards on `/examples` carry the full truth disclosures.
+- A pre-Phase-L thin example mission row (random UUID) may still exist in long-lived DBs alongside the four stable uuid5 examples; seed does not delete it.
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
@@ -122,33 +171,11 @@ None
 - Heavy MapLibre code is dynamically loaded only when the geographic section renders.
 - PDF MVP renders synchronously on the request path; ARQ worker registers the same generator for larger/async use.
 - Share pages resolve token → mission_id first, then load the mission with the share header — never enumerate other missions.
-
-## Phase J — work completed
-- Replaced the catalog-first mission detail layout with a recommendation-first technical mission brief.
-- Added all eight required sections: executive recommendation, feasibility summary, mission timeline, scoped geography, plan comparison, assumptions and sources, next actions, and persistent demo disclosure.
-- Added full plan-detail hydration for steps and evidence, clear loading/error states, and a no-plans `Generate plan` action.
-- Added truth/source inspection to plan duration, cost, movement, feasibility counts, assumptions, timeline values, orbital snapshots, and unavailable capabilities.
-- Added a mission-scoped MapLibre view for AOI, selected scene footprint, referenced ground stations, destination region, and communication-window context.
-- Preserved private share-link creation for owned missions; export wired in Phase K.
-
-## Phase J — files changed
-- `orbital-cortex/apps/web/app/missions/[id]/page.tsx`
-- `orbital-cortex/apps/web/components/missions/MissionBrief.tsx` (new)
-- `orbital-cortex/apps/web/components/missions/MissionGeographyMap.tsx` (new)
-- `orbital-cortex/apps/web/lib/api.ts`
-- `docs/BUILD_PROGRESS.md`
-
-## Phase J — tests and QA
-- `npm run lint` — pass
-- `npm run build` — pass
-- Responsive smoke: desktop and 390 × 844 mobile viewport — pass; no document-level horizontal overflow.
-- Accessibility smoke: heading/section hierarchy, labeled map region, source buttons, disabled export state, private share action, and persistent disclosure present in the accessibility tree.
-- End-to-end local smoke: anonymous session → private mission → persisted candidate → four generated plans → recommended mission brief — pass.
-- Empty-state smoke: mission without plans shows `Generate plan` and catalog-discovery actions — pass.
-- Fully rejected-plan smoke: no false recommendation; all eight sections still render — pass.
+- Phase L example disclosures reuse `customer_systems` JSON (`kind=example_disclosure`) instead of a new column.
+- Phase L keeps `mock_inference.py` for `/jobs` only; customer mission briefs remain free of fabricated detections.
 
 ## Next phase
-Phase L — isolate simulations into clearly labeled examples.
+Phase M — lightweight real CPU execution (no GPUs).
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/12-phase-L-isolate-simulations.md`](phase-prompts/12-phase-L-isolate-simulations.md)
+**Agent prompt to copy-paste:** [`docs/phase-prompts/13-phase-M-cpu-execution.md`](phase-prompts/13-phase-M-cpu-execution.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

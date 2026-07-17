@@ -12,6 +12,12 @@ type LiquidCardProps = {
   tone?: "dark" | "light";
   inset?: boolean;
   id?: string;
+  /**
+   * Reading surfaces (dense disclosure grids, docs) should opt out of the
+   * pointer-tracking specular sheen and hover lift so motion stays reserved
+   * for genuinely interactive controls.
+   */
+  interactive?: boolean;
 };
 
 const spring = { type: "spring" as const, stiffness: 420, damping: 34 };
@@ -22,11 +28,13 @@ export function LiquidCard({
   className = "",
   tone = "dark",
   inset = false,
-  id
+  id,
+  interactive = true
 }: LiquidCardProps) {
   const reduced = useReducedMotion();
   const finePointer = useFinePointer();
   const { ref, onMouseMove, onMouseLeave } = useLiquidMouse<HTMLDivElement>();
+  const trackPointer = interactive && finePointer;
 
   return (
     <motion.div
@@ -40,11 +48,11 @@ export function LiquidCard({
         .filter(Boolean)
         .join(" ")}
       id={id}
-      onMouseLeave={finePointer ? onMouseLeave : undefined}
-      onMouseMove={finePointer ? onMouseMove : undefined}
+      onMouseLeave={trackPointer ? onMouseLeave : undefined}
+      onMouseMove={trackPointer ? onMouseMove : undefined}
       ref={ref}
       whileHover={
-        reduced || inset || !finePointer
+        reduced || inset || !trackPointer
           ? undefined
           : { y: -2, transition: { duration: 0.2, ease: easeOut } }
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 
 import type { JobStatus } from "@/lib/types";
@@ -29,6 +29,7 @@ export function JobStepper({
   status: JobStatus;
   compact?: boolean;
 }) {
+  const reduced = useReducedMotion();
   const current = ORDER[status];
   const failed = status === "failed";
 
@@ -44,7 +45,7 @@ export function JobStepper({
             <div className="flex flex-col items-center gap-1.5">
               <motion.span
                 animate={{
-                  scale: active ? 1.15 : 1,
+                  scale: active && !reduced ? 1.15 : 1,
                   backgroundColor: failed && index === current
                     ? "rgba(190, 84, 60, 0.9)"
                     : done
@@ -79,9 +80,10 @@ export function JobStepper({
             {!isLast ? (
               <div className={`relative mx-1.5 h-px flex-1 bg-cream/10 ${compact ? "" : "-mt-5"}`}>
                 <motion.div
-                  animate={{ width: done ? "100%" : "0%" }}
-                  className="absolute inset-y-0 left-0 bg-gold"
-                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  animate={{ scaleX: done ? 1 : 0 }}
+                  className="absolute inset-y-0 left-0 w-full origin-left bg-gold"
+                  initial={false}
+                  transition={reduced ? { duration: 0 } : { duration: 0.6, ease: "easeOut" }}
                 />
               </div>
             ) : null}

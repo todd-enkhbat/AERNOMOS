@@ -1,8 +1,9 @@
 name: demo-reset
 
-# F4: nightly reseed of the hosted demo to a clean canned state.
-# Wipes job data and reseeds reference data. The seed CLI's production
-# guard requires the explicit --force flag, passed only here.
+# Nightly reseed of the hosted demo to a clean canned state.
+# Deletes visitor-submitted jobs only (is_example=false), then reseeds
+# reference data and upserts curated example missions. Curated example
+# missions and curated example jobs are never deleted by this workflow.
 
 on:
   schedule:
@@ -39,7 +40,7 @@ jobs:
         working-directory: orbital-cortex/apps/api
         run: pip install -r requirements.txt
 
-      - name: Reset and reseed demo data
+      - name: Reset visitor jobs and reseed curated examples
         if: steps.gate.outputs.enabled == 'true'
         working-directory: orbital-cortex/apps/api
         run: python -m app.seed --reset --force

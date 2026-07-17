@@ -208,14 +208,14 @@ export default function JobDetailPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Mission"
-        title={job ? `${labelize(job.job_type)} run` : "Mission"}
+        eyebrow="Historical simulation demo"
+        title={job ? `${labelize(job.job_type)} run` : "Demo job"}
         description={
           job
             ? `${job.sensor} · ${labelize(job.priority)} priority · ${labelize(
                 job.compute_preference
-              )} compute preference`
-            : "Loading mission state."
+              )} compute preference · SIMULATED execution`
+            : "Loading demo job state."
         }
         action={
           <Link
@@ -223,7 +223,7 @@ export default function JobDetailPage() {
             href="/jobs"
           >
             <ChevronLeft size={17} strokeWidth={2} />
-            All missions
+            All demo jobs
           </Link>
         }
       />
@@ -232,6 +232,10 @@ export default function JobDetailPage() {
       <div className="mt-5">
         <DemoBoundary compact />
       </div>
+      <aside className="mt-3 rounded-2xl border border-gold/25 bg-gold/8 px-4 py-3 text-sm text-cream">
+        Detections, confidence scores, and completion states on this page are
+        SIMULATED. They are not observed satellite products.
+      </aside>
 
       {loading ? (
         <div className="glass mt-5 flex items-center gap-3 p-6 text-muted">
@@ -463,16 +467,24 @@ export default function JobDetailPage() {
                     <>
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                          <h2 className="text-lg font-semibold text-cream">
-                            Inference result
-                          </h2>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-lg font-semibold text-cream">
+                              Simulated inference result
+                            </h2>
+                            <TruthBadge compact status="SIMULATED" />
+                          </div>
                           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
                             {result.summary}
                           </p>
                         </div>
-                        <span className="metric-value rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-bright">
-                          {formatPercent(result.confidence)}
-                        </span>
+                        <div className="text-right">
+                          <p className="chart-label text-muted-dark">
+                            Simulated confidence
+                          </p>
+                          <span className="metric-value mt-1 inline-flex rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-bright">
+                            {formatPercent(result.confidence)}
+                          </span>
+                        </div>
                       </div>
                       <div className="mt-6 grid gap-3 md:grid-cols-3">
                         <div className="rounded-xl border border-line bg-void/40 p-4">
@@ -602,7 +614,7 @@ function DetectionTable({ result }: { result: Result }) {
               <th>Contact</th>
               <th>Type</th>
               <th>Zone</th>
-              <th>Confidence</th>
+              <th>Simulated confidence</th>
               <th>Length</th>
               <th>Heading</th>
               <th>Priority</th>

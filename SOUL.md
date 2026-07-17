@@ -72,13 +72,14 @@ Keep these in `/docs` or deep technical sections only:
 - **Truth status:** OBSERVED, CALCULATED, PROVIDER_REPORTED, ESTIMATED, SIMULATED, STALE, or UNAVAILABLE on user-facing values.
 - **Brief:** the technical mission result: recommendation, feasibility, timeline, geography, assumptions, next actions.
 
-### Product primitives (developer job demo)
+### Product primitives (developer historical simulation demo)
 
-- **Job:** a space-data AI task submitted to the legacy demo network.
+- **Job:** a space-data AI task submitted to the legacy historical simulation demo.
 - **Node:** a possible compute target, orbital or cloud (simulated availability).
 - **Score:** seven weighted factors used to rank nodes for a job and priority.
 - **Route:** the selected path. Every route carries a sha256 replay hash.
-- **Return:** GeoJSON plus signed artifact URLs.
+- **Return:** GeoJSON plus signed artifact URLs (SIMULATED detections on this path).
+- **Example mission:** a curated public `is_example` mission at `/examples` with explicit real/sim disclosures.
 
 ### Canonical customer pipeline
 
@@ -86,19 +87,25 @@ Keep these in `/docs` or deep technical sections only:
 2. **Evaluate** — catalogs, contact windows, infrastructure comparison
 3. **Recommend** — source-backed mission brief at `/missions/[id]`
 
-### Legacy demo pipeline
+Browse curated examples at `/examples` before or instead of building a private plan.
+
+### Legacy historical simulation pipeline
 
 1. **Request** — `POST /v1/jobs`
 2. **Score** — seven weighted factors
 3. **Route** — sha256 replay hash
-4. **Return** — GeoJSON plus signed URLs
+4. **Return** — SIMULATED GeoJSON plus signed URLs
+
+Label this path **Historical simulation demo**. It is not the primary CTA.
 
 ### Demo truth
 
 - Mission planning searches real public catalogs (Microsoft Planetary Computer), calculates SGP4 contact windows from CelesTrak TLEs (live or pinned), and compares feasible infrastructure patterns.
 - Plans label assumptions, unavailable integrations, and truth status. Cost estimates are UNAVAILABLE until a real pricing source exists.
 - Satellite tasking, ground-station reservation, onboard execution, private telemetry, and commercial pricing guarantees require provider integration and are not claimed as live.
-- The legacy Job API, database, async queue, worker, routing audit, PostGIS storage, and artifact delivery run on production infrastructure with simulated compute execution and canned ship-detection output.
+- Curated public examples at `/examples` are `is_example` missions with explicit disclosures for real data, real calculations, estimated steps, simulated steps, and unavailable integrations.
+- The legacy Job API, database, async queue, worker, routing audit, PostGIS storage, and artifact delivery run on production infrastructure with simulated compute execution and canned ship-detection output. UI must scream SIMULATED.
+- Demo reset may wipe visitor jobs; curated example missions and curated example jobs are preserved or idempotently reseeded.
 - Anonymous private sessions protect visitor missions. Share links are explicit. Missions are not publicly enumerable.
 - The shared demo credential `oc_demo_public` is not customer authentication. Job creation is rate-limited by IP.
 - Event trails are append-only and decisions are hashed. Events are not cryptographically signed.
@@ -106,10 +113,11 @@ Keep these in `/docs` or deep technical sections only:
 ### Demo vocabulary
 
 - Customer path: Build a mission plan → recommended brief
-- Developer demo missions: Ship Detection, Crop Health, Disaster Response
+- Examples: Maritime monitoring, Wildfire response, Disaster imagery delivery, Customer edge processing
+- Historical simulation demo: Ship Detection, Crop Health, Disaster Response on `/jobs`
 - Priorities: Fastest, Cheapest, Most Reliable
 - Reference scene: SAR, New York Harbor, bbox −74.3, 40.3, −73.5, 41.0
-- Promise: No account needed for private planning. Job demo runs against the production API with simulated execution.
+- Promise: No account needed for private planning. Job demo runs against the production API with simulated execution and is demoted from the primary path.
 
 ### Unknowns
 
@@ -129,7 +137,7 @@ The customer planning path is the spine. The developer demo and mission narrativ
 1. Hero: mission-planning promise, primary CTA to `/plan`, secondary CTA to `/examples`
 2. Three steps: describe → evaluate → recommended plan
 3. What Nomos does today / What requires provider integration
-4. Demoted developer job demo link (not the primary action)
+4. Demoted historical simulation demo link to `/jobs` (not the primary action)
 5. About, contact, and footer elsewhere in the site chrome
 
 Keep the main navigation product-first: Dashboard, Plan, Missions, Network, Calendar, About, Docs. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
@@ -200,15 +208,16 @@ Avoid neon SaaS gradients, excessive blur, cartoon rockets, stock astronaut imag
 - **Does today:** Searches real public catalogs; calculates contact opportunities; compares feasible routes; labels assumptions; generates a technical mission brief.
 - **Requires provider:** Satellite tasking; ground-station reservation; onboard execution; private telemetry; commercial pricing guarantees.
 - **About:** Nomos, the Golden Record, and source-backed orbital planning.
-- **Demo (jobs):** No account needed. Production API, real orbital math, simulated execution.
+- **Demo (jobs):** Historical simulation demo. No account needed. Production API, real orbital math, SIMULATED execution and detections.
 - **Footer:** est. among the stars · Source-backed mission plans for space-data workloads.
 
 ## 9. Instructions for agents
 
 1. Lead the homepage and customer path with mission planning, not the job demo.
-2. Preserve Request → Score → Route → Return for the developer job demo and docs.
-3. Do not claim live tasking, operational ground-station access, real orbital compute, live inference, commercial pricing guarantees, real authentication, or cryptographically signed events.
-4. Design toward an instrument archive, not generic space technology.
-5. Prefer readability over decorative complexity on first-viewport surfaces.
-6. Prefer the shorter and truer sentence.
-7. Write lasting decisions back into this file.
+2. Keep `/examples` as the home for curated public examples with truth disclosures.
+3. Preserve Request → Score → Route → Return for the historical simulation demo and docs; label it SIMULATED.
+4. Do not claim live tasking, operational ground-station access, real orbital compute, live inference, commercial pricing guarantees, real authentication, or cryptographically signed events.
+5. Design toward an instrument archive, not generic space technology.
+6. Prefer readability over decorative complexity on first-viewport surfaces.
+7. Prefer the shorter and truer sentence.
+8. Write lasting decisions back into this file.

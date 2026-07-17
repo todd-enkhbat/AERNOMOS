@@ -137,8 +137,6 @@ export default function OrbitalScene({ className }: { className?: string }) {
       return;
     }
 
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -220,9 +218,15 @@ export default function OrbitalScene({ className }: { className?: string }) {
     const ro = new ResizeObserver(resize);
     ro.observe(container);
 
+    const reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduced = reducedQuery.matches;
+    let inView = true;
+    let docVisible =
+      typeof document !== "undefined" ? !document.hidden : true;
+
     const start = performance.now();
-    const render = () => {
-      const t = prefersReduced ? 0 : (performance.now() - start) / 1000;
+    const drawFrame = () => {
+      const t = reduced ? 0 : (performance.now() - start) / 1000;
 
       globe.rotation.y = t * 0.04;
       root.rotation.y += (mouseX * 0.12 - root.rotation.y) * 0.03;
@@ -234,15 +238,63 @@ export default function OrbitalScene({ className }: { className?: string }) {
       });
 
       renderer.render(scene, camera);
-      if (!prefersReduced) {
-        raf = requestAnimationFrame(render);
+    };
+
+    // Only spend GPU/CPU on the loop while the scene is visible, the tab is
+    // focused, and motion is allowed. Otherwise render a single static frame.
+    const shouldRun = () => inView && docVisible && !reduced;
+    const loop = () => {
+      drawFrame();
+      raf = requestAnimationFrame(loop);
+    };
+    const startLoop = () => {
+      if (raf || !shouldRun()) return;
+      raf = requestAnimationFrame(loop);
+    };
+    const stopLoop = () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
       }
     };
-    render();
+    const sync = () => {
+      if (shouldRun()) {
+        startLoop();
+      } else {
+        stopLoop();
+        drawFrame();
+      }
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        inView = entries.some((entry) => entry.isIntersecting);
+        sync();
+      },
+      { threshold: 0 }
+    );
+    io.observe(container);
+
+    const onVisibility = () => {
+      docVisible = !document.hidden;
+      sync();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const onReducedChange = (event: MediaQueryListEvent) => {
+      reduced = event.matches;
+      sync();
+    };
+    reducedQuery.addEventListener("change", onReducedChange);
+
+    sync();
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMouse);
+      document.removeEventListener("visibilitychange", onVisibility);
+      reducedQuery.removeEventListener("change", onReducedChange);
+      io.disconnect();
       ro.disconnect();
       renderer.dispose();
       scene.traverse((obj) => {

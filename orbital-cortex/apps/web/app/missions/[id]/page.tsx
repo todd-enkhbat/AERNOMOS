@@ -262,8 +262,11 @@ function MissionDetailInner() {
     <div className="page-shell pb-16">
       <PageHeader
         action={
-          <LiquidButton href="/missions" variant="outline">
-            Back to missions
+          <LiquidButton
+            href={mission?.is_example ? "/examples" : "/missions"}
+            variant="outline"
+          >
+            {mission?.is_example ? "Back to examples" : "Back to missions"}
           </LiquidButton>
         }
         description="A source-backed infrastructure recommendation with explicit assumptions, access requirements, and unavailable capabilities."

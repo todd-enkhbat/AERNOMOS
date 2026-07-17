@@ -39,9 +39,12 @@ export function DetectionPanel({ feature, onClose }: DetectionPanelProps) {
       <dl className="mt-3 grid gap-2 text-sm">
         <Row label="Type" value={labelize(String(props.vessel_type ?? props.class ?? "vessel"))} />
         <Row label="Zone" value={String(props.harbor_zone ?? "Harbor")} />
-        <Row label="Confidence" value={formatPercent(Number(props.confidence ?? 0))} />
         <Row
-          label="AIS status"
+          label="Simulated confidence"
+          value={formatPercent(Number(props.confidence ?? 0))}
+        />
+        <Row
+          label="AIS status (illustrative)"
           value={darkShip ? "Dark ship (no AIS match)" : "AIS correlated"}
         />
         <Row label="Priority" value={labelize(String(props.priority ?? "monitor"))} />

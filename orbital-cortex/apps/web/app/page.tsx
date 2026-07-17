@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 
 import { NomosMark } from "@/components/brand/NomosMark";
 import { FadeIn } from "@/components/motion/primitives";
@@ -165,16 +166,20 @@ export default function HomePage() {
           <div className="border-t border-gold/12 pt-8">
             <p className="chart-label text-silver">Also available</p>
             <h2 className="display mt-2 text-xl text-cream sm:text-2xl">
-              Developer job demo
+              Historical simulation demo
             </h2>
             <p className="prose-compact mt-3 max-w-xl text-muted">
-              The legacy job submit flow remains for developers who want to
-              inspect routing scores and lifecycle events. It uses simulated
-              execution and is not the primary product path.
+              The legacy Job path remains for developers who want to inspect
+              routing scores and lifecycle events. Execution and detections are
+              SIMULATED. Prefer{" "}
+              <Link className="text-gold hover:underline" href="/examples">
+                curated example plans
+              </Link>{" "}
+              for the customer path.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <LiquidButton href="/jobs" variant="outline">
-                Open job demo
+                Open historical simulation demo
               </LiquidButton>
               <LiquidButton href="/docs" variant="ghost">
                 API reference →
