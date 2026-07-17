@@ -1,0 +1,109 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S1A_IW_GRDH_1SDV_20240115T224605_20240115T224630_052001_064ABC",
+      "collection": "sentinel-1-grd",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-74.85, 39.95],
+            [-72.90, 40.35],
+            [-73.15, 41.55],
+            [-75.10, 41.15],
+            [-74.85, 39.95]
+          ]
+        ]
+      },
+      "bbox": [-75.10, 39.95, -72.90, 41.55],
+      "properties": {
+        "datetime": "2024-01-15T22:46:05.000000Z",
+        "platform": "SENTINEL-1A",
+        "constellation": "sentinel-1",
+        "instruments": ["c-sar"],
+        "sar:instrument_mode": "IW",
+        "sar:product_type": "GRD",
+        "sat:orbit_state": "ascending"
+      },
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-grd/items/S1A_IW_GRDH_1SDV_20240115T224605_20240115T224630_052001_064ABC",
+          "type": "application/geo+json"
+        },
+        {
+          "rel": "collection",
+          "href": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-grd"
+        }
+      ],
+      "assets": {
+        "vv": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/1/15/IW/DV/S1A_IW_GRDH_1SDV_20240115T224605_20240115T224630_052001_064ABC/measurement/iw-vv.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "VV",
+          "roles": ["data"],
+          "file:size": 1500000000
+        },
+        "vh": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/GRD/2024/1/15/IW/DV/S1A_IW_GRDH_1SDV_20240115T224605_20240115T224630_052001_064ABC/measurement/iw-vh.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "title": "VH",
+          "roles": ["data"],
+          "file:size": 1500000000
+        },
+        "thumbnail": {
+          "href": "https://planetarycomputer.microsoft.com/api/data/v1/item/preview.png",
+          "type": "image/png",
+          "title": "Thumbnail",
+          "roles": ["thumbnail"]
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "stac_version": "1.0.0",
+      "id": "S1A_IW_GRDH_1SDV_20240127T224605_20240127T224630_052176_065DEF",
+      "collection": "sentinel-1-grd",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-74.80, 39.90],
+            [-72.85, 40.30],
+            [-73.10, 41.50],
+            [-75.05, 41.10],
+            [-74.80, 39.90]
+          ]
+        ]
+      },
+      "bbox": [-75.05, 39.90, -72.85, 41.50],
+      "properties": {
+        "datetime": "2024-01-27T22:46:05.000000Z",
+        "platform": "SENTINEL-1A",
+        "constellation": "sentinel-1",
+        "instruments": ["c-sar"],
+        "sar:instrument_mode": "IW",
+        "sar:product_type": "GRD",
+        "sat:orbit_state": "ascending"
+      },
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-grd/items/S1A_IW_GRDH_1SDV_20240127T224605_20240127T224630_052176_065DEF",
+          "type": "application/geo+json"
+        }
+      ],
+      "assets": {
+        "vv": {
+          "href": "https://sentinel1euwest.blob.core.windows.net/s1-grd/example/vv.tiff",
+          "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+          "roles": ["data"],
+          "file:size": 1400000000
+        }
+      }
+    }
+  ]
+}

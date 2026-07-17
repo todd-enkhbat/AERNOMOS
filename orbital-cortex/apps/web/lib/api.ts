@@ -246,3 +246,58 @@ export function createShareLink(missionId: string): Promise<ShareLinkResponse> {
   });
 }
 
+export type CatalogCandidate = {
+  id: string;
+  mission_id: string;
+  source_provider: string;
+  collection: string;
+  external_item_id: string;
+  acquisition_time: string;
+  footprint: Record<string, unknown>;
+  available_assets: Array<{
+    key?: string | null;
+    media_type?: string | null;
+    roles: string[];
+    title?: string | null;
+  }>;
+  estimated_size_bytes?: number | null;
+  source_url?: string | null;
+  source_timestamp: string;
+  truth_status: string;
+  created_at: string;
+};
+
+export type CatalogCandidatesResponse = { candidates: CatalogCandidate[] };
+
+export function discoverMissionCatalog(
+  missionId: string,
+  payload: {
+    start_time?: string;
+    end_time?: string;
+    collections?: string[];
+    limit?: number;
+  } = {}
+): Promise<CatalogCandidatesResponse> {
+  return missionRequest<CatalogCandidatesResponse>(
+    `/v1/missions/${missionId}/discover`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+export function listMissionCandidates(
+  missionId: string,
+  shareToken?: string
+): Promise<CatalogCandidatesResponse> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<CatalogCandidatesResponse>(
+    `/v1/missions/${missionId}/candidates`,
+    { headers }
+  );
+}
+

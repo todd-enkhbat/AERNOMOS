@@ -1,14 +1,15 @@
 # Nomos Build Progress
 
-Current phase: F
+Current phase: H (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
 - Phase B: Mission data model + TruthStatus enum (`feat: add private mission planning data model`)
 - Phase C: Anonymous private sessions + share-link access (`feat: add private anonymous mission sessions and share links`)
+- Phase F: Real STAC catalog discovery via Microsoft Planetary Computer
 
 ## In progress
-Phase F: STAC catalog discovery (next in canonical order)
+None — Phase F complete. Next is Phase H (orbital provenance / infrastructure resources).
 
 ## Blockers
 None
@@ -27,27 +28,36 @@ None
 - Phase C: curated public examples use `missions.is_example=true` and a stable examples org UUID; private lists exclude them.
 - Phase C: legacy `/jobs` remains reachable by direct URL for the demo but is removed from primary nav.
 - Follow-up: public `GET /v1/jobs` lists curated `is_example` jobs only; visitor submissions are hidden from the list (still openable by ID). Seed promotes up to 3 complete jobs as examples when none exist.
+- Phase F: primary STAC provider is Microsoft Planetary Computer (`sentinel-1-grd`; optional `sentinel-2-l2a`). Provider id string: `microsoft-planetary-computer`.
+- Phase F: Earth Search (Element84) is a registered stub behind the same `DataCatalogProvider` interface but unused by discover.
+- Phase F: catalog metadata persisted as `truth_status=PROVIDER_REPORTED`; never fabricate items on upstream failure (503 `catalog_unavailable` / 502 `catalog_not_found`).
+- Phase F: dedupe unique key `(mission_id, source_provider, external_item_id)`; `estimated_size_bytes` is BIGINT for multi-GB Sentinel scenes.
+- Phase F: Redis cache with short TTL when reachable; in-process TTL fallback for tests / Redis down.
 
-## Phase C — work completed
-- Anonymous session bootstrap (`POST /v1/sessions`), current session (`GET /v1/sessions/me`), end session (`DELETE /v1/sessions/me`)
-- Private mission CRUD list/create/get scoped to session cookie
-- Share-link create + revoke; read access via `X-Nomos-Share-Token` or `share_token` query
-- `is_example` migration + seeded public example mission
-- Frontend `/missions` + `/missions/[id]`, demo environment banner, nav/footer updates, same-origin API proxy
-- Unauthorized-access tests (cross-session, no cookie, revoked/expired share tokens, production cookie flags)
+## Phase F — work completed
+- `DataCatalogProvider` abstraction + Planetary Computer implementation via `pystac-client`
+- Earth Search stub adapter (not enabled)
+- `POST /v1/missions/{id}/discover` (owner) and `GET /v1/missions/{id}/candidates` (owner/share/example read)
+- Persist `MissionDataCandidate` with footprint, assets, source URL, retrieval timestamp, truth status
+- Mission detail UI: “Discover catalog data” control + candidate list with truth labels
+- Mocked unit/API tests + env-gated live STAC integration test (`RUN_LIVE_STAC=1`)
+- Migration: unique dedupe constraint + BIGINT sizes
+- OpenAPI + TS types regenerated
 
 ## Files changed
-- API: `app/core/{tokens,sessions,missions,config}.py`, `app/deps/auth.py`, `app/models/mission.py`, `app/routes/{sessions,missions}.py`, `app/db/mission_orm.py`, `app/seed.py`, `app/main.py`, `.env.example`
-- Migration: `a3b4c5d6e7f8_mission_is_example.py`
-- Tests: `tests/test_mission_sessions.py`
-- Web: `app/missions/**`, `lib/api.ts`, `next.config.mjs`, layout/header/footer/nav, `DemoEnvironmentBanner`, dashboard CTA
+- API catalog: `app/catalog/{__init__,types,base,errors,cache,planetary_computer,earth_search,service}.py`
+- API routes/models: `app/routes/missions.py`, `app/models/mission.py`, `app/db/mission_orm.py`
+- Migration: `c5d6e7f8a9b0_mission_candidate_unique.py`
+- Deps: `requirements.txt` (`pystac-client`)
+- Tests: `tests/test_catalog.py`, `tests/test_catalog_integration.py`, `tests/fixtures/stac_ny_harbor_sentinel1.json`, `tests/conftest.py`
+- Web: `app/missions/[id]/page.tsx`, `lib/api.ts`
 - Generated: `openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
 ## Tests run
 - `ruff check app tests scripts` — pass
 - `mypy app` — pass
-- `pytest tests -q` — 33 passed
+- `pytest tests -q` — 39 passed, 1 skipped (live STAC)
 - `npm run lint` / `npm run build` — pass
 
 ## Unresolved issues / risks
@@ -55,14 +65,16 @@ None
 - Local mission APIs rely on `/api/oc` rewrite; job demo still uses `NEXT_PUBLIC_API_BASE_URL` without cookies.
 - Guided mission builder UI is still minimal (title + default AOI); Phase E expands the form.
 - `GET /v1/jobs` now returns curated `is_example` jobs only; non-example rows remain in DB and reachable by ID (not deleted). Ops analytics still TBD (Phase O).
+- Live Planetary Computer search depends on upstream availability; SAS signing for asset download is deferred to Phase M.
+- Discover defaults to last 30 days when mission has no start/end times.
 
 ## Architecture decisions
-- Dependencies in `app/deps/auth.py` for optional/required session and mission access (owner vs share token vs public example).
-- Expired anonymous sessions are cleaned on session bootstrap (CASCADE deletes their missions).
-- Share tokens returned once at creation; only hashes persisted.
+- Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
+- Application-level dedupe before insert + DB unique constraint for race safety.
+- Optional Redis search cache (`nomos:catalog:*`) with memory fallback.
 
 ## Next phase
-Phase F — STAC catalog discovery (Microsoft Planetary Computer / Earth Search behind `DataCatalogProvider`).
+Phase H — orbital / infrastructure provenance (populate `InfrastructureResource` with labeled sources).
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/04-phase-F-stac-catalog.md`](phase-prompts/04-phase-F-stac-catalog.md)  
+**Agent prompt to copy-paste:** [`docs/phase-prompts/05-phase-H-orbital-provenance.md`](phase-prompts/05-phase-H-orbital-provenance.md)  
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

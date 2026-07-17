@@ -2,6 +2,8 @@
 
 import os
 
+# Local docker-compose Postgres (see orbital-cortex/docker-compose.yml).
+os.environ.setdefault("DATABASE_URL", "postgresql://localhost:5433/orbital_cortex")
 # Unreachable Redis: job creation falls back to the manual synchronous path.
 # Force-set so CI job-level REDIS_URL (pointing at the Redis service) does not
 # change the intended enqueue-failure path covered by the suite.

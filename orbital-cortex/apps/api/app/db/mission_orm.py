@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     CheckConstraint,
     DateTime,
@@ -144,6 +145,12 @@ class Mission(Base):
 class MissionDataCandidate(Base):
     __tablename__ = "mission_data_candidates"
     __table_args__ = (
+        UniqueConstraint(
+            "mission_id",
+            "source_provider",
+            "external_item_id",
+            name="uq_mission_data_candidates_mission_provider_item",
+        ),
         Index("ix_mission_data_candidates_mission_id", "mission_id"),
         Index(
             "ix_mission_data_candidates_catalog",
@@ -179,7 +186,7 @@ class MissionDataCandidate(Base):
     asset_metadata: Mapped[Any] = mapped_column(
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
-    estimated_size_bytes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    estimated_size_bytes: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     source_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     source_timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False

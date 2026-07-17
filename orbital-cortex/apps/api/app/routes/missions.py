@@ -5,9 +5,16 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
+from app.catalog import service as catalog_service
+from app.catalog.errors import (
+    CatalogError,
+    CatalogNotFoundError,
+    CatalogRateLimitedError,
+    CatalogUnavailableError,
+)
 from app.core import missions as mission_store
 from app.core.config import get_settings
 from app.db import get_db
@@ -19,6 +26,8 @@ from app.deps.auth import (
 )
 from app.models.errors import ErrorResponse
 from app.models.mission import (
+    CatalogCandidatesResponse,
+    DiscoverRequest,
     MissionCreate,
     MissionResponse,
     MissionsListResponse,
@@ -43,6 +52,16 @@ def _parse_optional_dt(value: Optional[str]) -> Optional[datetime]:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
         raise _api_error(422, "validation_error", f"Invalid datetime: {value}") from exc
+
+
+def _catalog_http_error(exc: CatalogError) -> HTTPException:
+    if isinstance(exc, CatalogRateLimitedError):
+        return _api_error(503, exc.code, exc.message)
+    if isinstance(exc, CatalogNotFoundError):
+        return _api_error(502, exc.code, exc.message)
+    if isinstance(exc, CatalogUnavailableError):
+        return _api_error(503, exc.code, exc.message)
+    return _api_error(503, getattr(exc, "code", "catalog_error"), str(exc))
 
 
 @router.get(
@@ -126,6 +145,71 @@ def get_mission(
 ) -> Dict[str, Any]:
     db.commit()
     return {"mission": mission_store.mission_to_dict(db, mission)}
+
+
+@router.post(
+    "/missions/{mission_id}/discover",
+    response_model=CatalogCandidatesResponse,
+    summary="Discover real STAC catalog scenes for a mission AOI",
+    description=(
+        "Searches Microsoft Planetary Computer (Sentinel-1 GRD by default) over the "
+        "mission area of interest and date range, then persists MissionDataCandidate "
+        "rows with provenance. Never invents catalog items; upstream failures return "
+        "typed catalog_* errors."
+    ),
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+        502: {"model": ErrorResponse, "description": "Catalog item/collection not found"},
+        503: {
+            "model": ErrorResponse,
+            "description": "Catalog unavailable or rate-limited",
+        },
+    },
+)
+def discover_mission_catalog(
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+    payload: Optional[DiscoverRequest] = Body(default=None),
+) -> Dict[str, Any]:
+    body = payload or DiscoverRequest()
+    try:
+        rows = catalog_service.discover_for_mission(
+            db,
+            mission,
+            start=_parse_optional_dt(body.start_time),
+            end=_parse_optional_dt(body.end_time),
+            collections=body.collections,
+            limit=body.limit,
+        )
+    except CatalogError as exc:
+        raise _catalog_http_error(exc) from exc
+    db.commit()
+    return {
+        "candidates": [catalog_service.candidate_to_dict(db, row) for row in rows],
+    }
+
+
+@router.get(
+    "/missions/{mission_id}/candidates",
+    response_model=CatalogCandidatesResponse,
+    summary="List persisted catalog candidates for a mission",
+    responses={
+        401: {"model": ErrorResponse, "description": "Auth required"},
+        403: {"model": ErrorResponse, "description": "Forbidden"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def list_mission_candidates(
+    mission: Mission = Depends(get_mission_for_read),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    rows = catalog_service.list_candidates(db, mission.id)
+    db.commit()
+    return {
+        "candidates": [catalog_service.candidate_to_dict(db, row) for row in rows],
+    }
 
 
 @router.post(

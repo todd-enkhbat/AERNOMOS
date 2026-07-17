@@ -85,3 +85,40 @@ class ShareLinkOut(BaseModel):
 
 class ShareLinkResponse(BaseModel):
     share_link: ShareLinkOut
+
+
+class DiscoverRequest(BaseModel):
+    """Optional overrides for mission catalog discovery."""
+
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    collections: Optional[List[str]] = None
+    limit: Optional[int] = Field(default=None, ge=1, le=50)
+
+
+class CatalogCandidateAssetOut(BaseModel):
+    key: Optional[str] = None
+    media_type: Optional[str] = None
+    roles: List[Any] = Field(default_factory=list)
+    title: Optional[str] = None
+
+
+class CatalogCandidateOut(BaseModel):
+    id: str
+    mission_id: str
+    source_provider: str
+    collection: str
+    external_item_id: str
+    acquisition_time: str
+    footprint: Dict[str, Any]
+    asset_metadata: Dict[str, Any] = Field(default_factory=dict)
+    available_assets: List[CatalogCandidateAssetOut] = Field(default_factory=list)
+    estimated_size_bytes: Optional[int] = None
+    source_url: Optional[str] = None
+    source_timestamp: str
+    truth_status: str
+    created_at: str
+
+
+class CatalogCandidatesResponse(BaseModel):
+    candidates: List[CatalogCandidateOut]

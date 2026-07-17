@@ -302,6 +302,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions/{mission_id}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List persisted catalog candidates for a mission */
+        get: operations["list_mission_candidates_v1_missions__mission_id__candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/discover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Discover real STAC catalog scenes for a mission AOI
+         * @description Searches Microsoft Planetary Computer (Sentinel-1 GRD by default) over the mission area of interest and date range, then persists MissionDataCandidate rows with provenance. Never invents catalog items; upstream failures return typed catalog_* errors.
+         */
+        post: operations["discover_mission_catalog_v1_missions__mission_id__discover_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/missions/{mission_id}/share-links": {
         parameters: {
             query?: never;
@@ -528,6 +565,57 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** CatalogCandidateAssetOut */
+        CatalogCandidateAssetOut: {
+            /** Key */
+            key?: string | null;
+            /** Media Type */
+            media_type?: string | null;
+            /** Roles */
+            roles?: unknown[];
+            /** Title */
+            title?: string | null;
+        };
+        /** CatalogCandidateOut */
+        CatalogCandidateOut: {
+            /** Acquisition Time */
+            acquisition_time: string;
+            /** Asset Metadata */
+            asset_metadata?: {
+                [key: string]: unknown;
+            };
+            /** Available Assets */
+            available_assets?: components["schemas"]["CatalogCandidateAssetOut"][];
+            /** Collection */
+            collection: string;
+            /** Created At */
+            created_at: string;
+            /** Estimated Size Bytes */
+            estimated_size_bytes?: number | null;
+            /** External Item Id */
+            external_item_id: string;
+            /** Footprint */
+            footprint: {
+                [key: string]: unknown;
+            };
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Source Provider */
+            source_provider: string;
+            /** Source Timestamp */
+            source_timestamp: string;
+            /** Source Url */
+            source_url?: string | null;
+            /** Truth Status */
+            truth_status: string;
+        };
+        /** CatalogCandidatesResponse */
+        CatalogCandidatesResponse: {
+            /** Candidates */
+            candidates: components["schemas"]["CatalogCandidateOut"][];
+        };
         /** ComputeNode */
         ComputeNode: {
             /** Availability */
@@ -593,6 +681,20 @@ export interface components {
             contact_windows: components["schemas"]["ContactWindow"][];
             /** Next Cursor */
             next_cursor?: string | null;
+        };
+        /**
+         * DiscoverRequest
+         * @description Optional overrides for mission catalog discovery.
+         */
+        DiscoverRequest: {
+            /** Collections */
+            collections?: string[] | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Limit */
+            limit?: number | null;
+            /** Start Time */
+            start_time?: string | null;
         };
         /** ErrorDetail */
         ErrorDetail: {
@@ -1748,6 +1850,148 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mission_candidates_v1_missions__mission_id__candidates_get: {
+        parameters: {
+            query?: {
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogCandidatesResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discover_mission_catalog_v1_missions__mission_id__discover_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DiscoverRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogCandidatesResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Catalog item/collection not found */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Catalog unavailable or rate-limited */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
