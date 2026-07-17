@@ -339,6 +339,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions/{mission_id}/infrastructure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mission-relevant satellites, ground stations, and orbital snapshot provenance
+         * @description Returns only fleet satellites matching the mission's catalog candidates or data-source preferences (never the full tracked catalog), plus public ground stations and the TLE snapshot metadata used for contact windows.
+         */
+        get: operations["get_mission_infrastructure_v1_missions__mission_id__infrastructure_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/missions/{mission_id}/share-links": {
         parameters: {
             query?: never;
@@ -656,6 +676,11 @@ export interface components {
         ContactWindow: {
             /** Aos Utc */
             aos_utc: string;
+            /**
+             * Calculation Method
+             * @default SGP4/Skyfield.find_events
+             */
+            calculation_method: string;
             /** Culminate Utc */
             culminate_utc: string;
             /** Date */
@@ -674,6 +699,16 @@ export interface components {
             max_elevation_deg: number;
             /** Satellite Id */
             satellite_id: string;
+            /**
+             * Tle Snapshot Id
+             * @default
+             */
+            tle_snapshot_id: string;
+            /**
+             * Truth Status
+             * @default CALCULATED
+             */
+            truth_status: string;
         };
         /** ContactWindowsResponse */
         ContactWindowsResponse: {
@@ -712,6 +747,11 @@ export interface components {
         /** GroundStation */
         GroundStation: {
             /**
+             * Access Level
+             * @default public_information
+             */
+            access_level: string;
+            /**
              * Altitude M
              * @default 0
              */
@@ -742,6 +782,10 @@ export interface components {
              * @default
              */
             provider: string;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
         };
         /** GroundStationsResponse */
         GroundStationsResponse: {
@@ -937,6 +981,79 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** MissionGroundStationOut */
+        MissionGroundStationOut: {
+            /**
+             * Access Level
+             * @default public_information
+             */
+            access_level: string;
+            /**
+             * Altitude M
+             * @default 0
+             */
+            altitude_m: number;
+            /** Availability */
+            availability: number;
+            /**
+             * Coordinate Truth Status
+             * @default PROVIDER_REPORTED
+             */
+            coordinate_truth_status: string;
+            /** Downlink Mbps */
+            downlink_mbps: number;
+            /** Id */
+            id: string;
+            /** Latency Minutes */
+            latency_minutes: number;
+            /** Latitude */
+            latitude: number;
+            /** Location */
+            location: string;
+            /** Longitude */
+            longitude: number;
+            /**
+             * Min Elevation Deg
+             * @default 10
+             */
+            min_elevation_deg: number;
+            /** Name */
+            name: string;
+            /**
+             * Ops Params Truth Status
+             * @default SIMULATED
+             */
+            ops_params_truth_status: string;
+            /**
+             * Provider
+             * @default
+             */
+            provider: string;
+            /**
+             * Resource Type
+             * @default ground_station
+             */
+            resource_type: string;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Truth Status
+             * @default PROVIDER_REPORTED
+             */
+            truth_status: string;
+        };
+        /** MissionInfrastructureResponse */
+        MissionInfrastructureResponse: {
+            /** Ground Stations */
+            ground_stations?: components["schemas"]["MissionGroundStationOut"][];
+            /** Mission Id */
+            mission_id: string;
+            orbital_snapshot: components["schemas"]["OrbitalSnapshotOut"];
+            /** Satellites */
+            satellites?: components["schemas"]["MissionSatelliteOut"][];
+        };
         /** MissionOut */
         MissionOut: {
             /** Allowed Regions */
@@ -989,6 +1106,37 @@ export interface components {
         MissionResponse: {
             mission: components["schemas"]["MissionOut"];
         };
+        /** MissionSatelliteOut */
+        MissionSatelliteOut: {
+            /**
+             * Access Level
+             * @default public_information
+             */
+            access_level: string;
+            /** Downlink Rate Mbps */
+            downlink_rate_mbps: number;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Norad Id */
+            norad_id: number;
+            /**
+             * Resource Type
+             * @default satellite
+             */
+            resource_type: string;
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Source */
+            source: string;
+            /** Tle Epoch */
+            tle_epoch: string;
+            /** Truth Status */
+            truth_status: string;
+        };
         /** MissionsListResponse */
         MissionsListResponse: {
             /** Missions */
@@ -1000,6 +1148,31 @@ export interface components {
             compute_nodes: components["schemas"]["ComputeNode"][];
             /** Ground Stations */
             ground_stations: components["schemas"]["GroundStation"][];
+        };
+        /** OrbitalSnapshotOut */
+        OrbitalSnapshotOut: {
+            /** Epochs */
+            epochs?: unknown[];
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Source */
+            source: string;
+            /** Source Url */
+            source_url?: string | null;
+            /**
+             * Stale Epoch Days
+             * @default 7
+             */
+            stale_epoch_days: number;
+            /** Truth Status */
+            truth_status: string;
+            /**
+             * Used Pinned Fallback
+             * @default false
+             */
+            used_pinned_fallback: boolean;
         };
         /** ReplayResponse */
         ReplayResponse: {
@@ -1086,6 +1259,8 @@ export interface components {
             name: string;
             /** Norad Id */
             norad_id: number;
+            /** Retrieved At */
+            retrieved_at?: string | null;
             /** Snapshot Id */
             snapshot_id: string;
             /** Source */
@@ -1992,6 +2167,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_mission_infrastructure_v1_missions__mission_id__infrastructure_get: {
+        parameters: {
+            query?: {
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionInfrastructureResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -29,11 +29,13 @@ from app.models.mission import (
     CatalogCandidatesResponse,
     DiscoverRequest,
     MissionCreate,
+    MissionInfrastructureResponse,
     MissionResponse,
     MissionsListResponse,
     ShareLinkCreate,
     ShareLinkResponse,
 )
+from app.services import mission_infrastructure as infra_service
 
 router = APIRouter(prefix="/v1", tags=["missions"])
 
@@ -210,6 +212,32 @@ def list_mission_candidates(
     return {
         "candidates": [catalog_service.candidate_to_dict(db, row) for row in rows],
     }
+
+
+@router.get(
+    "/missions/{mission_id}/infrastructure",
+    response_model=MissionInfrastructureResponse,
+    summary="Mission-relevant satellites, ground stations, and orbital snapshot provenance",
+    description=(
+        "Returns only fleet satellites matching the mission's catalog candidates "
+        "or data-source preferences (never the full tracked catalog), plus public "
+        "ground stations and the TLE snapshot metadata used for contact windows."
+    ),
+    responses={
+        401: {"model": ErrorResponse, "description": "Auth required"},
+        403: {"model": ErrorResponse, "description": "Forbidden"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def get_mission_infrastructure(
+    mission: Mission = Depends(get_mission_for_read),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    payload = infra_service.get_mission_infrastructure(
+        db, mission, record_evidence=False
+    )
+    db.commit()
+    return payload
 
 
 @router.post(

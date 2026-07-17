@@ -21,7 +21,12 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.db.orm import ComputeNode, GroundStation, Job, Satellite
 from app.db.session import REPO_ROOT
+from app.db.truth import AccessLevel
 from app.services import tle_cache
+from app.services.mission_infrastructure import (
+    GS_COORDINATE_METADATA,
+    upsert_infrastructure_resources,
+)
 
 SIMULATOR_DIR = REPO_ROOT / "simulator"
 
@@ -35,30 +40,9 @@ def _read_json_file(name: str) -> List[Dict[str, Any]]:
     return data
 
 
-def seed_database(session: Session) -> Dict[str, int]:
-    ground_stations = _read_json_file("ground_stations.json")
-    compute_nodes = _read_json_file("sample_nodes.json")
-    snapshot = tle_cache.get_snapshot(live=get_settings().live_tle)
-
-    _seed_ground_stations(session, ground_stations)
-    _seed_satellites(session, snapshot)
-    # Satellites must exist before compute-node rows reference them (FK).
-    session.flush()
-    _seed_compute_nodes(session, compute_nodes)
-    from app.core.missions import ensure_example_mission
-    from app.core.storage import ensure_curated_job_examples
-
-    ensure_example_mission(session)
-    ensure_curated_job_examples(session, limit=3)
-    session.commit()
-    return {
-        "compute_nodes": len(compute_nodes),
-        "ground_stations": len(ground_stations),
-        "satellites": len(snapshot["satellites"]),
-    }
-
-
-def _seed_satellites(session: Session, snapshot: Dict[str, Any]) -> None:
+def apply_orbital_snapshot(session: Session, snapshot: Dict[str, Any]) -> None:
+    """Persist annotated TLE snapshot onto Satellite rows + InfrastructureResource."""
+    meta = tle_cache.get_orbital_snapshot_metadata(snapshot)
     for sat in snapshot["satellites"]:
         record = session.get(Satellite, sat["id"])
         if record is None:
@@ -69,9 +53,39 @@ def _seed_satellites(session: Session, snapshot: Dict[str, Any]) -> None:
         record.tle_line1 = sat["tle_line1"]
         record.tle_line2 = sat["tle_line2"]
         record.tle_epoch = sat["tle_epoch"]
-        record.source = snapshot["source"]
-        record.snapshot_id = snapshot["snapshot_id"]
+        record.source = meta["source"]
+        record.snapshot_id = meta["snapshot_id"]
         record.downlink_rate_mbps = float(sat["downlink_rate_mbps"])
+        record.retrieved_at = meta.get("retrieved_at")
+    session.flush()
+
+
+def seed_database(session: Session) -> Dict[str, int]:
+    ground_stations = _read_json_file("ground_stations.json")
+    compute_nodes = _read_json_file("sample_nodes.json")
+    snapshot = tle_cache.resolve_orbital_snapshot(prefer_live=get_settings().live_tle)
+
+    _seed_ground_stations(session, ground_stations)
+    apply_orbital_snapshot(session, snapshot)
+    # Satellites must exist before compute-node rows reference them (FK).
+    session.flush()
+    _seed_compute_nodes(session, compute_nodes)
+    infra_counts = upsert_infrastructure_resources(
+        session, snapshot=snapshot, ground_stations=ground_stations
+    )
+    from app.core.missions import ensure_example_mission
+    from app.core.storage import ensure_curated_job_examples
+
+    ensure_example_mission(session)
+    ensure_curated_job_examples(session, limit=3)
+    session.commit()
+    return {
+        "compute_nodes": len(compute_nodes),
+        "ground_stations": len(ground_stations),
+        "satellites": len(snapshot["satellites"]),
+        "infrastructure_satellites": infra_counts["satellites"],
+        "infrastructure_ground_stations": infra_counts["ground_stations"],
+    }
 
 
 def _seed_compute_nodes(
@@ -164,6 +178,8 @@ def _seed_ground_stations(
         record.latency_minutes = float(station["latency_minutes"])
         record.downlink_mbps = int(station["downlink_mbps"])
         record.availability = float(station["availability"])
+        record.access_level = AccessLevel.PUBLIC_INFORMATION.value
+        record.source_metadata = dict(GS_COORDINATE_METADATA)
 
 
 if __name__ == "__main__":

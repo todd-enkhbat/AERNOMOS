@@ -20,7 +20,7 @@ from app.core.config import get_settings
 from app.core.pipeline import fail_job, run_pipeline
 from app.core.queue import redis_settings
 from app.db import SessionLocal, get_engine
-from app.workers.passes import precompute_passes
+from app.workers.passes import precompute_passes, refresh_tle_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +59,12 @@ async def startup(ctx: Dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions = [execute_job, precompute_passes]
-    # Refresh the pass cache every 6 hours.
-    cron_jobs = [cron(precompute_passes, hour={0, 6, 12, 18}, minute=0)]
+    functions = [execute_job, precompute_passes, refresh_tle_snapshot]
+    # Refresh TLEs then recompute passes every 6 hours.
+    cron_jobs = [
+        cron(refresh_tle_snapshot, hour={0, 6, 12, 18}, minute=0),
+        cron(precompute_passes, hour={0, 6, 12, 18}, minute=5),
+    ]
     on_startup = startup
     redis_settings = redis_settings()
     max_jobs = 10

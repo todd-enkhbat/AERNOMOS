@@ -1,15 +1,16 @@
 # Nomos Build Progress
 
-Current phase: H (next)
+Current phase: G (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
 - Phase B: Mission data model + TruthStatus enum (`feat: add private mission planning data model`)
 - Phase C: Anonymous private sessions + share-link access (`feat: add private anonymous mission sessions and share links`)
 - Phase F: Real STAC catalog discovery via Microsoft Planetary Computer
+- Phase H: Fresh orbital data provenance and mission-specific infrastructure
 
 ## In progress
-None — Phase F complete. Next is Phase H (orbital provenance / infrastructure resources).
+None — Phase H complete. Next is Phase G (truth-status UI system).
 
 ## Blockers
 None
@@ -33,31 +34,36 @@ None
 - Phase F: catalog metadata persisted as `truth_status=PROVIDER_REPORTED`; never fabricate items on upstream failure (503 `catalog_unavailable` / 502 `catalog_not_found`).
 - Phase F: dedupe unique key `(mission_id, source_provider, external_item_id)`; `estimated_size_bytes` is BIGINT for multi-GB Sentinel scenes.
 - Phase F: Redis cache with short TTL when reachable; in-process TTL fallback for tests / Redis down.
+- Phase H: TLE epoch age > **7 days** → `STALE` (`STALE_EPOCH_DAYS` in `tle_cache.py`).
+- Phase H: live CelesTrak failure → pinned `simulator/tle_snapshot.json` with `source=pinned-snapshot` and truth `STALE` (dated real TLEs, not authored fiction).
+- Phase H: fresh live CelesTrak → `PROVIDER_REPORTED`; contact windows remain `CALCULATED` via `SGP4/Skyfield.find_events` and store `tle_snapshot_id`.
+- Phase H: ground-station coordinates → `PROVIDER_REPORTED`; authored latency/downlink/availability → `SIMULATED` in `source_metadata` (never claimed as live capacity).
+- Phase H: mission satellite selection is collection/preference-driven over the small Nomos fleet only (no full catalog dump).
+- Phase H: ARQ cron `refresh_tle_snapshot` every 6h (prefer live + pinned fallback); `precompute_passes` five minutes later.
 
-## Phase F — work completed
-- `DataCatalogProvider` abstraction + Planetary Computer implementation via `pystac-client`
-- Earth Search stub adapter (not enabled)
-- `POST /v1/missions/{id}/discover` (owner) and `GET /v1/missions/{id}/candidates` (owner/share/example read)
-- Persist `MissionDataCandidate` with footprint, assets, source URL, retrieval timestamp, truth status
-- Mission detail UI: “Discover catalog data” control + candidate list with truth labels
-- Mocked unit/API tests + env-gated live STAC integration test (`RUN_LIVE_STAC=1`)
-- Migration: unique dedupe constraint + BIGINT sizes
-- OpenAPI + TS types regenerated
+## Phase H — work completed
+- Extended `tle_cache` with snapshot versioning, staleness classification, pinned fallback, and `get_orbital_snapshot_metadata()`
+- Contact windows persist `tle_snapshot_id`; API responses include snapshot provenance + `CALCULATED` method label
+- Seed writes `InfrastructureResource` for fleet sats + GS; legacy `ground_stations` gain `access_level` + `source_metadata`
+- `GET /v1/missions/{id}/infrastructure` returns mission-relevant sats, public GS, and orbital snapshot metadata
+- SourceEvidence helpers for orbital snapshots and contact windows (for Phase I/J)
+- ARQ `refresh_tle_snapshot` cron + migration for provenance columns
+- Unit/API tests for staleness, fallback, reproducibility, and mission-specific selection
 
 ## Files changed
-- API catalog: `app/catalog/{__init__,types,base,errors,cache,planetary_computer,earth_search,service}.py`
-- API routes/models: `app/routes/missions.py`, `app/models/mission.py`, `app/db/mission_orm.py`
-- Migration: `c5d6e7f8a9b0_mission_candidate_unique.py`
-- Deps: `requirements.txt` (`pystac-client`)
-- Tests: `tests/test_catalog.py`, `tests/test_catalog_integration.py`, `tests/fixtures/stac_ny_harbor_sentinel1.json`, `tests/conftest.py`
-- Web: `app/missions/[id]/page.tsx`, `lib/api.ts`
+- API: `app/services/tle_cache.py`, `contact_windows.py`, `mission_infrastructure.py` (new)
+- API: `app/workers/passes.py`, `app/workers/executor.py`, `app/seed.py`
+- API: `app/db/orm.py`, `app/db/truth.py` (`AccessLevel`)
+- API: `app/models/node.py`, `app/models/mission.py`, `app/routes/missions.py`, `app/core/node_registry.py`
+- Migration: `d6e7f8a9b0c1_orbital_provenance.py`
+- Tests: `tests/test_orbital_provenance.py`
 - Generated: `openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
 ## Tests run
 - `ruff check app tests scripts` — pass
 - `mypy app` — pass
-- `pytest tests -q` — 39 passed, 1 skipped (live STAC)
+- `pytest tests -q` — 48 passed, 1 skipped (live STAC)
 - `npm run lint` / `npm run build` — pass
 
 ## Unresolved issues / risks
@@ -67,14 +73,18 @@ None
 - `GET /v1/jobs` now returns curated `is_example` jobs only; non-example rows remain in DB and reachable by ID (not deleted). Ops analytics still TBD (Phase O).
 - Live Planetary Computer search depends on upstream availability; SAS signing for asset download is deferred to Phase M.
 - Discover defaults to last 30 days when mission has no start/end times.
+- Live TLE refresh depends on CelesTrak availability; worker cron falls back to pinned snapshot with `STALE`.
+- Mission infrastructure UI (truth chips) is Phase G; planning engine that consumes selection is Phase I.
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
 - Application-level dedupe before insert + DB unique constraint for race safety.
 - Optional Redis search cache (`nomos:catalog:*`) with memory fallback.
+- Orbital snapshot ids are unique per successful live refresh (`celestrak-YYYY-MM-DDTHHMMSSZ`); prior contact-window rows keep their `tle_snapshot_id` for audit.
+- Prefer mission-facing infra in `InfrastructureResource` while keeping legacy `ground_stations` / `satellites` for the Job demo path.
 
 ## Next phase
-Phase H — orbital / infrastructure provenance (populate `InfrastructureResource` with labeled sources).
+Phase G — truth-status UI system.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/05-phase-H-orbital-provenance.md`](phase-prompts/05-phase-H-orbital-provenance.md)  
+**Agent prompt to copy-paste:** [`docs/phase-prompts/06-phase-G-truth-ui.md`](phase-prompts/06-phase-G-truth-ui.md)  
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

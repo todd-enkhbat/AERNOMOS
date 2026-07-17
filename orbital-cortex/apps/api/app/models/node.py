@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -37,6 +37,8 @@ class GroundStation(BaseModel):
     latency_minutes: float
     downlink_mbps: int
     availability: float = Field(ge=0, le=1)
+    access_level: str = "public_information"
+    source_metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 class Satellite(BaseModel):
@@ -49,6 +51,7 @@ class Satellite(BaseModel):
     source: str
     snapshot_id: str
     downlink_rate_mbps: float
+    retrieved_at: Optional[str] = None
 
 
 class ContactWindow(BaseModel):
@@ -62,6 +65,9 @@ class ContactWindow(BaseModel):
     max_elevation_deg: float
     duration_s: float
     est_downlink_mb: float
+    tle_snapshot_id: str = ""
+    truth_status: str = "CALCULATED"
+    calculation_method: str = "SGP4/Skyfield.find_events"
 
 
 class NodesResponse(BaseModel):

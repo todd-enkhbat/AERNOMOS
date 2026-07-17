@@ -43,6 +43,8 @@ def _station_to_dict(station: GroundStation) -> Dict[str, Any]:
         "latency_minutes": float(station.latency_minutes),
         "downlink_mbps": int(station.downlink_mbps),
         "availability": float(station.availability),
+        "access_level": station.access_level or "public_information",
+        "source_metadata": station.source_metadata or {},
     }
 
 
@@ -57,6 +59,7 @@ def _satellite_to_dict(satellite: Satellite) -> Dict[str, Any]:
         "source": satellite.source,
         "snapshot_id": satellite.snapshot_id,
         "downlink_rate_mbps": float(satellite.downlink_rate_mbps),
+        "retrieved_at": satellite.retrieved_at,
     }
 
 

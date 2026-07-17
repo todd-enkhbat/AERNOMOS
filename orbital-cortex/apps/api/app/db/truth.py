@@ -33,3 +33,16 @@ class InfrastructureResourceType(str, Enum):
     CUSTOMER_EDGE = "customer_edge"
     STORAGE = "storage"
     NETWORK = "network"
+
+
+class AccessLevel(str, Enum):
+    """How a planner may use an infrastructure resource today."""
+
+    PUBLIC_INFORMATION = "public_information"
+    SANDBOX_AVAILABLE = "sandbox_available"
+    PARTNER_REQUIRED = "partner_required"
+    PRIVATE = "private"
+    SIMULATED = "simulated"
+
+
+ACCESS_LEVEL_VALUES = tuple(level.value for level in AccessLevel)

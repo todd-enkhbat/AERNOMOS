@@ -21,8 +21,13 @@ from sqlalchemy.orm import Session
 from app.core.pagination import decode_cursor
 from app.core.storage import new_id, utc_now
 from app.db.orm import ContactWindow, GroundStation, Satellite
+from app.db.truth import TruthStatus
+from app.services import tle_cache
 
 _timescale = load.timescale()  # builtin data; no network
+
+# Contact-window values are Skyfield/SGP4 find_events outputs.
+CONTACT_WINDOW_METHOD = "SGP4/Skyfield.find_events"
 
 
 def _iso(dt: datetime) -> str:
@@ -102,8 +107,13 @@ def precompute_windows(
         for h in range(0, int(horizon_hours) + 1)
     }
 
+    snapshot_ids = {sat.snapshot_id for sat in satellites if sat.snapshot_id}
+    # Fleet is seeded from one snapshot; prefer that id for provenance.
+    default_snapshot_id = next(iter(snapshot_ids), "") if snapshot_ids else ""
+
     created = 0
     for satellite in satellites:
+        snapshot_id = satellite.snapshot_id or default_snapshot_id
         for station in stations:
             session.execute(
                 delete(ContactWindow).where(
@@ -137,6 +147,7 @@ def precompute_windows(
                         est_downlink_mb=est_downlink_mb(
                             satellite.downlink_rate_mbps, pass_["duration_s"]
                         ),
+                        tle_snapshot_id=snapshot_id,
                         created_at=utc_now(),
                     )
                 )
@@ -157,7 +168,16 @@ def _window_to_dict(window: ContactWindow) -> Dict[str, Any]:
         "max_elevation_deg": float(window.max_elevation_deg),
         "duration_s": float(window.duration_s),
         "est_downlink_mb": float(window.est_downlink_mb),
+        "tle_snapshot_id": window.tle_snapshot_id or "",
+        "truth_status": TruthStatus.CALCULATED.value,
+        "calculation_method": CONTACT_WINDOW_METHOD,
     }
+
+
+def orbital_provenance_for_windows(session: Session) -> Dict[str, Any]:
+    """Snapshot metadata currently backing the contact-window cache."""
+    satellites = session.scalars(select(Satellite)).all()
+    return tle_cache.metadata_from_db_satellites(list(satellites))
 
 
 def list_windows(

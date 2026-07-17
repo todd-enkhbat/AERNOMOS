@@ -122,3 +122,55 @@ class CatalogCandidateOut(BaseModel):
 
 class CatalogCandidatesResponse(BaseModel):
     candidates: List[CatalogCandidateOut]
+
+
+class OrbitalSnapshotOut(BaseModel):
+    snapshot_id: str
+    source: str
+    source_url: Optional[str] = None
+    epochs: List[Any] = Field(default_factory=list)
+    truth_status: str
+    retrieved_at: Optional[str] = None
+    stale_epoch_days: int = 7
+    used_pinned_fallback: bool = False
+
+
+class MissionSatelliteOut(BaseModel):
+    id: str
+    name: str
+    norad_id: int
+    tle_epoch: str
+    snapshot_id: str
+    source: str
+    retrieved_at: Optional[str] = None
+    downlink_rate_mbps: float
+    resource_type: str = "satellite"
+    access_level: str = "public_information"
+    truth_status: str
+
+
+class MissionGroundStationOut(BaseModel):
+    id: str
+    name: str
+    location: str
+    provider: str = ""
+    latitude: float
+    longitude: float
+    altitude_m: float = 0
+    min_elevation_deg: float = 10.0
+    latency_minutes: float
+    downlink_mbps: int
+    availability: float
+    resource_type: str = "ground_station"
+    access_level: str = "public_information"
+    source_metadata: Dict[str, Any] = Field(default_factory=dict)
+    coordinate_truth_status: str = "PROVIDER_REPORTED"
+    ops_params_truth_status: str = "SIMULATED"
+    truth_status: str = "PROVIDER_REPORTED"
+
+
+class MissionInfrastructureResponse(BaseModel):
+    mission_id: str
+    orbital_snapshot: OrbitalSnapshotOut
+    satellites: List[MissionSatelliteOut] = Field(default_factory=list)
+    ground_stations: List[MissionGroundStationOut] = Field(default_factory=list)
