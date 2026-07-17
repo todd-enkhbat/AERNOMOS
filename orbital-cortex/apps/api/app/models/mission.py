@@ -347,3 +347,51 @@ class MissionPlansGenerateResponse(BaseModel):
     )
     planner_config_version: str
 
+
+class MissionExportOut(BaseModel):
+    id: str
+    mission_id: str
+    export_type: str
+    status: str
+    artifact_key: Optional[str] = None
+    error_message: Optional[str] = None
+    created_at: Optional[str] = None
+    completed_at: Optional[str] = None
+    download_url: Optional[str] = None
+
+
+class MissionPdfExportResponse(BaseModel):
+    export: MissionExportOut
+
+
+class MissionJsonExportResponse(BaseModel):
+    """Versioned mission brief JSON (schema_version required)."""
+
+    schema_version: int
+    document_type: str
+    generated_at: str
+    mission_input: Dict[str, Any]
+    geographic_summary: Dict[str, Any] = Field(default_factory=dict)
+    source_snapshots: Dict[str, Any] = Field(default_factory=dict)
+    candidate_plans: List[Any] = Field(default_factory=list)
+    selected_plan: Optional[Dict[str, Any]] = None
+    assumptions: List[Any] = Field(default_factory=list)
+    truth_statuses: Dict[str, Any] = Field(default_factory=dict)
+    rejection_reasons: List[Any] = Field(default_factory=list)
+    source_evidence: List[Any] = Field(default_factory=list)
+    missing_integrations: List[Any] = Field(default_factory=list)
+    next_actions: List[Any] = Field(default_factory=list)
+    disclosures: Dict[str, Any] = Field(default_factory=dict)
+
+
+class ShareResolveResponse(BaseModel):
+    """Minimal share-token resolution for /share/[token] (no unrelated mission data)."""
+
+    mission_id: str
+    permissions: List[Any] = Field(default_factory=list)
+    expires_at: Optional[str] = None
+
+
+class ShareLinkListResponse(BaseModel):
+    share_links: List[ShareLinkOut]
+

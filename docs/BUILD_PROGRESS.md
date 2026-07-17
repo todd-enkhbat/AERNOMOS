@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: K (next)
+Current phase: L (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -13,9 +13,10 @@ Current phase: K (next)
 - Phase I: Source-backed mission feasibility and planning engine
 - Phase J: Customer-facing mission result experience at `/missions/[id]`
 - Phase D: Homepage rewrite around mission planning outcomes
+- Phase K: Mission brief PDF/JSON export + private sharing UI (`/share/[token]`)
 
 ## In progress
-None — Phase D complete. Next is Phase K (exports).
+None — Phase K complete. Next is Phase L (isolate simulations).
 
 ## Blockers
 None
@@ -61,28 +62,37 @@ None
 - Phase J: the recommendation is the dominant result-page element; legacy simulated detections remain isolated to the legacy Job demo and are not rendered on mission briefs.
 - Phase J: mission geography uses MapLibre with only the mission AOI, the recommended plan's selected scene, and ground stations referenced by generated plan steps. Satellite tracks remain explicitly `UNAVAILABLE` because the mission API does not expose trajectory coordinates.
 - Phase J: list responses are hydrated through each plan-detail endpoint so ordered steps and source evidence are available after refresh; communication windows are filtered client-side to IDs referenced by mission plans.
-- Phase D: homepage leads with mission-planning outcomes; job demo is demoted to a secondary “Also available” link. `/examples` is a stub until Phase L.
+- Phase K: PDF generation is **sync on POST** for MVP (same `generate_pdf_export` used by ARQ worker `generate_mission_pdf_export`); JSON schema_version is **1**.
+- Phase K: private share URLs use `/share/{token}` (raw token in path; only hash stored). Legacy `?share_token=` on `/missions/[id]` still works via existing auth deps.
+- Phase K: `GET /v1/share/{token}` returns only `mission_id` + link metadata — never unrelated mission payloads.
+- Phase K: PDF deps are WeasyPrint + Jinja2; Dockerfile installs pango/cairo/gdk-pixbuf/fonts.
 
-## Phase D — work completed
-- Rewrote homepage hero: mission-planning headline/subhead, primary CTA → `/plan`, secondary CTA → `/examples`, OrbitalScene + NomosMark retained, DemoLauncher removed from first viewport.
-- Added three-step explanation and accurate “does today” / “requires provider integration” sections.
-- Added stub `/examples` page for the secondary CTA.
-- Updated `SOUL.md`, `capability-truth.md`, and `AGENTS.md` phase notes to match homepage claims.
-- Softened header/footer first-screen language away from “control plane / orchestration” lead.
+## Phase K — work completed
+- Versioned JSON mission brief export (`schema_version: 1`) with inputs, plans/steps, evidence, disclosures
+- PDF brief via Jinja HTML → WeasyPrint; stored in object store; signed download URL
+- `MissionExport` table + Alembic migration `e7f8a9b0c1d2`
+- Owner PDF endpoints; JSON export for owner or valid share
+- Share resolve endpoint; list share links; `/share/[token]` read-only UI
+- Mission brief UI: PDF/JSON export, expiry select, copy link, revoke
+- Docker/API requirements updated for WeasyPrint system libraries
 
-## Phase D — files changed
-- `orbital-cortex/apps/web/app/page.tsx`
-- `orbital-cortex/apps/web/app/examples/page.tsx` (new)
-- `orbital-cortex/apps/web/components/layout/SiteHeader.tsx`
-- `orbital-cortex/apps/web/components/layout/SiteFooter.tsx`
-- `SOUL.md`
-- `orbital-cortex/docs/capability-truth.md`
-- `AGENTS.md`
+## Phase K — files changed
+- API: `app/exports/` (`json_document.py`, `pdf.py`, `service.py`, `templates/mission_brief.html`)
+- API: `app/db/mission_orm.py`, `migrations/versions/e7f8a9b0c1d2_mission_exports.py`
+- API: `app/routes/missions.py`, `app/models/mission.py`, `app/workers/executor.py`, `app/core/queue.py`, `app/core/object_store.py`
+- API: `Dockerfile`, `requirements.txt`, `tests/test_exports.py`
+- Web: `app/share/[token]/page.tsx`, `app/missions/[id]/page.tsx`, `components/missions/MissionBrief.tsx`, `lib/api.ts`
+- Generated: `orbital-cortex/openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
-## Phase D — tests run
+## Phase K — tests run
+- `pytest tests/test_exports.py -q` — 5 passed, 1 skipped (WeasyPrint OS libs absent on host)
+- `pytest tests -q` — 74 passed, 2 skipped
+- `ruff check app tests scripts` — pass
+- `npm run generate:api-types` — pass
 - `npm run lint` — pass
-- `npm run build` — pass (`/examples` route present)
+- `npm run build` — pass (`/share/[token]` route present)
+- `docker build` — not available on this host (Dockerfile deps updated; verify in CI / machine with Docker)
 
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
@@ -95,7 +105,8 @@ None
 - Phase I does not execute tasking/reservation; satellite paths remain conditional.
 - Mission satellite tracks cannot be drawn until an API exposes trajectory coordinates; the result page labels this `UNAVAILABLE`.
 - Contact-window retrieval still uses the existing public pass-cache endpoint and filters the response to plan-referenced IDs in the browser; a mission-scoped endpoint would be cleaner in a later API phase.
-- `/examples` is a placeholder until Phase L publishes curated public missions.
+- Host CI images without WeasyPrint system libs skip the optional PDF integration test; Docker image must include those libs (updated).
+- Revoke UI on the mission page tracks the latest share link created in the current browser session (raw token is only returned once).
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
@@ -109,7 +120,8 @@ None
 - No LLM in the feasibility path; `explain.py` emits structured fields only.
 - The Phase J page renders a complete eight-section brief for feasible, conditional, and fully rejected plan sets. Missions without plans get an honest `Generate plan` empty state.
 - Heavy MapLibre code is dynamically loaded only when the geographic section renders.
-- Homepage primary action is private mission planning; Job API and `/jobs` remain for developers but are not the marketing spine.
+- PDF MVP renders synchronously on the request path; ARQ worker registers the same generator for larger/async use.
+- Share pages resolve token → mission_id first, then load the mission with the share header — never enumerate other missions.
 
 ## Phase J — work completed
 - Replaced the catalog-first mission detail layout with a recommendation-first technical mission brief.
@@ -117,8 +129,7 @@ None
 - Added full plan-detail hydration for steps and evidence, clear loading/error states, and a no-plans `Generate plan` action.
 - Added truth/source inspection to plan duration, cost, movement, feasibility counts, assumptions, timeline values, orbital snapshots, and unavailable capabilities.
 - Added a mission-scoped MapLibre view for AOI, selected scene footprint, referenced ground stations, destination region, and communication-window context.
-- Preserved private share-link creation for owned missions; export is honestly disabled until Phase K.
-- Verified the result page with a local mission/API flow at desktop and 390 px mobile widths. Confirmed no page-level horizontal overflow, all eight landmarks/headings, rejected-plan fallback, empty state, source controls, disabled export, and visible demo disclosure.
+- Preserved private share-link creation for owned missions; export wired in Phase K.
 
 ## Phase J — files changed
 - `orbital-cortex/apps/web/app/missions/[id]/page.tsx`
@@ -137,7 +148,7 @@ None
 - Fully rejected-plan smoke: no false recommendation; all eight sections still render — pass.
 
 ## Next phase
-Phase K — mission plan exports.
+Phase L — isolate simulations into clearly labeled examples.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/11-phase-K-exports.md`](phase-prompts/11-phase-K-exports.md)
+**Agent prompt to copy-paste:** [`docs/phase-prompts/12-phase-L-isolate-simulations.md`](phase-prompts/12-phase-L-isolate-simulations.md)
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

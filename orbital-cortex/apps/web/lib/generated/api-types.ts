@@ -339,6 +339,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions/{mission_id}/exports/json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download versioned mission brief JSON */
+        get: operations["export_mission_json_v1_missions__mission_id__exports_json_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/exports/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Latest PDF export status / signed download URL */
+        get: operations["get_latest_pdf_export_v1_missions__mission_id__exports_pdf_get"];
+        put?: never;
+        /**
+         * Generate a PDF mission brief
+         * @description Owner-only. Creates an export job and generates the PDF (sync for MVP). Returns a signed download URL when ready. Large jobs may be processed by the ARQ worker via generate_mission_pdf_export.
+         */
+        post: operations["create_pdf_export_v1_missions__mission_id__exports_pdf_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/exports/pdf/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** PDF export status by id */
+        get: operations["get_pdf_export_v1_missions__mission_id__exports_pdf__export_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/missions/{mission_id}/infrastructure": {
         parameters: {
             query?: never;
@@ -404,7 +459,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List share links for a mission you own */
+        get: operations["list_share_links_v1_missions__mission_id__share_links_get"];
         put?: never;
         /**
          * Create a private share link for a mission you own
@@ -518,6 +574,26 @@ export interface paths {
         post?: never;
         /** End the current anonymous session cookie */
         delete: operations["end_session_v1_sessions_me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/share/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resolve a private share token to its mission
+         * @description Returns only the mission_id and link metadata for a valid token. Invalid, expired, or revoked tokens return 403 with no mission payload.
+         */
+        get: operations["resolve_share_token_v1_share__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1021,6 +1097,27 @@ export interface components {
             /** Use Case */
             use_case?: string | null;
         };
+        /** MissionExportOut */
+        MissionExportOut: {
+            /** Artifact Key */
+            artifact_key?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Download Url */
+            download_url?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /** Export Type */
+            export_type: string;
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Status */
+            status: string;
+        };
         /** MissionGroundStationOut */
         MissionGroundStationOut: {
             /**
@@ -1081,6 +1178,54 @@ export interface components {
             /** Satellites */
             satellites?: components["schemas"]["MissionSatelliteOut"][];
         };
+        /**
+         * MissionJsonExportResponse
+         * @description Versioned mission brief JSON (schema_version required).
+         */
+        MissionJsonExportResponse: {
+            /** Assumptions */
+            assumptions?: unknown[];
+            /** Candidate Plans */
+            candidate_plans?: unknown[];
+            /** Disclosures */
+            disclosures?: {
+                [key: string]: unknown;
+            };
+            /** Document Type */
+            document_type: string;
+            /** Generated At */
+            generated_at: string;
+            /** Geographic Summary */
+            geographic_summary?: {
+                [key: string]: unknown;
+            };
+            /** Missing Integrations */
+            missing_integrations?: unknown[];
+            /** Mission Input */
+            mission_input: {
+                [key: string]: unknown;
+            };
+            /** Next Actions */
+            next_actions?: unknown[];
+            /** Rejection Reasons */
+            rejection_reasons?: unknown[];
+            /** Schema Version */
+            schema_version: number;
+            /** Selected Plan */
+            selected_plan?: {
+                [key: string]: unknown;
+            } | null;
+            /** Source Evidence */
+            source_evidence?: unknown[];
+            /** Source Snapshots */
+            source_snapshots?: {
+                [key: string]: unknown;
+            };
+            /** Truth Statuses */
+            truth_statuses?: {
+                [key: string]: unknown;
+            };
+        };
         /** MissionOut */
         MissionOut: {
             /** Allowed Regions */
@@ -1128,6 +1273,10 @@ export interface components {
             title: string;
             /** Updated At */
             updated_at: string;
+        };
+        /** MissionPdfExportResponse */
+        MissionPdfExportResponse: {
+            export: components["schemas"]["MissionExportOut"];
         };
         /** MissionPlanDetailResponse */
         MissionPlanDetailResponse: {
@@ -1463,6 +1612,11 @@ export interface components {
             /** Permissions */
             permissions?: string[];
         };
+        /** ShareLinkListResponse */
+        ShareLinkListResponse: {
+            /** Share Links */
+            share_links: components["schemas"]["ShareLinkOut"][];
+        };
         /** ShareLinkOut */
         ShareLinkOut: {
             /** Created At */
@@ -1483,6 +1637,18 @@ export interface components {
         /** ShareLinkResponse */
         ShareLinkResponse: {
             share_link: components["schemas"]["ShareLinkOut"];
+        };
+        /**
+         * ShareResolveResponse
+         * @description Minimal share-token resolution for /share/[token] (no unrelated mission data).
+         */
+        ShareResolveResponse: {
+            /** Expires At */
+            expires_at?: string | null;
+            /** Mission Id */
+            mission_id: string;
+            /** Permissions */
+            permissions?: unknown[];
         };
         /** SimulateRunResponse */
         SimulateRunResponse: {
@@ -2372,6 +2538,243 @@ export interface operations {
             };
         };
     };
+    export_mission_json_v1_missions__mission_id__exports_json_get: {
+        parameters: {
+            query?: {
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionJsonExportResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_pdf_export_v1_missions__mission_id__exports_pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPdfExportResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No export found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_pdf_export_v1_missions__mission_id__exports_pdf_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPdfExportResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_pdf_export_v1_missions__mission_id__exports_pdf__export_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                export_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPdfExportResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Export not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_mission_infrastructure_v1_missions__mission_id__infrastructure_get: {
         parameters: {
             query?: {
@@ -2598,6 +3001,64 @@ export interface operations {
                 };
             };
             /** @description Plan not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_share_links_v1_missions__mission_id__share_links_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinkListResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2899,6 +3360,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    resolve_share_token_v1_share__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareResolveResponse"];
+                };
+            };
+            /** @description Invalid / expired / revoked */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

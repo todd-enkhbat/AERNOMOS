@@ -20,6 +20,7 @@ from app.core.config import get_settings
 from app.core.pipeline import fail_job, run_pipeline
 from app.core.queue import redis_settings
 from app.db import SessionLocal, get_engine
+from app.exports import service as export_service
 from app.workers.passes import precompute_passes, refresh_tle_snapshot
 
 logger = logging.getLogger(__name__)
@@ -53,13 +54,38 @@ async def execute_job(ctx: Dict[str, Any], job_id: str) -> str:
     return outcome["job"]["status"]
 
 
+def generate_mission_pdf_export_sync(export_id: str) -> str:
+    import uuid
+
+    session = SessionLocal(bind=get_engine())
+    try:
+        row = export_service.generate_pdf_export(session, uuid.UUID(export_id))
+        session.commit()
+        return row.status
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+async def generate_mission_pdf_export(ctx: Dict[str, Any], export_id: str) -> str:
+    logger.info("generating mission PDF export %s", export_id)
+    return await asyncio.to_thread(generate_mission_pdf_export_sync, export_id)
+
+
 async def startup(ctx: Dict[str, Any]) -> None:
     # Warm the contact-window cache so routing never waits on propagation.
     await precompute_passes(ctx)
 
 
 class WorkerSettings:
-    functions = [execute_job, precompute_passes, refresh_tle_snapshot]
+    functions = [
+        execute_job,
+        precompute_passes,
+        refresh_tle_snapshot,
+        generate_mission_pdf_export,
+    ]
     # Refresh TLEs then recompute passes every 6 hours.
     cron_jobs = [
         cron(refresh_tle_snapshot, hour={0, 6, 12, 18}, minute=0),

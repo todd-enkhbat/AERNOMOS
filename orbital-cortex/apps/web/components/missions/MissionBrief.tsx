@@ -416,9 +416,19 @@ export function MissionBrief({
   infrastructure,
   contactWindows,
   canShare,
+  canExport,
   sharing,
   shareUrl,
+  shareExpiresDays,
+  onShareExpiresDaysChange,
   onShare,
+  onRevokeShare,
+  revoking,
+  exportingPdf,
+  exportingJson,
+  onExportPdf,
+  onExportJson,
+  readOnly,
 }: {
   mission: MissionSummary;
   plans: MissionPlan[];
@@ -426,9 +436,19 @@ export function MissionBrief({
   infrastructure: MissionInfrastructureResponse | null;
   contactWindows: ContactWindow[];
   canShare: boolean;
+  canExport?: boolean;
   sharing: boolean;
   shareUrl: string | null;
+  shareExpiresDays?: number;
+  onShareExpiresDaysChange?: (days: number) => void;
   onShare: () => void;
+  onRevokeShare?: () => void;
+  revoking?: boolean;
+  exportingPdf?: boolean;
+  exportingJson?: boolean;
+  onExportPdf?: () => void;
+  onExportJson?: () => void;
+  readOnly?: boolean;
 }) {
   const recommended = plans.find((plan) => plan.recommended) ?? null;
   const primary = recommended ?? plans[0];
@@ -613,24 +633,73 @@ export function MissionBrief({
             ))}
           </ul>
           <div className="flex min-w-52 flex-col gap-3">
-            <button className="cursor-not-allowed rounded-xl border border-white/10 px-4 py-3 text-left text-sm text-muted opacity-70" disabled type="button">
-              Export mission brief
-              <span className="mt-1 block text-xs">Coming in Phase K</span>
-            </button>
-            {canShare ? (
-              <LiquidButton disabled={sharing} onClick={onShare} variant="outline">
-                {sharing ? "Creating link…" : "Create private share link"}
+            {canExport && onExportPdf ? (
+              <LiquidButton disabled={exportingPdf} onClick={onExportPdf} variant="outline">
+                {exportingPdf ? "Generating PDF…" : "Export PDF brief"}
               </LiquidButton>
+            ) : null}
+            {canExport && onExportJson ? (
+              <LiquidButton disabled={exportingJson} onClick={onExportJson} variant="outline">
+                {exportingJson ? "Preparing JSON…" : "Export JSON"}
+              </LiquidButton>
+            ) : null}
+            {!canExport && !readOnly ? (
+              <button className="cursor-not-allowed rounded-xl border border-white/10 px-4 py-3 text-left text-sm text-muted opacity-70" disabled type="button">
+                Export mission brief
+                <span className="mt-1 block text-xs">Owner session required</span>
+              </button>
+            ) : null}
+            {canShare ? (
+              <>
+                {onShareExpiresDaysChange ? (
+                  <label className="block text-xs text-muted">
+                    Link expiry
+                    <select
+                      className="mt-1 w-full rounded-lg border border-white/15 bg-void px-3 py-2 text-sm text-cream"
+                      onChange={(event) => onShareExpiresDaysChange(Number(event.target.value))}
+                      value={shareExpiresDays ?? 7}
+                    >
+                      <option value={1}>1 day</option>
+                      <option value={7}>7 days</option>
+                      <option value={30}>30 days</option>
+                      <option value={90}>90 days</option>
+                    </select>
+                  </label>
+                ) : null}
+                <LiquidButton disabled={sharing} onClick={onShare} variant="outline">
+                  {sharing ? "Creating link…" : shareUrl ? "Create new share link" : "Create private share link"}
+                </LiquidButton>
+                {shareUrl && onRevokeShare ? (
+                  <LiquidButton disabled={revoking} onClick={onRevokeShare} variant="outline">
+                    {revoking ? "Revoking…" : "Revoke latest link"}
+                  </LiquidButton>
+                ) : null}
+              </>
             ) : (
               <button className="cursor-not-allowed rounded-xl border border-white/10 px-4 py-3 text-left text-sm text-muted opacity-70" disabled type="button">
-                Read-only mission
-                <span className="mt-1 block text-xs">Only the mission owner can create a link</span>
+                {readOnly ? "Shared read-only view" : "Read-only mission"}
+                <span className="mt-1 block text-xs">
+                  {readOnly
+                    ? "Exports require the mission owner"
+                    : "Only the mission owner can create a link"}
+                </span>
               </button>
             )}
             {shareUrl ? (
-              <a className="break-all text-xs leading-5 text-gold hover:underline" href={shareUrl}>
-                {shareUrl}
-              </a>
+              <div className="space-y-2">
+                <a className="break-all text-xs leading-5 text-gold hover:underline" href={shareUrl}>
+                  {shareUrl}
+                </a>
+                <button
+                  className="text-left text-xs text-silver underline-offset-2 hover:underline"
+                  onClick={() => {
+                    void navigator.clipboard?.writeText(shareUrl);
+                  }}
+                  type="button"
+                >
+                  Copy link
+                </button>
+              </div>
             ) : null}
           </div>
         </div>

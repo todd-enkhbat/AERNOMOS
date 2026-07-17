@@ -13,6 +13,7 @@ import {
   createShareLink,
   discoverMissionCatalog,
   ensureAnonymousSession,
+  exportMissionJson,
   generateMissionPlans,
   getContactWindows,
   getMission,
@@ -20,6 +21,8 @@ import {
   getMissionPlan,
   listMissionCandidates,
   listMissionPlans,
+  requestMissionPdf,
+  revokeShareLink,
   type CatalogCandidate,
   type MissionInfrastructureResponse,
   type MissionPlan,
@@ -54,6 +57,11 @@ function MissionDetailInner() {
   const [planning, setPlanning] = useState(false);
   const [discovering, setDiscovering] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [revoking, setRevoking] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportingJson, setExportingJson] = useState(false);
+  const [shareExpiresDays, setShareExpiresDays] = useState(7);
+  const [latestShareId, setLatestShareId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
@@ -163,19 +171,88 @@ function MissionDetailInner() {
     setSharing(true);
     try {
       await ensureAnonymousSession();
-      const response = await createShareLink(params.id);
+      const expiresAt = new Date(
+        Date.now() + shareExpiresDays * 24 * 60 * 60 * 1000
+      ).toISOString();
+      const response = await createShareLink(params.id, { expires_at: expiresAt });
       const token = response.share_link.token;
       if (!token) {
         setNotice("A share link was created, but its one-time token was not returned.");
         return;
       }
-      setShareUrl(
-        `${window.location.origin}/missions/${params.id}?share_token=${encodeURIComponent(token)}`
-      );
+      setLatestShareId(response.share_link.id);
+      setShareUrl(`${window.location.origin}/share/${encodeURIComponent(token)}`);
+      setNotice(`Private share link created (expires in ${shareExpiresDays} day${shareExpiresDays === 1 ? "" : "s"}).`);
     } catch (error) {
       setNotice(apiErrorMessage(error, "Could not create a private share link."));
     } finally {
       setSharing(false);
+    }
+  }
+
+  async function onRevokeShare() {
+    if (!latestShareId) {
+      setNotice("Create a share link in this session before revoking.");
+      return;
+    }
+    setNotice(null);
+    setRevoking(true);
+    try {
+      await ensureAnonymousSession();
+      await revokeShareLink(params.id, latestShareId);
+      setShareUrl(null);
+      setLatestShareId(null);
+      setNotice("Share link revoked. The previous URL no longer works.");
+    } catch (error) {
+      setNotice(apiErrorMessage(error, "Could not revoke the share link."));
+    } finally {
+      setRevoking(false);
+    }
+  }
+
+  async function onExportPdf() {
+    setNotice(null);
+    setExportingPdf(true);
+    try {
+      await ensureAnonymousSession();
+      const response = await requestMissionPdf(params.id);
+      const url = response.export.download_url;
+      if (response.export.status !== "ready" || !url) {
+        setNotice(
+          response.export.error_message ||
+            "PDF export did not finish. Try again in a moment."
+        );
+        return;
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+      setNotice("PDF mission brief ready.");
+    } catch (error) {
+      setNotice(apiErrorMessage(error, "Could not generate the PDF brief."));
+    } finally {
+      setExportingPdf(false);
+    }
+  }
+
+  async function onExportJson() {
+    setNotice(null);
+    setExportingJson(true);
+    try {
+      await ensureAnonymousSession();
+      const document = await exportMissionJson(params.id, shareToken);
+      const blob = new Blob([JSON.stringify(document, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const anchor = window.document.createElement("a");
+      anchor.href = url;
+      anchor.download = `nomos-mission-${params.id}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setNotice(`JSON export ready (schema_version ${document.schema_version}).`);
+    } catch (error) {
+      setNotice(apiErrorMessage(error, "Could not export mission JSON."));
+    } finally {
+      setExportingJson(false);
     }
   }
 
@@ -268,13 +345,22 @@ function MissionDetailInner() {
             </section>
           ) : (
             <MissionBrief
+              canExport={canEdit}
               canShare={canEdit}
               candidates={candidates}
               contactWindows={contactWindows}
+              exportingJson={exportingJson}
+              exportingPdf={exportingPdf}
               infrastructure={infrastructure}
               mission={mission}
+              onExportJson={onExportJson}
+              onExportPdf={onExportPdf}
+              onRevokeShare={onRevokeShare}
               onShare={onShare}
+              onShareExpiresDaysChange={setShareExpiresDays}
               plans={plans}
+              revoking={revoking}
+              shareExpiresDays={shareExpiresDays}
               shareUrl={shareUrl}
               sharing={sharing}
             />

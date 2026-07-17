@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nomos Mission Brief — {{ doc.mission_input.title }}</title>
+  <style>
+    @page {
+      size: Letter;
+      margin: 1.6cm 1.8cm 2cm 1.8cm;
+      @bottom-center {
+        content: "Nomos Orbital · Mission brief · page " counter(page);
+        font-size: 8pt;
+        color: #6b7280;
+      }
+    }
+    body {
+      font-family: "DejaVu Sans", Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.45;
+      color: #111827;
+    }
+    h1 {
+      font-size: 20pt;
+      margin: 0 0 4pt 0;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      font-size: 12pt;
+      margin: 18pt 0 6pt 0;
+      border-bottom: 1px solid #d1d5db;
+      padding-bottom: 3pt;
+      color: #0f172a;
+    }
+    h3 { font-size: 10.5pt; margin: 10pt 0 4pt 0; }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 8pt;
+      color: #92400e;
+      margin-bottom: 6pt;
+    }
+    .meta { color: #4b5563; font-size: 9pt; margin-bottom: 12pt; }
+    .disclosure {
+      background: #fffbeb;
+      border: 1px solid #f59e0b;
+      padding: 8pt 10pt;
+      margin: 10pt 0 16pt 0;
+      font-size: 9pt;
+    }
+    .unavailable {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      padding: 6pt 8pt;
+      margin: 6pt 0;
+      font-size: 9pt;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      margin-top: 4pt;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 4pt 6pt;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3f4f6; font-weight: 600; }
+    .badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      padding: 1pt 5pt;
+      border: 1px solid #9ca3af;
+      border-radius: 2pt;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    ul { margin: 4pt 0 4pt 16pt; padding: 0; }
+    li { margin-bottom: 2pt; }
+    .muted { color: #6b7280; }
+    .grid { display: table; width: 100%; }
+    .grid .cell { display: table-cell; width: 50%; padding-right: 8pt; vertical-align: top; }
+  </style>
+</head>
+<body>
+  <div class="eyebrow">Nomos Orbital · Mission brief</div>
+  <h1>{{ doc.mission_input.title }}</h1>
+  <p class="meta">
+    Mission ID {{ doc.mission_input.id }} ·
+    Objective {{ doc.mission_input.objective_type }} ·
+    Status {{ doc.mission_input.status }} ·
+    Generated {{ doc.generated_at }}
+  </p>
+
+  <div class="disclosure">
+    <strong>Disclosure.</strong>
+    {{ doc.disclosures.simulation_boundary }}
+    Values labeled SIMULATED or UNAVAILABLE are not live operational capacity.
+  </div>
+
+  <h2>1. Mission summary</h2>
+  <div class="grid">
+    <div class="cell">
+      <p><strong>Timeframe</strong><br />
+        Start: {{ doc.mission_input.start_time or "—" }}<br />
+        End: {{ doc.mission_input.end_time or "—" }}<br />
+        Deadline: {{ doc.mission_input.deadline or "—" }}
+      </p>
+      {% if doc.mission_input.notes %}
+      <p><strong>Notes</strong><br />{{ doc.mission_input.notes }}</p>
+      {% endif %}
+    </div>
+    <div class="cell">
+      <p><strong>Area of interest (static summary)</strong><br />
+        Geometry: {{ doc.geographic_summary.geometry_type or "—" }}<br />
+        {% if doc.geographic_summary.bbox %}
+        BBox: {{ doc.geographic_summary.bbox | join(", ") }}
+        {% else %}
+        BBox: unavailable
+        {% endif %}
+      </p>
+      <p class="muted">{{ doc.geographic_summary.note }}</p>
+    </div>
+  </div>
+
+  <h2>2. Recommendation</h2>
+  {% if doc.selected_plan %}
+  <p>
+    <span class="badge">{{ doc.selected_plan.status }}</span>
+    {% if doc.selected_plan.recommended %}<span class="badge">recommended</span>{% endif %}
+  </p>
+  <p>{{ doc.selected_plan.summary }}</p>
+  {% if doc.selected_plan.explanation and doc.selected_plan.explanation.why_recommended %}
+  <p>{{ doc.selected_plan.explanation.why_recommended }}</p>
+  {% endif %}
+  <p class="muted">
+    Estimated time:
+    {% if doc.selected_plan.estimated_total_time_seconds is not none %}
+      {{ doc.selected_plan.estimated_total_time_seconds }} s
+    {% else %}
+      UNAVAILABLE
+    {% endif %}
+    · Estimated cost:
+    {% if doc.selected_plan.estimated_total_cost_usd is not none %}
+      ${{ doc.selected_plan.estimated_total_cost_usd }}
+    {% else %}
+      UNAVAILABLE (no pricing source)
+    {% endif %}
+  </p>
+  {% else %}
+  <div class="unavailable">No plan has been generated for this mission yet.</div>
+  {% endif %}
+
+  <h2>3. Plan timeline</h2>
+  {% if doc.selected_plan and doc.selected_plan.steps %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Step</th>
+        <th>Provider</th>
+        <th>Feasibility</th>
+        <th>Truth</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for step in doc.selected_plan.steps %}
+      <tr>
+        <td>{{ step.sequence }}</td>
+        <td>
+          <strong>{{ step.title }}</strong><br />
+          <span class="muted">{{ step.description }}</span>
+          {% if step.rejection_reason %}
+          <br /><span class="unavailable">{{ step.rejection_reason }}</span>
+          {% endif %}
+        </td>
+        <td>{{ step.provider_name }}</td>
+        <td>{{ step.feasibility_status }}</td>
+        <td>{{ step.truth_status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No timeline steps available.</p>
+  {% endif %}
+
+  <h2>4. Alternative plans</h2>
+  {% if doc.candidate_plans %}
+  <table>
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Summary</th>
+        <th>Status</th>
+        <th>Recommended</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for plan in doc.candidate_plans %}
+      <tr>
+        <td>{{ plan.version }}</td>
+        <td>{{ plan.summary }}</td>
+        <td>{{ plan.status }}</td>
+        <td>{{ "yes" if plan.recommended else "no" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No candidate plans.</p>
+  {% endif %}
+
+  <h2>5. Assumptions</h2>
+  {% if doc.assumptions %}
+  <ul>
+    {% for item in doc.assumptions %}
+      {% if item is mapping %}
+        {% if item.kind == "planner_meta" %}
+        <li>Planner config {{ item.planner_config_version or "—" }}; pattern {{ item.pattern or "—" }}</li>
+        {% elif item.text %}
+        <li>{{ item.text }}</li>
+        {% elif item.message %}
+        <li>{{ item.message }}</li>
+        {% else %}
+        <li>{{ item }}</li>
+        {% endif %}
+      {% else %}
+      <li>{{ item }}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No assumptions recorded.</p>
+  {% endif %}
+
+  <h2>6. Sources</h2>
+  {% if doc.source_evidence %}
+  <table>
+    <thead>
+      <tr><th>Source</th><th>Type</th><th>Truth</th><th>Retrieved</th></tr>
+    </thead>
+    <tbody>
+      {% for ev in doc.source_evidence %}
+      <tr>
+        <td>{{ ev.source_name }}</td>
+        <td>{{ ev.source_type }}</td>
+        <td>{{ ev.truth_status }}</td>
+        <td>{{ ev.retrieved_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No source evidence attached to the selected plan.</p>
+  {% endif %}
+
+  <h2>7. Truth-status legend</h2>
+  <table>
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      {% for row in doc.truth_statuses.legend %}
+      <tr><td>{{ row.status }}</td><td>{{ row.meaning }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>8. Missing integrations</h2>
+  <div class="unavailable">
+    <ul>
+      {% for item in doc.missing_integrations %}
+      <li>{{ item }} — <strong>UNAVAILABLE</strong></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <h2>9. Next actions</h2>
+  <ul>
+    {% for action in doc.next_actions %}
+    <li>{{ action }}</li>
+    {% endfor %}
+  </ul>
+
+  <p class="meta" style="margin-top: 18pt;">
+    Schema version {{ doc.schema_version }} · Document type {{ doc.document_type }}
+  </p>
+</body>
+</html>

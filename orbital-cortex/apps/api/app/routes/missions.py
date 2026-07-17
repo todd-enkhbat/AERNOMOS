@@ -20,25 +20,31 @@ from app.catalog.errors import (
 from app.core import missions as mission_store
 from app.core.config import get_settings
 from app.db import get_db
-from app.db.mission_orm import AnonymousSession, Mission, MissionPlan, ShareLink
+from app.db.mission_orm import AnonymousSession, Mission, MissionExport, MissionPlan, ShareLink
 from app.deps.auth import (
     get_mission_for_read,
     get_owned_mission,
     require_anonymous_session,
 )
+from app.exports import service as export_service
+from app.exports.json_document import build_mission_export_json
 from app.models.errors import ErrorResponse
 from app.models.mission import (
     CatalogCandidatesResponse,
     DiscoverRequest,
     MissionCreate,
     MissionInfrastructureResponse,
+    MissionJsonExportResponse,
+    MissionPdfExportResponse,
     MissionPlanDetailResponse,
     MissionPlansGenerateResponse,
     MissionPlansListResponse,
     MissionResponse,
     MissionsListResponse,
     ShareLinkCreate,
+    ShareLinkListResponse,
     ShareLinkResponse,
+    ShareResolveResponse,
 )
 from app.planner import PLANNER_CONFIG_VERSION
 from app.planner import engine as planner_engine
@@ -410,5 +416,153 @@ def revoke_share_link(
     return {"share_link": mission_store.share_link_to_dict(link)}
 
 
+@router.get(
+    "/missions/{mission_id}/share-links",
+    response_model=ShareLinkListResponse,
+    summary="List share links for a mission you own",
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def list_share_links(
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    rows = db.scalars(
+        select(ShareLink)
+        .where(ShareLink.mission_id == mission.id)
+        .order_by(ShareLink.created_at.desc())
+    ).all()
+    db.commit()
+    return {
+        "share_links": [mission_store.share_link_to_dict(row) for row in rows],
+    }
+
+
+@router.get(
+    "/share/{token}",
+    response_model=ShareResolveResponse,
+    summary="Resolve a private share token to its mission",
+    description=(
+        "Returns only the mission_id and link metadata for a valid token. "
+        "Invalid, expired, or revoked tokens return 403 with no mission payload."
+    ),
+    responses={
+        403: {"model": ErrorResponse, "description": "Invalid / expired / revoked"},
+    },
+)
+def resolve_share_token(
+    token: str,
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    link = mission_store.get_active_share_link(db, token)
+    if link is None:
+        raise _api_error(
+            403,
+            "share_token_invalid",
+            "Share link is invalid, expired, or revoked.",
+        )
+    db.commit()
+    return {
+        "mission_id": str(link.mission_id),
+        "permissions": link.permissions or ["read"],
+        "expires_at": link.expires_at.isoformat() if link.expires_at else None,
+    }
+
+
+@router.get(
+    "/missions/{mission_id}/exports/json",
+    response_model=MissionJsonExportResponse,
+    summary="Download versioned mission brief JSON",
+    responses={
+        401: {"model": ErrorResponse, "description": "Auth required"},
+        403: {"model": ErrorResponse, "description": "Forbidden"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def export_mission_json(
+    mission: Mission = Depends(get_mission_for_read),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    document = build_mission_export_json(db, mission)
+    db.commit()
+    return document
+
+
+@router.post(
+    "/missions/{mission_id}/exports/pdf",
+    response_model=MissionPdfExportResponse,
+    status_code=201,
+    summary="Generate a PDF mission brief",
+    description=(
+        "Owner-only. Creates an export job and generates the PDF (sync for MVP). "
+        "Returns a signed download URL when ready. Large jobs may be processed by "
+        "the ARQ worker via generate_mission_pdf_export."
+    ),
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def create_pdf_export(
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    row = export_service.create_and_generate_pdf_export(db, mission)
+    db.commit()
+    return {"export": export_service.export_to_dict(row)}
+
+
+@router.get(
+    "/missions/{mission_id}/exports/pdf",
+    response_model=MissionPdfExportResponse,
+    summary="Latest PDF export status / signed download URL",
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "No export found"},
+    },
+)
+def get_latest_pdf_export(
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    row = export_service.get_latest_pdf_export(db, mission.id)
+    if row is None:
+        raise _api_error(404, "export_not_found", "No PDF export found for this mission.")
+    db.commit()
+    return {"export": export_service.export_to_dict(row)}
+
+
+@router.get(
+    "/missions/{mission_id}/exports/pdf/{export_id}",
+    response_model=MissionPdfExportResponse,
+    summary="PDF export status by id",
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Export not found"},
+    },
+)
+def get_pdf_export(
+    export_id: str,
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    try:
+        eid = mission_store.parse_mission_id(export_id)
+    except ValueError as exc:
+        raise _api_error(404, "export_not_found", "Export not found.") from exc
+    row = export_service.get_export(db, eid)
+    if row is None or row.mission_id != mission.id:
+        raise _api_error(404, "export_not_found", "Export not found.")
+    db.commit()
+    return {"export": export_service.export_to_dict(row)}
+
+
 # Keep owner type referenced for mypy/docs.
 _ = AnonymousSession
+_ = MissionExport

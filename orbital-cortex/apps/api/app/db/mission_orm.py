@@ -424,3 +424,38 @@ class ShareLink(Base):
     permissions: Mapped[Any] = mapped_column(
         JSONB, nullable=False, server_default=text("'[\"read\"]'::jsonb")
     )
+
+
+class MissionExport(Base):
+    """PDF (and future) mission brief export artifacts (Phase K)."""
+
+    __tablename__ = "mission_exports"
+    __table_args__ = (
+        Index("ix_mission_exports_mission_id", "mission_id"),
+        Index("ix_mission_exports_created_at", "created_at"),
+        Index(
+            "ix_mission_exports_mission_type_created",
+            "mission_id",
+            "export_type",
+            "created_at",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    mission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("missions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    export_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    artifact_key: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    completed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )

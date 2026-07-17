@@ -190,10 +190,43 @@ export type ShareLinkResponse = {
     id: string;
     mission_id: string;
     token?: string;
+    created_at?: string;
     expires_at?: string | null;
     revoked_at?: string | null;
     permissions: string[];
   };
+};
+
+export type ShareLinkListResponse = {
+  share_links: ShareLinkResponse["share_link"][];
+};
+
+export type ShareResolveResponse = {
+  mission_id: string;
+  permissions: string[];
+  expires_at?: string | null;
+};
+
+export type MissionPdfExport = {
+  id: string;
+  mission_id: string;
+  export_type: string;
+  status: string;
+  artifact_key?: string | null;
+  error_message?: string | null;
+  created_at?: string | null;
+  completed_at?: string | null;
+  download_url?: string | null;
+};
+
+export type MissionPdfExportResponse = { export: MissionPdfExport };
+
+export type MissionJsonExport = {
+  schema_version: number;
+  document_type: string;
+  generated_at: string;
+  mission_input: Record<string, unknown>;
+  [key: string]: unknown;
 };
 
 export function ensureAnonymousSession(): Promise<SessionResponse> {
@@ -248,11 +281,65 @@ export function getMission(
   return missionRequest<MissionResponse>(`/v1/missions/${missionId}`, { headers });
 }
 
-export function createShareLink(missionId: string): Promise<ShareLinkResponse> {
+export function createShareLink(
+  missionId: string,
+  options?: { expires_at?: string; permissions?: string[] }
+): Promise<ShareLinkResponse> {
   return missionRequest<ShareLinkResponse>(`/v1/missions/${missionId}/share-links`, {
     method: "POST",
-    body: JSON.stringify({ permissions: ["read"] })
+    body: JSON.stringify({
+      permissions: options?.permissions ?? ["read"],
+      expires_at: options?.expires_at,
+    }),
   });
+}
+
+export function listShareLinks(missionId: string): Promise<ShareLinkListResponse> {
+  return missionRequest<ShareLinkListResponse>(`/v1/missions/${missionId}/share-links`);
+}
+
+export function revokeShareLink(
+  missionId: string,
+  shareLinkId: string
+): Promise<ShareLinkResponse> {
+  return missionRequest<ShareLinkResponse>(
+    `/v1/missions/${missionId}/share-links/${shareLinkId}/revoke`,
+    { method: "POST" }
+  );
+}
+
+export function resolveShareToken(token: string): Promise<ShareResolveResponse> {
+  return missionRequest<ShareResolveResponse>(`/v1/share/${encodeURIComponent(token)}`);
+}
+
+export function exportMissionJson(
+  missionId: string,
+  shareToken?: string
+): Promise<MissionJsonExport> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<MissionJsonExport>(`/v1/missions/${missionId}/exports/json`, {
+    headers,
+  });
+}
+
+export function requestMissionPdf(missionId: string): Promise<MissionPdfExportResponse> {
+  return missionRequest<MissionPdfExportResponse>(
+    `/v1/missions/${missionId}/exports/pdf`,
+    { method: "POST" }
+  );
+}
+
+export function getMissionPdfExport(
+  missionId: string,
+  exportId?: string
+): Promise<MissionPdfExportResponse> {
+  const path = exportId
+    ? `/v1/missions/${missionId}/exports/pdf/${exportId}`
+    : `/v1/missions/${missionId}/exports/pdf`;
+  return missionRequest<MissionPdfExportResponse>(path);
 }
 
 export type CatalogCandidate = {

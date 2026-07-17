@@ -34,6 +34,23 @@ def enqueue_job_execution(job_id: str) -> bool:
         return False
 
 
+async def _enqueue_pdf_export(export_id: str) -> None:
+    pool = await create_pool(redis_settings())
+    try:
+        await pool.enqueue_job("generate_mission_pdf_export", export_id)
+    finally:
+        await pool.aclose()
+
+
+def enqueue_mission_pdf_export(export_id: str) -> bool:
+    """Enqueue PDF generation. Returns False when Redis is unreachable."""
+    try:
+        asyncio.run(_enqueue_pdf_export(export_id))
+        return True
+    except Exception:
+        return False
+
+
 async def _ping() -> None:
     pool = await create_pool(redis_settings())
     try:
