@@ -113,7 +113,7 @@ export default function JobsPage() {
     setSubmitting(true);
     try {
       const response = await createJob(payloadPreview, DEMO_API_KEY);
-      setJobs((current) => [response.job, ...current]);
+      // New submissions are not added to the public curated list.
       router.push(`/jobs/${response.job.id}`);
     } catch (error) {
       setNotice(apiErrorMessage(error, "Job submission is temporarily unavailable."));
@@ -125,9 +125,9 @@ export default function JobsPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Jobs"
-        title="Create a space-data AI job"
-        description="Describe the task, area, budget, and preference. Nomos scores eligible compute candidates, selects a route, and records the decision."
+        eyebrow="Demo"
+        title="Run a simulated space-data job"
+        description="Submit a demo job and inspect routing on its detail page. The board below shows curated examples only — not every visitor submission."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
@@ -274,13 +274,14 @@ export default function JobsPage() {
         <section>
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-cream">Shared demo queue</h2>
+              <h2 className="text-lg font-semibold text-cream">Curated examples</h2>
               <p className="mt-1 text-xs text-muted">
-                Jobs submitted by all public demo visitors appear here.
+                A small set of labeled demo jobs. New submissions open on their own detail
+                page and are not added to this public list.
               </p>
             </div>
             <span className="metric-value text-sm text-muted">
-              {loading ? "loading" : `${jobs.length} jobs`}
+              {loading ? "loading" : `${jobs.length} examples`}
             </span>
           </div>
           <div className="table-shell">
@@ -298,7 +299,8 @@ export default function JobsPage() {
                 {jobs.length === 0 ? (
                   <tr>
                     <td className="text-muted" colSpan={5}>
-                      No jobs have been submitted.
+                      No curated examples yet. Submit a job above to run a private demo
+                      detail page; examples are promoted from complete runs on deploy seed.
                     </td>
                   </tr>
                 ) : (

@@ -102,7 +102,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List jobs (cursor-paginated) */
+        /**
+         * List curated example jobs (cursor-paginated)
+         * @description Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable by ID but are not listed.
+         */
         get: operations["list_jobs_v1_jobs_get"];
         put?: never;
         /**
@@ -667,6 +670,11 @@ export interface components {
             created_at: string;
             /** Id */
             id: string;
+            /**
+             * Is Example
+             * @default false
+             */
+            is_example: boolean;
             /**
              * Job Type
              * @enum {string}

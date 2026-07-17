@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import delete, select, tuple_
+from sqlalchemy import delete, func, select, tuple_
 from sqlalchemy.orm import Session
 
 from app.core.pagination import decode_cursor
@@ -36,6 +36,7 @@ def _job_to_dict(job: Job) -> Dict[str, Any]:
         "created_at": job.created_at,
         "updated_at": job.updated_at,
         "selected_route_id": job.selected_route_id,
+        "is_example": bool(getattr(job, "is_example", False)),
     }
 
 
@@ -54,6 +55,8 @@ def create_job(session: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
         created_at=timestamp,
         updated_at=timestamp,
         selected_route_id=None,
+        # Public create path never marks examples; seed/ops set this explicitly.
+        is_example=False,
     )
     session.add(job)
     session.flush()
@@ -73,7 +76,12 @@ def list_jobs(
     limit: Optional[int] = None,
     cursor: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    query = select(Job).order_by(Job.created_at.desc(), Job.id.desc())
+    """List curated public example jobs only (not visitor demo submissions)."""
+    query = (
+        select(Job)
+        .where(Job.is_example.is_(True))
+        .order_by(Job.created_at.desc(), Job.id.desc())
+    )
     if cursor:
         created_at, job_id = decode_cursor(cursor, 2)
         query = query.where(tuple_(Job.created_at, Job.id) < (created_at, job_id))
@@ -81,6 +89,59 @@ def list_jobs(
         query = query.limit(limit)
     jobs = session.scalars(query).all()
     return [_job_to_dict(job) for job in jobs]
+
+
+def mark_jobs_as_examples(session: Session, job_ids: List[str]) -> int:
+    """Mark the given job IDs as curated public examples. Returns count updated."""
+    if not job_ids:
+        return 0
+    jobs = session.scalars(select(Job).where(Job.id.in_(job_ids))).all()
+    for job in jobs:
+        job.is_example = True
+    session.flush()
+    return len(jobs)
+
+
+def ensure_curated_job_examples(session: Session, *, limit: int = 3) -> int:
+    """Promote up to ``limit`` complete jobs as public examples when none exist.
+
+    Prefers ship_detection (richest demo). Does not create synthetic jobs and
+    does not delete non-example history — those rows stay reachable by direct
+    ID only.
+    """
+    existing = session.scalar(
+        select(func.count()).select_from(Job).where(Job.is_example.is_(True))
+    )
+    if existing:
+        return int(existing)
+
+    preferred = list(
+        session.scalars(
+            select(Job)
+            .where(Job.status == "complete", Job.job_type == "ship_detection")
+            .order_by(Job.created_at.desc())
+            .limit(limit)
+        ).all()
+    )
+    if len(preferred) < limit:
+        seen = {job.id for job in preferred}
+        extras = session.scalars(
+            select(Job)
+            .where(Job.status == "complete")
+            .order_by(Job.created_at.desc())
+            .limit(limit)
+        ).all()
+        for job in extras:
+            if job.id not in seen:
+                preferred.append(job)
+                seen.add(job.id)
+            if len(preferred) >= limit:
+                break
+
+    for job in preferred[:limit]:
+        job.is_example = True
+    session.flush()
+    return len(preferred[:limit])
 
 
 def update_job(

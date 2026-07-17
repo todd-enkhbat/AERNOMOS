@@ -63,6 +63,16 @@ def test_jobs_cursor_pagination():
         created_ids = [
             client.post("/v1/jobs", json=PAYLOAD).json()["job"]["id"] for _ in range(3)
         ]
+        # Public list only returns curated examples.
+        from app.core import storage
+        from app.db import SessionLocal, get_engine
+
+        session = SessionLocal(bind=get_engine())
+        try:
+            storage.mark_jobs_as_examples(session, created_ids)
+            session.commit()
+        finally:
+            session.close()
 
         first = client.get("/v1/jobs", params={"limit": 2})
         assert first.status_code == 200
@@ -81,10 +91,28 @@ def test_jobs_cursor_pagination():
         ids2 = {job["id"] for job in page2["jobs"]}
         assert ids1.isdisjoint(ids2)
         assert ids1 | ids2 == set(created_ids)
+        assert all(job["is_example"] is True for job in page1["jobs"] + page2["jobs"])
 
         bad = client.get("/v1/jobs", params={"cursor": "%%%not-base64"})
         assert bad.status_code == 400
         assert bad.json()["error"]["code"] == "invalid_cursor"
+
+
+def test_public_job_list_hides_visitor_submissions():
+    _reset_job_data()
+
+    with TestClient(app) as client:
+        visitor = client.post("/v1/jobs", json=PAYLOAD).json()["job"]
+        assert visitor["is_example"] is False
+
+        listed = client.get("/v1/jobs")
+        assert listed.status_code == 200
+        assert visitor["id"] not in {job["id"] for job in listed.json()["jobs"]}
+
+        # Direct ID access still works for the submitter's own run.
+        detail = client.get(f"/v1/jobs/{visitor['id']}")
+        assert detail.status_code == 200
+        assert detail.json()["job"]["id"] == visitor["id"]
 
 
 def test_contact_windows_cursor_pagination():

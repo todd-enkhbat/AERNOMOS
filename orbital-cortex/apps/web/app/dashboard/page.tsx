@@ -112,7 +112,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Control plane"
         title="Public demo operations"
-        description="Legacy shared demo metrics. Private user missions live under Missions and are not listed here."
+        description="Metrics over curated demo examples only. Private missions live under Missions. Visitor job submissions are not listed publicly."
         action={
           <Link
             className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
@@ -168,7 +168,7 @@ export default function DashboardPage() {
 
       <section className="mt-10">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-cream">Recent demo jobs</h2>
+          <h2 className="text-lg font-semibold text-cream">Curated demo examples</h2>
           <Link
             className="text-sm text-muted underline decoration-line underline-offset-4 transition hover:text-cream"
             href="/missions"

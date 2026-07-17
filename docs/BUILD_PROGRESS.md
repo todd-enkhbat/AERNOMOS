@@ -26,6 +26,7 @@ None
 - Phase C: production cookies are HttpOnly + Secure + SameSite=Lax with optional `Domain=.nomosorbital.com`; local dev uses host-only cookies via Next.js `/api/oc/*` rewrite proxy.
 - Phase C: curated public examples use `missions.is_example=true` and a stable examples org UUID; private lists exclude them.
 - Phase C: legacy `/jobs` remains reachable by direct URL for the demo but is removed from primary nav.
+- Follow-up: public `GET /v1/jobs` lists curated `is_example` jobs only; visitor submissions are hidden from the list (still openable by ID). Seed promotes up to 3 complete jobs as examples when none exist.
 
 ## Phase C — work completed
 - Anonymous session bootstrap (`POST /v1/sessions`), current session (`GET /v1/sessions/me`), end session (`DELETE /v1/sessions/me`)
@@ -53,7 +54,7 @@ None
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
 - Local mission APIs rely on `/api/oc` rewrite; job demo still uses `NEXT_PUBLIC_API_BASE_URL` without cookies.
 - Guided mission builder UI is still minimal (title + default AOI); Phase E expands the form.
-- `GET /v1/jobs` remains a public demo feed (not linked in primary nav).
+- `GET /v1/jobs` now returns curated `is_example` jobs only; non-example rows remain in DB and reachable by ID (not deleted). Ops analytics still TBD (Phase O).
 
 ## Architecture decisions
 - Dependencies in `app/deps/auth.py` for optional/required session and mission access (owner vs share token vs public example).

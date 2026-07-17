@@ -94,7 +94,11 @@ def create_job(
 @router.get(
     "/jobs",
     response_model=JobsListResponse,
-    summary="List jobs (cursor-paginated)",
+    summary="List curated example jobs (cursor-paginated)",
+    description=(
+        "Returns only curated public demo examples (`is_example=true`). "
+        "Visitor submissions remain reachable by ID but are not listed."
+    ),
     responses={400: {"model": ErrorResponse, "description": "Malformed cursor"}},
 )
 def list_jobs(

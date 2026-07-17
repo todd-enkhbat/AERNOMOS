@@ -46,6 +46,10 @@ class Job(Base):
     created_at: Mapped[str] = mapped_column(String, nullable=False)
     updated_at: Mapped[str] = mapped_column(String, nullable=False)
     selected_route_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    # Curated public demo examples only; visitor submissions stay hidden from list APIs.
+    is_example: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
 
 
 class ComputeNode(Base):

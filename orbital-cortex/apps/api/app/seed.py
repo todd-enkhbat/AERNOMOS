@@ -46,8 +46,10 @@ def seed_database(session: Session) -> Dict[str, int]:
     session.flush()
     _seed_compute_nodes(session, compute_nodes)
     from app.core.missions import ensure_example_mission
+    from app.core.storage import ensure_curated_job_examples
 
     ensure_example_mission(session)
+    ensure_curated_job_examples(session, limit=3)
     session.commit()
     return {
         "compute_nodes": len(compute_nodes),

@@ -91,6 +91,7 @@ class Job(BaseModel):
     created_at: str
     updated_at: str
     selected_route_id: Optional[str] = None
+    is_example: bool = False
 
 
 class JobCreateResponse(BaseModel):
