@@ -80,7 +80,10 @@ def sync_detailed(
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
 ) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
-    """List jobs (cursor-paginated)
+    """List curated example jobs (cursor-paginated)
+
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
+    by ID but are not listed.
 
     Args:
         limit (int | Unset):  Default: 50.
@@ -112,7 +115,10 @@ def sync(
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
 ) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
-    """List jobs (cursor-paginated)
+    """List curated example jobs (cursor-paginated)
+
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
+    by ID but are not listed.
 
     Args:
         limit (int | Unset):  Default: 50.
@@ -139,7 +145,10 @@ async def asyncio_detailed(
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
 ) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
-    """List jobs (cursor-paginated)
+    """List curated example jobs (cursor-paginated)
+
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
+    by ID but are not listed.
 
     Args:
         limit (int | Unset):  Default: 50.
@@ -169,7 +178,10 @@ async def asyncio(
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
 ) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
-    """List jobs (cursor-paginated)
+    """List curated example jobs (cursor-paginated)
+
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
+    by ID but are not listed.
 
     Args:
         limit (int | Unset):  Default: 50.

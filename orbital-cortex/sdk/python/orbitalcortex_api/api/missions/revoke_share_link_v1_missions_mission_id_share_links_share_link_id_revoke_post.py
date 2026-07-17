@@ -1,0 +1,191 @@
+from http import HTTPStatus
+from typing import Any
+from urllib.parse import quote
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
+from ...models.http_validation_error import HTTPValidationError
+from ...models.share_link_response import ShareLinkResponse
+from ...types import Response
+
+
+def _get_kwargs(
+    mission_id: str,
+    share_link_id: str,
+) -> dict[str, Any]:
+
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/v1/missions/{mission_id}/share-links/{share_link_id}/revoke".format(
+            mission_id=quote(str(mission_id), safe=""),
+            share_link_id=quote(str(share_link_id), safe=""),
+        ),
+    }
+
+    return _kwargs
+
+
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> ErrorResponse | HTTPValidationError | ShareLinkResponse | None:
+    if response.status_code == 200:
+        response_200 = ShareLinkResponse.from_dict(response.json())
+
+        return response_200
+
+    if response.status_code == 401:
+        response_401 = ErrorResponse.from_dict(response.json())
+
+        return response_401
+
+    if response.status_code == 403:
+        response_403 = ErrorResponse.from_dict(response.json())
+
+        return response_403
+
+    if response.status_code == 404:
+        response_404 = ErrorResponse.from_dict(response.json())
+
+        return response_404
+
+    if response.status_code == 422:
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
+
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[ErrorResponse | HTTPValidationError | ShareLinkResponse]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    mission_id: str,
+    share_link_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> Response[ErrorResponse | HTTPValidationError | ShareLinkResponse]:
+    """Revoke a share link you own
+
+    Args:
+        mission_id (str):
+        share_link_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[ErrorResponse | HTTPValidationError | ShareLinkResponse]
+    """
+
+    kwargs = _get_kwargs(
+        mission_id=mission_id,
+        share_link_id=share_link_id,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    mission_id: str,
+    share_link_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> ErrorResponse | HTTPValidationError | ShareLinkResponse | None:
+    """Revoke a share link you own
+
+    Args:
+        mission_id (str):
+        share_link_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        ErrorResponse | HTTPValidationError | ShareLinkResponse
+    """
+
+    return sync_detailed(
+        mission_id=mission_id,
+        share_link_id=share_link_id,
+        client=client,
+    ).parsed
+
+
+async def asyncio_detailed(
+    mission_id: str,
+    share_link_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> Response[ErrorResponse | HTTPValidationError | ShareLinkResponse]:
+    """Revoke a share link you own
+
+    Args:
+        mission_id (str):
+        share_link_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[ErrorResponse | HTTPValidationError | ShareLinkResponse]
+    """
+
+    kwargs = _get_kwargs(
+        mission_id=mission_id,
+        share_link_id=share_link_id,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    mission_id: str,
+    share_link_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> ErrorResponse | HTTPValidationError | ShareLinkResponse | None:
+    """Revoke a share link you own
+
+    Args:
+        mission_id (str):
+        share_link_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        ErrorResponse | HTTPValidationError | ShareLinkResponse
+    """
+
+    return (
+        await asyncio_detailed(
+            mission_id=mission_id,
+            share_link_id=share_link_id,
+            client=client,
+        )
+    ).parsed
