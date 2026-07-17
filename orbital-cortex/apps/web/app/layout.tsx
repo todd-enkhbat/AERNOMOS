@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, IBM_Plex_Mono, Inter_Tight } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { DemoEnvironmentBanner } from "@/components/layout/DemoEnvironmentBanner";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import "./globals.css";
@@ -62,6 +63,7 @@ export default function RootLayout({
         </a>
         <div className="starfield" aria-hidden />
         <div className="relative z-10 flex min-h-screen flex-col">
+          <DemoEnvironmentBanner />
           <SiteHeader />
           <main className="flex-1" id="main-content">
             {children}

@@ -79,6 +79,7 @@ class Mission(Base):
         Index("ix_missions_anonymous_session_id", "anonymous_session_id"),
         Index("ix_missions_organization_id", "organization_id"),
         Index("ix_missions_created_at", "created_at"),
+        Index("ix_missions_is_example", "is_example"),
         Index(
             "ix_missions_area_of_interest",
             "area_of_interest",
@@ -129,6 +130,9 @@ class Mission(Base):
         JSONB, nullable=False, server_default=text("'[]'::jsonb")
     )
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_example: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

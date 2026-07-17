@@ -19,6 +19,13 @@ import type {
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
+/** Same-origin proxy path for cookie-authenticated mission APIs. */
+export const MISSION_API_BASE =
+  typeof window === "undefined"
+    ? API_BASE_URL
+    : process.env.NEXT_PUBLIC_MISSION_API_BASE ?? "/api/oc";
+
+
 export class ApiError extends Error {
   status: number;
   code: string;
@@ -40,14 +47,18 @@ export function apiErrorMessage(
   return error.message;
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  baseUrl: string = API_BASE_URL
+): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers,
     cache: "no-store"
@@ -64,6 +75,18 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   return data as T;
 }
+
+async function missionRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  return request<T>(
+    path,
+    {
+      ...init,
+      credentials: "include"
+    },
+    MISSION_API_BASE
+  );
+}
+
 
 export function getGroundStations(): Promise<GroundStationsResponse> {
   return request<GroundStationsResponse>("/v1/ground-stations");
@@ -146,3 +169,80 @@ export function runSimulation(jobId: string): Promise<SimulateRunResponse> {
     method: "POST"
   });
 }
+
+export type MissionSummary = {
+  id: string;
+  title: string;
+  objective_type: string;
+  status: string;
+  is_example: boolean;
+  created_at: string;
+  notes?: string | null;
+  area_of_interest?: Record<string, unknown>;
+};
+
+export type SessionResponse = {
+  session: {
+    id: string;
+    created_at: string;
+    last_seen_at: string;
+    expires_at: string;
+  };
+  created: boolean;
+};
+
+export type MissionsListResponse = { missions: MissionSummary[] };
+export type MissionResponse = { mission: MissionSummary };
+export type ShareLinkResponse = {
+  share_link: {
+    id: string;
+    mission_id: string;
+    token?: string;
+    expires_at?: string | null;
+    revoked_at?: string | null;
+    permissions: string[];
+  };
+};
+
+export function ensureAnonymousSession(): Promise<SessionResponse> {
+  return missionRequest<SessionResponse>("/v1/sessions", { method: "POST" });
+}
+
+export function listMissions(): Promise<MissionsListResponse> {
+  return missionRequest<MissionsListResponse>("/v1/missions");
+}
+
+export function listExampleMissions(): Promise<MissionsListResponse> {
+  return missionRequest<MissionsListResponse>("/v1/missions/examples");
+}
+
+export function createMission(payload: {
+  title: string;
+  objective_type: string;
+  area_of_interest: Record<string, unknown>;
+  notes?: string;
+}): Promise<MissionResponse> {
+  return missionRequest<MissionResponse>("/v1/missions", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function getMission(
+  missionId: string,
+  shareToken?: string
+): Promise<MissionResponse> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<MissionResponse>(`/v1/missions/${missionId}`, { headers });
+}
+
+export function createShareLink(missionId: string): Promise<ShareLinkResponse> {
+  return missionRequest<ShareLinkResponse>(`/v1/missions/${missionId}/share-links`, {
+    method: "POST",
+    body: JSON.stringify({ permissions: ["read"] })
+  });
+}
+

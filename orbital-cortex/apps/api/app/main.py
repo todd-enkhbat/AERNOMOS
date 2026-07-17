@@ -21,7 +21,7 @@ from app.core.logging import configure_logging, get_logger
 from app.core.ratelimit import limiter
 from app.db import SessionLocal, get_engine
 from app.db.migrate import run_migrations
-from app.routes import artifacts, jobs, nodes, registry, results, routing
+from app.routes import artifacts, jobs, missions, nodes, registry, results, routing, sessions
 from app.seed import seed_database
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -70,6 +70,11 @@ async def lifespan(app):  # type: ignore[no-untyped-def]
 
 
 OPENAPI_TAGS = [
+    {"name": "sessions", "description": "Private anonymous sessions (cookie-scoped)."},
+    {
+        "name": "missions",
+        "description": "Private mission plans scoped to anonymous sessions or share tokens.",
+    },
     {"name": "jobs", "description": "Submit and track EO analysis jobs."},
     {
         "name": "routing",
@@ -221,6 +226,8 @@ def readyz() -> JSONResponse:
     )
 
 
+app.include_router(sessions.router)
+app.include_router(missions.router)
 app.include_router(jobs.router)
 app.include_router(nodes.router)
 app.include_router(registry.router)

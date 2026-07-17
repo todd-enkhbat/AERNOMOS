@@ -1,13 +1,14 @@
 # Nomos Build Progress
 
-Current phase: C
+Current phase: F
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
 - Phase B: Mission data model + TruthStatus enum (`feat: add private mission planning data model`)
+- Phase C: Anonymous private sessions + share-link access (`feat: add private anonymous mission sessions and share links`)
 
 ## In progress
-Phase C: Anonymous private sessions + share-link access
+Phase F: STAC catalog discovery (next in canonical order)
 
 ## Blockers
 None
@@ -21,37 +22,43 @@ None
 - Phase B: mission tables are additive UUID + PostGIS models; legacy Job/Scene/Detection string-ID tables are unchanged so the demo path stays intact.
 - Phase B: `organization_id` / `converted_user_id` are UUID columns without FKs until org/auth tables exist.
 - Phase B: missions require at least one owner (`anonymous_session_id` OR `organization_id`) via CHECK constraint.
+- Phase C: session + share tokens use `secrets.token_urlsafe(32)` with SHA-256 hashes only; raw tokens never stored.
+- Phase C: production cookies are HttpOnly + Secure + SameSite=Lax with optional `Domain=.nomosorbital.com`; local dev uses host-only cookies via Next.js `/api/oc/*` rewrite proxy.
+- Phase C: curated public examples use `missions.is_example=true` and a stable examples org UUID; private lists exclude them.
+- Phase C: legacy `/jobs` remains reachable by direct URL for the demo but is removed from primary nav.
 
-## Phase B — work completed
-- Shared `TruthStatus` enum: OBSERVED, CALCULATED, PROVIDER_REPORTED, ESTIMATED, SIMULATED, STALE, UNAVAILABLE
-- ORM entities: AnonymousSession, Mission, MissionDataCandidate, InfrastructureResource, MissionPlan, MissionPlanStep, SourceEvidence, ShareLink
-- Alembic revision `f2a3b4c5d6e7` (revises `e1f2a3b4c5d6`): additive tables + indexes (ownership, created_at, GiST geometries, catalog IDs, token hashes, provider+type)
-- Tests: migration up/down, session/org ownership isolation, share-link uniqueness/expiry/revoke, legacy jobs still writable
+## Phase C — work completed
+- Anonymous session bootstrap (`POST /v1/sessions`), current session (`GET /v1/sessions/me`), end session (`DELETE /v1/sessions/me`)
+- Private mission CRUD list/create/get scoped to session cookie
+- Share-link create + revoke; read access via `X-Nomos-Share-Token` or `share_token` query
+- `is_example` migration + seeded public example mission
+- Frontend `/missions` + `/missions/[id]`, demo environment banner, nav/footer updates, same-origin API proxy
+- Unauthorized-access tests (cross-session, no cookie, revoked/expired share tokens, production cookie flags)
 
 ## Files changed
-- `orbital-cortex/apps/api/app/db/truth.py` (new)
-- `orbital-cortex/apps/api/app/db/mission_orm.py` (new)
-- `orbital-cortex/apps/api/app/db/orm.py` (registers mission models)
-- `orbital-cortex/apps/api/migrations/versions/f2a3b4c5d6e7_mission_planning_data_model.py` (new)
-- `orbital-cortex/apps/api/tests/test_mission_model.py` (new)
+- API: `app/core/{tokens,sessions,missions,config}.py`, `app/deps/auth.py`, `app/models/mission.py`, `app/routes/{sessions,missions}.py`, `app/db/mission_orm.py`, `app/seed.py`, `app/main.py`, `.env.example`
+- Migration: `a3b4c5d6e7f8_mission_is_example.py`
+- Tests: `tests/test_mission_sessions.py`
+- Web: `app/missions/**`, `lib/api.ts`, `next.config.mjs`, layout/header/footer/nav, `DemoEnvironmentBanner`, dashboard CTA
+- Generated: `openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
 ## Tests run
 - `ruff check app tests scripts` — pass
 - `mypy app` — pass
-- `pytest tests -q` — 26 passed (includes migration + ownership + share-link + full legacy suite)
+- `pytest tests -q` — 33 passed
+- `npm run lint` / `npm run build` — pass
 
 ## Unresolved issues / risks
-- No API yet for sessions/missions (Phase C); model isolation is DB-level only.
-- Share tokens and session tokens are hash columns only; minting/cookie middleware is Phase C.
-- `organization_id` has no organizations table yet.
-- Local validation used Homebrew PostgreSQL 17 + PostGIS on port 5433 (CI uses `postgis/postgis:16-3.4`).
+- Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
+- Local mission APIs rely on `/api/oc` rewrite; job demo still uses `NEXT_PUBLIC_API_BASE_URL` without cookies.
+- Guided mission builder UI is still minimal (title + default AOI); Phase E expands the form.
+- `GET /v1/jobs` remains a public demo feed (not linked in primary nav).
 
 ## Architecture decisions
-- UUID primary keys for all mission-planning tables (non-enumerable).
-- PostGIS `geometry(Geometry, 4326)` for mission AOI, candidate footprints, and optional resource locations; named GiST indexes with `spatial_index=False` on columns to avoid duplicate auto-indexes.
-- Truth status stored as non-native VARCHAR enum (easier to extend than PG ENUM).
-- Do not modify Job tables; demo compatibility verified by write/delete on `jobs` after migration.
+- Dependencies in `app/deps/auth.py` for optional/required session and mission access (owner vs share token vs public example).
+- Expired anonymous sessions are cleaned on session bootstrap (CASCADE deletes their missions).
+- Share tokens returned once at creation; only hashes persisted.
 
 ## Next phase
-Phase C — anonymous private sessions, cookie + hash storage, mission ownership middleware, share-token validation.
+Phase F — STAC catalog discovery (Microsoft Planetary Computer / Earth Search behind `DataCatalogProvider`).

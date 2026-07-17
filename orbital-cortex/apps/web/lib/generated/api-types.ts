@@ -244,6 +244,98 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List missions for the current private session */
+        get: operations["list_missions_v1_missions_get"];
+        put?: never;
+        /** Create a private mission for the current session */
+        post: operations["create_mission_v1_missions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/examples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List curated public example missions
+         * @description Returns missions explicitly marked as public examples. These are not private user submissions and are safe to show without a session.
+         */
+        get: operations["list_examples_v1_missions_examples_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a mission (owner session or valid share token) */
+        get: operations["get_mission_v1_missions__mission_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/share-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a private share link for a mission you own
+         * @description Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-Token` or `share_token` query param.
+         */
+        post: operations["create_share_link_v1_missions__mission_id__share_links_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/share-links/{share_link_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke a share link you own */
+        post: operations["revoke_share_link_v1_missions__mission_id__share_links__share_link_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/nodes": {
         parameters: {
             query?: never;
@@ -295,6 +387,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create or resume a private anonymous session
+         * @description Ensures a private anonymous session cookie. If a valid cookie is already present, resumes it. Otherwise mints a new session token, stores only its hash, and sets an HttpOnly cookie.
+         */
+        post: operations["ensure_session_v1_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sessions/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the current anonymous session */
+        get: operations["current_session_v1_sessions_me_get"];
+        put?: never;
+        post?: never;
+        /** End the current anonymous session cookie */
+        delete: operations["end_session_v1_sessions_me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/simulate/run/{job_id}": {
         parameters: {
             query?: never;
@@ -316,6 +446,19 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AnonymousSessionOut */
+        AnonymousSessionOut: {
+            /** Converted User Id */
+            converted_user_id?: string | null;
+            /** Created At */
+            created_at: string;
+            /** Expires At */
+            expires_at: string;
+            /** Id */
+            id: string;
+            /** Last Seen At */
+            last_seen_at: string;
+        };
         /** AreaOfInterest */
         AreaOfInterest: {
             /** Coordinates */
@@ -648,6 +791,99 @@ export interface components {
             /** Next Cursor */
             next_cursor?: string | null;
         };
+        /** MissionCreate */
+        MissionCreate: {
+            /** Allowed Regions */
+            allowed_regions?: unknown[];
+            /** Area Of Interest */
+            area_of_interest: {
+                [key: string]: unknown;
+            };
+            /** Customer Systems */
+            customer_systems?: unknown[];
+            /** Data Source Preference */
+            data_source_preference?: unknown[];
+            /** Deadline */
+            deadline?: string | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Max Cost Usd */
+            max_cost_usd?: number | null;
+            /** Max Data Volume Mb */
+            max_data_volume_mb?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Objective Type */
+            objective_type: string;
+            /** Preferred Compute Location */
+            preferred_compute_location?: string | null;
+            /** Start Time */
+            start_time?: string | null;
+            /**
+             * Status
+             * @default draft
+             */
+            status: string;
+            /** Title */
+            title: string;
+        };
+        /** MissionOut */
+        MissionOut: {
+            /** Allowed Regions */
+            allowed_regions?: unknown[];
+            /** Anonymous Session Id */
+            anonymous_session_id?: string | null;
+            /** Area Of Interest */
+            area_of_interest: {
+                [key: string]: unknown;
+            };
+            /** Created At */
+            created_at: string;
+            /** Customer Systems */
+            customer_systems?: unknown[];
+            /** Data Source Preference */
+            data_source_preference?: unknown[];
+            /** Deadline */
+            deadline?: string | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Is Example
+             * @default false
+             */
+            is_example: boolean;
+            /** Max Cost Usd */
+            max_cost_usd?: number | null;
+            /** Max Data Volume Mb */
+            max_data_volume_mb?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Objective Type */
+            objective_type: string;
+            /** Organization Id */
+            organization_id?: string | null;
+            /** Preferred Compute Location */
+            preferred_compute_location?: string | null;
+            /** Start Time */
+            start_time?: string | null;
+            /** Status */
+            status: string;
+            /** Title */
+            title: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** MissionResponse */
+        MissionResponse: {
+            mission: components["schemas"]["MissionOut"];
+        };
+        /** MissionsListResponse */
+        MissionsListResponse: {
+            /** Missions */
+            missions: components["schemas"]["MissionOut"][];
+        };
         /** NodesResponse */
         NodesResponse: {
             /** Compute Nodes */
@@ -762,6 +998,43 @@ export interface components {
             scene?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /** SessionResponse */
+        SessionResponse: {
+            /**
+             * Created
+             * @default false
+             */
+            created: boolean;
+            session: components["schemas"]["AnonymousSessionOut"];
+        };
+        /** ShareLinkCreate */
+        ShareLinkCreate: {
+            /** Expires At */
+            expires_at?: string | null;
+            /** Permissions */
+            permissions?: string[];
+        };
+        /** ShareLinkOut */
+        ShareLinkOut: {
+            /** Created At */
+            created_at: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Permissions */
+            permissions?: unknown[];
+            /** Revoked At */
+            revoked_at?: string | null;
+            /** Token */
+            token?: string | null;
+        };
+        /** ShareLinkResponse */
+        ShareLinkResponse: {
+            share_link: components["schemas"]["ShareLinkOut"];
         };
         /** SimulateRunResponse */
         SimulateRunResponse: {
@@ -1318,6 +1591,280 @@ export interface operations {
             };
         };
     };
+    list_missions_v1_missions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionsListResponse"];
+                };
+            };
+            /** @description Missing or expired session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_mission_v1_missions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MissionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionResponse"];
+                };
+            };
+            /** @description Missing or expired session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid mission payload */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_examples_v1_missions_examples_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionsListResponse"];
+                };
+            };
+        };
+    };
+    get_mission_v1_missions__mission_id__get: {
+        parameters: {
+            query?: {
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden or invalid share token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_share_link_v1_missions__mission_id__share_links_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareLinkCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinkResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_share_link_v1_missions__mission_id__share_links__share_link_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_link_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinkResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Share link not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_nodes_v1_nodes_get: {
         parameters: {
             query?: never;
@@ -1394,6 +1941,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SatellitesResponse"];
+                };
+            };
+        };
+    };
+    ensure_session_v1_sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Existing session resumed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+        };
+    };
+    current_session_v1_sessions_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Missing or expired session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    end_session_v1_sessions_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or expired session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

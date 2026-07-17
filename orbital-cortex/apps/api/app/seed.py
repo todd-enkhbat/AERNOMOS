@@ -45,6 +45,9 @@ def seed_database(session: Session) -> Dict[str, int]:
     # Satellites must exist before compute-node rows reference them (FK).
     session.flush()
     _seed_compute_nodes(session, compute_nodes)
+    from app.core.missions import ensure_example_mission
+
+    ensure_example_mission(session)
     session.commit()
     return {
         "compute_nodes": len(compute_nodes),

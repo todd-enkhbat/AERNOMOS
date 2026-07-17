@@ -66,6 +66,13 @@ class Settings(BaseSettings):
     # Public base URL of this API, used to build local signed URLs.
     public_base_url: str = "http://127.0.0.1:8000"
 
+    # --- Anonymous private sessions (Phase C) -----------------------------
+    session_cookie_name: str = "nomos_session"
+    # Empty locally (host-only cookie). Production: ".nomosorbital.com".
+    session_cookie_domain: str = ""
+    session_ttl_days: int = 30
+    share_link_default_ttl_days: int = 7
+
 
 @lru_cache
 def get_settings() -> Settings:
