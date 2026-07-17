@@ -21,6 +21,11 @@ from app.catalog.types import (
 from app.core.missions import geojson_to_wkt, geometry_to_geojson, utc_now
 from app.db.mission_orm import Mission, MissionDataCandidate
 from app.db.truth import TruthStatus
+from app.models.provenance import (
+    EXPLANATION_ESTIMATED,
+    EXPLANATION_PROVIDER_STAC,
+    provenanced,
+)
 
 # Default lookback when a mission has no start/end times.
 DEFAULT_LOOKBACK_DAYS = 30
@@ -121,13 +126,26 @@ def candidate_to_dict(
     meta = row.asset_metadata or {}
     if isinstance(meta, dict):
         assets = meta.get("assets") or []
+    source_timestamp = row.source_timestamp.isoformat()
+    truth = (
+        row.truth_status.value
+        if hasattr(row.truth_status, "value")
+        else str(row.truth_status)
+    )
+    provider_label = row.source_provider
     return {
         "id": str(row.id),
         "mission_id": str(row.mission_id),
         "source_provider": row.source_provider,
         "collection": row.collection,
         "external_item_id": row.external_item_id,
-        "acquisition_time": row.acquisition_time.isoformat(),
+        "acquisition_time": provenanced(
+            row.acquisition_time.isoformat(),
+            TruthStatus.PROVIDER_REPORTED,
+            source=provider_label,
+            retrieved_at=source_timestamp,
+            explanation=EXPLANATION_PROVIDER_STAC,
+        ),
         "footprint": geometry_to_geojson(db, row.footprint),
         "asset_metadata": meta,
         "available_assets": [
@@ -140,14 +158,19 @@ def candidate_to_dict(
             for asset in assets
             if isinstance(asset, dict)
         ],
-        "estimated_size_bytes": row.estimated_size_bytes,
+        "estimated_size_bytes": provenanced(
+            row.estimated_size_bytes,
+            TruthStatus.ESTIMATED,
+            source=provider_label,
+            retrieved_at=source_timestamp,
+            method="STAC asset size heuristic",
+            explanation=EXPLANATION_ESTIMATED,
+        )
+        if row.estimated_size_bytes is not None
+        else None,
         "source_url": row.source_url,
-        "source_timestamp": row.source_timestamp.isoformat(),
-        "truth_status": (
-            row.truth_status.value
-            if hasattr(row.truth_status, "value")
-            else str(row.truth_status)
-        ),
+        "source_timestamp": source_timestamp,
+        "truth_status": truth,
         "created_at": row.created_at.isoformat(),
     }
 

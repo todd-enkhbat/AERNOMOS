@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
+from app.models.provenance import ProvenancedValue
+
 
 class ComputeNode(BaseModel):
     id: str
@@ -59,12 +61,12 @@ class ContactWindow(BaseModel):
     satellite_id: str
     ground_station_id: str
     date: str
-    aos_utc: str
-    culminate_utc: str
-    los_utc: str
-    max_elevation_deg: float
-    duration_s: float
-    est_downlink_mb: float
+    aos_utc: ProvenancedValue
+    culminate_utc: ProvenancedValue
+    los_utc: ProvenancedValue
+    max_elevation_deg: ProvenancedValue
+    duration_s: ProvenancedValue
+    est_downlink_mb: ProvenancedValue
     tle_snapshot_id: str = ""
     truth_status: str = "CALCULATED"
     calculation_method: str = "SGP4/Skyfield.find_events"

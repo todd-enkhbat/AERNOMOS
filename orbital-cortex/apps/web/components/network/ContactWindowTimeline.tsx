@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
+import { SourcePopover, TruthBadge, asProvenanced, unwrapProvenance } from "@/components/truth";
 import type { ContactWindow } from "@/lib/types";
 import { formatDateTime } from "@/lib/format";
 
@@ -18,11 +19,17 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
       return null;
     }
     const sorted = [...windows].sort(
-      (a, b) => new Date(a.aos_utc).getTime() - new Date(b.aos_utc).getTime()
+      (a, b) =>
+        new Date(String(unwrapProvenance(a.aos_utc))).getTime() -
+        new Date(String(unwrapProvenance(b.aos_utc))).getTime()
     );
-    const start = new Date(sorted[0].aos_utc).getTime();
+    const start = new Date(String(unwrapProvenance(sorted[0].aos_utc))).getTime();
     const end = Math.max(
-      ...sorted.map((w) => new Date(w.aos_utc).getTime() + w.duration_s * 1000)
+      ...sorted.map(
+        (w) =>
+          new Date(String(unwrapProvenance(w.aos_utc))).getTime() +
+          Number(unwrapProvenance(w.duration_s) ?? 0) * 1000
+      )
     );
     const span = Math.max(end - start, 1);
 
@@ -40,9 +47,16 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
   }
 
   const { sorted, start, span, satellites } = model;
+  const selectedAos = selected ? asProvenanced(selected.aos_utc) : null;
+  const selectedDuration = selected ? asProvenanced(selected.duration_s) : null;
+  const selectedElevation = selected ? asProvenanced(selected.max_elevation_deg) : null;
 
   return (
     <div>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <TruthBadge compact status="CALCULATED" />
+        <span className="text-xs text-muted">SGP4 contact windows from cached TLE snapshot</span>
+      </div>
       <div className="space-y-3">
         {satellites.map((satelliteId) => {
           const passes = sorted.filter((w) => w.satellite_id === satelliteId);
@@ -53,12 +67,11 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
               </span>
               <div className="relative h-7 flex-1 overflow-hidden rounded-lg border border-line bg-void/40">
                 {passes.map((pass) => {
+                  const aos = String(unwrapProvenance(pass.aos_utc));
+                  const duration = Number(unwrapProvenance(pass.duration_s) ?? 0);
                   const left =
-                    ((new Date(pass.aos_utc).getTime() - start) / span) * 100;
-                  const width = Math.max(
-                    ((pass.duration_s * 1000) / span) * 100,
-                    0.8
-                  );
+                    ((new Date(aos).getTime() - start) / span) * 100;
+                  const width = Math.max(((duration * 1000) / span) * 100, 0.8);
                   const isSelected = selected?.id === pass.id;
                   return (
                     <motion.button
@@ -95,7 +108,7 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
         </span>
       </div>
 
-      {selected ? (
+      {selected && selectedAos && selectedDuration && selectedElevation ? (
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           className="mt-4 grid gap-3 rounded-xl border border-gold/25 bg-gold/5 p-4 sm:grid-cols-4"
@@ -106,11 +119,13 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
           <Detail label="Ground station" value={selected.ground_station_id} />
           <Detail
             label="AOS"
-            value={formatDateTime(selected.aos_utc)}
+            metric={selectedAos}
+            value={formatDateTime(String(selectedAos.value))}
           />
           <Detail
             label="Duration · elev"
-            value={`${Math.round(selected.duration_s / 60)}m · ${selected.max_elevation_deg.toFixed(0)}°`}
+            metric={selectedDuration}
+            value={`${Math.round(Number(selectedDuration.value) / 60)}m · ${Number(selectedElevation.value).toFixed(0)}°`}
           />
         </motion.div>
       ) : (
@@ -122,11 +137,22 @@ export function ContactWindowTimeline({ windows }: { windows: ContactWindow[] })
   );
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
+function Detail({
+  label,
+  value,
+  metric,
+}: {
+  label: string;
+  value: string;
+  metric?: ReturnType<typeof asProvenanced>;
+}) {
   return (
     <div>
       <p className="chart-label text-muted-dark">{label}</p>
-      <p className="metric-value mt-1 text-sm text-cream/90">{value}</p>
+      <p className="metric-value mt-1 flex flex-wrap items-center gap-2 text-sm text-cream/90">
+        <span>{value}</span>
+        {metric ? <SourcePopover metric={metric} /> : null}
+      </p>
     </div>
   );
 }

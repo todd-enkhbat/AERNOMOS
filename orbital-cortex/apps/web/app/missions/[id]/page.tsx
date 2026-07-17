@@ -5,17 +5,21 @@ import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
+import { MissionInfrastructurePanel } from "@/components/missions/MissionInfrastructurePanel";
 import { PageHeader } from "@/components/PageHeader";
 import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { LiquidCard } from "@/components/liquid/LiquidCard";
+import { SourcePopover, TruthBadge, asProvenanced } from "@/components/truth";
 import {
   apiErrorMessage,
   createShareLink,
   discoverMissionCatalog,
   ensureAnonymousSession,
   getMission,
+  getMissionInfrastructure,
   listMissionCandidates,
   type CatalogCandidate,
+  type MissionInfrastructureResponse,
   type MissionSummary
 } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
@@ -39,6 +43,8 @@ function MissionDetailInner() {
   const [candidates, setCandidates] = useState<CatalogCandidate[]>([]);
   const [discovering, setDiscovering] = useState(false);
   const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [infrastructure, setInfrastructure] = useState<MissionInfrastructureResponse | null>(null);
+  const [infraError, setInfraError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -57,6 +63,12 @@ function MissionDetailInner() {
           if (mounted) setCandidates(listed.candidates);
         } catch {
           // Candidates are optional on first load (e.g. share without prior discover).
+        }
+        try {
+          const infra = await getMissionInfrastructure(params.id, shareToken);
+          if (mounted) setInfrastructure(infra);
+        } catch {
+          if (mounted) setInfraError("Mission infrastructure is unavailable.");
         }
       } catch (error) {
         if (mounted) {
@@ -228,7 +240,10 @@ function MissionDetailInner() {
 
             {candidates.length > 0 ? (
               <ul className="mt-6 space-y-4">
-                {candidates.map((candidate) => (
+                {candidates.map((candidate) => {
+                  const acquisition = asProvenanced(candidate.acquisition_time);
+                  const size = asProvenanced(candidate.estimated_size_bytes);
+                  return (
                   <li
                     key={candidate.id}
                     className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0"
@@ -237,9 +252,7 @@ function MissionDetailInner() {
                       <p className="font-mono text-sm text-cream">
                         {candidate.external_item_id}
                       </p>
-                      <span className="chart-label text-muted">
-                        {candidate.truth_status}
-                      </span>
+                      <TruthBadge status={candidate.truth_status} compact />
                     </div>
                     <dl className="mt-2 grid gap-2 text-xs text-muted sm:grid-cols-2">
                       <div>
@@ -248,14 +261,16 @@ function MissionDetailInner() {
                       </div>
                       <div>
                         <dt className="text-muted/80">Acquisition</dt>
-                        <dd className="text-cream">
-                          {formatDateTime(candidate.acquisition_time)}
+                        <dd className="mt-0.5 flex flex-wrap items-center gap-2 text-cream">
+                          {acquisition ? formatDateTime(String(acquisition.value)) : "—"}
+                          {acquisition ? <SourcePopover metric={acquisition} /> : null}
                         </dd>
                       </div>
                       <div>
                         <dt className="text-muted/80">Estimated size</dt>
-                        <dd className="text-cream">
-                          {formatBytes(candidate.estimated_size_bytes)}
+                        <dd className="mt-0.5 flex flex-wrap items-center gap-2 text-cream">
+                          {size ? formatBytes(Number(size.value)) : "unknown"}
+                          {size ? <SourcePopover metric={size} /> : null}
                         </dd>
                       </div>
                       <div>
@@ -298,9 +313,29 @@ function MissionDetailInner() {
                       </div>
                     </dl>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             ) : null}
+          </LiquidCard>
+
+          <LiquidCard>
+            <p className="chart-label text-gold">Mission infrastructure</p>
+            <p className="mt-2 max-w-2xl text-sm text-muted">
+              Fleet satellites and ground stations scoped to this mission, with source
+              labels on every operational number.
+            </p>
+            {infraError ? (
+              <div className="mt-4">
+                <InlineNotice message={infraError} />
+              </div>
+            ) : infrastructure ? (
+              <div className="mt-6">
+                <MissionInfrastructurePanel infrastructure={infrastructure} />
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-muted">Loading infrastructure…</p>
+            )}
           </LiquidCard>
         </div>
       ) : null}

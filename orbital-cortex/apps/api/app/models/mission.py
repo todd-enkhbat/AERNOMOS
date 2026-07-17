@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.core.mission_geo import validate_area_of_interest
+from app.models.provenance import ProvenancedValue
 
 
 class ObjectiveType(str, Enum):
@@ -196,11 +197,11 @@ class CatalogCandidateOut(BaseModel):
     source_provider: str
     collection: str
     external_item_id: str
-    acquisition_time: str
+    acquisition_time: ProvenancedValue
     footprint: Dict[str, Any]
     asset_metadata: Dict[str, Any] = Field(default_factory=dict)
     available_assets: List[CatalogCandidateAssetOut] = Field(default_factory=list)
-    estimated_size_bytes: Optional[int] = None
+    estimated_size_bytes: Optional[ProvenancedValue] = None
     source_url: Optional[str] = None
     source_timestamp: str
     truth_status: str
@@ -220,17 +221,18 @@ class OrbitalSnapshotOut(BaseModel):
     retrieved_at: Optional[str] = None
     stale_epoch_days: int = 7
     used_pinned_fallback: bool = False
+    freshness: Optional[str] = None
 
 
 class MissionSatelliteOut(BaseModel):
     id: str
     name: str
     norad_id: int
-    tle_epoch: str
+    tle_epoch: ProvenancedValue
     snapshot_id: str
     source: str
     retrieved_at: Optional[str] = None
-    downlink_rate_mbps: float
+    downlink_rate_mbps: ProvenancedValue
     resource_type: str = "satellite"
     access_level: str = "public_information"
     truth_status: str
@@ -241,13 +243,13 @@ class MissionGroundStationOut(BaseModel):
     name: str
     location: str
     provider: str = ""
-    latitude: float
-    longitude: float
-    altitude_m: float = 0
-    min_elevation_deg: float = 10.0
-    latency_minutes: float
-    downlink_mbps: int
-    availability: float
+    latitude: ProvenancedValue
+    longitude: ProvenancedValue
+    altitude_m: ProvenancedValue
+    min_elevation_deg: ProvenancedValue
+    latency_minutes: ProvenancedValue
+    downlink_mbps: ProvenancedValue
+    availability: ProvenancedValue
     resource_type: str = "ground_station"
     access_level: str = "public_information"
     source_metadata: Dict[str, Any] = Field(default_factory=dict)

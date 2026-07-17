@@ -64,7 +64,7 @@ export default function AboutPage() {
           </h2>
           <p className="prose-compact mt-3 max-w-2xl text-muted">
             The original spinning record belongs here, with the story of Nomos,
-            Voyager, and the plasma laboratory that shaped our engineering discipline.
+            Voyager, and why scarce bandwidth demands distilled signal.
           </p>
         </div>
         <AboutScrollStory />

@@ -28,6 +28,7 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { JobStepper } from "@/components/jobs/JobStepper";
 import { PageHeader } from "@/components/PageHeader";
 import { RouteExplain } from "@/components/RouteExplain";
+import { TruthBadge } from "@/components/truth";
 import { ScoreBar } from "@/components/ScoreBar";
 import { StatusBadge } from "@/components/StatusBadge";
 import {
@@ -505,11 +506,12 @@ export default function JobDetailPage() {
                         </div>
                       </div>
                       <div className="relative mt-6">
-                        <div className="mb-3 flex items-center gap-2">
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
                           <MapPinned className="text-gold" size={17} strokeWidth={1.8} />
                           <h3 className="font-semibold text-cream">
                             New York Harbor detection map
                           </h3>
+                          <TruthBadge compact status="SIMULATED" />
                         </div>
                         <HarborMap
                           features={detections.length > 0 ? detections : mapFeaturesFromResult(result)}
@@ -588,9 +590,10 @@ function DetectionTable({ result }: { result: Result }) {
 
   return (
     <section className="mt-6">
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <Table2 className="text-gold" size={17} strokeWidth={1.8} />
         <h3 className="font-semibold text-cream">Detection table</h3>
+        <TruthBadge compact status="SIMULATED" />
       </div>
       <div className="table-shell">
         <table className="data-table">

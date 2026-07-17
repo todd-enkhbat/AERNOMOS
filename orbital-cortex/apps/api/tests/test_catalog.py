@@ -161,6 +161,10 @@ def test_discover_persists_and_dedupes(client: TestClient, monkeypatch: pytest.M
         assert candidate["source_timestamp"]
         assert candidate["footprint"]["type"] == "Polygon"
         assert candidate["available_assets"]
+        assert candidate["acquisition_time"]["truth_status"] == "PROVIDER_REPORTED"
+        assert candidate["acquisition_time"]["value"]
+        assert candidate["estimated_size_bytes"]["truth_status"] == "ESTIMATED"
+        assert candidate["estimated_size_bytes"]["value"] > 0
 
     second = client.post(f"/v1/missions/{mission_id}/discover", json={})
     assert second.status_code == 200

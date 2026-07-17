@@ -22,12 +22,18 @@ from app.core.pagination import decode_cursor
 from app.core.storage import new_id, utc_now
 from app.db.orm import ContactWindow, GroundStation, Satellite
 from app.db.truth import TruthStatus
+from app.models.provenance import (
+    EXPLANATION_CALCULATED_CONTACT,
+    EXPLANATION_ESTIMATED,
+    provenanced,
+)
 from app.services import tle_cache
 
 _timescale = load.timescale()  # builtin data; no network
 
 # Contact-window values are Skyfield/SGP4 find_events outputs.
 CONTACT_WINDOW_METHOD = "SGP4/Skyfield.find_events"
+CONTACT_WINDOW_METHOD_DISPLAY = "SGP4 via Skyfield"
 
 
 def _iso(dt: datetime) -> str:
@@ -174,6 +180,69 @@ def _window_to_dict(window: ContactWindow) -> Dict[str, Any]:
     }
 
 
+def window_to_api(
+    window: ContactWindow,
+    *,
+    snapshot_id: Optional[str] = None,
+    retrieved_at: Optional[str] = None,
+) -> Dict[str, Any]:
+    """API response shape with provenance envelopes on numeric/time fields."""
+    flat = _window_to_dict(window)
+    snap_id = snapshot_id or flat["tle_snapshot_id"] or "unknown"
+    source = f"CelesTrak TLE snapshot {snap_id}"
+    common = {
+        "source": source,
+        "retrieved_at": retrieved_at,
+        "method": CONTACT_WINDOW_METHOD_DISPLAY,
+        "explanation": EXPLANATION_CALCULATED_CONTACT,
+    }
+    return {
+        "id": flat["id"],
+        "satellite_id": flat["satellite_id"],
+        "ground_station_id": flat["ground_station_id"],
+        "date": flat["date"],
+        "aos_utc": provenanced(
+            flat["aos_utc"],
+            TruthStatus.CALCULATED,
+            effective_at=flat["aos_utc"],
+            **common,
+        ),
+        "culminate_utc": provenanced(
+            flat["culminate_utc"],
+            TruthStatus.CALCULATED,
+            effective_at=flat["culminate_utc"],
+            **common,
+        ),
+        "los_utc": provenanced(
+            flat["los_utc"],
+            TruthStatus.CALCULATED,
+            effective_at=flat["los_utc"],
+            **common,
+        ),
+        "max_elevation_deg": provenanced(
+            flat["max_elevation_deg"],
+            TruthStatus.CALCULATED,
+            **common,
+        ),
+        "duration_s": provenanced(
+            flat["duration_s"],
+            TruthStatus.CALCULATED,
+            **common,
+        ),
+        "est_downlink_mb": provenanced(
+            flat["est_downlink_mb"],
+            TruthStatus.ESTIMATED,
+            method="Satellite downlink rate × pass duration",
+            explanation=EXPLANATION_ESTIMATED,
+            source=source,
+            retrieved_at=retrieved_at,
+        ),
+        "tle_snapshot_id": flat["tle_snapshot_id"],
+        "truth_status": flat["truth_status"],
+        "calculation_method": flat["calculation_method"],
+    }
+
+
 def orbital_provenance_for_windows(session: Session) -> Dict[str, Any]:
     """Snapshot metadata currently backing the contact-window cache."""
     satellites = session.scalars(select(Satellite)).all()
@@ -188,6 +257,8 @@ def list_windows(
     after_utc: Optional[str] = None,
     limit: int = 100,
     cursor: Optional[str] = None,
+    *,
+    for_api: bool = False,
 ) -> List[Dict[str, Any]]:
     query = select(ContactWindow).order_by(
         ContactWindow.aos_utc.asc(), ContactWindow.id.asc()
@@ -206,7 +277,20 @@ def list_windows(
             tuple_(ContactWindow.aos_utc, ContactWindow.id) > (aos_utc, window_id)
         )
     windows = session.scalars(query.limit(limit)).all()
-    return [_window_to_dict(window) for window in windows]
+    if not for_api:
+        return [_window_to_dict(window) for window in windows]
+
+    provenance = orbital_provenance_for_windows(session)
+    snapshot_id = provenance.get("snapshot_id") or ""
+    retrieved_at = provenance.get("retrieved_at")
+    return [
+        window_to_api(
+            window,
+            snapshot_id=snapshot_id or window.tle_snapshot_id,
+            retrieved_at=retrieved_at,
+        )
+        for window in windows
+    ]
 
 
 def next_window_for_satellite(

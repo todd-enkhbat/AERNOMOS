@@ -22,11 +22,11 @@ const pillars = [
     ]
   },
   {
-    label: "Columbia",
-    title: "Plasma lab roots",
+    label: "Verification",
+    title: "A control surface with memory",
     body: [
-      "Nomos grew out of Columbia plasma physics research: high-energy plasmas, precision instrumentation, and the discipline of measuring what you cannot see directly. Tokamaks and satellite constellations both demand closed-loop control over hostile, noisy environments.",
-      "That background shapes the product. Routing is physics-aware scheduling. Every job emits an append-only event trail and a hashed routing decision, the way a lab run emits a shot record. The console is a working control surface, not a marketing shell."
+      "Orbital infrastructure demands precise coordination under noisy constraints: contact windows, downlink budgets, model compatibility, and audit requirements. The hard part is making every decision legible after the fact.",
+      "That discipline shapes the product. Every job emits an append-only event trail and a hashed routing decision. The console is a working control surface, not a marketing shell."
     ]
   }
 ];

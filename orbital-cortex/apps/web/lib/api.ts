@@ -269,7 +269,7 @@ export type CatalogCandidate = {
   source_provider: string;
   collection: string;
   external_item_id: string;
-  acquisition_time: string;
+  acquisition_time: ProvenancedField<string>;
   footprint: Record<string, unknown>;
   available_assets: Array<{
     key?: string | null;
@@ -277,12 +277,25 @@ export type CatalogCandidate = {
     roles: string[];
     title?: string | null;
   }>;
-  estimated_size_bytes?: number | null;
+  estimated_size_bytes?: ProvenancedField<number> | null;
   source_url?: string | null;
   source_timestamp: string;
   truth_status: string;
   created_at: string;
 };
+
+export type ProvenancedField<T = unknown> = {
+  value: T;
+  truth_status: string;
+  source?: string | null;
+  retrieved_at?: string | null;
+  effective_at?: string | null;
+  method?: string | null;
+  explanation?: string | null;
+  freshness?: string | null;
+};
+
+export type MissionInfrastructureResponse = import("@/lib/generated/api-types").components["schemas"]["MissionInfrastructureResponse"];
 
 export type CatalogCandidatesResponse = { candidates: CatalogCandidate[] };
 
@@ -314,6 +327,20 @@ export function listMissionCandidates(
   }
   return missionRequest<CatalogCandidatesResponse>(
     `/v1/missions/${missionId}/candidates`,
+    { headers }
+  );
+}
+
+export function getMissionInfrastructure(
+  missionId: string,
+  shareToken?: string
+): Promise<MissionInfrastructureResponse> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<MissionInfrastructureResponse>(
+    `/v1/missions/${missionId}/infrastructure`,
     { headers }
   );
 }

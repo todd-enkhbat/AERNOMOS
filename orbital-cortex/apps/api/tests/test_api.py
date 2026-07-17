@@ -179,9 +179,13 @@ def test_registry_endpoints_return_real_data():
         window_list = windows.json()["contact_windows"]
         assert window_list, "precomputed cache must hold upcoming passes"
         for window in window_list:
-            assert window["aos_utc"] < window["culminate_utc"] < window["los_utc"]
-            assert window["max_elevation_deg"] >= 10.0
-            assert window["est_downlink_mb"] > 0
+            aos = window["aos_utc"]["value"]
+            cul = window["culminate_utc"]["value"]
+            los = window["los_utc"]["value"]
+            assert aos < cul < los
+            assert window["max_elevation_deg"]["value"] >= 10.0
+            assert window["est_downlink_mb"]["value"] > 0
+            assert window["aos_utc"]["truth_status"] == "CALCULATED"
 
 
 def test_invalid_job_payload_returns_422():

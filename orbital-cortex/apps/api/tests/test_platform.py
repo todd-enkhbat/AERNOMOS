@@ -135,7 +135,9 @@ def test_contact_windows_cursor_pagination():
         ids2 = {w["id"] for w in page2["contact_windows"]}
         assert ids1.isdisjoint(ids2)
         # Keyset ordering continues across the page boundary.
-        assert page2["contact_windows"][0]["aos_utc"] >= page1["contact_windows"][-1]["aos_utc"]
+        last_aos = page1["contact_windows"][-1]["aos_utc"]["value"]
+        first_aos = page2["contact_windows"][0]["aos_utc"]["value"]
+        assert first_aos >= last_aos
 
 
 def test_result_artifacts_served_via_signed_urls():

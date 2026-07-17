@@ -9,9 +9,10 @@ Current phase: I (next)
 - Phase F: Real STAC catalog discovery via Microsoft Planetary Computer
 - Phase H: Fresh orbital data provenance and mission-specific infrastructure
 - Phase E: Guided customer-facing mission builder at `/plan`
+- Phase G: Source provenance and truth-status labeling (API envelope + truth UI components)
 
 ## In progress
-None — Phase E complete. Next is Phase I (planning engine).
+None — Phase G complete. Next is Phase I (planning engine).
 
 ## Blockers
 None
@@ -45,38 +46,39 @@ None
 - Phase E: AOI max area **500,000 km²**; GeoJSON max **200k** chars; Polygon/bbox only (WGS84).
 - Phase E: builder extras (`organization_name`, `use_case`, `max_age_days`, `onboard_processing`, `data_residency`) pack into `customer_systems` JSON (`kind` tags) — no new columns.
 - Phase E: mission create `status` limited to `draft` | `exploratory` | `active` (not `example`).
+- Phase G: `ProvenancedValue` envelope on catalog candidates, contact windows, and mission infrastructure Out models; internal routing keeps flat `_window_to_dict`.
+- Phase G: SIMULATED/ESTIMATED use hatched gold truth badges; STALE/UNAVAILABLE use vermilion; OBSERVED/CALCULATED/PROVIDER use cobalt.
+- Phase G: contact-window API method display string is **SGP4 via Skyfield**; source **CelesTrak TLE snapshot {id}**.
 
-## Phase E — work completed
-- Five-step guided builder at `/plan` (objective → area/time → constraints → context → review)
-- MapLibre + mapbox-gl-draw polygon AOI; bbox fields; strict Polygon GeoJSON upload
-- Client zod + reducer state surviving step navigation; server Pydantic + `mission_geo` mirroring rules
-- Nav/header/footer CTAs to `/plan`; `/missions` points to builder instead of quick-create
-- Customer language: “Build a mission plan” (no “compute job” copy on this flow)
-- Backend tests for invalid geo / oversized AOI / blank title / valid create / cross-session isolation
+## Phase G — work completed
+- Backend `ProvenancedValue` model + `provenanced()` / `freshness_for()` helpers
+- Catalog candidates: provenanced `acquisition_time` (PROVIDER_REPORTED) and `estimated_size_bytes` (ESTIMATED)
+- Contact windows: flat cache for routing; `window_to_api()` for registry responses with CALCULATED/ESTIMATED labels
+- Mission infrastructure: provenanced sat/GS numerics; orbital snapshot `freshness`
+- Frontend truth components: `TruthBadge`, `SourcePopover`, `FreshnessIndicator`, `AssumptionPanel`
+- Wired into `/missions/[id]` (catalog + infrastructure panel), `ContactWindowTimeline`, job demo detections (SIMULATED)
+- OpenAPI + TS types regenerated
 
 ## Files changed
-- API: `app/core/mission_geo.py` (new), `app/models/mission.py`, `app/core/missions.py`, `app/main.py` (clearer 422 messages)
-- API tests: `tests/test_mission_builder.py`
-- Web: `app/plan/page.tsx`, `components/plan/*`, `lib/mission-builder.ts`
-- Web: `app/missions/page.tsx`, `components/layout/SiteHeader.tsx`, `SiteFooter.tsx`, `LiquidNavPill.tsx`, `lib/api.ts`, `globals.css`
-- Deps: `zod`, `@mapbox/mapbox-gl-draw`
-- Generated: `openapi.json`, `lib/generated/api-types.ts`
+- API: `app/models/provenance.py` (new), `app/models/mission.py`, `app/models/node.py`
+- API: `app/catalog/service.py`, `app/services/contact_windows.py`, `app/services/mission_infrastructure.py`, `app/routes/registry.py`
+- API tests: `tests/test_provenance.py` (new), `tests/test_api.py`, `tests/test_platform.py`, `tests/test_catalog.py`, `tests/test_orbital_provenance.py`
+- Web: `components/truth/*`, `components/missions/MissionInfrastructurePanel.tsx`, `components/network/ContactWindowTimeline.tsx`
+- Web: `app/missions/[id]/page.tsx`, `app/jobs/[id]/page.tsx`, `app/globals.css`, `lib/api.ts`
+- Generated: `orbital-cortex/openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
 ## Tests run
-- `ruff check app tests scripts` — pass
-- `mypy app` — pass
-- `pytest tests -q` — 55 passed, 1 skipped
-- `npm run lint` / `npm run build` — pass
+- `pytest tests -q` — 61 passed, 1 skipped
+- `npm run lint` — pass
+- `npm run build` — pass
 
 ## Frontend manual checklist (no vitest/playwright harness)
-- [ ] Open `/plan` at desktop and mobile; demo banner remains visible
-- [ ] Complete all five steps; go back — fields retained
-- [ ] Draw polygon; apply bbox coordinates; upload small Polygon GeoJSON
-- [ ] Reject oversized AOI / non-Polygon upload with clear error
-- [ ] Submit → lands on `/missions/[id]` owned by session
-- [ ] Keyboard focus order through steps and primary controls
-- [ ] No “compute job” wording on `/plan` or missions CTA
+- [ ] `/missions/[id]` catalog rows show truth badges + source popovers on acquisition/size
+- [ ] `/missions/[id]` infrastructure panel shows TLE freshness + SIMULATED GS ops params in assumption panel
+- [ ] `/network` contact window timeline unwraps provenanced AOS/duration; popover on selected pass
+- [ ] `/jobs/[id]` detection map/table show SIMULATED badges
+- [ ] SIMULATED/ESTIMATED badges visually distinct (hatched gold) from cobalt grounded badges
 
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
@@ -85,8 +87,8 @@ None
 - Live Planetary Computer search depends on upstream availability; SAS signing for asset download is deferred to Phase M.
 - Discover defaults to last 30 days when mission has no start/end times.
 - Live TLE refresh depends on CelesTrak availability; worker cron falls back to pinned snapshot with `STALE`.
-- Mission infrastructure UI (truth chips) is Phase G; planning engine that consumes selection is Phase I.
 - mapbox-gl-draw is Mapbox-licensed UI chrome on MapLibre; acceptable for planner MVP; terra-draw remains an option if we need a pure MapLibre draw stack later.
+- Phase I planning engine will consume provenanced infra + catalog selections.
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
@@ -95,11 +97,10 @@ None
 - Orbital snapshot ids are unique per successful live refresh (`celestrak-YYYY-MM-DDTHHMMSSZ`); prior contact-window rows keep their `tle_snapshot_id` for audit.
 - Prefer mission-facing infra in `InfrastructureResource` while keeping legacy `ground_stations` / `satellites` for the Job demo path.
 - Guided builder uses a single React reducer (no URL persistence); AOI area checked with spherical excess on both FE and BE.
+- Provenance envelope is API/UI-only for Out models; DB rows and internal routing helpers remain flat scalars.
 
 ## Next phase
 Phase I — planning engine.
 
 **Agent prompt to copy-paste:** [`docs/phase-prompts/08-phase-I-planning-engine.md`](phase-prompts/08-phase-I-planning-engine.md)  
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)
-
-Note: Phase G (truth-status UI) remains available in the prompt index and can run before or after I as needed; dependency-corrected order after E is **I → J → D**.

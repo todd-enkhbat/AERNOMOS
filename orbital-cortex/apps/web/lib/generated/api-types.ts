@@ -598,8 +598,7 @@ export interface components {
         };
         /** CatalogCandidateOut */
         CatalogCandidateOut: {
-            /** Acquisition Time */
-            acquisition_time: string;
+            acquisition_time: components["schemas"]["ProvenancedValue"];
             /** Asset Metadata */
             asset_metadata?: {
                 [key: string]: unknown;
@@ -610,8 +609,7 @@ export interface components {
             collection: string;
             /** Created At */
             created_at: string;
-            /** Estimated Size Bytes */
-            estimated_size_bytes?: number | null;
+            estimated_size_bytes?: components["schemas"]["ProvenancedValue"] | null;
             /** External Item Id */
             external_item_id: string;
             /** Footprint */
@@ -674,29 +672,23 @@ export interface components {
         };
         /** ContactWindow */
         ContactWindow: {
-            /** Aos Utc */
-            aos_utc: string;
+            aos_utc: components["schemas"]["ProvenancedValue"];
             /**
              * Calculation Method
              * @default SGP4/Skyfield.find_events
              */
             calculation_method: string;
-            /** Culminate Utc */
-            culminate_utc: string;
+            culminate_utc: components["schemas"]["ProvenancedValue"];
             /** Date */
             date: string;
-            /** Duration S */
-            duration_s: number;
-            /** Est Downlink Mb */
-            est_downlink_mb: number;
+            duration_s: components["schemas"]["ProvenancedValue"];
+            est_downlink_mb: components["schemas"]["ProvenancedValue"];
             /** Ground Station Id */
             ground_station_id: string;
             /** Id */
             id: string;
-            /** Los Utc */
-            los_utc: string;
-            /** Max Elevation Deg */
-            max_elevation_deg: number;
+            los_utc: components["schemas"]["ProvenancedValue"];
+            max_elevation_deg: components["schemas"]["ProvenancedValue"];
             /** Satellite Id */
             satellite_id: string;
             /**
@@ -998,35 +990,22 @@ export interface components {
              * @default public_information
              */
             access_level: string;
-            /**
-             * Altitude M
-             * @default 0
-             */
-            altitude_m: number;
-            /** Availability */
-            availability: number;
+            altitude_m: components["schemas"]["ProvenancedValue"];
+            availability: components["schemas"]["ProvenancedValue"];
             /**
              * Coordinate Truth Status
              * @default PROVIDER_REPORTED
              */
             coordinate_truth_status: string;
-            /** Downlink Mbps */
-            downlink_mbps: number;
+            downlink_mbps: components["schemas"]["ProvenancedValue"];
             /** Id */
             id: string;
-            /** Latency Minutes */
-            latency_minutes: number;
-            /** Latitude */
-            latitude: number;
+            latency_minutes: components["schemas"]["ProvenancedValue"];
+            latitude: components["schemas"]["ProvenancedValue"];
             /** Location */
             location: string;
-            /** Longitude */
-            longitude: number;
-            /**
-             * Min Elevation Deg
-             * @default 10
-             */
-            min_elevation_deg: number;
+            longitude: components["schemas"]["ProvenancedValue"];
+            min_elevation_deg: components["schemas"]["ProvenancedValue"];
             /** Name */
             name: string;
             /**
@@ -1123,8 +1102,7 @@ export interface components {
              * @default public_information
              */
             access_level: string;
-            /** Downlink Rate Mbps */
-            downlink_rate_mbps: number;
+            downlink_rate_mbps: components["schemas"]["ProvenancedValue"];
             /** Id */
             id: string;
             /** Name */
@@ -1142,8 +1120,7 @@ export interface components {
             snapshot_id: string;
             /** Source */
             source: string;
-            /** Tle Epoch */
-            tle_epoch: string;
+            tle_epoch: components["schemas"]["ProvenancedValue"];
             /** Truth Status */
             truth_status: string;
         };
@@ -1163,6 +1140,8 @@ export interface components {
         OrbitalSnapshotOut: {
             /** Epochs */
             epochs?: unknown[];
+            /** Freshness */
+            freshness?: string | null;
             /** Retrieved At */
             retrieved_at?: string | null;
             /** Snapshot Id */
@@ -1183,6 +1162,24 @@ export interface components {
              * @default false
              */
             used_pinned_fallback: boolean;
+        };
+        /** ProvenancedValue */
+        ProvenancedValue: {
+            /** Effective At */
+            effective_at?: string | null;
+            /** Explanation */
+            explanation?: string | null;
+            /** Freshness */
+            freshness?: string | null;
+            /** Method */
+            method?: string | null;
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Source */
+            source?: string | null;
+            truth_status: components["schemas"]["TruthStatus"];
+            /** Value */
+            value: unknown;
         };
         /** ReplayResponse */
         ReplayResponse: {
@@ -1338,6 +1335,11 @@ export interface components {
             job: components["schemas"]["Job"];
             result?: components["schemas"]["Result"] | null;
         };
+        /**
+         * TruthStatus
+         * @enum {string}
+         */
+        TruthStatus: "OBSERVED" | "CALCULATED" | "PROVIDER_REPORTED" | "ESTIMATED" | "SIMULATED" | "STALE" | "UNAVAILABLE";
         /** ValidationError */
         ValidationError: {
             /** Context */

@@ -227,8 +227,16 @@ def test_mission_infrastructure_endpoint_and_evidence_helper():
             TruthStatus.PROVIDER_REPORTED.value,
             TruthStatus.UNAVAILABLE.value,
         }
+        assert body["orbital_snapshot"]["freshness"] in {"fresh", "stale", "unknown"}
         sat_ids = {s["id"] for s in body["satellites"]}
         assert sat_ids == {"sat_sentinel_1a", "sat_sentinel_1c"}
+        assert body["satellites"][0]["tle_epoch"]["truth_status"] in {
+            TruthStatus.STALE.value,
+            TruthStatus.PROVIDER_REPORTED.value,
+        }
+        gs = body["ground_stations"][0]
+        assert gs["latitude"]["truth_status"] == "PROVIDER_REPORTED"
+        assert gs["latency_minutes"]["truth_status"] == "SIMULATED"
         assert all(gs["access_level"] == "public_information" for gs in body["ground_stations"])
         assert body["ground_stations"]
 

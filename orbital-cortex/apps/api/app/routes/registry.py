@@ -75,6 +75,7 @@ def list_contact_windows(
             after_utc=utc_now() if upcoming else None,
             limit=limit,
             cursor=cursor,
+            for_api=True,
         )
     except InvalidCursorError:
         raise HTTPException(
@@ -88,5 +89,9 @@ def list_contact_windows(
         )
     next_cursor = None
     if len(windows) == limit:
-        next_cursor = encode_cursor(windows[-1]["aos_utc"], windows[-1]["id"])
+        # Cursor uses flat aos_utc string for keyset pagination.
+        last_aos = windows[-1]["aos_utc"]
+        if isinstance(last_aos, dict):
+            last_aos = last_aos["value"]
+        next_cursor = encode_cursor(last_aos, windows[-1]["id"])
     return {"contact_windows": windows, "next_cursor": next_cursor}

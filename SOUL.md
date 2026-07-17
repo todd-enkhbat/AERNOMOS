@@ -43,7 +43,7 @@ Nomos is not a satellite operator, launch company, ground-station provider, or d
 - **API:** https://api.nomosorbital.com
 - **Larger mission:** *The Final Symposium*, used sparingly and only from About
 - **Founder:** Tsogt "Todd" Enkhbat
-- **Team experience:** Columbia plasma physics lab (CSX stellarator), NASA-adjacent quantum satellite research (T-REX, Brown University), astrophysics research (Harvard-Smithsonian / TESS). Describe this as experience, never endorsement.
+- **Team experience:** NASA-adjacent quantum satellite research (T-REX, Brown University) and astrophysics research (Harvard-Smithsonian / TESS). Describe this as experience, never endorsement.
 
 ### Product primitives
 
@@ -162,7 +162,7 @@ Avoid neon SaaS gradients, excessive blur, cartoon rockets, stock astronaut imag
 - **Problem body:** Every ground-station pass is minutes long. Nomos runs inference where it is fastest and downlinks only the answer.
 - **Developer header:** A control plane, not a black box.
 - **Developer body:** Routing scores, lifecycle events, replayable decision hashes. Public and documented.
-- **About:** Nomos, the Golden Record, Columbia plasma lab.
+- **About:** Nomos, the Golden Record, and source-backed orbital control.
 - **Demo:** No account needed. Production API, real orbital math, simulated execution.
 - **Footer:** est. among the stars · Open control plane for space-data AI. Every job routed, every decision explained, every artifact returned.
 

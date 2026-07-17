@@ -18,9 +18,9 @@ const pillars = [
     body: "In 1977 NASA bolted a gold phonograph to Voyager. The Golden Record carried the Sounds of Earth so a distant listener could reconstruct meaning from one artifact. Our mark is that disc. Bandwidth is scarce. Only the answer should cross the link."
   },
   {
-    label: "Columbia",
-    title: "Plasma lab roots",
-    body: "Nomos grew out of Columbia plasma physics research: high-energy plasmas, precision instrumentation, and measuring what you cannot see directly. Routing is physics-aware scheduling. Every job emits an append-only event trail and a hashed route, like a lab shot record."
+    label: "Verification",
+    title: "A control surface with memory",
+    body: "Orbital infrastructure demands precise coordination under noisy constraints: contact windows, downlink budgets, model compatibility, and audit requirements. Every job emits an append-only event trail and a hashed route so decisions can be replayed instead of merely trusted."
   }
 ];
 

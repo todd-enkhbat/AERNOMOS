@@ -17,6 +17,11 @@ from sqlalchemy.orm import Session
 from app.db.mission_orm import InfrastructureResource, Mission, MissionDataCandidate, SourceEvidence
 from app.db.orm import GroundStation, Satellite
 from app.db.truth import AccessLevel, InfrastructureResourceType, TruthStatus
+from app.models.provenance import (
+    EXPLANATION_SIMULATED,
+    freshness_for,
+    provenanced,
+)
 from app.services import contact_windows as cw_service
 from app.services import tle_cache
 
@@ -209,48 +214,113 @@ def record_contact_window_evidence(
     return evidence
 
 
+def _orbital_snapshot_out(snapshot_meta: Dict[str, Any]) -> Dict[str, Any]:
+    truth_raw = snapshot_meta.get("truth_status") or TruthStatus.STALE.value
+    truth = TruthStatus(truth_raw) if not isinstance(truth_raw, TruthStatus) else truth_raw
+    retrieved_at = snapshot_meta.get("retrieved_at")
+    stale_days = int(snapshot_meta.get("stale_epoch_days") or tle_cache.STALE_EPOCH_DAYS)
+    return {
+        **snapshot_meta,
+        "freshness": freshness_for(
+            truth,
+            retrieved_at=str(retrieved_at) if retrieved_at else None,
+            stale_epoch_days=stale_days,
+        ),
+    }
+
+
 def _satellite_resource_dict(sat: Satellite, snapshot_meta: Dict[str, Any]) -> Dict[str, Any]:
+    truth_raw = snapshot_meta.get("truth_status") or TruthStatus.STALE.value
+    truth = TruthStatus(truth_raw) if not isinstance(truth_raw, TruthStatus) else truth_raw
+    retrieved_at = snapshot_meta.get("retrieved_at")
+    snap_id = snapshot_meta.get("snapshot_id") or sat.snapshot_id
+    source = f"CelesTrak TLE snapshot {snap_id}"
     return {
         "id": sat.id,
         "name": sat.name,
         "norad_id": int(sat.norad_id),
-        "tle_epoch": sat.tle_epoch,
+        "tle_epoch": provenanced(
+            sat.tle_epoch,
+            truth,
+            source=source,
+            retrieved_at=retrieved_at,
+            effective_at=sat.tle_epoch,
+            method="TLE epoch parse",
+        ),
         "snapshot_id": sat.snapshot_id,
         "source": sat.source,
         "retrieved_at": sat.retrieved_at,
-        "downlink_rate_mbps": float(sat.downlink_rate_mbps),
+        "downlink_rate_mbps": provenanced(
+            float(sat.downlink_rate_mbps),
+            TruthStatus.PROVIDER_REPORTED,
+            source="Public X-band specifications",
+            explanation="Published downlink rate for fleet planning.",
+        ),
         "resource_type": InfrastructureResourceType.SATELLITE.value,
         "access_level": AccessLevel.PUBLIC_INFORMATION.value,
-        "truth_status": snapshot_meta.get("truth_status", TruthStatus.STALE.value),
+        "truth_status": truth.value,
     }
 
 
 def _ground_station_dict(station: GroundStation) -> Dict[str, Any]:
     meta = station.source_metadata or {}
+    coord_status = TruthStatus(
+        meta.get("coordinate_truth_status", TruthStatus.PROVIDER_REPORTED.value)
+    )
+    ops_status = TruthStatus(
+        meta.get("ops_params_truth_status", TruthStatus.SIMULATED.value)
+    )
+    coord_source = meta.get("coordinate_note") or "Public ground-station registries"
+    ops_source = meta.get("ops_params_note") or GS_COORDINATE_METADATA["ops_params_note"]
     return {
         "id": station.id,
         "name": station.name,
         "location": station.location,
         "provider": station.provider,
-        "latitude": float(station.latitude),
-        "longitude": float(station.longitude),
-        "altitude_m": float(station.altitude_m),
-        "min_elevation_deg": float(station.min_elevation_deg),
-        "latency_minutes": float(station.latency_minutes),
-        "downlink_mbps": int(station.downlink_mbps),
-        "availability": float(station.availability),
+        "latitude": provenanced(
+            float(station.latitude),
+            coord_status,
+            source=coord_source,
+        ),
+        "longitude": provenanced(
+            float(station.longitude),
+            coord_status,
+            source=coord_source,
+        ),
+        "altitude_m": provenanced(
+            float(station.altitude_m),
+            coord_status,
+            source=coord_source,
+        ),
+        "min_elevation_deg": provenanced(
+            float(station.min_elevation_deg),
+            coord_status,
+            source=coord_source,
+        ),
+        "latency_minutes": provenanced(
+            float(station.latency_minutes),
+            ops_status,
+            source=ops_source,
+            explanation=EXPLANATION_SIMULATED,
+        ),
+        "downlink_mbps": provenanced(
+            int(station.downlink_mbps),
+            ops_status,
+            source=ops_source,
+            explanation=EXPLANATION_SIMULATED,
+        ),
+        "availability": provenanced(
+            float(station.availability),
+            ops_status,
+            source=ops_source,
+            explanation=EXPLANATION_SIMULATED,
+        ),
         "resource_type": InfrastructureResourceType.GROUND_STATION.value,
         "access_level": station.access_level or AccessLevel.PUBLIC_INFORMATION.value,
         "source_metadata": meta,
-        "coordinate_truth_status": meta.get(
-            "coordinate_truth_status", TruthStatus.PROVIDER_REPORTED.value
-        ),
-        "ops_params_truth_status": meta.get(
-            "ops_params_truth_status", TruthStatus.SIMULATED.value
-        ),
-        "truth_status": meta.get(
-            "coordinate_truth_status", TruthStatus.PROVIDER_REPORTED.value
-        ),
+        "coordinate_truth_status": coord_status.value,
+        "ops_params_truth_status": ops_status.value,
+        "truth_status": coord_status.value,
     }
 
 
@@ -276,7 +346,7 @@ def get_mission_infrastructure(
 
     return {
         "mission_id": str(mission.id),
-        "orbital_snapshot": snapshot_meta,
+        "orbital_snapshot": _orbital_snapshot_out(snapshot_meta),
         "satellites": [_satellite_resource_dict(s, snapshot_meta) for s in satellites],
         "ground_stations": [_ground_station_dict(s) for s in stations],
     }
