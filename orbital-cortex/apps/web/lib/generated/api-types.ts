@@ -359,6 +359,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions/{mission_id}/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List generated mission plans */
+        get: operations["list_mission_plans_v1_missions__mission_id__plans_get"];
+        put?: never;
+        /**
+         * Generate source-backed mission plans
+         * @description Runs the structured feasibility planner (no LLM). Each call appends a new version batch of MissionPlan rows; prior recommended flags are cleared. Same mission inputs + source snapshot → deterministic hashes and ranking.
+         */
+        post: operations["generate_mission_plans_v1_missions__mission_id__plans_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/plans/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mission plan detail with steps and evidence */
+        get: operations["get_mission_plan_v1_missions__mission_id__plans__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/missions/{mission_id}/share-links": {
         parameters: {
             query?: never;
@@ -1091,6 +1129,124 @@ export interface components {
             /** Updated At */
             updated_at: string;
         };
+        /** MissionPlanDetailResponse */
+        MissionPlanDetailResponse: {
+            plan: components["schemas"]["MissionPlanOut"];
+        };
+        /** MissionPlanOut */
+        MissionPlanOut: {
+            /** Assumptions */
+            assumptions?: unknown[];
+            /** Confidence */
+            confidence?: number | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Estimated Total Cost Usd */
+            estimated_total_cost_usd?: number | null;
+            /** Estimated Total Time Seconds */
+            estimated_total_time_seconds?: number | null;
+            /** Estimates */
+            estimates?: {
+                [key: string]: unknown;
+            } | null;
+            /** Evidence */
+            evidence?: components["schemas"]["SourceEvidenceOut"][] | null;
+            /** Explanation */
+            explanation?: {
+                [key: string]: unknown;
+            } | null;
+            /** Feasibility Status */
+            feasibility_status?: string | null;
+            /** Id */
+            id: string;
+            /** Input Hash */
+            input_hash?: string | null;
+            /** Mission Id */
+            mission_id: string;
+            /** Pattern */
+            pattern?: string | null;
+            /** Plan Hash */
+            plan_hash?: string | null;
+            /** Planner Config Version */
+            planner_config_version?: string | null;
+            /** Recommended */
+            recommended: boolean;
+            /** Score */
+            score?: number | null;
+            /** Status */
+            status: string;
+            /** Steps */
+            steps?: components["schemas"]["MissionPlanStepOut"][] | null;
+            /** Summary */
+            summary: string;
+            /** Version */
+            version: number;
+        };
+        /** MissionPlanStepOut */
+        MissionPlanStepOut: {
+            /** Description */
+            description: string;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Estimated Cost Usd */
+            estimated_cost_usd?: number | null;
+            /** Feasibility Status */
+            feasibility_status: string;
+            /** Id */
+            id: string;
+            /** Input Artifact */
+            input_artifact?: string | null;
+            /** Mission Plan Id */
+            mission_plan_id: string;
+            /** Output Artifact */
+            output_artifact?: string | null;
+            /** Provider Name */
+            provider_name: string;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /** Resource Id */
+            resource_id?: string | null;
+            /** Sequence */
+            sequence: number;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
+            /** Start Time */
+            start_time?: string | null;
+            /** Step Type */
+            step_type: string;
+            /** Title */
+            title: string;
+            /** Truth Status */
+            truth_status: string;
+        };
+        /** MissionPlansGenerateResponse */
+        MissionPlansGenerateResponse: {
+            /**
+             * Generation Strategy
+             * @default append_versions — each POST appends a new version batch; prior recommended flags are cleared.
+             */
+            generation_strategy: string;
+            /** Planner Config Version */
+            planner_config_version: string;
+            /** Plans */
+            plans: components["schemas"]["MissionPlanOut"][];
+            /** Recommended Plan Id */
+            recommended_plan_id?: string | null;
+        };
+        /** MissionPlansListResponse */
+        MissionPlansListResponse: {
+            /**
+             * Generation Strategy
+             * @default append_versions — each POST appends a new version batch; prior recommended flags are cleared.
+             */
+            generation_strategy: string;
+            /** Plans */
+            plans: components["schemas"]["MissionPlanOut"][];
+        };
         /** MissionResponse */
         MissionResponse: {
             mission: components["schemas"]["MissionOut"];
@@ -1334,6 +1490,39 @@ export interface components {
             events_created: number;
             job: components["schemas"]["Job"];
             result?: components["schemas"]["Result"] | null;
+        };
+        /** SourceEvidenceOut */
+        SourceEvidenceOut: {
+            /** Effective At */
+            effective_at?: string | null;
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Mission Plan Id */
+            mission_plan_id?: string | null;
+            /** Mission Plan Step Id */
+            mission_plan_step_id?: string | null;
+            /** Raw Value */
+            raw_value?: {
+                [key: string]: unknown;
+            };
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Source Name */
+            source_name: string;
+            /** Source Type */
+            source_type: string;
+            /** Source Url */
+            source_url?: string | null;
+            /** Transformation Method */
+            transformation_method?: string | null;
+            /** Transformed Value */
+            transformed_value?: {
+                [key: string]: unknown;
+            };
+            /** Truth Status */
+            truth_status: string;
         };
         /**
          * TruthStatus
@@ -2226,6 +2415,189 @@ export interface operations {
                 };
             };
             /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mission_plans_v1_missions__mission_id__plans_get: {
+        parameters: {
+            query?: {
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPlansListResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_mission_plans_v1_missions__mission_id__plans_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPlansGenerateResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_mission_plan_v1_missions__mission_id__plans__plan_id__get: {
+        parameters: {
+            query?: {
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                plan_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPlanDetailResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Plan not found */
             404: {
                 headers: {
                     [name: string]: unknown;

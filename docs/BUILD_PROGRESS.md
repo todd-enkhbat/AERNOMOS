@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: I (next)
+Current phase: J (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -10,9 +10,10 @@ Current phase: I (next)
 - Phase H: Fresh orbital data provenance and mission-specific infrastructure
 - Phase E: Guided customer-facing mission builder at `/plan`
 - Phase G: Source provenance and truth-status labeling (API envelope + truth UI components)
+- Phase I: Source-backed mission feasibility and planning engine
 
 ## In progress
-None — Phase G complete. Next is Phase I (planning engine).
+None — Phase I complete. Next is Phase J (mission result experience).
 
 ## Blockers
 None
@@ -49,36 +50,36 @@ None
 - Phase G: `ProvenancedValue` envelope on catalog candidates, contact windows, and mission infrastructure Out models; internal routing keeps flat `_window_to_dict`.
 - Phase G: SIMULATED/ESTIMATED use hatched gold truth badges; STALE/UNAVAILABLE use vermilion; OBSERVED/CALCULATED/PROVIDER use cobalt.
 - Phase G: contact-window API method display string is **SGP4 via Skyfield**; source **CelesTrak TLE snapshot {id}**.
+- Phase I: planner is a **new path** under `app/planner/`; Job routing (`app/routing/`) is unchanged.
+- Phase I: `PLANNER_CONFIG_VERSION = "2026.07.17-1"`; soft weights versioned with that constant.
+- Phase I: generation strategy is **append_versions** — each `POST /plans` appends a new MissionPlan version batch and clears prior `recommended` flags (plans retained for audit).
+- Phase I: cost estimates are always `UNAVAILABLE` until a real pricing source exists; a mission `max_cost_usd` with no pricing → reject with `cost_unavailable` (never invent AWS/GPU prices).
+- Phase I: satellite→ground→cloud is typically `conditional` (`tasking_api_unavailable`); onboard is `rejected` (`onboard_provider_unavailable`).
+- Phase I: AOI coverage threshold is **5%** footprint∩AOI / AOI area via PostGIS.
 
-## Phase G — work completed
-- Backend `ProvenancedValue` model + `provenanced()` / `freshness_for()` helpers
-- Catalog candidates: provenanced `acquisition_time` (PROVIDER_REPORTED) and `estimated_size_bytes` (ESTIMATED)
-- Contact windows: flat cache for routing; `window_to_api()` for registry responses with CALCULATED/ESTIMATED labels
-- Mission infrastructure: provenanced sat/GS numerics; orbital snapshot `freshness`
-- Frontend truth components: `TruthBadge`, `SourcePopover`, `FreshnessIndicator`, `AssumptionPanel`
-- Wired into `/missions/[id]` (catalog + infrastructure panel), `ContactWindowTimeline`, job demo detections (SIMULATED)
-- OpenAPI + TS types regenerated
+## Phase I — work completed
+- Planner package: generate → estimate → hard-constrain → soft-rank → explain → persist
+- Patterns: existing imagery→cloud, imagery→edge, satellite→ground→cloud, onboard
+- APIs: `POST/GET /v1/missions/{id}/plans`, `GET .../plans/{plan_id}` (owner generate; owner/share/example read)
+- Persists `MissionPlan`, ordered `MissionPlanStep`, and `SourceEvidence` (catalog + TLE + estimate methods)
+- Deterministic plan/input hashes for same mission inputs + source snapshot + config version
+- Minimal `/missions/[id]` Generate plans trigger + recommendation summary
 
 ## Files changed
-- API: `app/models/provenance.py` (new), `app/models/mission.py`, `app/models/node.py`
-- API: `app/catalog/service.py`, `app/services/contact_windows.py`, `app/services/mission_infrastructure.py`, `app/routes/registry.py`
-- API tests: `tests/test_provenance.py` (new), `tests/test_api.py`, `tests/test_platform.py`, `tests/test_catalog.py`, `tests/test_orbital_provenance.py`
-- Web: `components/truth/*`, `components/missions/MissionInfrastructurePanel.tsx`, `components/network/ContactWindowTimeline.tsx`
-- Web: `app/missions/[id]/page.tsx`, `app/jobs/[id]/page.tsx`, `app/globals.css`, `lib/api.ts`
+- API: `app/planner/` (`__init__.py`, `types.py`, `hash.py`, `constraints.py`, `preferences.py`, `patterns.py`, `estimates.py`, `explain.py`, `engine.py`)
+- API: `app/routes/missions.py`, `app/models/mission.py`
+- API tests: `tests/test_planner.py` (new)
+- Web: `app/missions/[id]/page.tsx`, `lib/api.ts`
 - Generated: `orbital-cortex/openapi.json`, `lib/generated/api-types.ts`
 - `docs/BUILD_PROGRESS.md`
 
 ## Tests run
-- `pytest tests -q` — 61 passed, 1 skipped
+- `pytest tests/test_planner.py -q` — 8 passed
+- `pytest tests -q` — 69 passed, 1 skipped
+- `ruff check app/planner app/routes/missions.py …` — pass
+- `npm run generate:api-types` — pass
 - `npm run lint` — pass
 - `npm run build` — pass
-
-## Frontend manual checklist (no vitest/playwright harness)
-- [ ] `/missions/[id]` catalog rows show truth badges + source popovers on acquisition/size
-- [ ] `/missions/[id]` infrastructure panel shows TLE freshness + SIMULATED GS ops params in assumption panel
-- [ ] `/network` contact window timeline unwraps provenanced AOS/duration; popover on selected pass
-- [ ] `/jobs/[id]` detection map/table show SIMULATED badges
-- [ ] SIMULATED/ESTIMATED badges visually distinct (hatched gold) from cobalt grounded badges
 
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
@@ -88,7 +89,8 @@ None
 - Discover defaults to last 30 days when mission has no start/end times.
 - Live TLE refresh depends on CelesTrak availability; worker cron falls back to pinned snapshot with `STALE`.
 - mapbox-gl-draw is Mapbox-licensed UI chrome on MapLibre; acceptable for planner MVP; terra-draw remains an option if we need a pure MapLibre draw stack later.
-- Phase I planning engine will consume provenanced infra + catalog selections.
+- Phase I does not execute tasking/reservation; satellite paths remain conditional.
+- Full mission result UX (executive recommendation layout, comparison tables) is Phase J.
 
 ## Architecture decisions
 - Sync catalog provider API (matches sync FastAPI routes); pystac-client for PC STAC.
@@ -98,9 +100,11 @@ None
 - Prefer mission-facing infra in `InfrastructureResource` while keeping legacy `ground_stations` / `satellites` for the Job demo path.
 - Guided builder uses a single React reducer (no URL persistence); AOI area checked with spherical excess on both FE and BE.
 - Provenance envelope is API/UI-only for Out models; DB rows and internal routing helpers remain flat scalars.
+- Planner meta (pattern, hashes, scores, estimates, explanation) stored inside `MissionPlan.assumptions` JSON under `kind=planner_meta` so Phase B schema stays unchanged.
+- No LLM in the feasibility path; `explain.py` emits structured fields only.
 
 ## Next phase
-Phase I — planning engine.
+Phase J — mission result experience.
 
-**Agent prompt to copy-paste:** [`docs/phase-prompts/08-phase-I-planning-engine.md`](phase-prompts/08-phase-I-planning-engine.md)  
+**Agent prompt to copy-paste:** [`docs/phase-prompts/09-phase-J-mission-result.md`](phase-prompts/09-phase-J-mission-result.md)  
 **Index of all remaining prompts:** [`docs/phase-prompts/README.md`](phase-prompts/README.md)

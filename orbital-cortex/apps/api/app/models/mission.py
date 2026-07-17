@@ -263,3 +263,87 @@ class MissionInfrastructureResponse(BaseModel):
     orbital_snapshot: OrbitalSnapshotOut
     satellites: List[MissionSatelliteOut] = Field(default_factory=list)
     ground_stations: List[MissionGroundStationOut] = Field(default_factory=list)
+
+
+class MissionPlanStepOut(BaseModel):
+    id: str
+    mission_plan_id: str
+    sequence: int
+    step_type: str
+    provider_name: str
+    resource_id: Optional[str] = None
+    title: str
+    description: str
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    duration_seconds: Optional[float] = None
+    estimated_cost_usd: Optional[float] = None
+    input_artifact: Optional[str] = None
+    output_artifact: Optional[str] = None
+    truth_status: str
+    source_metadata: Dict[str, Any] = Field(default_factory=dict)
+    feasibility_status: str
+    rejection_reason: Optional[str] = None
+
+
+class SourceEvidenceOut(BaseModel):
+    id: str
+    mission_id: str
+    mission_plan_id: Optional[str] = None
+    mission_plan_step_id: Optional[str] = None
+    source_name: str
+    source_type: str
+    source_url: Optional[str] = None
+    retrieved_at: Optional[str] = None
+    effective_at: Optional[str] = None
+    raw_value: Dict[str, Any] = Field(default_factory=dict)
+    transformed_value: Dict[str, Any] = Field(default_factory=dict)
+    transformation_method: Optional[str] = None
+    truth_status: str
+
+
+class MissionPlanOut(BaseModel):
+    id: str
+    mission_id: str
+    version: int
+    recommended: bool
+    status: str
+    summary: str
+    estimated_total_time_seconds: Optional[float] = None
+    estimated_total_cost_usd: Optional[float] = None
+    confidence: Optional[float] = None
+    assumptions: List[Any] = Field(default_factory=list)
+    created_at: Optional[str] = None
+    pattern: Optional[str] = None
+    plan_hash: Optional[str] = None
+    feasibility_status: Optional[str] = None
+    explanation: Optional[Dict[str, Any]] = None
+    estimates: Optional[Dict[str, Any]] = None
+    score: Optional[float] = None
+    planner_config_version: Optional[str] = None
+    input_hash: Optional[str] = None
+    steps: Optional[List[MissionPlanStepOut]] = None
+    evidence: Optional[List[SourceEvidenceOut]] = None
+
+
+class MissionPlansListResponse(BaseModel):
+    plans: List[MissionPlanOut]
+    generation_strategy: str = (
+        "append_versions — each POST appends a new version batch; "
+        "prior recommended flags are cleared."
+    )
+
+
+class MissionPlanDetailResponse(BaseModel):
+    plan: MissionPlanOut
+
+
+class MissionPlansGenerateResponse(BaseModel):
+    plans: List[MissionPlanOut]
+    recommended_plan_id: Optional[str] = None
+    generation_strategy: str = (
+        "append_versions — each POST appends a new version batch; "
+        "prior recommended flags are cleared."
+    )
+    planner_config_version: str
+

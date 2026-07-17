@@ -15,11 +15,14 @@ import {
   createShareLink,
   discoverMissionCatalog,
   ensureAnonymousSession,
+  generateMissionPlans,
   getMission,
   getMissionInfrastructure,
   listMissionCandidates,
+  listMissionPlans,
   type CatalogCandidate,
   type MissionInfrastructureResponse,
+  type MissionPlan,
   type MissionSummary
 } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
@@ -45,6 +48,9 @@ function MissionDetailInner() {
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [infrastructure, setInfrastructure] = useState<MissionInfrastructureResponse | null>(null);
   const [infraError, setInfraError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<MissionPlan[]>([]);
+  const [planning, setPlanning] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -69,6 +75,12 @@ function MissionDetailInner() {
           if (mounted) setInfrastructure(infra);
         } catch {
           if (mounted) setInfraError("Mission infrastructure is unavailable.");
+        }
+        try {
+          const listed = await listMissionPlans(params.id, shareToken);
+          if (mounted) setPlans(listed.plans);
+        } catch {
+          // Plans are optional until generation runs.
         }
       } catch (error) {
         if (mounted) {
@@ -124,7 +136,26 @@ function MissionDetailInner() {
     }
   }
 
+  async function onGeneratePlans() {
+    setPlanError(null);
+    setPlanning(true);
+    try {
+      await ensureAnonymousSession();
+      const response = await generateMissionPlans(params.id);
+      setPlans(response.plans);
+      if (response.plans.length === 0) {
+        setPlanError("No plans were generated.");
+      }
+    } catch (error) {
+      setPlanError(apiErrorMessage(error, "Could not generate mission plans."));
+    } finally {
+      setPlanning(false);
+    }
+  }
+
   const canDiscover = Boolean(mission && !mission.is_example && !shareToken);
+  const canPlan = canDiscover;
+  const recommended = plans.find((plan) => plan.recommended) ?? null;
 
   return (
     <div className="page-shell pb-16">
@@ -315,6 +346,109 @@ function MissionDetailInner() {
                   </li>
                   );
                 })}
+              </ul>
+            ) : null}
+          </LiquidCard>
+
+          <LiquidCard>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="chart-label text-gold">Feasibility plans</p>
+                <p className="mt-2 max-w-2xl text-sm text-muted">
+                  Structured planner output — multiple candidate paths ranked without an LLM.
+                  Estimates carry truth status; cost stays unavailable until a real pricing
+                  source exists.
+                </p>
+              </div>
+              {canPlan ? (
+                <LiquidButton disabled={planning} onClick={onGeneratePlans} variant="primary">
+                  {planning ? "Generating plans…" : "Generate plans"}
+                </LiquidButton>
+              ) : null}
+            </div>
+
+            {planError ? (
+              <div className="mt-4">
+                <InlineNotice message={planError} />
+              </div>
+            ) : null}
+
+            {plans.length === 0 && !planError ? (
+              <p className="mt-4 text-sm text-muted">
+                {canPlan
+                  ? "No plans yet. Discover catalog data first, then generate feasibility plans."
+                  : "No plans for this mission."}
+              </p>
+            ) : null}
+
+            {recommended ? (
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <p className="text-xs uppercase tracking-wide text-gold">Recommended</p>
+                <p className="mt-1 text-cream">{recommended.summary}</p>
+                <p className="mt-2 text-sm text-muted">
+                  {recommended.explanation?.why_recommended ?? "Structured scoring selected this path."}
+                </p>
+                <dl className="mt-3 grid gap-2 text-xs text-muted sm:grid-cols-3">
+                  <div>
+                    <dt>Status</dt>
+                    <dd className="text-cream">{recommended.status}</dd>
+                  </div>
+                  <div>
+                    <dt>Duration</dt>
+                    <dd className="mt-0.5 flex flex-wrap items-center gap-2 text-cream">
+                      {recommended.estimated_total_time_seconds != null
+                        ? `${Math.round(recommended.estimated_total_time_seconds / 60)} min`
+                        : "—"}
+                      {recommended.estimates?.duration ? (
+                        <TruthBadge
+                          status={recommended.estimates.duration.truth_status ?? "ESTIMATED"}
+                          compact
+                        />
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Cost</dt>
+                    <dd className="mt-0.5 flex flex-wrap items-center gap-2 text-cream">
+                      {recommended.estimated_total_cost_usd != null
+                        ? `$${recommended.estimated_total_cost_usd.toFixed(2)}`
+                        : "unavailable"}
+                      <TruthBadge
+                        status={recommended.estimates?.cost_usd?.truth_status ?? "UNAVAILABLE"}
+                        compact
+                      />
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ) : null}
+
+            {plans.length > 0 ? (
+              <ul className="mt-6 space-y-3">
+                {plans.map((plan) => (
+                  <li
+                    key={plan.id}
+                    className="border-t border-white/10 pt-3 first:border-t-0 first:pt-0"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="text-sm text-cream">
+                        {plan.summary}
+                        {plan.recommended ? (
+                          <span className="ml-2 text-xs text-gold">recommended</span>
+                        ) : null}
+                      </p>
+                      <span className="font-mono text-xs text-muted">{plan.status}</span>
+                    </div>
+                    {plan.explanation?.rejection_reasons?.length ? (
+                      <p className="mt-1 text-xs text-muted">
+                        {plan.explanation.rejection_reasons
+                          .map((reason) => reason.message || reason.code)
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
               </ul>
             ) : null}
           </LiquidCard>

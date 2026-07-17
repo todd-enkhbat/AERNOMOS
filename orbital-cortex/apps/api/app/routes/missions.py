@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Dict, Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.catalog import service as catalog_service
@@ -18,7 +20,7 @@ from app.catalog.errors import (
 from app.core import missions as mission_store
 from app.core.config import get_settings
 from app.db import get_db
-from app.db.mission_orm import AnonymousSession, Mission, ShareLink
+from app.db.mission_orm import AnonymousSession, Mission, MissionPlan, ShareLink
 from app.deps.auth import (
     get_mission_for_read,
     get_owned_mission,
@@ -30,11 +32,16 @@ from app.models.mission import (
     DiscoverRequest,
     MissionCreate,
     MissionInfrastructureResponse,
+    MissionPlanDetailResponse,
+    MissionPlansGenerateResponse,
+    MissionPlansListResponse,
     MissionResponse,
     MissionsListResponse,
     ShareLinkCreate,
     ShareLinkResponse,
 )
+from app.planner import PLANNER_CONFIG_VERSION
+from app.planner import engine as planner_engine
 from app.services import mission_infrastructure as infra_service
 
 router = APIRouter(prefix="/v1", tags=["missions"])
@@ -238,6 +245,106 @@ def get_mission_infrastructure(
     )
     db.commit()
     return payload
+
+
+@router.post(
+    "/missions/{mission_id}/plans",
+    response_model=MissionPlansGenerateResponse,
+    status_code=201,
+    summary="Generate source-backed mission plans",
+    description=(
+        "Runs the structured feasibility planner (no LLM). Each call appends a new "
+        "version batch of MissionPlan rows; prior recommended flags are cleared. "
+        "Same mission inputs + source snapshot → deterministic hashes and ranking."
+    ),
+    responses={
+        401: {"model": ErrorResponse, "description": "Missing session"},
+        403: {"model": ErrorResponse, "description": "Not the mission owner"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def generate_mission_plans(
+    mission: Mission = Depends(get_owned_mission),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    rows = planner_engine.generate_plans_for_mission(db, mission)
+    db.commit()
+    plans = [
+        planner_engine.plan_to_dict(db, row, include_steps=True, include_evidence=True)
+        for row in rows
+    ]
+    recommended_id = next(
+        (p["id"] for p in plans if p.get("recommended")),
+        None,
+    )
+    return {
+        "plans": plans,
+        "recommended_plan_id": recommended_id,
+        "generation_strategy": (
+            "append_versions — each POST appends a new version batch; "
+            "prior recommended flags are cleared."
+        ),
+        "planner_config_version": PLANNER_CONFIG_VERSION,
+    }
+
+
+@router.get(
+    "/missions/{mission_id}/plans",
+    response_model=MissionPlansListResponse,
+    summary="List generated mission plans",
+    responses={
+        401: {"model": ErrorResponse, "description": "Auth required"},
+        403: {"model": ErrorResponse, "description": "Forbidden"},
+        404: {"model": ErrorResponse, "description": "Mission not found"},
+    },
+)
+def list_mission_plans(
+    mission: Mission = Depends(get_mission_for_read),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    rows = db.scalars(
+        select(MissionPlan)
+        .where(MissionPlan.mission_id == mission.id)
+        .order_by(MissionPlan.version.asc())
+    ).all()
+    db.commit()
+    return {
+        "plans": [planner_engine.plan_to_dict(db, row) for row in rows],
+        "generation_strategy": (
+            "append_versions — each POST appends a new version batch; "
+            "prior recommended flags are cleared."
+        ),
+    }
+
+
+@router.get(
+    "/missions/{mission_id}/plans/{plan_id}",
+    response_model=MissionPlanDetailResponse,
+    summary="Mission plan detail with steps and evidence",
+    responses={
+        401: {"model": ErrorResponse, "description": "Auth required"},
+        403: {"model": ErrorResponse, "description": "Forbidden"},
+        404: {"model": ErrorResponse, "description": "Plan not found"},
+    },
+)
+def get_mission_plan(
+    plan_id: str,
+    mission: Mission = Depends(get_mission_for_read),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    try:
+        pid = UUID(plan_id)
+    except ValueError as exc:
+        raise _api_error(404, "plan_not_found", "Plan not found.") from exc
+    row = db.get(MissionPlan, pid)
+    if row is None or row.mission_id != mission.id:
+        raise _api_error(404, "plan_not_found", "Plan not found.")
+    db.commit()
+    return {
+        "plan": planner_engine.plan_to_dict(
+            db, row, include_steps=True, include_evidence=True
+        ),
+    }
 
 
 @router.post(

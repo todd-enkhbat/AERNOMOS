@@ -345,3 +345,72 @@ export function getMissionInfrastructure(
   );
 }
 
+export type MissionPlan = {
+  id: string;
+  mission_id: string;
+  version: number;
+  recommended: boolean;
+  status: string;
+  summary: string;
+  estimated_total_time_seconds?: number | null;
+  estimated_total_cost_usd?: number | null;
+  confidence?: number | null;
+  assumptions?: unknown[];
+  created_at?: string | null;
+  pattern?: string | null;
+  plan_hash?: string | null;
+  feasibility_status?: string | null;
+  explanation?: {
+    why_recommended?: string;
+    executable_now?: string[];
+    needs_provider?: string[];
+    top_assumptions?: string[];
+    missing_integrations?: string[];
+    rejection_reasons?: Array<{ code?: string; message?: string }>;
+  } | null;
+  estimates?: {
+    duration?: { value?: number | null; truth_status?: string; method?: string | null };
+    data_movement_mb?: { value?: number | null; truth_status?: string; method?: string | null };
+    cost_usd?: { value?: number | null; truth_status?: string; method?: string | null };
+  } | null;
+  score?: number | null;
+  steps?: Array<{
+    id: string;
+    sequence: number;
+    step_type: string;
+    title: string;
+    description: string;
+    truth_status: string;
+    feasibility_status: string;
+    rejection_reason?: string | null;
+    duration_seconds?: number | null;
+  }>;
+};
+
+export type MissionPlansGenerateResponse = {
+  plans: MissionPlan[];
+  recommended_plan_id?: string | null;
+  planner_config_version: string;
+  generation_strategy: string;
+};
+
+export function generateMissionPlans(
+  missionId: string
+): Promise<MissionPlansGenerateResponse> {
+  return missionRequest<MissionPlansGenerateResponse>(
+    `/v1/missions/${missionId}/plans`,
+    { method: "POST", body: "{}" }
+  );
+}
+
+export function listMissionPlans(
+  missionId: string,
+  shareToken?: string
+): Promise<{ plans: MissionPlan[]; generation_strategy: string }> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest(`/v1/missions/${missionId}/plans`, { headers });
+}
+
