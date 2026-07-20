@@ -33,6 +33,7 @@ from app.routes import (
     routing,
     sessions,
 )
+from app.security.redaction import redact_request_path
 from app.seed import seed_database
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -67,8 +68,26 @@ def warm_pass_cache_if_empty() -> None:
         session.close()
 
 
+def _assert_production_secrets() -> None:
+    """Refuse to boot production with checked-in default signing salts."""
+    if settings.app_env != "production":
+        return
+    weak = []
+    if settings.artifact_signing_secret.startswith("dev-only"):
+        weak.append("ARTIFACT_SIGNING_SECRET")
+    if settings.analytics_hash_salt.startswith("dev-only"):
+        weak.append("ANALYTICS_HASH_SALT")
+    if weak:
+        raise RuntimeError(
+            "Refusing to start in production with default secrets: "
+            + ", ".join(weak)
+            + ". Set strong unique values via Fly secrets."
+        )
+
+
 @asynccontextmanager
 async def lifespan(app):  # type: ignore[no-untyped-def]
+    _assert_production_secrets()
     run_migrations()
     session = SessionLocal(bind=get_engine())
     try:
@@ -130,7 +149,7 @@ async def request_context(request, call_next):  # type: ignore[no-untyped-def]
     structlog.contextvars.bind_contextvars(
         request_id=request_id,
         method=request.method,
-        path=request.url.path,
+        path=redact_request_path(request.url.path),
     )
     started = time.perf_counter()
     try:

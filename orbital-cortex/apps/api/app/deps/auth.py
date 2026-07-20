@@ -105,9 +105,16 @@ def get_mission_for_read(
     request: Request,
     db: Session = Depends(get_db),
     x_nomos_share_token: Optional[str] = Header(default=None),
-    share_token: Optional[str] = Query(default=None),
+    share_token: Optional[str] = Query(
+        default=None,
+        description=(
+            "Deprecated: prefer X-Nomos-Share-Token header to avoid token "
+            "leakage via Referer and access logs."
+        ),
+    ),
 ) -> Mission:
     owner = get_optional_anonymous_session(request, db)
+    # Header wins; query is accepted for legacy bookmark compatibility.
     token = x_nomos_share_token or share_token
     return load_mission_for_access(
         db=db,

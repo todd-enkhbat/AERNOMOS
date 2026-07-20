@@ -78,6 +78,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/design-partner-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a design-partner conversation
+         * @description Stores a private design-partner lead. permission_to_contact must be true. A honeypot field is accepted but never persisted when filled.
+         */
+        post: operations["submit_design_partner_request_v1_design_partner_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/ground-stations": {
         parameters: {
             query?: never;
@@ -104,13 +124,13 @@ export interface paths {
         };
         /**
          * List curated example jobs (cursor-paginated)
-         * @description Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable by ID but are not listed.
+         * @description Returns only curated public demo examples (`is_example=true`). Visitor submissions are never listed and require an access token by ID.
          */
         get: operations["list_jobs_v1_jobs_get"];
         put?: never;
         /**
          * Submit a job
-         * @description Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker. Returns immediately; poll the job until it reaches a terminal state.
+         * @description Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker. Returns immediately; poll the job until it reaches a terminal state. Private visitor jobs include a one-time `access_token` — store it and send `X-Nomos-Job-Token` on subsequent reads. Curated example jobs remain publicly readable.
          */
         post: operations["create_job_v1_jobs_post"];
         delete?: never;
@@ -394,6 +414,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/missions/{mission_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit optional mission plan feedback
+         * @description Lightweight yes/partly/no feedback after a plan exists. Never required for planning. Comment is capped server-side (reject, not truncate).
+         */
+        post: operations["submit_mission_feedback_v1_missions__mission_id__feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/missions/{mission_id}/infrastructure": {
         parameters: {
             query?: never;
@@ -501,7 +541,7 @@ export interface paths {
         put?: never;
         /**
          * Create a private share link for a mission you own
-         * @description Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-Token` or `share_token` query param.
+         * @description Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-Token` (preferred). The `share_token` query param remains for legacy bookmarks but is deprecated.
          */
         post: operations["create_share_link_v1_missions__mission_id__share_links_post"];
         delete?: never;
@@ -860,6 +900,42 @@ export interface components {
             /** Next Cursor */
             next_cursor?: string | null;
         };
+        /** DesignPartnerRequest */
+        DesignPartnerRequest: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Mission Id */
+            mission_id?: string | null;
+            /** Mission Type */
+            mission_type: string;
+            /** Name */
+            name: string;
+            /** Organization */
+            organization: string;
+            /** Permission To Contact */
+            permission_to_contact: boolean;
+            /** Requested Integration */
+            requested_integration: string;
+            /** Role */
+            role: string;
+            /**
+             * Work Email
+             * Format: email
+             */
+            work_email: string;
+        };
+        /** DesignPartnerRequestResponse */
+        DesignPartnerRequestResponse: {
+            request: components["schemas"]["DesignPartnerRequest"];
+        };
         /**
          * DiscoverRequest
          * @description Optional overrides for mission catalog discovery.
@@ -963,6 +1039,11 @@ export interface components {
              */
             status: "queued" | "running" | "succeeded" | "failed";
         };
+        /**
+         * FeedbackRating
+         * @enum {string}
+         */
+        FeedbackRating: "yes" | "partly" | "no";
         /** GroundStation */
         GroundStation: {
             /**
@@ -1125,6 +1206,8 @@ export interface components {
         };
         /** JobCreateResponse */
         JobCreateResponse: {
+            /** Access Token */
+            access_token?: string | null;
             job: components["schemas"]["Job"];
             routing_decision?: components["schemas"]["RoutingDecision"] | null;
         };
@@ -1230,6 +1313,39 @@ export interface components {
             mission_id: string;
             /** Status */
             status: string;
+        };
+        /** MissionFeedback */
+        MissionFeedback: {
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Mission Id
+             * Format: uuid
+             */
+            mission_id: string;
+            rating: components["schemas"]["FeedbackRating"];
+            /** Session Id Hash */
+            session_id_hash?: string | null;
+        };
+        /** MissionFeedbackCreate */
+        MissionFeedbackCreate: {
+            /** Comment */
+            comment?: string | null;
+            rating: components["schemas"]["FeedbackRating"];
+        };
+        /** MissionFeedbackResponse */
+        MissionFeedbackResponse: {
+            feedback: components["schemas"]["MissionFeedback"];
         };
         /** MissionGroundStationOut */
         MissionGroundStationOut: {
@@ -1992,6 +2108,59 @@ export interface operations {
             };
         };
     };
+    submit_design_partner_request_v1_design_partner_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesignPartnerRequestResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_ground_stations_v1_ground_stations_get: {
         parameters: {
             query?: never;
@@ -2099,7 +2268,9 @@ export interface operations {
     get_job_v1_jobs__job_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2114,6 +2285,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobDetailResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -2139,7 +2328,9 @@ export interface operations {
     get_job_detections_v1_jobs__job_id__detections_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2154,6 +2345,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -2179,7 +2388,9 @@ export interface operations {
     get_job_events_v1_jobs__job_id__events_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2194,6 +2405,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobEventsResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -2219,7 +2448,9 @@ export interface operations {
     replay_routing_v1_jobs__job_id__replay_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2234,6 +2465,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReplayResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job or routing decision not found */
@@ -2259,7 +2508,9 @@ export interface operations {
     get_result_v1_jobs__job_id__result_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2274,6 +2525,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResultResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found or result not ready */
@@ -2299,7 +2568,9 @@ export interface operations {
     get_routing_v1_jobs__job_id__routing_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2314,6 +2585,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoutingResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job or routing decision not found */
@@ -2339,7 +2628,9 @@ export interface operations {
     get_job_scene_v1_jobs__job_id__scene_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2354,6 +2645,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SceneResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -2445,6 +2754,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_examples_v1_missions_examples_get: {
@@ -2470,6 +2788,7 @@ export interface operations {
     get_mission_v1_missions__mission_id__get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -2532,6 +2851,7 @@ export interface operations {
     list_mission_candidates_v1_missions__mission_id__candidates_get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -2651,6 +2971,15 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Catalog item/collection not found */
             502: {
                 headers: {
@@ -2674,6 +3003,7 @@ export interface operations {
     export_mission_json_v1_missions__mission_id__exports_json_get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -2729,6 +3059,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -2847,6 +3186,15 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     get_pdf_export_v1_missions__mission_id__exports_pdf__export_id__get: {
@@ -2908,9 +3256,81 @@ export interface operations {
             };
         };
     };
+    submit_mission_feedback_v1_missions__mission_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MissionFeedbackCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionFeedbackResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_mission_infrastructure_v1_missions__mission_id__infrastructure_get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -2973,6 +3393,7 @@ export interface operations {
     list_mission_plans_v1_missions__mission_id__plans_get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -3093,6 +3514,7 @@ export interface operations {
     get_mission_plan_v1_missions__mission_id__plans__plan_id__get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -3207,6 +3629,15 @@ export interface operations {
             };
             /** @description Invalid task / disallowed input_ref */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3478,7 +3909,9 @@ export interface operations {
     get_routing_v1_routing__job_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -3493,6 +3926,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoutingResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job or routing decision not found */
@@ -3663,7 +4114,9 @@ export interface operations {
     simulate_run_v1_simulate_run__job_id__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -3678,6 +4131,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SimulateRunResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */

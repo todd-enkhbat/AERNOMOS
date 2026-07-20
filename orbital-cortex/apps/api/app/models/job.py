@@ -98,6 +98,9 @@ class JobCreateResponse(BaseModel):
     job: Job
     # None until the async worker routes the job.
     routing_decision: Optional[RoutingDecision] = None
+    # One-time raw access token for private visitor jobs (never stored; hash only).
+    # Omit / null for curated example flows. Send as X-Nomos-Job-Token on reads.
+    access_token: Optional[str] = None
 
 
 class JobsListResponse(BaseModel):

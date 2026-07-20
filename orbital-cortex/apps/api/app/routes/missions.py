@@ -24,6 +24,13 @@ from app.catalog.errors import (
 from app.core import missions as mission_store
 from app.core.config import get_settings
 from app.core.object_store import get_object_store
+from app.core.ratelimit import (
+    discover_rate_limit,
+    execute_rate_limit,
+    export_rate_limit,
+    limiter,
+    missions_rate_limit,
+)
 from app.db import get_db
 from app.db.mission_orm import (
     AnonymousSession,
@@ -165,8 +172,10 @@ def list_missions(
     responses={
         401: {"model": ErrorResponse, "description": "Missing or expired session"},
         422: {"model": ErrorResponse, "description": "Invalid mission payload"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
     },
 )
+@limiter.limit(missions_rate_limit)
 def create_mission(
     payload: MissionCreate,
     request: Request,
@@ -225,9 +234,12 @@ def get_mission(
             "model": ErrorResponse,
             "description": "Catalog unavailable or rate-limited",
         },
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
     },
 )
+@limiter.limit(discover_rate_limit)
 def discover_mission_catalog(
+    request: Request,
     mission: Mission = Depends(get_owned_mission),
     db: Session = Depends(get_db),
     payload: Optional[DiscoverRequest] = Body(default=None),
@@ -502,9 +514,12 @@ def _load_owned_plan(db: Session, mission: Mission, plan_id: str) -> MissionPlan
         403: {"model": ErrorResponse, "description": "Not the mission owner"},
         404: {"model": ErrorResponse, "description": "Plan or step not found"},
         422: {"model": ErrorResponse, "description": "Invalid task / disallowed input_ref"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
     },
 )
+@limiter.limit(execute_rate_limit)
 def execute_plan_step(
+    request: Request,
     plan_id: str,
     payload: ExecuteStepRequest,
     mission: Mission = Depends(get_owned_mission),
@@ -621,7 +636,8 @@ def get_execution_status(
     summary="Create a private share link for a mission you own",
     description=(
         "Returns the raw share token once. Only the SHA-256 hash is stored. "
-        "Pass the token as `X-Nomos-Share-Token` or `share_token` query param."
+        "Pass the token as `X-Nomos-Share-Token` (preferred). The `share_token` "
+        "query param remains for legacy bookmarks but is deprecated."
     ),
     responses={
         401: {"model": ErrorResponse, "description": "Missing session"},
@@ -635,13 +651,16 @@ def create_share_link(
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     expires_at = _parse_optional_dt(payload.expires_at)
-    link, raw = mission_store.create_share_link(
-        db,
-        mission,
-        settings=get_settings(),
-        expires_at=expires_at,
-        permissions=payload.permissions,
-    )
+    try:
+        link, raw = mission_store.create_share_link(
+            db,
+            mission,
+            settings=get_settings(),
+            expires_at=expires_at,
+            permissions=payload.permissions,
+        )
+    except ValueError as exc:
+        raise _api_error(422, "validation_error", str(exc)) from exc
     owner = (
         db.get(AnonymousSession, mission.anonymous_session_id)
         if mission.anonymous_session_id
@@ -748,9 +767,12 @@ def resolve_share_token(
         401: {"model": ErrorResponse, "description": "Auth required"},
         403: {"model": ErrorResponse, "description": "Forbidden"},
         404: {"model": ErrorResponse, "description": "Mission not found"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
     },
 )
+@limiter.limit(export_rate_limit)
 def export_mission_json(
+    request: Request,
     mission: Mission = Depends(get_mission_for_read),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
@@ -779,9 +801,12 @@ def export_mission_json(
         401: {"model": ErrorResponse, "description": "Missing session"},
         403: {"model": ErrorResponse, "description": "Not the mission owner"},
         404: {"model": ErrorResponse, "description": "Mission not found"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
     },
 )
+@limiter.limit(export_rate_limit)
 def create_pdf_export(
+    request: Request,
     mission: Mission = Depends(get_owned_mission),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:

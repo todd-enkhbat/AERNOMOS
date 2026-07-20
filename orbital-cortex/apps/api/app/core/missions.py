@@ -249,13 +249,18 @@ def create_share_link(
     raw = mint_token()
     if expires_at is None:
         expires_at = now + timedelta(days=settings.share_link_default_ttl_days)
+    # Share links are read-only. Ignore any client-requested write permissions.
+    allowed = {"read"}
+    requested = list(permissions) if permissions is not None else ["read"]
+    if not requested or any(p not in allowed for p in requested):
+        raise ValueError("Share link permissions may only include 'read'")
     link = ShareLink(
         id=uuid.uuid4(),
         mission_id=mission.id,
         token_hash=hash_token(raw),
         created_at=now,
         expires_at=expires_at,
-        permissions=list(permissions) if permissions is not None else ["read"],
+        permissions=["read"],
     )
     session.add(link)
     session.flush()

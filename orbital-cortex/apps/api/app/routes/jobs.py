@@ -15,6 +15,7 @@ from app.core.queue import enqueue_job_execution
 from app.core.ratelimit import jobs_rate_limit, limiter
 from app.core.state import IllegalTransitionError
 from app.db import get_db
+from app.deps.jobs import require_job_access
 from app.models.errors import ErrorResponse
 from app.models.event import JobEventsResponse
 from app.models.job import (
@@ -32,6 +33,10 @@ router = APIRouter(prefix="/v1", tags=["jobs"])
 NOT_FOUND: Dict[Union[int, str], Dict[str, Any]] = {
     404: {"model": ErrorResponse, "description": "Job not found"}
 }
+AUTH_ERRORS: Dict[Union[int, str], Dict[str, Any]] = {
+    401: {"model": ErrorResponse, "description": "Job access token required"},
+    403: {"model": ErrorResponse, "description": "Job access denied"},
+}
 
 
 @router.post(
@@ -42,7 +47,9 @@ NOT_FOUND: Dict[Union[int, str], Dict[str, Any]] = {
     description=(
         "Accepts a versioned job spec, persists it as `queued`, and hands "
         "execution to the async worker. Returns immediately; poll the job "
-        "until it reaches a terminal state."
+        "until it reaches a terminal state. Private visitor jobs include a "
+        "one-time `access_token` — store it and send `X-Nomos-Job-Token` on "
+        "subsequent reads. Curated example jobs remain publicly readable."
     ),
     responses={
         422: {"model": ErrorResponse, "description": "Invalid job spec"},
@@ -55,7 +62,7 @@ def create_job(
     payload: JobCreate,
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    job = storage.create_job(session, _model_to_dict(payload))
+    job, access_token = storage.create_job(session, _model_to_dict(payload))
     storage.create_event(
         session,
         job["id"],
@@ -88,6 +95,7 @@ def create_job(
     return {
         "job": job,
         "routing_decision": None,
+        "access_token": access_token,
     }
 
 
@@ -97,7 +105,7 @@ def create_job(
     summary="List curated example jobs (cursor-paginated)",
     description=(
         "Returns only curated public demo examples (`is_example=true`). "
-        "Visitor submissions remain reachable by ID but are not listed."
+        "Visitor submissions are never listed and require an access token by ID."
     ),
     responses={400: {"model": ErrorResponse, "description": "Malformed cursor"}},
 )
@@ -122,17 +130,16 @@ def list_jobs(
     "/jobs/{job_id}",
     response_model=JobDetailResponse,
     summary="Get a job with its routing decision",
-    responses=NOT_FOUND,
+    responses={**NOT_FOUND, **AUTH_ERRORS},
 )
 def get_job(
-    job_id: str,
+    job: Dict[str, Any] = Depends(require_job_access),
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    job = _require_job(session, job_id)
-    result = storage.get_result(session, job_id)
+    result = storage.get_result(session, job["id"])
     return {
         "job": job,
-        "routing_decision": storage.get_routing_decision(session, job_id),
+        "routing_decision": storage.get_routing_decision(session, job["id"]),
         "result_summary": result["summary"] if result else None,
     }
 
@@ -141,42 +148,39 @@ def get_job(
     "/jobs/{job_id}/events",
     response_model=JobEventsResponse,
     summary="Get the append-only event trail for a job",
-    responses=NOT_FOUND,
+    responses={**NOT_FOUND, **AUTH_ERRORS},
 )
 def get_job_events(
-    job_id: str,
+    job: Dict[str, Any] = Depends(require_job_access),
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    _require_job(session, job_id)
-    return {"events": storage.list_events(session, job_id)}
+    return {"events": storage.list_events(session, job["id"])}
 
 
 @router.get(
     "/jobs/{job_id}/scene",
     response_model=SceneResponse,
     summary="Get the SAR scene provenance for a job",
-    responses=NOT_FOUND,
+    responses={**NOT_FOUND, **AUTH_ERRORS},
 )
 def get_job_scene(
-    job_id: str,
+    job: Dict[str, Any] = Depends(require_job_access),
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    _require_job(session, job_id)
-    return {"scene": get_scene(session, job_id)}
+    return {"scene": get_scene(session, job["id"])}
 
 
 @router.get(
     "/jobs/{job_id}/detections",
     summary="Get job detections as GeoJSON",
     description="Returns an `application/geo+json` FeatureCollection.",
-    responses=NOT_FOUND,
+    responses={**NOT_FOUND, **AUTH_ERRORS},
 )
 def get_job_detections(
-    job_id: str,
+    job: Dict[str, Any] = Depends(require_job_access),
     session: Session = Depends(get_db),
 ) -> JSONResponse:
-    _require_job(session, job_id)
-    geojson = list_detections_geojson(session, job_id)
+    geojson = list_detections_geojson(session, job["id"])
     return JSONResponse(content=geojson, media_type="application/geo+json")
 
 
@@ -186,16 +190,16 @@ def get_job_detections(
     summary="Drive a queued job to completion synchronously (dev fallback)",
     responses={
         **NOT_FOUND,
+        **AUTH_ERRORS,
         409: {"model": ErrorResponse, "description": "Illegal state transition"},
     },
 )
 def simulate_run(
-    job_id: str,
+    job: Dict[str, Any] = Depends(require_job_access),
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    _require_job(session, job_id)
     try:
-        response = run_pipeline(session, job_id)
+        response = run_pipeline(session, job["id"])
         session.commit()
         return response
     except IllegalTransitionError as exc:
@@ -204,13 +208,6 @@ def simulate_run(
     except ValueError as exc:
         session.rollback()
         raise _api_error(400, "simulation_failed", str(exc))
-
-
-def _require_job(session: Session, job_id: str) -> Dict[str, Any]:
-    job = storage.get_job(session, job_id)
-    if job is None:
-        raise _api_error(404, "job_not_found", f"No job exists for id {job_id}.")
-    return job
 
 
 def _api_error(status_code: int, code: str, message: str) -> HTTPException:

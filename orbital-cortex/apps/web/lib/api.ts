@@ -131,42 +131,82 @@ export function createJob(
       Authorization: `Bearer ${apiKey}`
     },
     body: JSON.stringify(payload)
+  }).then((response) => {
+    if (response.access_token && response.job?.id) {
+      storeJobAccessToken(response.job.id, response.access_token);
+    }
+    return response;
   });
 }
 
+function jobAuthHeaders(jobId: string): HeadersInit {
+  const token =
+    typeof window !== "undefined" ? getJobAccessToken(jobId) : null;
+  return token ? { "X-Nomos-Job-Token": token } : {};
+}
+
+const JOB_TOKEN_PREFIX = "nomos_job_token:";
+
+export function storeJobAccessToken(jobId: string, token: string): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(`${JOB_TOKEN_PREFIX}${jobId}`, token);
+}
+
+export function getJobAccessToken(jobId: string): string | null {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem(`${JOB_TOKEN_PREFIX}${jobId}`);
+}
+
 export function getJob(jobId: string): Promise<JobDetailResponse> {
-  return request<JobDetailResponse>(`/v1/jobs/${jobId}`);
+  return request<JobDetailResponse>(`/v1/jobs/${jobId}`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getEvents(jobId: string): Promise<EventsResponse> {
-  return request<EventsResponse>(`/v1/jobs/${jobId}/events`);
+  return request<EventsResponse>(`/v1/jobs/${jobId}/events`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getRouting(jobId: string): Promise<RoutingResponse> {
-  return request<RoutingResponse>(`/v1/jobs/${jobId}/routing`);
+  return request<RoutingResponse>(`/v1/jobs/${jobId}/routing`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function replayRouting(jobId: string): Promise<ReplayResponse> {
-  return request<ReplayResponse>(`/v1/jobs/${jobId}/replay`, { method: "POST" });
+  return request<ReplayResponse>(`/v1/jobs/${jobId}/replay`, {
+    method: "POST",
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getDetections(jobId: string): Promise<DetectionsGeoJson> {
   return request<DetectionsGeoJson>(`/v1/jobs/${jobId}/detections`, {
-    headers: { Accept: "application/geo+json" }
+    headers: {
+      Accept: "application/geo+json",
+      ...jobAuthHeaders(jobId)
+    }
   });
 }
 
 export function getScene(jobId: string): Promise<SceneResponse> {
-  return request<SceneResponse>(`/v1/jobs/${jobId}/scene`);
+  return request<SceneResponse>(`/v1/jobs/${jobId}/scene`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getResult(jobId: string): Promise<ResultResponse> {
-  return request<ResultResponse>(`/v1/jobs/${jobId}/result`);
+  return request<ResultResponse>(`/v1/jobs/${jobId}/result`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function runSimulation(jobId: string): Promise<SimulateRunResponse> {
   return request<SimulateRunResponse>(`/v1/simulate/run/${jobId}`, {
-    method: "POST"
+    method: "POST",
+    headers: jobAuthHeaders(jobId)
   });
 }
 

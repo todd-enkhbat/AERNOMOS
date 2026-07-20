@@ -16,8 +16,9 @@ about *capabilities* (see [`demo-limitations.md`](demo-limitations.md)), not
 about how your data is handled.
 
 **Not yet built:** User accounts, organizations, and enterprise SSO. Today
-everything is anonymous. There is also no long-term data-retention automation
-beyond session expiry/cleanup.
+everything is anonymous. Session expiry cleanup runs opportunistically when a
+new session is created (see Phase S [`security-review.md`](security-review.md));
+there is no separate long-term retention policy engine beyond that.
 
 ## The one thing to know first
 

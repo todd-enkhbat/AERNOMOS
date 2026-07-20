@@ -14,6 +14,7 @@ from app.core.state import IllegalTransitionError, validate_transition
 from app.db import SessionLocal, get_engine
 from app.main import app, run_migrations
 from app.workers.executor import run_pipeline_sync
+from tests.job_auth import create_private_job
 
 
 def _reset_job_data() -> None:
@@ -67,16 +68,17 @@ def test_ship_detection_job_routes_and_simulates():
         assert created.status_code == 201
         created_data = created.json()
         job_id = created_data["job"]["id"]
+        headers = {"X-Nomos-Job-Token": created_data["access_token"]}
 
         assert created_data["job"]["status"] == "queued"
         assert created_data["job"]["schema_version"] == 1
         assert created_data["routing_decision"] is None
 
-        not_ready = client.get(f"/v1/jobs/{job_id}/result")
+        not_ready = client.get(f"/v1/jobs/{job_id}/result", headers=headers)
         assert not_ready.status_code == 404
         assert not_ready.json()["error"]["code"] == "result_not_ready"
 
-        simulated = client.post(f"/v1/simulate/run/{job_id}")
+        simulated = client.post(f"/v1/simulate/run/{job_id}", headers=headers)
         assert simulated.status_code == 200
         simulated_data = simulated.json()
         assert simulated_data["job"]["status"] == "complete"
@@ -85,7 +87,7 @@ def test_ship_detection_job_routes_and_simulates():
         assert len(simulated_data["result"]["geojson"]["features"]) == 17
         assert simulated_data["result"]["geojson"]["features"][0]["properties"]["harbor_zone"]
 
-        routing = client.get(f"/v1/jobs/{job_id}/routing")
+        routing = client.get(f"/v1/jobs/{job_id}/routing", headers=headers)
         assert routing.status_code == 200
         decision = routing.json()["routing_decision"]
         assert decision["selected_node_id"]
@@ -103,7 +105,7 @@ def test_ship_detection_job_routes_and_simulates():
             assert candidate["est_downlink_mb"] > 0
             assert any("Next pass over gs_" in r for r in candidate["reasons"])
 
-        events = client.get(f"/v1/jobs/{job_id}/events")
+        events = client.get(f"/v1/jobs/{job_id}/events", headers=headers)
         assert events.status_code == 200
         event_list = events.json()["events"]
         assert [event["event_type"] for event in event_list] == EXPECTED_EVENT_SEQUENCE
@@ -113,11 +115,11 @@ def test_ship_detection_job_routes_and_simulates():
         assert route_event["payload"]["status_to"] == "routing"
         assert route_event["payload"]["selected_node_id"]
 
-        result = client.get(f"/v1/jobs/{job_id}/result")
+        result = client.get(f"/v1/jobs/{job_id}/result", headers=headers)
         assert result.status_code == 200
         assert result.json()["result"]["confidence"] == 0.91
 
-        detail = client.get(f"/v1/jobs/{job_id}")
+        detail = client.get(f"/v1/jobs/{job_id}", headers=headers)
         assert detail.status_code == 200
         assert detail.json()["result_summary"].startswith("Detected 17")
 
@@ -126,10 +128,8 @@ def test_worker_pipeline_drives_job_to_complete():
     _reset_job_data()
 
     with TestClient(app) as client:
-        created = client.post("/v1/jobs", json=PAYLOAD)
-        assert created.status_code == 201
-        job_id = created.json()["job"]["id"]
-        assert created.json()["job"]["status"] == "queued"
+        job_id, headers = create_private_job(client, PAYLOAD)
+        assert client.get(f"/v1/jobs/{job_id}", headers=headers).json()["job"]["status"] == "queued"
 
         # Run the worker's task body directly (no Redis needed).
         outcome = run_pipeline_sync(job_id)
@@ -137,7 +137,7 @@ def test_worker_pipeline_drives_job_to_complete():
         assert outcome["result"]["summary"].startswith("Detected 17")
 
         # Worker output persisted and is visible through the API.
-        detail = client.get(f"/v1/jobs/{job_id}")
+        detail = client.get(f"/v1/jobs/{job_id}", headers=headers)
         assert detail.json()["job"]["status"] == "complete"
         assert detail.json()["routing_decision"]["selected_node_id"]
 

@@ -50,6 +50,11 @@ class Job(Base):
     is_example: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
     )
+    # SHA-256 hex of the one-time access token returned on create (private jobs).
+    # Example jobs leave this null and remain publicly readable by ID.
+    access_token_hash: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
 
 
 class ComputeNode(Base):

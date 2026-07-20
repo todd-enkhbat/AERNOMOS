@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: S (next)
+Current phase: T (next)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -21,9 +21,10 @@ Current phase: S (next)
 - Phase P: Mission feedback + design-partner capture — private tables, honeypot + rate limit, admin export, `MissionFeedbackCapture` on `/missions/[id]` after plans exist, `show_leads_summary` CLI
 - Phase Q: Mission-planner documentation (8 docs under `orbital-cortex/docs/`) + Python SDK `missions` namespace with a typed `NomosError` hierarchy mapped to real API error codes; doc-drift + AGENTS-link checks
 - Phase R: Accelerator-ready curated demos 1–3 — pinned real STAC fixtures, one-command seed reset, cold/back-to-back/offline/disclosure tests, finished + timed 90s script
+- Phase S: Security review + hardening — `orbital-cortex/docs/security-review.md`, job access tokens, mission rate limits, SSRF allowlist, log redaction, production secret gate
 
 ## In progress
-None — Phase R complete. Next is Phase S (do not start unless asked).
+None — Phase S complete. Next is Phase T (do not start unless asked).
 
 ## Blockers
 None
@@ -41,7 +42,10 @@ None
 - Phase C: production cookies are HttpOnly + Secure + SameSite=Lax with optional `Domain=.nomosorbital.com`; local dev uses host-only cookies via Next.js `/api/oc/*` rewrite proxy.
 - Phase C: curated public examples use `missions.is_example=true` and a stable examples org UUID; private lists exclude them.
 - Phase C: legacy `/jobs` remains reachable by direct URL for the demo but is removed from primary nav.
-- Follow-up: public `GET /v1/jobs` lists curated `is_example` jobs only; visitor submissions are hidden from the list (still openable by ID). Seed promotes up to 3 complete jobs as examples when none exist.
+- Follow-up: public `GET /v1/jobs` lists curated `is_example` jobs only; visitor
+  submissions require `X-Nomos-Job-Token` (one-time `access_token` on create).
+- Phase S: private jobs no longer readable by ID alone; production refuses default
+  `dev-only-*` signing/analytics salts; remote URL allowlist gates future fetches.
 - Phase F: primary STAC provider is Microsoft Planetary Computer (`sentinel-1-grd`; optional `sentinel-2-l2a`). Provider id string: `microsoft-planetary-computer`.
 - Phase F: Earth Search (Element84) is a registered stub behind the same `DataCatalogProvider` interface but unused by discover.
 - Phase F: catalog metadata persisted as `truth_status=PROVIDER_REPORTED`; never fabricate items on upstream failure (503 `catalog_unavailable` / 502 `catalog_not_found`).
@@ -260,7 +264,8 @@ Tests run (refinement):
 ## Unresolved issues / risks
 - Cross-origin cookie auth in production still requires `SESSION_COOKIE_DOMAIN=.nomosorbital.com` + CORS credentials (configured) on Fly; Vercel must call `api.nomosorbital.com` with credentials or use a same-origin proxy.
 - Local mission APIs rely on `/api/oc` rewrite; job demo still uses `NEXT_PUBLIC_API_BASE_URL` without cookies.
-- `GET /v1/jobs` now returns curated `is_example` jobs only; non-example rows remain in DB and reachable by ID (not deleted).
+- `GET /v1/jobs` returns curated `is_example` jobs only; private visitor jobs require
+  `X-Nomos-Job-Token` (Phase S). Legacy rows without a token hash are not publicly readable.
 - Live Planetary Computer search depends on upstream availability; SAS signing for asset download is deferred to Phase M.
 - Discover defaults to last 30 days when mission has no start/end times.
 - Live TLE refresh depends on CelesTrak availability; worker cron falls back to pinned snapshot with `STALE`.
@@ -569,8 +574,57 @@ Self-audit highlights (2026-07-17):
 - Working tree may still contain uncommitted Phase Q SDK/docs alongside Phase R; commit
   when asked (message: `feat: add accelerator-ready mission planning demos`).
 
+---
+
+## Phase S — work completed
+- Wrote `orbital-cortex/docs/security-review.md` with pass/fail/fix checklist for all
+  Phase S investigation areas.
+- **HIGH fix:** private visitor jobs require one-time `access_token` (SHA-256 stored);
+  `X-Nomos-Job-Token` gates GET/simulate/result/routing/detections/scene. Example jobs
+  remain public by ID. Alembic `c3d4e5f6a7b8`.
+- Rate limits on mission create, discover, export, execute (plus existing jobs/leads).
+- SSRF defense: `app/security/remote_urls.py` (HTTPS + PC/Azure blob allowlist + private
+  IP block); wired into remote `input_ref` rejection path.
+- Share permissions forced to `["read"]`; share query param deprecated (prefer header).
+- Request logs redact `/v1/share/{token}` paths; production refuses `dev-only-*` signing
+  / analytics salts.
+- Web client stores job tokens in `sessionStorage` and sends the job header.
+- Security tests: cross-session deny, share revoke, enumeration resistance, SSRF blocked
+  hosts, path redaction, write-permission reject.
+
+## Phase S — files changed
+- `orbital-cortex/docs/security-review.md` (new)
+- `orbital-cortex/apps/api/app/security/{__init__,remote_urls,redaction}.py` (new)
+- `orbital-cortex/apps/api/app/deps/jobs.py` (new)
+- `orbital-cortex/apps/api/migrations/versions/c3d4e5f6a7b8_job_access_token.py` (new)
+- `orbital-cortex/apps/api/tests/{test_security_phase_s,job_auth}.py` (new)
+- `orbital-cortex/apps/api/app/{main,db/orm,core/storage,core/config,core/ratelimit,core/missions,deps/auth,execution/refs,routes/jobs,routes/results,routes/routing,routes/missions,models/job,models/mission}.py`
+- `orbital-cortex/apps/api/tests/{test_api,test_platform,test_routing_audit,test_examples_phase_l}.py`
+- `orbital-cortex/apps/web/lib/api.ts`, `lib/generated/api-types.ts`, `openapi.json`
+- `orbital-cortex/apps/api/.env.example`, `orbital-cortex/docs/privacy-model.md`, `AGENTS.md`
+- `docs/BUILD_PROGRESS.md`
+
+## Phase S — tests run
+```
+pytest tests/test_security_phase_s.py -q          # 7 passed
+pytest tests -q                                   # 138 passed, 1 skipped
+ruff check (Phase S files)                        # pass
+npm run lint                                      # pass
+npm run build                                     # pass
+```
+
+## Phase S — decisions
+- Job IDOR closed with capability tokens rather than binding legacy jobs to anonymous
+  sessions (keeps DemoLauncher flow with sessionStorage).
+- Remote STAC asset download remains disabled; allowlist is ready for when it is enabled.
+- Share path tokens stay in product URLs; app logs redact them.
+
+## Phase S — residual
+- Opportunistic session cleanup only (no scheduled retention sweeper).
+- Confirm Fly overrides `ARTIFACT_SIGNING_SECRET` / `ANALYTICS_HASH_SALT` in production.
+
 ## Next phase
-Phase S — see [`docs/NOMOS_BUILD_PLAN.md`](NOMOS_BUILD_PLAN.md) and
+Phase T — see [`docs/NOMOS_BUILD_PLAN.md`](NOMOS_BUILD_PLAN.md) and
 [`docs/phase-prompts/README.md`](phase-prompts/README.md).
 
-**Do not start Phase S unless asked.**
+**Do not start Phase T unless asked.**

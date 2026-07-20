@@ -67,6 +67,19 @@ def resolve_input_ref(input_ref: str, *, mission_id: uuid.UUID) -> ResolvedInput
             )
         return ResolvedInputRef(kind="artifact", location=key)
 
+    if input_ref.startswith(("http://", "https://", "ftp://")):
+        # Remote fetches are gated by app.security.remote_urls; Phase M does
+        # not download STAC assets yet — reject early with an explicit error.
+        from app.security.remote_urls import RemoteUrlError, assert_remote_url_allowed
+
+        try:
+            assert_remote_url_allowed(input_ref)
+        except RemoteUrlError as exc:
+            raise ExecutionValidationError(str(exc)) from exc
+        raise ExecutionValidationError(
+            "Remote URL input_refs are not enabled; use fixture: or artifact:"
+        )
+
     raise ExecutionValidationError(
         "input_ref must start with 'fixture:' (allowlisted fixture directory) "
         "or 'artifact:' (an artifact of this mission)"

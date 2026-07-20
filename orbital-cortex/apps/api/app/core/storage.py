@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core.pagination import decode_cursor
 from app.core.state import validate_transition
+from app.core.tokens import hash_token, mint_token
 from app.db.orm import Job, JobEvent, Result, RoutingCandidate, RoutingDecision
 
 
@@ -40,8 +41,16 @@ def _job_to_dict(job: Job) -> Dict[str, Any]:
     }
 
 
-def create_job(session: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
+def create_job(
+    session: Session, payload: Dict[str, Any]
+) -> tuple[Dict[str, Any], str]:
+    """Create a private visitor job.
+
+    Returns ``(job_dict, raw_access_token)``. The raw token is shown once;
+    only its SHA-256 hash is stored.
+    """
     timestamp = utc_now()
+    raw_token = mint_token()
     job = Job(
         id=new_id("job"),
         schema_version=int(payload.get("schema_version", 1)),
@@ -57,10 +66,18 @@ def create_job(session: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
         selected_route_id=None,
         # Public create path never marks examples; seed/ops set this explicitly.
         is_example=False,
+        access_token_hash=hash_token(raw_token),
     )
     session.add(job)
     session.flush()
-    return _job_to_dict(job)
+    return _job_to_dict(job), raw_token
+
+
+def get_job_access_token_hash(session: Session, job_id: str) -> Optional[str]:
+    job = session.get(Job, job_id)
+    if job is None:
+        return None
+    return getattr(job, "access_token_hash", None)
 
 
 def get_job(session: Session, job_id: str) -> Optional[Dict[str, Any]]:

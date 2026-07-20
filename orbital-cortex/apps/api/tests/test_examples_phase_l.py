@@ -95,7 +95,7 @@ def test_reset_preserves_example_jobs_and_missions():
     session = SessionLocal(bind=get_engine())
     try:
         ensure_example_missions(session)
-        visitor = create_job(
+        visitor, _visitor_token = create_job(
             session,
             {
                 "job_type": "ship_detection",
@@ -111,7 +111,7 @@ def test_reset_preserves_example_jobs_and_missions():
         )
         visitor_id = visitor["id"]
 
-        example = create_job(
+        example, _example_token = create_job(
             session,
             {
                 "job_type": "ship_detection",

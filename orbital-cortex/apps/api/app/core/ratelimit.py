@@ -24,3 +24,19 @@ def jobs_rate_limit() -> str:
 
 def leads_rate_limit() -> str:
     return get_settings().rate_limit_leads
+
+
+def missions_rate_limit() -> str:
+    return get_settings().rate_limit_missions
+
+
+def discover_rate_limit() -> str:
+    return get_settings().rate_limit_discover
+
+
+def export_rate_limit() -> str:
+    return get_settings().rate_limit_export
+
+
+def execute_rate_limit() -> str:
+    return get_settings().rate_limit_execute

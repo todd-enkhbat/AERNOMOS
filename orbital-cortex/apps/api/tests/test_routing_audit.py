@@ -11,6 +11,7 @@ from app.db import SessionLocal, get_engine
 from app.main import app, run_migrations
 from app.services.scenes import bbox_query_detections
 from app.workers.executor import run_pipeline_sync
+from tests.job_auth import create_private_job
 
 
 def _reset_job_data() -> None:
@@ -40,21 +41,19 @@ def test_routing_replay_is_byte_identical():
     _reset_job_data()
 
     with TestClient(app) as client:
-        created = client.post("/v1/jobs", json=PAYLOAD)
-        assert created.status_code == 201
-        job_id = created.json()["job"]["id"]
+        job_id, headers = create_private_job(client, PAYLOAD)
 
-        simulated = client.post(f"/v1/simulate/run/{job_id}")
+        simulated = client.post(f"/v1/simulate/run/{job_id}", headers=headers)
         assert simulated.status_code == 200
 
-        routing = client.get(f"/v1/jobs/{job_id}/routing")
+        routing = client.get(f"/v1/jobs/{job_id}/routing", headers=headers)
         assert routing.status_code == 200
         decision = routing.json()["routing_decision"]
         assert decision["decision_hash"]
         assert decision["input_hash"]
         assert decision["config_version"]
 
-        replay = client.post(f"/v1/jobs/{job_id}/replay")
+        replay = client.post(f"/v1/jobs/{job_id}/replay", headers=headers)
         assert replay.status_code == 200
         replay_data = replay.json()
         assert replay_data["match"] is True
@@ -117,11 +116,10 @@ def test_detections_geojson_and_postgis_bbox():
     _reset_job_data()
 
     with TestClient(app) as client:
-        created = client.post("/v1/jobs", json=PAYLOAD)
-        job_id = created.json()["job"]["id"]
+        job_id, headers = create_private_job(client, PAYLOAD)
         run_pipeline_sync(job_id)
 
-        detections = client.get(f"/v1/jobs/{job_id}/detections")
+        detections = client.get(f"/v1/jobs/{job_id}/detections", headers=headers)
         assert detections.status_code == 200
         assert detections.headers["content-type"].startswith("application/geo+json")
         geojson = detections.json()
@@ -131,7 +129,7 @@ def test_detections_geojson_and_postgis_bbox():
         assert first["geometry"]["type"] == "Point"
         assert "dark_ship" in first["properties"]
 
-        scene = client.get(f"/v1/jobs/{job_id}/scene")
+        scene = client.get(f"/v1/jobs/{job_id}/scene", headers=headers)
         assert scene.status_code == 200
         assert scene.json()["scene"]["sensor"] == "Sentinel-1"
         assert scene.json()["scene"]["stac_item_id"]

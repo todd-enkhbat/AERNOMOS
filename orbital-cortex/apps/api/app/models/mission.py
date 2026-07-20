@@ -160,6 +160,13 @@ class ShareLinkCreate(BaseModel):
     expires_at: Optional[str] = None
     permissions: List[str] = Field(default_factory=lambda: ["read"])
 
+    @field_validator("permissions")
+    @classmethod
+    def read_only_permissions(cls, value: List[str]) -> List[str]:
+        if value != ["read"]:
+            raise ValueError("Share link permissions may only be ['read']")
+        return value
+
 
 class ShareLinkOut(BaseModel):
     id: str

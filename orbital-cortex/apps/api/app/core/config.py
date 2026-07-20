@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     rate_limit_jobs: str = "10/minute"
     # Feedback + design-partner submissions (per client IP).
     rate_limit_leads: str = "5/hour"
+    # Mission planner write/costly paths (per client IP).
+    rate_limit_missions: str = "30/minute"
+    rate_limit_discover: str = "20/minute"
+    rate_limit_export: str = "10/minute"
+    rate_limit_execute: str = "10/minute"
     rate_limit_enabled: bool = True
 
     # Sentry error reporting; disabled when the DSN is empty.
