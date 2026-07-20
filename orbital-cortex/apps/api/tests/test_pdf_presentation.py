@@ -65,7 +65,11 @@ def _sample_doc() -> dict:
             }
         ],
         "assumptions": [
-            {"kind": "planner_meta", "pattern": "existing_imagery_cloud", "planner_config_version": "2026.07.17-1"},
+            {
+                "kind": "planner_meta",
+                "pattern": "existing_imagery_cloud",
+                "planner_config_version": "2026.07.17-1",
+            },
         ],
         "source_evidence": [
             {

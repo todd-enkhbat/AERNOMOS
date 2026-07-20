@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import statistics
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Dict
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -76,13 +76,14 @@ def compute_analytics_summary(db: Session) -> dict[str, Any]:
     ]
     catalog_failures = _event_count(db, EventName.PLANNING_FAILURE.value)
 
-    missions_by_status = dict(
-        db.execute(
+    missions_by_status: Dict[str, int] = {
+        str(status): int(count)
+        for status, count in db.execute(
             select(Mission.status, func.count())
             .where(Mission.is_example.is_(False))
             .group_by(Mission.status)
         ).all()
-    )
+    }
 
     export_failures = int(
         db.scalar(

@@ -45,8 +45,8 @@ from app.core.config import get_settings
 from app.db import SessionLocal, get_engine
 from app.db.mission_orm import AnonymousSession, MissionDataCandidate
 from app.db.truth import TruthStatus
-from app.main import app, run_migrations
 from app.deps.admin import verify_admin_token
+from app.main import app, run_migrations
 
 LEAK_MARKER = "LEAK_MARKER_PHASE_O_XYZZY_42"
 LEAK_LON = -73.991234567

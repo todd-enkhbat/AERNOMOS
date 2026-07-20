@@ -139,11 +139,11 @@ def test_back_to_back_demo_1(db) -> None:
 
 
 def test_back_to_back_demo_3_cpu(db) -> None:
-    first = reset_accelerator_demo(db, 3, live=False)
+    reset_accelerator_demo(db, 3, live=False)
     db.commit()
     exec1 = run_demo_cpu_execution(db, demo_number=3)
     db.commit()
-    second = reset_accelerator_demo(db, 3, live=False)
+    reset_accelerator_demo(db, 3, live=False)
     db.commit()
     exec2 = run_demo_cpu_execution(db, demo_number=3)
     db.commit()
@@ -228,8 +228,6 @@ def test_disclosure_simulated_steps_visible_in_payload(db) -> None:
 
 
 def test_fixture_provider_serves_pinned_real_items() -> None:
-    from pathlib import Path
-
     from app.catalog.fixture_provider import FIXTURES_DIR
 
     provider = FixtureCatalogProvider()
@@ -247,4 +245,3 @@ def test_fixture_provider_serves_pinned_real_items() -> None:
     _, meta = load_fixture_file(FIXTURES_DIR / str(ACCELERATOR_DEMOS[1]["fixture"]))
     assert meta.get("source") == "microsoft-planetary-computer"
     assert meta.get("captured_at")
-    _ = Path  # silence unused if any

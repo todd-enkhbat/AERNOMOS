@@ -4,6 +4,13 @@ Use this reference before publishing product copy. Specificity is a feature.
 
 ## Safe top-level description
 
+**Allowed product claim:**
+
+> Nomos turns a space-data objective into a source-backed infrastructure plan.
+> It searches real public data catalogs, calculates orbital and communication
+> constraints, compares feasible execution paths, explains assumptions, and
+> produces a shareable technical mission brief.
+
 Nomos Orbital plans how space-data workloads should move across satellite,
 ground, and cloud infrastructure. Visitors describe a mission and constraints;
 Nomos searches real public catalogs, calculates contact opportunities, compares
@@ -50,6 +57,17 @@ Do not claim these as live product capabilities:
 
 Safe language: **requires provider integration**, **unavailable until connected**,
 **labeled on the plan**.
+
+## Forbidden claims
+
+Do not write or imply:
+
+- AI ran onboard a satellite
+- Satellite was tasked
+- Ground station reserved
+- Commercial pricing guaranteed
+- Private provider availability is live
+- Execution occurred unless a real adapter completed it
 
 ## Truth classes
 

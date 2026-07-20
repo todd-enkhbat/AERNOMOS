@@ -190,12 +190,8 @@ def window_to_api(
     flat = _window_to_dict(window)
     snap_id = snapshot_id or flat["tle_snapshot_id"] or "unknown"
     source = f"CelesTrak TLE snapshot {snap_id}"
-    common = {
-        "source": source,
-        "retrieved_at": retrieved_at,
-        "method": CONTACT_WINDOW_METHOD_DISPLAY,
-        "explanation": EXPLANATION_CALCULATED_CONTACT,
-    }
+    method = CONTACT_WINDOW_METHOD_DISPLAY
+    explanation = EXPLANATION_CALCULATED_CONTACT
     return {
         "id": flat["id"],
         "satellite_id": flat["satellite_id"],
@@ -204,30 +200,45 @@ def window_to_api(
         "aos_utc": provenanced(
             flat["aos_utc"],
             TruthStatus.CALCULATED,
+            source=source,
+            retrieved_at=retrieved_at,
             effective_at=flat["aos_utc"],
-            **common,
+            method=method,
+            explanation=explanation,
         ),
         "culminate_utc": provenanced(
             flat["culminate_utc"],
             TruthStatus.CALCULATED,
+            source=source,
+            retrieved_at=retrieved_at,
             effective_at=flat["culminate_utc"],
-            **common,
+            method=method,
+            explanation=explanation,
         ),
         "los_utc": provenanced(
             flat["los_utc"],
             TruthStatus.CALCULATED,
+            source=source,
+            retrieved_at=retrieved_at,
             effective_at=flat["los_utc"],
-            **common,
+            method=method,
+            explanation=explanation,
         ),
         "max_elevation_deg": provenanced(
             flat["max_elevation_deg"],
             TruthStatus.CALCULATED,
-            **common,
+            source=source,
+            retrieved_at=retrieved_at,
+            method=method,
+            explanation=explanation,
         ),
         "duration_s": provenanced(
             flat["duration_s"],
             TruthStatus.CALCULATED,
-            **common,
+            source=source,
+            retrieved_at=retrieved_at,
+            method=method,
+            explanation=explanation,
         ),
         "est_downlink_mb": provenanced(
             flat["est_downlink_mb"],

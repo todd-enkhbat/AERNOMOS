@@ -197,7 +197,10 @@ def _step_narrative(step: Dict[str, Any]) -> str:
     if feas == "conditional":
         if step.get("rejection_reason"):
             return humanize_rejection(step.get("rejection_reason"))
-        return "This step depends on connecting a provider that is not yet available in your account."
+        return (
+            "This step depends on connecting a provider that is not yet "
+            "available in your account."
+        )
     if feas == "rejected":
         return humanize_rejection(step.get("rejection_reason")) or (
             "This step cannot be executed under current constraints."
@@ -307,7 +310,10 @@ def _missing_integration_rows(items: List[str]) -> List[Dict[str, str]]:
                 "integration": item,
                 "impact": guidance.get(
                     item,
-                    "This capability is not connected. Related plan steps remain conditional or unavailable.",
+                    (
+                        "This capability is not connected. Related plan steps "
+                        "remain conditional or unavailable."
+                    ),
                 ),
             }
         )

@@ -21,12 +21,8 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.catalog import service as catalog_service
-from app.catalog.fixture_provider import (
-    FixtureCatalogProvider,
-    items_from_fixture_name,
-)
+from app.catalog.fixture_provider import items_from_fixture_name
 from app.catalog.planetary_computer import PlanetaryComputerCatalog
-from app.catalog.types import CatalogSearchQuery
 from app.core.config import get_settings
 from app.core.tokens import hash_token
 from app.db.mission_orm import (

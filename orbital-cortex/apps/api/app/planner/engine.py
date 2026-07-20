@@ -382,7 +382,7 @@ def _write_evidence(
 
     # Orbital / TLE evidence for downlink patterns
     if draft.tle_snapshot_id or ctx.tle_snapshot_id:
-        snap = {
+        snap: Dict[str, Any] = {
             "snapshot_id": draft.tle_snapshot_id or ctx.tle_snapshot_id,
             "truth_status": draft.orbital_truth_status or ctx.orbital_truth_status,
             "retrieved_at": now.isoformat(),

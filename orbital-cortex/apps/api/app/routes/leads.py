@@ -6,7 +6,6 @@ No public read endpoints — leads and feedback are private.
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
-from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from pydantic import ValidationError
@@ -120,10 +119,14 @@ def submit_design_partner_request(
     try:
         payload = DesignPartnerRequestCreate.model_validate(cleaned)
     except ValidationError as exc:
-        first = exc.errors()[0] if exc.errors() else {}
-        loc = ".".join(str(p) for p in first.get("loc", ()) if p != "body")
-        msg = first.get("msg", "Request validation failed.")
-        message = f"{loc}: {msg}" if loc else str(msg)
+        errors = exc.errors()
+        if errors:
+            first = errors[0]
+            loc = ".".join(str(p) for p in first.get("loc", ()) if p != "body")
+            msg = first.get("msg", "Request validation failed.")
+            message = f"{loc}: {msg}" if loc else str(msg)
+        else:
+            message = "Request validation failed."
         raise _api_error(422, "validation_error", message) from exc
 
     if payload.mission_id is not None:
@@ -135,7 +138,3 @@ def submit_design_partner_request(
     db.commit()
     db.refresh(row)
     return {"request": leads_service.design_partner_to_model(row)}
-
-
-# Keep UUID imported for OpenAPI / type checkers.
-_ = UUID

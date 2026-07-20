@@ -1,6 +1,6 @@
 # Nomos Build Progress
 
-Current phase: T (next)
+Current phase: **complete** (A–T finished)
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -22,12 +22,14 @@ Current phase: T (next)
 - Phase Q: Mission-planner documentation (8 docs under `orbital-cortex/docs/`) + Python SDK `missions` namespace with a typed `NomosError` hierarchy mapped to real API error codes; doc-drift + AGENTS-link checks
 - Phase R: Accelerator-ready curated demos 1–3 — pinned real STAC fixtures, one-command seed reset, cold/back-to-back/offline/disclosure tests, finished + timed 90s script
 - Phase S: Security review + hardening — `orbital-cortex/docs/security-review.md`, job access tokens, mission rate limits, SSRF allowlist, log redaction, production secret gate
+- Phase T: Final validation and release documentation — `docs/final-validation-report.md`; SOUL / AGENTS / capability-truth aligned to allowed claim
 
 ## In progress
-None — Phase S complete. Next is Phase T (do not start unless asked).
+None — mission-planner build complete.
 
 ## Blockers
-None
+- Production web (Vercel / `main`) is behind the mission-planner branch: `/plan` and `/examples` 404 on nomosorbital.com until merge + redeploy.
+- Production API `/readyz` reports `redis: false` — fix Upstash `REDIS_URL` and ensure worker machine is running before relying on ARQ / TLE cron.
 
 ## Decisions
 - Focus on mission planning before GPU execution.
@@ -90,6 +92,39 @@ None
 - Phase M: plan steps flip `planned → running → executed/failed` via a new `mission_plan_steps.execution_status` column (+ `executed_at`); measured metrics land in `source_metadata.execution.observed` with `truth_status=OBSERVED`. Estimates on the step are untouched — observed values are additive, never overwrite planning provenance.
 - Phase M: outputs upload to the object store only after the task succeeds, so failed jobs cannot leave partial artifacts.
 - Phase R: accelerator demos default to pinned real Planetary Computer STAC fixtures (`--live` opt-in); Demo 3 CPU crops `fixture:sample.tif` with OBSERVED metrics (not a STAC download); private stable demo session tokens enable owner-only execute without cookie surgery.
+- Phase T: deploy only on explicit user request; highest-priority next provider integration is **KP Labs Smart Mission Lab**.
+
+## Phase T — work completed
+- Ran full validation suite (ruff, mypy, pytest, empty-DB + current-DB migrations, web lint/typecheck/build)
+- Manual private-mission acceptance flow against local API + local prod web
+- Wrote `docs/final-validation-report.md` (features, tests, limitations, simulations, deploy, demo, next provider)
+- Aligned `SOUL.md`, `AGENTS.md`, `capability-truth.md` with the allowed final claim
+- Fixed CI-blocking lint/type debt uncovered by the suite (ruff + mypy clean)
+
+## Phase T — files changed
+- `docs/final-validation-report.md` (new)
+- `docs/BUILD_PROGRESS.md`
+- `SOUL.md`, `AGENTS.md`, `orbital-cortex/docs/capability-truth.md`
+- Lint/type fixes: `app/demos/accelerator.py`, `app/exports/presentation.py`, `app/services/contact_windows.py`, `app/planner/engine.py`, `app/analytics/metrics.py`, `app/routes/leads.py`, `app/routes/missions.py`, `tests/test_accelerator_demos_phase_r.py`, `tests/test_analytics_phase_o.py`, `tests/test_pdf_presentation.py`
+
+## Phase T — tests run
+```
+ruff check app tests scripts                         # pass
+mypy app                                             # pass (119 files)
+pytest tests -q                                      # 137 passed, 2 skipped
+alembic upgrade head (current DB)                    # pass (c3d4e5f6a7b8)
+alembic upgrade head (empty PostGIS DB)              # pass (full chain)
+npm run lint && npx tsc --noEmit && npm run build    # pass
+```
+Manual API acceptance: session → mission → discover → plans → JSON export → share → isolation → CPU OBSERVED → feedback → design-partner. PDF export blocked on host without WeasyPrint system libs (Docker/Fly have them).
+
+## Phase T — unresolved / residual
+- Merge + deploy mission-planner branch to production web
+- Restore production Redis (`rediss://`) + confirm worker for ARQ / TLE cron
+- Host PDF generation requires pango/cairo/gobject (already in Dockerfile)
+
+## Next phase
+None — mission-planner phases A–T are complete. Recommended follow-up: merge/deploy, fix Redis, then KP Labs sandbox integration.
 
 ## Phase L — work completed
 - Upgraded Phase L agent prompt with concrete file targets, seed/reset rules, and tests
@@ -622,9 +657,4 @@ npm run build                                     # pass
 ## Phase S — residual
 - Opportunistic session cleanup only (no scheduled retention sweeper).
 - Confirm Fly overrides `ARTIFACT_SIGNING_SECRET` / `ANALYTICS_HASH_SALT` in production.
-
-## Next phase
-Phase T — see [`docs/NOMOS_BUILD_PLAN.md`](NOMOS_BUILD_PLAN.md) and
-[`docs/phase-prompts/README.md`](phase-prompts/README.md).
-
-**Do not start Phase T unless asked.**
+- See Phase T report for production web lag + Redis readiness.

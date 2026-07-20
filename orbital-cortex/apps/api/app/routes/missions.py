@@ -37,7 +37,6 @@ from app.db.mission_orm import (
     ExecutionJob,
     Mission,
     MissionDataCandidate,
-    MissionExport,
     MissionPlan,
     MissionPlanStep,
     ShareLink,
@@ -866,8 +865,3 @@ def get_pdf_export(
         raise _api_error(404, "export_not_found", "Export not found.")
     db.commit()
     return {"export": export_service.export_to_dict(row)}
-
-
-# Keep owner type referenced for mypy/docs.
-_ = AnonymousSession
-_ = MissionExport

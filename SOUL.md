@@ -28,6 +28,7 @@ Intellectual lineage: Carl Sagan and the Golden Record, engineering humility, Ru
 
 - **Primary tagline:** *Order, for the orbital age.*
 - **Category:** Mission planning for space-data workloads.
+- **Final product claim (allowed):** Nomos turns a space-data objective into a source-backed infrastructure plan. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief.
 - **Elevator:** Nomos plans how space-data workloads should move across satellite, ground, and cloud infrastructure, using real orbital and catalog data, and returns a source-backed execution plan.
 - **Homepage promise:** Describe your mission and constraints. Nomos generates a source-backed execution plan using real orbital and infrastructure data.
 - **Developer framing (docs / deep technical only):** A control plane for routing and audit when jobs are submitted. Do not lead the homepage with this language.
@@ -97,6 +98,15 @@ Browse curated examples at `/examples` before or instead of building a private p
 4. **Return** — SIMULATED GeoJSON plus signed URLs
 
 Label this path **Historical simulation demo**. It is not the primary CTA.
+
+### Forbidden claims (must not appear)
+
+- AI ran onboard a satellite
+- Satellite was tasked
+- Ground station reserved
+- Commercial pricing guaranteed
+- Private provider availability is live
+- Execution occurred unless a real adapter completed it
 
 ### Demo truth
 
@@ -201,6 +211,7 @@ Avoid neon SaaS gradients, excessive blur, cartoon rockets, stock astronaut imag
 
 ## 8. Approved copy
 
+- **Final claim:** Nomos turns a space-data objective into a source-backed infrastructure plan. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief.
 - **Hero:** Plan how your space-data workload should move across satellite, ground, and cloud infrastructure.
 - **Hero subline:** Describe your mission and constraints. Nomos generates a source-backed execution plan using real orbital and infrastructure data.
 - **Primary CTA:** Build a mission plan
