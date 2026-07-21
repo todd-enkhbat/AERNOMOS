@@ -82,8 +82,8 @@ def sync_detailed(
 ) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
     """List curated example jobs (cursor-paginated)
 
-     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
-    by ID but are not listed.
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions are never listed
+    and require an access token by ID.
 
     Args:
         limit (int | Unset):  Default: 50.
@@ -117,8 +117,8 @@ def sync(
 ) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
     """List curated example jobs (cursor-paginated)
 
-     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
-    by ID but are not listed.
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions are never listed
+    and require an access token by ID.
 
     Args:
         limit (int | Unset):  Default: 50.
@@ -147,8 +147,8 @@ async def asyncio_detailed(
 ) -> Response[ErrorResponse | HTTPValidationError | JobsListResponse]:
     """List curated example jobs (cursor-paginated)
 
-     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
-    by ID but are not listed.
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions are never listed
+    and require an access token by ID.
 
     Args:
         limit (int | Unset):  Default: 50.
@@ -180,8 +180,8 @@ async def asyncio(
 ) -> ErrorResponse | HTTPValidationError | JobsListResponse | None:
     """List curated example jobs (cursor-paginated)
 
-     Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable
-    by ID but are not listed.
+     Returns only curated public demo examples (`is_example=true`). Visitor submissions are never listed
+    and require an access token by ID.
 
     Args:
         limit (int | Unset):  Default: 50.

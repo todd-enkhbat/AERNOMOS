@@ -89,7 +89,7 @@ def sync_detailed(
     """Create a private share link for a mission you own
 
      Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-
-    Token` or `share_token` query param.
+    Token` (preferred). The `share_token` query param remains for legacy bookmarks but is deprecated.
 
     Args:
         mission_id (str):
@@ -124,7 +124,7 @@ def sync(
     """Create a private share link for a mission you own
 
      Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-
-    Token` or `share_token` query param.
+    Token` (preferred). The `share_token` query param remains for legacy bookmarks but is deprecated.
 
     Args:
         mission_id (str):
@@ -154,7 +154,7 @@ async def asyncio_detailed(
     """Create a private share link for a mission you own
 
      Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-
-    Token` or `share_token` query param.
+    Token` (preferred). The `share_token` query param remains for legacy bookmarks but is deprecated.
 
     Args:
         mission_id (str):
@@ -187,7 +187,7 @@ async def asyncio(
     """Create a private share link for a mission you own
 
      Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-
-    Token` or `share_token` query param.
+    Token` (preferred). The `share_token` query param remains for legacy bookmarks but is deprecated.
 
     Args:
         mission_id (str):

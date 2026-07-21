@@ -101,7 +101,8 @@ def sync_detailed(
 
     Args:
         mission_id (str):
-        share_token (None | str | Unset):
+        share_token (None | str | Unset): Deprecated: prefer X-Nomos-Share-Token header to avoid
+            token leakage via Referer and access logs.
         x_nomos_share_token (None | str | Unset):
 
     Raises:
@@ -136,7 +137,8 @@ def sync(
 
     Args:
         mission_id (str):
-        share_token (None | str | Unset):
+        share_token (None | str | Unset): Deprecated: prefer X-Nomos-Share-Token header to avoid
+            token leakage via Referer and access logs.
         x_nomos_share_token (None | str | Unset):
 
     Raises:
@@ -166,7 +168,8 @@ async def asyncio_detailed(
 
     Args:
         mission_id (str):
-        share_token (None | str | Unset):
+        share_token (None | str | Unset): Deprecated: prefer X-Nomos-Share-Token header to avoid
+            token leakage via Referer and access logs.
         x_nomos_share_token (None | str | Unset):
 
     Raises:
@@ -199,7 +202,8 @@ async def asyncio(
 
     Args:
         mission_id (str):
-        share_token (None | str | Unset):
+        share_token (None | str | Unset): Deprecated: prefer X-Nomos-Share-Token header to avoid
+            token leakage via Referer and access logs.
         x_nomos_share_token (None | str | Unset):
 
     Raises:

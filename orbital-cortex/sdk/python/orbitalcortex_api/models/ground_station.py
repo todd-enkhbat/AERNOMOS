@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.ground_station_source_metadata import GroundStationSourceMetadata
+
 
 T = TypeVar("T", bound="GroundStation")
 
@@ -23,9 +27,11 @@ class GroundStation:
         location (str):
         longitude (float):
         name (str):
+        access_level (str | Unset):  Default: 'public_information'.
         altitude_m (float | Unset):  Default: 0.0.
         min_elevation_deg (float | Unset):  Default: 10.0.
         provider (str | Unset):  Default: ''.
+        source_metadata (GroundStationSourceMetadata | Unset):
     """
 
     availability: float
@@ -36,9 +42,11 @@ class GroundStation:
     location: str
     longitude: float
     name: str
+    access_level: str | Unset = "public_information"
     altitude_m: float | Unset = 0.0
     min_elevation_deg: float | Unset = 10.0
     provider: str | Unset = ""
+    source_metadata: GroundStationSourceMetadata | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,11 +66,17 @@ class GroundStation:
 
         name = self.name
 
+        access_level = self.access_level
+
         altitude_m = self.altitude_m
 
         min_elevation_deg = self.min_elevation_deg
 
         provider = self.provider
+
+        source_metadata: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.source_metadata, Unset):
+            source_metadata = self.source_metadata.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -78,17 +92,23 @@ class GroundStation:
                 "name": name,
             }
         )
+        if access_level is not UNSET:
+            field_dict["access_level"] = access_level
         if altitude_m is not UNSET:
             field_dict["altitude_m"] = altitude_m
         if min_elevation_deg is not UNSET:
             field_dict["min_elevation_deg"] = min_elevation_deg
         if provider is not UNSET:
             field_dict["provider"] = provider
+        if source_metadata is not UNSET:
+            field_dict["source_metadata"] = source_metadata
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.ground_station_source_metadata import GroundStationSourceMetadata
+
         d = dict(src_dict)
         availability = d.pop("availability")
 
@@ -106,11 +126,20 @@ class GroundStation:
 
         name = d.pop("name")
 
+        access_level = d.pop("access_level", UNSET)
+
         altitude_m = d.pop("altitude_m", UNSET)
 
         min_elevation_deg = d.pop("min_elevation_deg", UNSET)
 
         provider = d.pop("provider", UNSET)
+
+        _source_metadata = d.pop("source_metadata", UNSET)
+        source_metadata: GroundStationSourceMetadata | Unset
+        if isinstance(_source_metadata, Unset):
+            source_metadata = UNSET
+        else:
+            source_metadata = GroundStationSourceMetadata.from_dict(_source_metadata)
 
         ground_station = cls(
             availability=availability,
@@ -121,9 +150,11 @@ class GroundStation:
             location=location,
             longitude=longitude,
             name=name,
+            access_level=access_level,
             altitude_m=altitude_m,
             min_elevation_deg=min_elevation_deg,
             provider=provider,
+            source_metadata=source_metadata,
         )
 
         ground_station.additional_properties = d
