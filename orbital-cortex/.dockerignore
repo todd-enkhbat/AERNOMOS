@@ -1,10 +1,12 @@
-**/.venv/
-**/node_modules/
-**/.next/
-**/__pycache__/
+**/__pycache__
 **/*.pyc
-**/*.sqlite3
-**/.pytest_cache/
-**/.mypy_cache/
-apps/web/
-.git/
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.venv
+**/venv
+**/* 2.*
+**/* 2.py
+**/.DS_Store
+apps/web/node_modules
+apps/web/.next
