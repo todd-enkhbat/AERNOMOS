@@ -28,11 +28,11 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nomos Orbital | Orchestration for orbital compute",
+    default: "Nomos Orbital | Source-backed mission planning",
     template: "%s · Nomos Orbital"
   },
   description:
-    "Submit a space-data AI job, compare simulated compute candidates with real orbital math, and inspect every routing decision.",
+    "Plan how space-data workloads should move across satellite, ground, and cloud. Real catalogs and orbital math; simulated execution stays labeled.",
   icons: {
     icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
     apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nomos Orbital",
     description:
-      "Orbital compute orchestration. Production API, deterministic routing, and an open simulated execution demo.",
+      "Source-backed mission plans for space-data workloads. Curated examples and a labeled historical simulation demo.",
     siteName: "Nomos Orbital",
     type: "website"
   }

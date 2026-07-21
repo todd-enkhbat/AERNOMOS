@@ -9,6 +9,7 @@ import { useLiquidMouse } from "@/components/liquid/useLiquidMouse";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/plan", label: "Plan" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
   { href: "/calendar", label: "Calendar" },
@@ -29,7 +30,8 @@ export function SiteHeader() {
           onMouseMove={onMouseMove}
           ref={ref}
         >
-          <div className="flex min-h-[52px] items-center justify-between gap-3 px-3.5 sm:px-4">
+          <span aria-hidden className="liquid-glass__specular" data-liquid-specular />
+          <div className="relative z-[1] flex min-h-[52px] items-center justify-between gap-3 px-3.5 sm:px-4">
             <Link className="group flex min-w-0 items-center gap-2.5" href="/">
               <NomosMark size={30} spinning />
               <span className="min-w-0 leading-none">
@@ -37,7 +39,7 @@ export function SiteHeader() {
                   Nomos Orbital
                 </span>
                 <span className="chart-label hidden text-muted-dark sm:block">
-                  Orbital compute orchestration
+                  Mission planning for space data
                 </span>
               </span>
             </Link>
@@ -62,8 +64,8 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <LiquidButton className="hidden sm:inline-flex" href="/missions" variant="primary">
-              Missions
+            <LiquidButton className="hidden sm:inline-flex" href="/plan" variant="primary">
+              Build a plan
             </LiquidButton>
           </div>
         </div>

@@ -78,6 +78,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/design-partner-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a design-partner conversation
+         * @description Stores a private design-partner lead. permission_to_contact must be true. A honeypot field is accepted but never persisted when filled.
+         */
+        post: operations["submit_design_partner_request_v1_design_partner_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/ground-stations": {
         parameters: {
             query?: never;
@@ -104,13 +124,13 @@ export interface paths {
         };
         /**
          * List curated example jobs (cursor-paginated)
-         * @description Returns only curated public demo examples (`is_example=true`). Visitor submissions remain reachable by ID but are not listed.
+         * @description Returns only curated public demo examples (`is_example=true`). Visitor submissions are never listed and require an access token by ID.
          */
         get: operations["list_jobs_v1_jobs_get"];
         put?: never;
         /**
          * Submit a job
-         * @description Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker. Returns immediately; poll the job until it reaches a terminal state.
+         * @description Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker. Returns immediately; poll the job until it reaches a terminal state. Private visitor jobs include a one-time `access_token` — store it and send `X-Nomos-Job-Token` on subsequent reads. Curated example jobs remain publicly readable.
          */
         post: operations["create_job_v1_jobs_post"];
         delete?: never;
@@ -302,7 +322,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/missions/{mission_id}/share-links": {
+    "/v1/missions/{mission_id}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List persisted catalog candidates for a mission */
+        get: operations["list_mission_candidates_v1_missions__mission_id__candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/discover": {
         parameters: {
             query?: never;
             header?: never;
@@ -312,8 +349,199 @@ export interface paths {
         get?: never;
         put?: never;
         /**
+         * Discover real STAC catalog scenes for a mission AOI
+         * @description Searches Microsoft Planetary Computer (Sentinel-1 GRD by default) over the mission area of interest and date range, then persists MissionDataCandidate rows with provenance. Never invents catalog items; upstream failures return typed catalog_* errors.
+         */
+        post: operations["discover_mission_catalog_v1_missions__mission_id__discover_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/exports/json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download versioned mission brief JSON */
+        get: operations["export_mission_json_v1_missions__mission_id__exports_json_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/exports/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Latest PDF export status / signed download URL */
+        get: operations["get_latest_pdf_export_v1_missions__mission_id__exports_pdf_get"];
+        put?: never;
+        /**
+         * Generate a PDF mission brief
+         * @description Owner-only. Creates an export job and generates the PDF (sync for MVP). Returns a signed download URL when ready. Large jobs may be processed by the ARQ worker via generate_mission_pdf_export.
+         */
+        post: operations["create_pdf_export_v1_missions__mission_id__exports_pdf_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/exports/pdf/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** PDF export status by id */
+        get: operations["get_pdf_export_v1_missions__mission_id__exports_pdf__export_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit optional mission plan feedback
+         * @description Lightweight yes/partly/no feedback after a plan exists. Never required for planning. Comment is capped server-side (reject, not truncate).
+         */
+        post: operations["submit_mission_feedback_v1_missions__mission_id__feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/infrastructure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mission-relevant satellites, ground stations, and orbital snapshot provenance
+         * @description Returns only fleet satellites matching the mission's catalog candidates or data-source preferences (never the full tracked catalog), plus public ground stations and the TLE snapshot metadata used for contact windows.
+         */
+        get: operations["get_mission_infrastructure_v1_missions__mission_id__infrastructure_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List generated mission plans */
+        get: operations["list_mission_plans_v1_missions__mission_id__plans_get"];
+        put?: never;
+        /**
+         * Generate source-backed mission plans
+         * @description Runs the structured feasibility planner (no LLM). Each call appends a new version batch of MissionPlan rows; prior recommended flags are cleared. Same mission inputs + source snapshot → deterministic hashes and ranking.
+         */
+        post: operations["generate_mission_plans_v1_missions__mission_id__plans_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/plans/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mission plan detail with steps and evidence */
+        get: operations["get_mission_plan_v1_missions__mission_id__plans__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/plans/{plan_id}/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute a plan step on the local CPU provider (real, no GPUs)
+         * @description Owner-only. Runs a real CPU task (crop_geotiff or thumbnail) for an executable plan step on the existing ARQ worker. Durations and byte counts are measured and persisted as OBSERVED; the step flips from planned to executed/failed. Submits are idempotent per idempotency_key — replays return the existing job unchanged.
+         */
+        post: operations["execute_plan_step_v1_missions__mission_id__plans__plan_id__execute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/plans/{plan_id}/execute/{external_job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Execution job status and result (OBSERVED metrics) */
+        get: operations["get_execution_status_v1_missions__mission_id__plans__plan_id__execute__external_job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/missions/{mission_id}/share-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List share links for a mission you own */
+        get: operations["list_share_links_v1_missions__mission_id__share_links_get"];
+        put?: never;
+        /**
          * Create a private share link for a mission you own
-         * @description Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-Token` or `share_token` query param.
+         * @description Returns the raw share token once. Only the SHA-256 hash is stored. Pass the token as `X-Nomos-Share-Token` (preferred). The `share_token` query param remains for legacy bookmarks but is deprecated.
          */
         post: operations["create_share_link_v1_missions__mission_id__share_links_post"];
         delete?: never;
@@ -428,6 +656,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/share/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resolve a private share token to its mission
+         * @description Returns only the mission_id and link metadata for a valid token. Invalid, expired, or revoked tokens return 403 with no mission payload.
+         */
+        get: operations["resolve_share_token_v1_share__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/simulate/run/{job_id}": {
         parameters: {
             query?: never;
@@ -528,6 +776,55 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** CatalogCandidateAssetOut */
+        CatalogCandidateAssetOut: {
+            /** Key */
+            key?: string | null;
+            /** Media Type */
+            media_type?: string | null;
+            /** Roles */
+            roles?: unknown[];
+            /** Title */
+            title?: string | null;
+        };
+        /** CatalogCandidateOut */
+        CatalogCandidateOut: {
+            acquisition_time: components["schemas"]["ProvenancedValue"];
+            /** Asset Metadata */
+            asset_metadata?: {
+                [key: string]: unknown;
+            };
+            /** Available Assets */
+            available_assets?: components["schemas"]["CatalogCandidateAssetOut"][];
+            /** Collection */
+            collection: string;
+            /** Created At */
+            created_at: string;
+            estimated_size_bytes?: components["schemas"]["ProvenancedValue"] | null;
+            /** External Item Id */
+            external_item_id: string;
+            /** Footprint */
+            footprint: {
+                [key: string]: unknown;
+            };
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Source Provider */
+            source_provider: string;
+            /** Source Timestamp */
+            source_timestamp: string;
+            /** Source Url */
+            source_url?: string | null;
+            /** Truth Status */
+            truth_status: string;
+        };
+        /** CatalogCandidatesResponse */
+        CatalogCandidatesResponse: {
+            /** Candidates */
+            candidates: components["schemas"]["CatalogCandidateOut"][];
+        };
         /** ComputeNode */
         ComputeNode: {
             /** Availability */
@@ -566,26 +863,35 @@ export interface components {
         };
         /** ContactWindow */
         ContactWindow: {
-            /** Aos Utc */
-            aos_utc: string;
-            /** Culminate Utc */
-            culminate_utc: string;
+            aos_utc: components["schemas"]["ProvenancedValue"];
+            /**
+             * Calculation Method
+             * @default SGP4/Skyfield.find_events
+             */
+            calculation_method: string;
+            culminate_utc: components["schemas"]["ProvenancedValue"];
             /** Date */
             date: string;
-            /** Duration S */
-            duration_s: number;
-            /** Est Downlink Mb */
-            est_downlink_mb: number;
+            duration_s: components["schemas"]["ProvenancedValue"];
+            est_downlink_mb: components["schemas"]["ProvenancedValue"];
             /** Ground Station Id */
             ground_station_id: string;
             /** Id */
             id: string;
-            /** Los Utc */
-            los_utc: string;
-            /** Max Elevation Deg */
-            max_elevation_deg: number;
+            los_utc: components["schemas"]["ProvenancedValue"];
+            max_elevation_deg: components["schemas"]["ProvenancedValue"];
             /** Satellite Id */
             satellite_id: string;
+            /**
+             * Tle Snapshot Id
+             * @default
+             */
+            tle_snapshot_id: string;
+            /**
+             * Truth Status
+             * @default CALCULATED
+             */
+            truth_status: string;
         };
         /** ContactWindowsResponse */
         ContactWindowsResponse: {
@@ -593,6 +899,56 @@ export interface components {
             contact_windows: components["schemas"]["ContactWindow"][];
             /** Next Cursor */
             next_cursor?: string | null;
+        };
+        /** DesignPartnerRequest */
+        DesignPartnerRequest: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Mission Id */
+            mission_id?: string | null;
+            /** Mission Type */
+            mission_type: string;
+            /** Name */
+            name: string;
+            /** Organization */
+            organization: string;
+            /** Permission To Contact */
+            permission_to_contact: boolean;
+            /** Requested Integration */
+            requested_integration: string;
+            /** Role */
+            role: string;
+            /**
+             * Work Email
+             * Format: email
+             */
+            work_email: string;
+        };
+        /** DesignPartnerRequestResponse */
+        DesignPartnerRequestResponse: {
+            request: components["schemas"]["DesignPartnerRequest"];
+        };
+        /**
+         * DiscoverRequest
+         * @description Optional overrides for mission catalog discovery.
+         */
+        DiscoverRequest: {
+            /** Collections */
+            collections?: string[] | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Limit */
+            limit?: number | null;
+            /** Start Time */
+            start_time?: string | null;
         };
         /** ErrorDetail */
         ErrorDetail: {
@@ -607,8 +963,94 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorDetail"];
         };
+        /** ExecuteStepRequest */
+        ExecuteStepRequest: {
+            /** Idempotency Key */
+            idempotency_key?: string | null;
+            /** Input Ref */
+            input_ref: string;
+            /** Params */
+            params?: {
+                [key: string]: unknown;
+            };
+            /** Step Id */
+            step_id: string;
+            /** Task Type */
+            task_type: string;
+        };
+        /** ExecuteStepResponse */
+        ExecuteStepResponse: {
+            estimate: components["schemas"]["ExecutionEstimate"];
+            job: components["schemas"]["ExternalJob"];
+            /** Plan Step Id */
+            plan_step_id: string;
+            /** Provider Id */
+            provider_id: string;
+        };
+        /** ExecutionEstimate */
+        ExecutionEstimate: {
+            /** Estimated Cost Usd */
+            estimated_cost_usd: number;
+            /** Estimated Seconds */
+            estimated_seconds: number;
+        };
+        /** ExecutionResult */
+        ExecutionResult: {
+            /** External Job Id */
+            external_job_id: string;
+            observed: components["schemas"]["ObservedMetrics"];
+            /** Output Ref */
+            output_ref: string;
+        };
+        /** ExecutionStatusResponse */
+        ExecutionStatusResponse: {
+            /** Download Url */
+            download_url?: string | null;
+            job: components["schemas"]["ExternalJobStatus"];
+            /** Observed Truth Status */
+            observed_truth_status?: string | null;
+            /** Plan Step Id */
+            plan_step_id?: string | null;
+            result?: components["schemas"]["ExecutionResult"] | null;
+            /** Task Type */
+            task_type: string;
+        };
+        /** ExternalJob */
+        ExternalJob: {
+            /** External Job Id */
+            external_job_id: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "succeeded" | "failed";
+        };
+        /** ExternalJobStatus */
+        ExternalJobStatus: {
+            /** Error */
+            error?: string | null;
+            /** External Job Id */
+            external_job_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "succeeded" | "failed";
+        };
+        /**
+         * FeedbackRating
+         * @enum {string}
+         */
+        FeedbackRating: "yes" | "partly" | "no";
         /** GroundStation */
         GroundStation: {
+            /**
+             * Access Level
+             * @default public_information
+             */
+            access_level: string;
             /**
              * Altitude M
              * @default 0
@@ -640,6 +1082,10 @@ export interface components {
              * @default
              */
             provider: string;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
         };
         /** GroundStationsResponse */
         GroundStationsResponse: {
@@ -760,6 +1206,8 @@ export interface components {
         };
         /** JobCreateResponse */
         JobCreateResponse: {
+            /** Access Token */
+            access_token?: string | null;
             job: components["schemas"]["Job"];
             routing_decision?: components["schemas"]["RoutingDecision"] | null;
         };
@@ -809,12 +1257,16 @@ export interface components {
             };
             /** Customer Systems */
             customer_systems?: unknown[];
+            /** Data Residency */
+            data_residency?: string | null;
             /** Data Source Preference */
             data_source_preference?: unknown[];
             /** Deadline */
             deadline?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Max Age Days */
+            max_age_days?: number | null;
             /** Max Cost Usd */
             max_cost_usd?: number | null;
             /** Max Data Volume Mb */
@@ -823,6 +1275,10 @@ export interface components {
             notes?: string | null;
             /** Objective Type */
             objective_type: string;
+            /** Onboard Processing */
+            onboard_processing?: string | null;
+            /** Organization Name */
+            organization_name?: string | null;
             /** Preferred Compute Location */
             preferred_compute_location?: string | null;
             /** Start Time */
@@ -834,6 +1290,170 @@ export interface components {
             status: string;
             /** Title */
             title: string;
+            /** Use Case */
+            use_case?: string | null;
+        };
+        /** MissionExportOut */
+        MissionExportOut: {
+            /** Artifact Key */
+            artifact_key?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Download Url */
+            download_url?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /** Export Type */
+            export_type: string;
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Status */
+            status: string;
+        };
+        /** MissionFeedback */
+        MissionFeedback: {
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Mission Id
+             * Format: uuid
+             */
+            mission_id: string;
+            rating: components["schemas"]["FeedbackRating"];
+            /** Session Id Hash */
+            session_id_hash?: string | null;
+        };
+        /** MissionFeedbackCreate */
+        MissionFeedbackCreate: {
+            /** Comment */
+            comment?: string | null;
+            rating: components["schemas"]["FeedbackRating"];
+        };
+        /** MissionFeedbackResponse */
+        MissionFeedbackResponse: {
+            feedback: components["schemas"]["MissionFeedback"];
+        };
+        /** MissionGroundStationOut */
+        MissionGroundStationOut: {
+            /**
+             * Access Level
+             * @default public_information
+             */
+            access_level: string;
+            altitude_m: components["schemas"]["ProvenancedValue"];
+            availability: components["schemas"]["ProvenancedValue"];
+            /**
+             * Coordinate Truth Status
+             * @default PROVIDER_REPORTED
+             */
+            coordinate_truth_status: string;
+            downlink_mbps: components["schemas"]["ProvenancedValue"];
+            /** Id */
+            id: string;
+            latency_minutes: components["schemas"]["ProvenancedValue"];
+            latitude: components["schemas"]["ProvenancedValue"];
+            /** Location */
+            location: string;
+            longitude: components["schemas"]["ProvenancedValue"];
+            min_elevation_deg: components["schemas"]["ProvenancedValue"];
+            /** Name */
+            name: string;
+            /**
+             * Ops Params Truth Status
+             * @default SIMULATED
+             */
+            ops_params_truth_status: string;
+            /**
+             * Provider
+             * @default
+             */
+            provider: string;
+            /**
+             * Resource Type
+             * @default ground_station
+             */
+            resource_type: string;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Truth Status
+             * @default PROVIDER_REPORTED
+             */
+            truth_status: string;
+        };
+        /** MissionInfrastructureResponse */
+        MissionInfrastructureResponse: {
+            /** Ground Stations */
+            ground_stations?: components["schemas"]["MissionGroundStationOut"][];
+            /** Mission Id */
+            mission_id: string;
+            orbital_snapshot: components["schemas"]["OrbitalSnapshotOut"];
+            /** Satellites */
+            satellites?: components["schemas"]["MissionSatelliteOut"][];
+        };
+        /**
+         * MissionJsonExportResponse
+         * @description Versioned mission brief JSON (schema_version required).
+         */
+        MissionJsonExportResponse: {
+            /** Assumptions */
+            assumptions?: unknown[];
+            /** Candidate Plans */
+            candidate_plans?: unknown[];
+            /** Disclosures */
+            disclosures?: {
+                [key: string]: unknown;
+            };
+            /** Document Type */
+            document_type: string;
+            /** Generated At */
+            generated_at: string;
+            /** Geographic Summary */
+            geographic_summary?: {
+                [key: string]: unknown;
+            };
+            /** Missing Integrations */
+            missing_integrations?: unknown[];
+            /** Mission Input */
+            mission_input: {
+                [key: string]: unknown;
+            };
+            /** Next Actions */
+            next_actions?: unknown[];
+            /** Rejection Reasons */
+            rejection_reasons?: unknown[];
+            /** Schema Version */
+            schema_version: number;
+            /** Selected Plan */
+            selected_plan?: {
+                [key: string]: unknown;
+            } | null;
+            /** Source Evidence */
+            source_evidence?: unknown[];
+            /** Source Snapshots */
+            source_snapshots?: {
+                [key: string]: unknown;
+            };
+            /** Truth Statuses */
+            truth_statuses?: {
+                [key: string]: unknown;
+            };
         };
         /** MissionOut */
         MissionOut: {
@@ -883,9 +1503,167 @@ export interface components {
             /** Updated At */
             updated_at: string;
         };
+        /** MissionPdfExportResponse */
+        MissionPdfExportResponse: {
+            export: components["schemas"]["MissionExportOut"];
+        };
+        /** MissionPlanDetailResponse */
+        MissionPlanDetailResponse: {
+            plan: components["schemas"]["MissionPlanOut"];
+        };
+        /** MissionPlanOut */
+        MissionPlanOut: {
+            /** Assumptions */
+            assumptions?: unknown[];
+            /** Confidence */
+            confidence?: number | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Estimated Total Cost Usd */
+            estimated_total_cost_usd?: number | null;
+            /** Estimated Total Time Seconds */
+            estimated_total_time_seconds?: number | null;
+            /** Estimates */
+            estimates?: {
+                [key: string]: unknown;
+            } | null;
+            /** Evidence */
+            evidence?: components["schemas"]["SourceEvidenceOut"][] | null;
+            /** Explanation */
+            explanation?: {
+                [key: string]: unknown;
+            } | null;
+            /** Feasibility Status */
+            feasibility_status?: string | null;
+            /** Id */
+            id: string;
+            /** Input Hash */
+            input_hash?: string | null;
+            /** Mission Id */
+            mission_id: string;
+            /** Pattern */
+            pattern?: string | null;
+            /** Plan Hash */
+            plan_hash?: string | null;
+            /** Planner Config Version */
+            planner_config_version?: string | null;
+            /** Recommended */
+            recommended: boolean;
+            /** Score */
+            score?: number | null;
+            /** Status */
+            status: string;
+            /** Steps */
+            steps?: components["schemas"]["MissionPlanStepOut"][] | null;
+            /** Summary */
+            summary: string;
+            /** Version */
+            version: number;
+        };
+        /** MissionPlanStepOut */
+        MissionPlanStepOut: {
+            /** Description */
+            description: string;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Estimated Cost Usd */
+            estimated_cost_usd?: number | null;
+            /** Executed At */
+            executed_at?: string | null;
+            /**
+             * Execution Status
+             * @default planned
+             */
+            execution_status: string;
+            /** Feasibility Status */
+            feasibility_status: string;
+            /** Id */
+            id: string;
+            /** Input Artifact */
+            input_artifact?: string | null;
+            /** Mission Plan Id */
+            mission_plan_id: string;
+            /** Output Artifact */
+            output_artifact?: string | null;
+            /** Provider Name */
+            provider_name: string;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /** Resource Id */
+            resource_id?: string | null;
+            /** Sequence */
+            sequence: number;
+            /** Source Metadata */
+            source_metadata?: {
+                [key: string]: unknown;
+            };
+            /** Start Time */
+            start_time?: string | null;
+            /** Step Type */
+            step_type: string;
+            /** Title */
+            title: string;
+            /** Truth Status */
+            truth_status: string;
+        };
+        /** MissionPlansGenerateResponse */
+        MissionPlansGenerateResponse: {
+            /**
+             * Generation Strategy
+             * @default append_versions — each POST appends a new version batch; prior recommended flags are cleared.
+             */
+            generation_strategy: string;
+            /** Planner Config Version */
+            planner_config_version: string;
+            /** Plans */
+            plans: components["schemas"]["MissionPlanOut"][];
+            /** Recommended Plan Id */
+            recommended_plan_id?: string | null;
+        };
+        /** MissionPlansListResponse */
+        MissionPlansListResponse: {
+            /**
+             * Generation Strategy
+             * @default append_versions — each POST appends a new version batch; prior recommended flags are cleared.
+             */
+            generation_strategy: string;
+            /** Plans */
+            plans: components["schemas"]["MissionPlanOut"][];
+        };
         /** MissionResponse */
         MissionResponse: {
             mission: components["schemas"]["MissionOut"];
+        };
+        /** MissionSatelliteOut */
+        MissionSatelliteOut: {
+            /**
+             * Access Level
+             * @default public_information
+             */
+            access_level: string;
+            downlink_rate_mbps: components["schemas"]["ProvenancedValue"];
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Norad Id */
+            norad_id: number;
+            /**
+             * Resource Type
+             * @default satellite
+             */
+            resource_type: string;
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Source */
+            source: string;
+            tle_epoch: components["schemas"]["ProvenancedValue"];
+            /** Truth Status */
+            truth_status: string;
         };
         /** MissionsListResponse */
         MissionsListResponse: {
@@ -898,6 +1676,64 @@ export interface components {
             compute_nodes: components["schemas"]["ComputeNode"][];
             /** Ground Stations */
             ground_stations: components["schemas"]["GroundStation"][];
+        };
+        /** ObservedMetrics */
+        ObservedMetrics: {
+            /** Execution Seconds */
+            execution_seconds: number;
+            /** Input Bytes */
+            input_bytes: number;
+            /** Output Bytes */
+            output_bytes: number;
+            /** Storage Location */
+            storage_location: string;
+            /** Transfer Seconds */
+            transfer_seconds: number;
+        };
+        /** OrbitalSnapshotOut */
+        OrbitalSnapshotOut: {
+            /** Epochs */
+            epochs?: unknown[];
+            /** Freshness */
+            freshness?: string | null;
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Source */
+            source: string;
+            /** Source Url */
+            source_url?: string | null;
+            /**
+             * Stale Epoch Days
+             * @default 7
+             */
+            stale_epoch_days: number;
+            /** Truth Status */
+            truth_status: string;
+            /**
+             * Used Pinned Fallback
+             * @default false
+             */
+            used_pinned_fallback: boolean;
+        };
+        /** ProvenancedValue */
+        ProvenancedValue: {
+            /** Effective At */
+            effective_at?: string | null;
+            /** Explanation */
+            explanation?: string | null;
+            /** Freshness */
+            freshness?: string | null;
+            /** Method */
+            method?: string | null;
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Source */
+            source?: string | null;
+            truth_status: components["schemas"]["TruthStatus"];
+            /** Value */
+            value: unknown;
         };
         /** ReplayResponse */
         ReplayResponse: {
@@ -984,6 +1820,8 @@ export interface components {
             name: string;
             /** Norad Id */
             norad_id: number;
+            /** Retrieved At */
+            retrieved_at?: string | null;
             /** Snapshot Id */
             snapshot_id: string;
             /** Source */
@@ -1023,6 +1861,11 @@ export interface components {
             /** Permissions */
             permissions?: string[];
         };
+        /** ShareLinkListResponse */
+        ShareLinkListResponse: {
+            /** Share Links */
+            share_links: components["schemas"]["ShareLinkOut"][];
+        };
         /** ShareLinkOut */
         ShareLinkOut: {
             /** Created At */
@@ -1044,6 +1887,18 @@ export interface components {
         ShareLinkResponse: {
             share_link: components["schemas"]["ShareLinkOut"];
         };
+        /**
+         * ShareResolveResponse
+         * @description Minimal share-token resolution for /share/[token] (no unrelated mission data).
+         */
+        ShareResolveResponse: {
+            /** Expires At */
+            expires_at?: string | null;
+            /** Mission Id */
+            mission_id: string;
+            /** Permissions */
+            permissions?: unknown[];
+        };
         /** SimulateRunResponse */
         SimulateRunResponse: {
             /** Events Created */
@@ -1051,6 +1906,44 @@ export interface components {
             job: components["schemas"]["Job"];
             result?: components["schemas"]["Result"] | null;
         };
+        /** SourceEvidenceOut */
+        SourceEvidenceOut: {
+            /** Effective At */
+            effective_at?: string | null;
+            /** Id */
+            id: string;
+            /** Mission Id */
+            mission_id: string;
+            /** Mission Plan Id */
+            mission_plan_id?: string | null;
+            /** Mission Plan Step Id */
+            mission_plan_step_id?: string | null;
+            /** Raw Value */
+            raw_value?: {
+                [key: string]: unknown;
+            };
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Source Name */
+            source_name: string;
+            /** Source Type */
+            source_type: string;
+            /** Source Url */
+            source_url?: string | null;
+            /** Transformation Method */
+            transformation_method?: string | null;
+            /** Transformed Value */
+            transformed_value?: {
+                [key: string]: unknown;
+            };
+            /** Truth Status */
+            truth_status: string;
+        };
+        /**
+         * TruthStatus
+         * @enum {string}
+         */
+        TruthStatus: "OBSERVED" | "CALCULATED" | "PROVIDER_REPORTED" | "ESTIMATED" | "SIMULATED" | "STALE" | "UNAVAILABLE";
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1215,6 +2108,59 @@ export interface operations {
             };
         };
     };
+    submit_design_partner_request_v1_design_partner_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesignPartnerRequestResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_ground_stations_v1_ground_stations_get: {
         parameters: {
             query?: never;
@@ -1322,7 +2268,9 @@ export interface operations {
     get_job_v1_jobs__job_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1337,6 +2285,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobDetailResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -1362,7 +2328,9 @@ export interface operations {
     get_job_detections_v1_jobs__job_id__detections_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1377,6 +2345,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -1402,7 +2388,9 @@ export interface operations {
     get_job_events_v1_jobs__job_id__events_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1417,6 +2405,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobEventsResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -1442,7 +2448,9 @@ export interface operations {
     replay_routing_v1_jobs__job_id__replay_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1457,6 +2465,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReplayResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job or routing decision not found */
@@ -1482,7 +2508,9 @@ export interface operations {
     get_result_v1_jobs__job_id__result_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1497,6 +2525,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResultResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found or result not ready */
@@ -1522,7 +2568,9 @@ export interface operations {
     get_routing_v1_jobs__job_id__routing_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1537,6 +2585,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoutingResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job or routing decision not found */
@@ -1562,7 +2628,9 @@ export interface operations {
     get_job_scene_v1_jobs__job_id__scene_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1577,6 +2645,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SceneResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */
@@ -1668,6 +2754,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     list_examples_v1_missions_examples_get: {
@@ -1693,6 +2788,7 @@ export interface operations {
     get_mission_v1_missions__mission_id__get: {
         parameters: {
             query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
                 share_token?: string | null;
             };
             header?: {
@@ -1724,6 +2820,923 @@ export interface operations {
                 };
             };
             /** @description Forbidden or invalid share token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mission_candidates_v1_missions__mission_id__candidates_get: {
+        parameters: {
+            query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogCandidatesResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discover_mission_catalog_v1_missions__mission_id__discover_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DiscoverRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogCandidatesResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Catalog item/collection not found */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Catalog unavailable or rate-limited */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    export_mission_json_v1_missions__mission_id__exports_json_get: {
+        parameters: {
+            query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionJsonExportResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_latest_pdf_export_v1_missions__mission_id__exports_pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPdfExportResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No export found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_pdf_export_v1_missions__mission_id__exports_pdf_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPdfExportResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_pdf_export_v1_missions__mission_id__exports_pdf__export_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                export_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPdfExportResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Export not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_mission_feedback_v1_missions__mission_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MissionFeedbackCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionFeedbackResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_mission_infrastructure_v1_missions__mission_id__infrastructure_get: {
+        parameters: {
+            query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionInfrastructureResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mission_plans_v1_missions__mission_id__plans_get: {
+        parameters: {
+            query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPlansListResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_mission_plans_v1_missions__mission_id__plans_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPlansGenerateResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Mission not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_mission_plan_v1_missions__mission_id__plans__plan_id__get: {
+        parameters: {
+            query?: {
+                /** @description Deprecated: prefer X-Nomos-Share-Token header to avoid token leakage via Referer and access logs. */
+                share_token?: string | null;
+            };
+            header?: {
+                "x-nomos-share-token"?: string | null;
+            };
+            path: {
+                plan_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MissionPlanDetailResponse"];
+                };
+            };
+            /** @description Auth required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Plan not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_plan_step_v1_missions__mission_id__plans__plan_id__execute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExecuteStepRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecuteStepResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Plan or step not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid task / disallowed input_ref */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_execution_status_v1_missions__mission_id__plans__plan_id__execute__external_job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+                external_job_id: string;
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecutionStatusResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Execution job not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_share_links_v1_missions__mission_id__share_links_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinkListResponse"];
+                };
+            };
+            /** @description Missing session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not the mission owner */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1896,7 +3909,9 @@ export interface operations {
     get_routing_v1_routing__job_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -1911,6 +3926,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoutingResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job or routing decision not found */
@@ -2038,10 +4071,52 @@ export interface operations {
             };
         };
     };
-    simulate_run_v1_simulate_run__job_id__post: {
+    resolve_share_token_v1_share__token__get: {
         parameters: {
             query?: never;
             header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareResolveResponse"];
+                };
+            };
+            /** @description Invalid / expired / revoked */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_run_v1_simulate_run__job_id__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-nomos-job-token"?: string | null;
+            };
             path: {
                 job_id: string;
             };
@@ -2056,6 +4131,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SimulateRunResponse"];
+                };
+            };
+            /** @description Job access token required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Job access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Job not found */

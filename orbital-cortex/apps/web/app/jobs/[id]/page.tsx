@@ -28,6 +28,7 @@ import { InlineNotice } from "@/components/InlineNotice";
 import { JobStepper } from "@/components/jobs/JobStepper";
 import { PageHeader } from "@/components/PageHeader";
 import { RouteExplain } from "@/components/RouteExplain";
+import { TruthBadge } from "@/components/truth";
 import { ScoreBar } from "@/components/ScoreBar";
 import { StatusBadge } from "@/components/StatusBadge";
 import {
@@ -207,22 +208,22 @@ export default function JobDetailPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Mission"
-        title={job ? `${labelize(job.job_type)} run` : "Mission"}
+        eyebrow="Historical simulation demo"
+        title={job ? `${labelize(job.job_type)} run` : "Demo job"}
         description={
           job
             ? `${job.sensor} · ${labelize(job.priority)} priority · ${labelize(
                 job.compute_preference
-              )} compute preference`
-            : "Loading mission state."
+              )} compute preference · SIMULATED execution`
+            : "Loading demo job state."
         }
         action={
           <Link
-            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream transition hover:border-gold/50 hover:text-gold-bright"
+            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream 	ransition-colors hover:border-gold/50 hover:text-gold-bright"
             href="/jobs"
           >
             <ChevronLeft size={17} strokeWidth={2} />
-            All missions
+            All demo jobs
           </Link>
         }
       />
@@ -231,6 +232,10 @@ export default function JobDetailPage() {
       <div className="mt-5">
         <DemoBoundary compact />
       </div>
+      <aside className="mt-3 rounded-2xl border border-gold/25 bg-gold/8 px-4 py-3 text-sm text-cream">
+        Detections, confidence scores, and completion states on this page are
+        SIMULATED. They are not observed satellite products.
+      </aside>
 
       {loading ? (
         <div className="glass mt-5 flex items-center gap-3 p-6 text-muted">
@@ -319,7 +324,7 @@ export default function JobDetailPage() {
                     </div>
                   ) : null}
                   <button
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-5 py-3 text-sm font-medium text-cream transition hover:border-gold/50 hover:text-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-5 py-3 text-sm font-medium text-cream 	ransition-colors hover:border-gold/50 hover:text-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={replaying || !route}
                     onClick={handleReplayRouting}
                     type="button"
@@ -361,7 +366,7 @@ export default function JobDetailPage() {
                         Use this only if the shared queue is unavailable.
                       </p>
                       <button
-                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream transition hover:border-gold/40"
+                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream 	ransition-colors hover:border-gold/40"
                         disabled={running}
                         onClick={handleRunSimulation}
                         type="button"
@@ -388,7 +393,7 @@ export default function JobDetailPage() {
                 {detailTabs.map(({ value, label, icon: Icon }) => {
                   return (
                     <button
-                      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
+                      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                         tab === value
                           ? "bg-gold text-void"
                           : "border border-line text-muted hover:border-cream/25 hover:text-cream"
@@ -462,16 +467,24 @@ export default function JobDetailPage() {
                     <>
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                          <h2 className="text-lg font-semibold text-cream">
-                            Inference result
-                          </h2>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-lg font-semibold text-cream">
+                              Simulated inference result
+                            </h2>
+                            <TruthBadge compact status="SIMULATED" />
+                          </div>
                           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
                             {result.summary}
                           </p>
                         </div>
-                        <span className="metric-value rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-bright">
-                          {formatPercent(result.confidence)}
-                        </span>
+                        <div className="text-right">
+                          <p className="chart-label text-muted-dark">
+                            Simulated confidence
+                          </p>
+                          <span className="metric-value mt-1 inline-flex rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-bright">
+                            {formatPercent(result.confidence)}
+                          </span>
+                        </div>
                       </div>
                       <div className="mt-6 grid gap-3 md:grid-cols-3">
                         <div className="rounded-xl border border-line bg-void/40 p-4">
@@ -487,7 +500,7 @@ export default function JobDetailPage() {
                               const artifact = artifacts.find((a) => a.key === file);
                               return artifact ? (
                                 <a
-                                  className="metric-value block text-xs text-silver underline decoration-dotted underline-offset-2 transition hover:text-gold-bright"
+                                  className="metric-value block text-xs text-silver underline decoration-dotted underline-offset-2 	ransition-colors hover:text-gold-bright"
                                   href={artifact.url}
                                   key={file}
                                   rel="noreferrer"
@@ -505,11 +518,12 @@ export default function JobDetailPage() {
                         </div>
                       </div>
                       <div className="relative mt-6">
-                        <div className="mb-3 flex items-center gap-2">
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
                           <MapPinned className="text-gold" size={17} strokeWidth={1.8} />
                           <h3 className="font-semibold text-cream">
                             New York Harbor detection map
                           </h3>
+                          <TruthBadge compact status="SIMULATED" />
                         </div>
                         <HarborMap
                           features={detections.length > 0 ? detections : mapFeaturesFromResult(result)}
@@ -588,9 +602,10 @@ function DetectionTable({ result }: { result: Result }) {
 
   return (
     <section className="mt-6">
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <Table2 className="text-gold" size={17} strokeWidth={1.8} />
         <h3 className="font-semibold text-cream">Detection table</h3>
+        <TruthBadge compact status="SIMULATED" />
       </div>
       <div className="table-shell">
         <table className="data-table">
@@ -599,7 +614,7 @@ function DetectionTable({ result }: { result: Result }) {
               <th>Contact</th>
               <th>Type</th>
               <th>Zone</th>
-              <th>Confidence</th>
+              <th>Simulated confidence</th>
               <th>Length</th>
               <th>Heading</th>
               <th>Priority</th>

@@ -50,6 +50,11 @@ class Job(Base):
     is_example: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
     )
+    # SHA-256 hex of the one-time access token returned on create (private jobs).
+    # Example jobs leave this null and remain publicly readable by ID.
+    access_token_hash: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
 
 
 class ComputeNode(Base):
@@ -91,6 +96,12 @@ class GroundStation(Base):
     latency_minutes: Mapped[float] = mapped_column(Float, nullable=False)
     downlink_mbps: Mapped[int] = mapped_column(Integer, nullable=False)
     availability: Mapped[float] = mapped_column(Float, nullable=False)
+    access_level: Mapped[str] = mapped_column(
+        String(64), nullable=False, server_default="public_information"
+    )
+    source_metadata: Mapped[Any] = mapped_column(
+        JSONB, nullable=False, server_default="{}"
+    )
 
 
 class Satellite(Base):
@@ -105,6 +116,7 @@ class Satellite(Base):
     source: Mapped[str] = mapped_column(String, nullable=False)
     snapshot_id: Mapped[str] = mapped_column(String, nullable=False)
     downlink_rate_mbps: Mapped[float] = mapped_column(Float, nullable=False)
+    retrieved_at: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
 
 class ContactWindow(Base):
@@ -128,6 +140,9 @@ class ContactWindow(Base):
     max_elevation_deg: Mapped[float] = mapped_column(Float, nullable=False)
     duration_s: Mapped[float] = mapped_column(Float, nullable=False)
     est_downlink_mb: Mapped[float] = mapped_column(Float, nullable=False)
+    tle_snapshot_id: Mapped[str] = mapped_column(
+        String, nullable=False, server_default=""
+    )
     created_at: Mapped[str] = mapped_column(String, nullable=False)
 
 

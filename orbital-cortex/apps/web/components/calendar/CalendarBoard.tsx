@@ -545,7 +545,7 @@ export function CalendarBoard() {
               </p>
               <button
                 aria-label="Clear day focus"
-                className="text-muted transition hover:text-cream"
+                className="text-muted 	ransition-colors hover:text-cream"
                 onClick={() => setSelectedDay(null)}
                 type="button"
               >

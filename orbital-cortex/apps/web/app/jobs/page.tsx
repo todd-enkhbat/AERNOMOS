@@ -125,20 +125,24 @@ export default function JobsPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Demo"
+        eyebrow="Historical simulation demo"
         title="Run a simulated space-data job"
-        description="Submit a demo job and inspect routing on its detail page. The board below shows curated examples only — not every visitor submission."
+        description="This path is a labeled historical demo, not the primary product. Submit a job to inspect routing. The board shows curated example jobs only — not every visitor submission. Prefer /plan and /examples for mission planning."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
       <div className="mt-5">
         <DemoBoundary compact />
       </div>
+      <aside className="mt-3 rounded-2xl border border-gold/25 bg-gold/8 px-4 py-3 text-sm text-cream">
+        SIMULATED execution and canned detections. Production API and real orbital
+        math; not live vessel intelligence or provider inventory.
+      </aside>
 
       <section className="mt-5 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <form className="glass p-6 sm:p-7" onSubmit={handleSubmit}>
           <div>
-            <h2 className="text-lg font-semibold text-cream">New mission</h2>
+            <h2 className="text-lg font-semibold text-cream">New demo job</h2>
             <p className="mt-1 text-sm text-muted">
               {missionHelp[jobType]}
             </p>
@@ -308,7 +312,7 @@ export default function JobsPage() {
                     <tr key={job.id}>
                       <td>
                         <Link
-                          className="font-medium text-cream transition hover:text-gold-bright"
+                          className="font-medium text-cream 	ransition-colors hover:text-gold-bright"
                           href={`/jobs/${job.id}`}
                         >
                           {labelize(job.job_type)}

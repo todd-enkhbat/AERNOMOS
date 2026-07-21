@@ -186,6 +186,7 @@ def test_example_missions_are_public_and_marked(client: TestClient):
     assert examples.status_code == 200
     missions = examples.json()["missions"]
     assert missions
+    assert len(missions) >= 4
     assert all(m["is_example"] is True for m in missions)
 
     # Examples must not appear in a private session list.

@@ -52,13 +52,24 @@ Do **not** rename `orbital-cortex/` directory, Fly app `orbital-cortex-api`, or 
 | Doc | Use when |
 | --- | --- |
 | [docs/NOMOS_BUILD_PLAN.md](docs/NOMOS_BUILD_PLAN.md) | **Mission-planner master plan (phases A–T)** — persistent build context |
+| [docs/phase-prompts/](docs/phase-prompts/README.md) | **Copy-paste agent prompts per phase (F–T)** — detailed implementation instructions |
 | [docs/BUILD_PROGRESS.md](docs/BUILD_PROGRESS.md) | **Current build phase / blockers / decisions** — update after every phase |
+| [docs/final-validation-report.md](docs/final-validation-report.md) | **Phase T release validation** — real vs simulated, tests, deploy, demo |
 | [orbital-cortex/docs/production-runbook.md](orbital-cortex/docs/production-runbook.md) | Ops, debugging prod, secrets checklist |
 | [orbital-cortex/docs/deployment.md](orbital-cortex/docs/deployment.md) | First-time deploy |
 | [orbital-cortex/docs/frontend-roadmap.md](orbital-cortex/docs/frontend-roadmap.md) | Legacy frontend roadmap (Nomos Record UI) |
 | [orbital-cortex/docs/architecture.md](orbital-cortex/docs/architecture.md) | System design |
 | [orbital-cortex/docs/api-spec.md](orbital-cortex/docs/api-spec.md) | REST contract |
 | [orbital-cortex/docs/capability-truth.md](orbital-cortex/docs/capability-truth.md) | Customer-safe claims and demo boundaries |
+| [orbital-cortex/docs/mission-planner-overview.md](orbital-cortex/docs/mission-planner-overview.md) | **Mission planner: what it does, who it's for** (Phase Q) |
+| [orbital-cortex/docs/data-sources.md](orbital-cortex/docs/data-sources.md) | STAC/orbital sources + provider registry (source of truth, Phase Q) |
+| [orbital-cortex/docs/truth-statuses.md](orbital-cortex/docs/truth-statuses.md) | **Canonical truth_status / integration_status vocabulary** (Phase Q) |
+| [orbital-cortex/docs/planning-engine.md](orbital-cortex/docs/planning-engine.md) | How a request resolves to a plan (Phase Q) |
+| [orbital-cortex/docs/privacy-model.md](orbital-cortex/docs/privacy-model.md) | Privacy/isolation model for a legal/security reader (Phase Q) |
+| [orbital-cortex/docs/security-review.md](orbital-cortex/docs/security-review.md) | Phase S security checklist + hardening record |
+| [orbital-cortex/docs/provider-integrations.md](orbital-cortex/docs/provider-integrations.md) | Adding a provider + SDK error mapping (Phase Q) |
+| [orbital-cortex/docs/demo-limitations.md](orbital-cortex/docs/demo-limitations.md) | **Unhedged what-works / what-doesn't for a live call** (Phase Q) |
+| [orbital-cortex/docs/accelerator-demo-script.md](orbital-cortex/docs/accelerator-demo-script.md) | Demo arc skeleton (Phase R finishes it) |
 | [orbital-cortex/docs/current-system-audit.md](orbital-cortex/docs/current-system-audit.md) | Pre-mission-planner system audit: simulation points, privacy risks |
 | [orbital-cortex/docs/design-engineering-workflow.md](orbital-cortex/docs/design-engineering-workflow.md) | UI, imagery, motion, and visual QA gates |
 | [SOUL.md](SOUL.md) | Canonical product, copy, and design direction |
@@ -123,9 +134,11 @@ cd ../web && npm run generate:api-types
 
 ## Phase status
 
-- **Phase A (done):** Branding, docs, OpenAPI TS types, frontend CI, production deploy
-- **Phase B (done, July 2026):** "Nomos Record" redesign — dark glass UI, Golden Record logo (`components/brand/NomosMark.tsx`), three.js orbital hero (`components/orbital/OrbitalScene.tsx`), demo-first homepage (`DemoLauncher`), contact-window Gantt, Fraunces/Inter/Plex Mono via next/font. No API key field in UI; demo uses shared `oc_demo_public` (API has no auth yet; POST /v1/jobs is rate-limited per IP). `CORS_ORIGINS` on Fly includes localhost:3000 for local dev against prod API.
-- **Phase C:** Auth, real node adapters, constraint routing
+- **Mission-planner Phases A–T (done, July 2026):** Private mission planner validated. Canonical claim and release notes: [`docs/final-validation-report.md`](docs/final-validation-report.md). Allowed claim: *Nomos turns a space-data objective into a source-backed infrastructure plan…* (see `SOUL.md` / `capability-truth.md`). Production web must be redeployed from the mission-planner branch; production `/readyz` currently reports `redis: false`.
+- **Legacy Phase A (done):** Branding, docs, OpenAPI TS types, frontend CI, production deploy
+- **Legacy Phase B (done, July 2026):** "Nomos Record" redesign — dark glass UI, Golden Record logo (`components/brand/NomosMark.tsx`), three.js orbital hero (`components/orbital/OrbitalScene.tsx`), contact-window Gantt, Fraunces/Inter/Plex Mono via next/font. No API key field in UI; demo uses shared `oc_demo_public` (API has no auth yet; POST /v1/jobs is rate-limited per IP). `CORS_ORIGINS` on Fly includes localhost:3000 for local dev against prod API.
+- **Mission-planner Phase D (homepage):** Primary CTA is **Build a mission plan** → `/plan`. Job `DemoLauncher` is demoted off the homepage hero. See `SOUL.md` and `docs/BUILD_PROGRESS.md`.
+- **Legacy Phase C (product track):** Auth, real node adapters, constraint routing — still future work beyond mission-planner T.
 
 ## Commit / deploy
 

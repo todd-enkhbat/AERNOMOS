@@ -96,15 +96,15 @@ export function DemoLauncher() {
     <LiquidCard className="w-full max-w-md" id="demo">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="chart-label text-gold">Production API demo</p>
+          <p className="chart-label text-gold">Historical simulation demo</p>
           <h2 className="mt-1.5 text-lg font-semibold text-cream">
-            Task the network
+            Task the network (SIMULATED)
           </h2>
         </div>
         <div className="liquid-glass liquid-glass--inset !rounded-full">
           <span className="flex items-center gap-2 px-3 py-1.5">
-            <span className="pulse-dot bg-[#8fd6ab]" />
-            <span className="chart-label text-muted">shared queue</span>
+            <span className="pulse-dot bg-gold" />
+            <span className="chart-label text-muted">SIMULATED</span>
           </span>
         </div>
       </div>
@@ -176,7 +176,8 @@ export function DemoLauncher() {
               </LiquidButton>
             </div>
             <p className="mt-3 text-center text-xs text-muted-dark">
-              No account needed. Real API and orbital math, simulated execution.
+              Historical simulation demo. Real API and orbital math; SIMULATED
+              execution and canned detections. Prefer /plan for mission planning.
             </p>
           </motion.div>
         ) : (

@@ -1,9 +1,14 @@
 """Seed Postgres reference data: compute nodes, ground stations, satellites.
 
-Also the demo-reset CLI (F4):
+Also the demo-reset CLI (F4 / Phase R):
 
-    python -m app.seed            # reseed reference data only
-    python -m app.seed --reset    # additionally wipe all job data first
+    python -m app.seed                 # reseed reference data only
+    python -m app.seed --reset         # wipe visitor jobs, then reseed
+    python -m app.seed --demo=1 --reset
+    python -m app.seed --demo=2 --reset
+    python -m app.seed --demo=3 --reset
+    python -m app.seed --demo=3 --reset --execute   # + real CPU crop
+    python -m app.seed --demo=1 --reset --live      # re-fetch STAC live
 
 With APP_ENV=production, --reset refuses to run unless --force is passed,
 so a fat-fingered local command can't wipe the hosted demo.
@@ -21,7 +26,13 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.db.orm import ComputeNode, GroundStation, Job, Satellite
 from app.db.session import REPO_ROOT
+from app.db.truth import AccessLevel
 from app.services import tle_cache
+from app.services.mission_infrastructure import (
+    GS_COORDINATE_METADATA,
+    upsert_infrastructure_resources,
+)
+from app.services.provider_registry import ingest_providers_from_config
 
 SIMULATOR_DIR = REPO_ROOT / "simulator"
 
@@ -35,30 +46,9 @@ def _read_json_file(name: str) -> List[Dict[str, Any]]:
     return data
 
 
-def seed_database(session: Session) -> Dict[str, int]:
-    ground_stations = _read_json_file("ground_stations.json")
-    compute_nodes = _read_json_file("sample_nodes.json")
-    snapshot = tle_cache.get_snapshot(live=get_settings().live_tle)
-
-    _seed_ground_stations(session, ground_stations)
-    _seed_satellites(session, snapshot)
-    # Satellites must exist before compute-node rows reference them (FK).
-    session.flush()
-    _seed_compute_nodes(session, compute_nodes)
-    from app.core.missions import ensure_example_mission
-    from app.core.storage import ensure_curated_job_examples
-
-    ensure_example_mission(session)
-    ensure_curated_job_examples(session, limit=3)
-    session.commit()
-    return {
-        "compute_nodes": len(compute_nodes),
-        "ground_stations": len(ground_stations),
-        "satellites": len(snapshot["satellites"]),
-    }
-
-
-def _seed_satellites(session: Session, snapshot: Dict[str, Any]) -> None:
+def apply_orbital_snapshot(session: Session, snapshot: Dict[str, Any]) -> None:
+    """Persist annotated TLE snapshot onto Satellite rows + InfrastructureResource."""
+    meta = tle_cache.get_orbital_snapshot_metadata(snapshot)
     for sat in snapshot["satellites"]:
         record = session.get(Satellite, sat["id"])
         if record is None:
@@ -69,9 +59,124 @@ def _seed_satellites(session: Session, snapshot: Dict[str, Any]) -> None:
         record.tle_line1 = sat["tle_line1"]
         record.tle_line2 = sat["tle_line2"]
         record.tle_epoch = sat["tle_epoch"]
-        record.source = snapshot["source"]
-        record.snapshot_id = snapshot["snapshot_id"]
+        record.source = meta["source"]
+        record.snapshot_id = meta["snapshot_id"]
         record.downlink_rate_mbps = float(sat["downlink_rate_mbps"])
+        record.retrieved_at = meta.get("retrieved_at")
+    session.flush()
+
+
+def seed_database(session: Session) -> Dict[str, int]:
+    ground_stations = _read_json_file("ground_stations.json")
+    compute_nodes = _read_json_file("sample_nodes.json")
+    snapshot = tle_cache.resolve_orbital_snapshot(prefer_live=get_settings().live_tle)
+
+    _seed_ground_stations(session, ground_stations)
+    apply_orbital_snapshot(session, snapshot)
+    # Satellites must exist before compute-node rows reference them (FK).
+    session.flush()
+    _seed_compute_nodes(session, compute_nodes)
+    infra_counts = upsert_infrastructure_resources(
+        session, snapshot=snapshot, ground_stations=ground_stations
+    )
+    provider_registry = ingest_providers_from_config(session)
+    from app.core.missions import ensure_example_missions
+    from app.core.storage import ensure_curated_job_examples
+
+    example_missions = ensure_example_missions(session)
+    example_jobs = ensure_curated_job_examples(session, limit=3)
+    example_plans = ensure_example_plans(session)
+    from app.execution.fixtures import ensure_execution_fixtures
+
+    ensure_execution_fixtures()
+    session.commit()
+    return {
+        "compute_nodes": len(compute_nodes),
+        "ground_stations": len(ground_stations),
+        "satellites": len(snapshot["satellites"]),
+        "infrastructure_satellites": infra_counts["satellites"],
+        "infrastructure_ground_stations": infra_counts["ground_stations"],
+        "infrastructure_providers": provider_registry["ingested"],
+        "example_missions": example_missions,
+        "example_jobs": example_jobs,
+        "example_plans": example_plans,
+    }
+
+
+def ensure_example_plans(session: Session) -> int:
+    """Give each curated example mission a persisted, read-only plan set.
+
+    Each example ships with one authored reference scene labeled SIMULATED so
+    the planner can produce a feasible recommended brief with an honest truth
+    mix (SIMULATED scene, CALCULATED orbital math, ESTIMATED transfers,
+    UNAVAILABLE cost/tasking). Idempotent: the SIMULATED candidate is keyed by a
+    stable UUID and plans are generated only when a mission has none, so reboots
+    and demo resets never duplicate or overwrite curated plans.
+    """
+    from datetime import timedelta
+
+    from geoalchemy2.elements import WKTElement
+
+    from app.core.missions import (
+        CURATED_EXAMPLE_MISSIONS,
+        example_candidate_id,
+        example_mission_id,
+        utc_now,
+    )
+    from app.db.mission_orm import Mission, MissionDataCandidate, MissionPlan
+    from app.db.truth import TruthStatus
+    from app.planner.engine import generate_plans_for_mission
+
+    now = utc_now()
+    generated = 0
+    for spec in CURATED_EXAMPLE_MISSIONS:
+        slug = str(spec["slug"])
+        mission_id = example_mission_id(slug)
+        mission = session.get(Mission, mission_id)
+        if mission is None:
+            continue
+
+        candidate_id = example_candidate_id(slug)
+        if session.get(MissionDataCandidate, candidate_id) is None:
+            session.add(
+                MissionDataCandidate(
+                    id=candidate_id,
+                    mission_id=mission_id,
+                    source_provider="nomos-curated-example",
+                    collection=str(spec.get("collection") or "sentinel-1-grd"),
+                    external_item_id=f"example-scene-{slug}",
+                    acquisition_time=now - timedelta(days=3),
+                    footprint=WKTElement(str(spec["wkt"]), srid=4326),
+                    asset_metadata={
+                        "curated_example": True,
+                        "note": (
+                            "Authored reference scene for a curated public example. "
+                            "Not a live catalog discovery result."
+                        ),
+                    },
+                    estimated_size_bytes=900 * 1024 * 1024,
+                    source_url=None,
+                    source_timestamp=now,
+                    truth_status=TruthStatus.SIMULATED,
+                    created_at=now,
+                )
+            )
+            session.flush()
+
+        has_plan = (
+            session.scalar(
+                select(func.count())
+                .select_from(MissionPlan)
+                .where(MissionPlan.mission_id == mission_id)
+            )
+            or 0
+        )
+        if not has_plan:
+            generate_plans_for_mission(session, mission, now_utc=now)
+            generated += 1
+
+    session.flush()
+    return generated
 
 
 def _seed_compute_nodes(
@@ -100,10 +205,19 @@ def _seed_compute_nodes(
 
 
 def reset_demo_data(session: Session) -> int:
-    """Delete all jobs; events, results, routing decisions, scenes, and
-    detections cascade via their FKs. Reference data is left in place."""
-    count = session.scalar(select(func.count()).select_from(Job)) or 0
-    session.execute(delete(Job))
+    """Delete visitor jobs only; preserve curated example jobs.
+
+    Events, results, routing decisions, scenes, and detections cascade via
+    their FKs. Reference data and ``is_example`` missions are left in place;
+    ``seed_database`` upserts curated example missions afterward.
+    """
+    count = (
+        session.scalar(
+            select(func.count()).select_from(Job).where(Job.is_example.is_(False))
+        )
+        or 0
+    )
+    session.execute(delete(Job).where(Job.is_example.is_(False)))
     session.commit()
     return int(count)
 
@@ -111,17 +225,43 @@ def reset_demo_data(session: Session) -> int:
 def main(argv: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser(
         prog="python -m app.seed",
-        description="Reseed reference data; optionally reset demo job data.",
+        description=(
+            "Reseed reference data; optionally reset demo job data or an "
+            "accelerator demo (Phase R)."
+        ),
     )
     parser.add_argument(
         "--reset",
         action="store_true",
-        help="wipe all job data (jobs, events, results, routing, scenes) first",
+        help=(
+            "with --demo=N: recreate that accelerator demo from fixtures; "
+            "without --demo: wipe visitor job data (preserves curated examples)"
+        ),
     )
     parser.add_argument(
         "--force",
         action="store_true",
         help="required for --reset when APP_ENV=production",
+    )
+    parser.add_argument(
+        "--demo",
+        type=int,
+        choices=[1, 2, 3],
+        default=None,
+        help="accelerator demo number to reset/seed (1, 2, or 3)",
+    )
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help=(
+            "with --demo: re-fetch STAC from Planetary Computer instead of the "
+            "pinned fixture (requires network)"
+        ),
+    )
+    parser.add_argument(
+        "--execute",
+        action="store_true",
+        help="with --demo=3: also run the real Phase M CPU crop after seeding",
     )
     args = parser.parse_args(argv)
 
@@ -131,6 +271,9 @@ def main(argv: Optional[List[str]] = None) -> None:
             "Refusing --reset with APP_ENV=production. Pass --force if this "
             "really is the disposable demo environment."
         )
+    if args.demo is not None and not args.reset:
+        # --demo always implies a reset of that demo's mission.
+        args.reset = True
 
     from app.db import SessionLocal, get_engine
     from app.db.migrate import run_migrations
@@ -138,6 +281,36 @@ def main(argv: Optional[List[str]] = None) -> None:
     run_migrations()
     session = SessionLocal(bind=get_engine())
     try:
+        if args.demo is not None:
+            from app.demos.accelerator import (
+                reset_accelerator_demo,
+                run_demo_cpu_execution,
+            )
+
+            seed_counts = seed_database(session)
+            summary = reset_accelerator_demo(
+                session, args.demo, live=bool(args.live)
+            )
+            session.commit()
+            payload: Dict[str, Any] = {
+                "accelerator_demo": summary,
+                "seeded": seed_counts,
+            }
+            if args.execute:
+                if args.demo != 3:
+                    raise SystemExit("--execute is only supported with --demo=3")
+                execution = run_demo_cpu_execution(session, demo_number=3)
+                session.commit()
+                payload["cpu_execution"] = {
+                    "status": execution["status"].get("status"),
+                    "observed_truth_status": execution.get("observed_truth_status"),
+                    "observed_metrics": execution.get("observed_metrics"),
+                    "job_id": execution["job"].get("external_job_id")
+                    or execution["job"].get("id"),
+                }
+            print(json.dumps(payload, indent=2, default=str))
+            return
+
         jobs_deleted = reset_demo_data(session) if args.reset else 0
         counts = seed_database(session)
     finally:
@@ -164,6 +337,8 @@ def _seed_ground_stations(
         record.latency_minutes = float(station["latency_minutes"])
         record.downlink_mbps = int(station["downlink_mbps"])
         record.availability = float(station["availability"])
+        record.access_level = AccessLevel.PUBLIC_INFORMATION.value
+        record.source_metadata = dict(GS_COORDINATE_METADATA)
 
 
 if __name__ == "__main__":

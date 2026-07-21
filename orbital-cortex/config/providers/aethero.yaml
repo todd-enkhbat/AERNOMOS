@@ -1,0 +1,22 @@
+provider_name: Aethero
+resource_type: edge
+external_id: null
+api_available: false
+sandbox_available: false
+auth_required: false
+supported_task_types:
+  - edge_process
+supported_data_formats: []
+geography: null
+pricing_source: null
+capacity_source: null
+current_status: unknown
+data_freshness: "2026-07-17"
+contact_info: null
+integration_status: public_data_only
+truth_status: PUBLIC_SOURCE
+source_url: https://www.aethero.com/
+notes: >
+  NxN-ECM (Jetson Orin) and NxA-ECM (Jetson AGX Orin/Thor, up to 4000 TOPS
+  dual-Thor, Kubernetes-clustered). Self-describes as space compute infrastructure
+  provider with compute-as-a-service model. Deployed on EnduroSat FRAME-15.

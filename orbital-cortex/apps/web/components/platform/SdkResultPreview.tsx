@@ -119,17 +119,18 @@ export function SdkResultPreview() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="chart-label text-gold">SDK output</p>
+          <p className="chart-label text-gold">Historical simulation · SDK output</p>
           <h2 className="display mt-2 text-2xl text-cream">
-            Offline reference detections returned through the production pipeline.
+            SIMULATED offline reference detections from the production pipeline.
           </h2>
           <p className="prose-compact mt-1 max-w-lg text-silver">
-            GeoJSON features, signed artifact URLs, and routing scores returned by
-            the Python SDK against {API_BASE_URL}.
+            Canned GeoJSON features, signed artifact URLs, and routing scores
+            returned by the Python SDK against {API_BASE_URL}. Not live vessel
+            intelligence.
           </p>
         </div>
         <LiquidButton href={`/jobs/${job.id}`} variant="outline">
-          Open mission view
+          Open demo job
         </LiquidButton>
       </div>
 
@@ -138,7 +139,7 @@ export function SdkResultPreview() {
           <HarborMap
             compact
             features={features}
-            subtitle={`${features.length} detections · ${route?.selected_node_id ?? "routing"}`}
+            subtitle={`SIMULATED · ${features.length} detections · ${route?.selected_node_id ?? "routing"}`}
             title={labelize(job.job_type)}
           />
         </div>

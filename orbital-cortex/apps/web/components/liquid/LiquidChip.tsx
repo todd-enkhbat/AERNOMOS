@@ -25,6 +25,7 @@ export function LiquidChip({
   const reduced = useReducedMotion();
   const finePointer = useFinePointer();
   const { ref, onMouseMove, onMouseLeave } = useLiquidMouse<HTMLButtonElement>();
+  const trackPointer = Boolean(finePointer);
 
   return (
     <motion.button
@@ -36,22 +37,33 @@ export function LiquidChip({
         .filter(Boolean)
         .join(" ")}
       onClick={onClick}
-      onMouseLeave={finePointer ? onMouseLeave : undefined}
-      onMouseMove={finePointer ? onMouseMove : undefined}
+      onMouseLeave={trackPointer ? onMouseLeave : undefined}
+      onMouseMove={trackPointer ? onMouseMove : undefined}
       ref={ref}
       type="button"
       whileHover={
         reduced || !finePointer
           ? undefined
-          : { y: -2, transition: { duration: 0.2, ease: easeOut } }
+          : {
+              y: -2,
+              scale: 1,
+              transition: { duration: 0.2, ease: easeOut }
+            }
       }
       whileTap={
         reduced
           ? undefined
-          : { scale: 0.97, transition: { duration: 0.12, ease: easeOut } }
+          : {
+              y: 0,
+              scale: 0.97,
+              transition: { duration: 0.12, ease: easeOut }
+            }
       }
       transition={spring}
     >
+      {trackPointer ? (
+        <span aria-hidden className="liquid-glass__specular" data-liquid-specular />
+      ) : null}
       <span className="liquid-glass__chip-label">{children}</span>
     </motion.button>
   );

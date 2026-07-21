@@ -1,13 +1,19 @@
-"""HTTP transport for the Nomos Orbital SDK."""
+"""HTTP transport for the Nomos Orbital SDK.
+
+The default transport keeps a cookie jar so the private anonymous session
+cookie minted by ``POST /v1/sessions`` is stored and resent automatically on
+subsequent mission requests.
+"""
 
 from __future__ import annotations
 
+import http.cookiejar
 import json
 from typing import Any, Dict, Optional, Protocol
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPCookieProcessor, OpenerDirector, Request, build_opener
 
-from orbitalcortex.exceptions import APIError, TransportError
+from orbitalcortex.exceptions import TransportError, error_from_response
 
 
 class Transport(Protocol):
@@ -24,7 +30,13 @@ class Transport(Protocol):
 
 
 class UrllibTransport:
-    """Small standard-library JSON transport."""
+    """Small standard-library JSON transport with an in-memory cookie jar."""
+
+    def __init__(self) -> None:
+        self._cookie_jar = http.cookiejar.CookieJar()
+        self._opener: OpenerDirector = build_opener(
+            HTTPCookieProcessor(self._cookie_jar)
+        )
 
     def request(
         self,
@@ -42,7 +54,7 @@ class UrllibTransport:
         request = Request(url=url, data=body, headers=headers, method=method)
 
         try:
-            with urlopen(request, timeout=timeout) as response:
+            with self._opener.open(request, timeout=timeout) as response:
                 raw = response.read()
                 if not raw:
                     return {}
@@ -53,14 +65,16 @@ class UrllibTransport:
             error = payload.get("error", {}) if isinstance(payload, dict) else {}
             message = error.get("message") or f"Nomos Orbital API returned {exc.code}"
             code = error.get("code") or "api_error"
-            raise APIError(
-                message,
+            raise error_from_response(
                 status_code=exc.code,
                 code=code,
+                message=message,
                 response=payload if isinstance(payload, dict) else {},
             ) from exc
         except URLError as exc:
-            raise TransportError(f"Could not reach Nomos Orbital API: {exc.reason}") from exc
+            raise TransportError(
+                f"Could not reach Nomos Orbital API: {exc.reason}"
+            ) from exc
         except TimeoutError as exc:
             raise TransportError("Timed out while calling Nomos Orbital API") from exc
 

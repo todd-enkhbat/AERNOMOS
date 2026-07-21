@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from typing import List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
+
+from app.models.provenance import ProvenancedValue
 
 
 class ComputeNode(BaseModel):
@@ -37,6 +39,8 @@ class GroundStation(BaseModel):
     latency_minutes: float
     downlink_mbps: int
     availability: float = Field(ge=0, le=1)
+    access_level: str = "public_information"
+    source_metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 class Satellite(BaseModel):
@@ -49,6 +53,7 @@ class Satellite(BaseModel):
     source: str
     snapshot_id: str
     downlink_rate_mbps: float
+    retrieved_at: Optional[str] = None
 
 
 class ContactWindow(BaseModel):
@@ -56,12 +61,15 @@ class ContactWindow(BaseModel):
     satellite_id: str
     ground_station_id: str
     date: str
-    aos_utc: str
-    culminate_utc: str
-    los_utc: str
-    max_elevation_deg: float
-    duration_s: float
-    est_downlink_mb: float
+    aos_utc: ProvenancedValue
+    culminate_utc: ProvenancedValue
+    los_utc: ProvenancedValue
+    max_elevation_deg: ProvenancedValue
+    duration_s: ProvenancedValue
+    est_downlink_mb: ProvenancedValue
+    tle_snapshot_id: str = ""
+    truth_status: str = "CALCULATED"
+    calculation_method: str = "SGP4/Skyfield.find_events"
 
 
 class NodesResponse(BaseModel):

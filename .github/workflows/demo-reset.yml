@@ -1,8 +1,9 @@
 name: demo-reset
 
-# F4: nightly reseed of the hosted demo to a clean canned state.
-# Wipes job data and reseeds reference data. The seed CLI's production
-# guard requires the explicit --force flag, passed only here.
+# Nightly reseed of the hosted demo to a clean canned state.
+# Deletes visitor-submitted jobs only (is_example=false), then reseeds
+# reference data and upserts curated example missions. Curated example
+# missions and curated example jobs are never deleted by this workflow.
 
 on:
   schedule:
@@ -39,7 +40,16 @@ jobs:
         working-directory: orbital-cortex/apps/api
         run: pip install -r requirements.txt
 
-      - name: Reset and reseed demo data
+      - name: Reset visitor jobs and reseed curated examples
         if: steps.gate.outputs.enabled == 'true'
         working-directory: orbital-cortex/apps/api
         run: python -m app.seed --reset --force
+
+      # Accelerator demos (Phase R): optional one-command reseeds for pitch
+      # rehearsal. Default uses pinned STAC fixtures (no live PC dependency).
+      # Uncomment to keep hosted demo DB primed with demos 1–3:
+      #   python -m app.seed --demo=1 --reset
+      #   python -m app.seed --demo=2 --reset
+      #   python -m app.seed --demo=3 --reset
+      # Local / CI rehearsal (no DEMO_DATABASE_URL required):
+      #   python -m pytest tests/test_accelerator_demos_phase_r.py -q

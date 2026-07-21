@@ -66,13 +66,13 @@ export function DemoBoundary({ compact = false }: { compact?: boolean }) {
   return (
     <aside className={`demo-boundary ${compact ? "demo-boundary--compact" : ""}`}>
       <span className="mission-stamp" aria-hidden>
-        DEMO
+        SIM
       </span>
       <div>
-        <p className="text-sm font-medium text-cream">What is real here</p>
+        <p className="text-sm font-medium text-cream">Historical simulation demo</p>
         <p className="mt-1 text-xs leading-5 text-muted">
           Production API and worker. Real SGP4 orbital math over pinned public data.
-          Simulated compute execution and offline reference results.
+          Compute execution, detections, and confidence scores are SIMULATED.
         </p>
       </div>
     </aside>

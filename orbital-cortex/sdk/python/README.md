@@ -46,6 +46,40 @@ job = client.jobs.create(
 print(job)
 ```
 
+## Mission planner
+
+The `missions` resource wraps the private mission workflow with customer
+terminology (mission, plan, candidate, share link). A private anonymous session
+is created automatically — no login and no API key required.
+
+```python
+from orbitalcortex import Client
+
+client = Client(base_url="http://localhost:8000")
+
+mission = client.missions.create(
+    title="Harbor monitoring",
+    objective_type="analyze_imagery",
+    area_of_interest={"type": "bbox", "coordinates": [-74.3, 40.3, -73.5, 41.0]},
+)
+plan = client.missions.generate_plan(mission["id"])
+report = client.missions.export_pdf(mission["id"])
+```
+
+Typed errors let you branch on customer-meaningful conditions instead of a
+generic HTTP error. See `orbital-cortex/docs/provider-integrations.md` for the
+full status-code + error-code mapping table.
+
+```python
+from orbitalcortex import (
+    NoCatalogData, NoFeasiblePlan, UpstreamProviderUnavailable,
+    UnauthorizedMission, ExpiredShareLink, StaleOrbitalData,
+    InvalidGeographicInput,
+)
+```
+
+A runnable example lives in `examples/plan_mission.py`.
+
 ## Async client
 
 ```python
@@ -67,6 +101,7 @@ async with AsyncClient(api_key="oc_test_123", base_url="http://localhost:8000") 
 
 | Resource | Methods |
 | --- | --- |
+| `client.missions` | `create`, `retrieve`, `list`, `list_examples`, `discover`, `candidates`, `infrastructure`, `generate_plan`, `list_plans`, `get_plan`, `export_pdf`, `latest_pdf`, `export_json`, `create_share_link` |
 | `client.jobs` | `create`, `list`, `retrieve`, `events`, `scene`, `detections`, `result`, `simulate_run`, `wait_for_job` |
 | `client.routing` | `retrieve`, `replay` |
 | `client.nodes` | `list` |

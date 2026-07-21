@@ -10,6 +10,7 @@ from urllib.parse import urljoin
 from orbitalcortex._retry import build_retrying
 from orbitalcortex.exceptions import JobTimeoutError
 from orbitalcortex.jobs import JobsResource
+from orbitalcortex.missions import MissionsResource
 from orbitalcortex.nodes import NodesResource
 from orbitalcortex.registry import RegistryResource
 from orbitalcortex.routing import RoutingResource
@@ -41,16 +42,29 @@ class Client:
         self.max_retries = max_retries
         self.retry_backoff_s = retry_backoff_s
         self._transport = transport or UrllibTransport()
+        self._session_ready = False
         self.jobs = JobsResource(self)
         self.nodes = NodesResource(self)
         self.registry = RegistryResource(self)
         self.routing = RoutingResource(self)
+        self.missions = MissionsResource(self)
 
     def health(self) -> Dict[str, Any]:
         return self._request("GET", "/healthz")
 
     def ready(self) -> Dict[str, Any]:
         return self._request("GET", "/readyz")
+
+    def ensure_session(self) -> Dict[str, Any]:
+        """Ensure a private anonymous session cookie exists.
+
+        Idempotent: the API resumes an existing valid session, otherwise mints a
+        new one and sets an HttpOnly cookie that the transport's cookie jar keeps
+        for subsequent mission requests.
+        """
+        result = self._request("POST", "/v1/sessions")
+        self._session_ready = True
+        return result
 
     def wait_for_job(
         self,
@@ -85,14 +99,17 @@ class Client:
         *,
         json_body: Optional[Dict[str, Any]] = None,
         retry: Optional[bool] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         headers = {
             "Accept": "application/json",
-            "User-Agent": "orbitalcortex-python/0.2.0",
+            "User-Agent": "orbitalcortex-python/0.3.0",
             "Authorization": f"Bearer {self.api_key}",
         }
         if json_body is not None:
             headers["Content-Type"] = "application/json"
+        if extra_headers:
+            headers.update({k: v for k, v in extra_headers.items() if v is not None})
 
         url = urljoin(f"{self.base_url}/", path.lstrip("/"))
         should_retry = retry if retry is not None else method.upper() == "GET"

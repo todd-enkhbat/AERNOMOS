@@ -155,13 +155,13 @@ export default function FinalSymposiumPage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              className="rounded-xl bg-[#1c1916] px-4 py-2.5 text-sm font-medium text-[#e8e2d4] transition hover:opacity-85"
+              className="rounded-xl bg-[#1c1916] px-4 py-2.5 text-sm font-medium text-[#e8e2d4] 	ransition-colors hover:opacity-85"
               href="/about"
             >
               Back to About
             </Link>
             <Link
-              className="rounded-xl border border-parchment-ink/25 px-4 py-2.5 text-sm font-medium transition hover:border-parchment-ink/50"
+              className="rounded-xl border border-parchment-ink/25 px-4 py-2.5 text-sm font-medium 	ransition-colors hover:border-parchment-ink/50"
               href="/#demo"
             >
               Run the product demo

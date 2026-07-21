@@ -16,6 +16,7 @@ from sqlalchemy import text
 from app.core.config import get_settings
 from app.db import SessionLocal, get_engine
 from app.main import app, run_migrations
+from tests.job_auth import create_private_job
 
 PAYLOAD = {
     "job_type": "ship_detection",
@@ -102,15 +103,26 @@ def test_public_job_list_hides_visitor_submissions():
     _reset_job_data()
 
     with TestClient(app) as client:
-        visitor = client.post("/v1/jobs", json=PAYLOAD).json()["job"]
+        created = client.post("/v1/jobs", json=PAYLOAD)
+        assert created.status_code == 201
+        visitor = created.json()["job"]
+        token = created.json()["access_token"]
         assert visitor["is_example"] is False
 
         listed = client.get("/v1/jobs")
         assert listed.status_code == 200
         assert visitor["id"] not in {job["id"] for job in listed.json()["jobs"]}
 
-        # Direct ID access still works for the submitter's own run.
-        detail = client.get(f"/v1/jobs/{visitor['id']}")
+        # Direct ID access without token is denied.
+        denied = client.get(f"/v1/jobs/{visitor['id']}")
+        assert denied.status_code == 401
+        assert denied.json()["error"]["code"] == "job_token_required"
+
+        # Submitter can read with the one-time access token.
+        detail = client.get(
+            f"/v1/jobs/{visitor['id']}",
+            headers={"X-Nomos-Job-Token": token},
+        )
         assert detail.status_code == 200
         assert detail.json()["job"]["id"] == visitor["id"]
 
@@ -135,17 +147,19 @@ def test_contact_windows_cursor_pagination():
         ids2 = {w["id"] for w in page2["contact_windows"]}
         assert ids1.isdisjoint(ids2)
         # Keyset ordering continues across the page boundary.
-        assert page2["contact_windows"][0]["aos_utc"] >= page1["contact_windows"][-1]["aos_utc"]
+        last_aos = page1["contact_windows"][-1]["aos_utc"]["value"]
+        first_aos = page2["contact_windows"][0]["aos_utc"]["value"]
+        assert first_aos >= last_aos
 
 
 def test_result_artifacts_served_via_signed_urls():
     _reset_job_data()
 
     with TestClient(app) as client:
-        job_id = client.post("/v1/jobs", json=PAYLOAD).json()["job"]["id"]
-        assert client.post(f"/v1/simulate/run/{job_id}").status_code == 200
+        job_id, headers = create_private_job(client, PAYLOAD)
+        assert client.post(f"/v1/simulate/run/{job_id}", headers=headers).status_code == 200
 
-        response = client.get(f"/v1/jobs/{job_id}/result")
+        response = client.get(f"/v1/jobs/{job_id}/result", headers=headers)
         assert response.status_code == 200
         body = response.json()
 

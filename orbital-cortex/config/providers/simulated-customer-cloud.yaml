@@ -1,0 +1,21 @@
+provider_name: Nomos simulated cloud
+resource_type: cloud
+external_id: simulated-customer-cloud
+api_available: false
+sandbox_available: false
+auth_required: false
+supported_task_types:
+  - cloud_process
+supported_data_formats: []
+geography: null
+pricing_source: null
+capacity_source: null
+current_status: unknown
+data_freshness: "2026-07-17"
+contact_info: null
+integration_status: simulated
+truth_status: SIMULATED
+source_url: null
+notes: >
+  Placeholder cloud compute entry for planning shells when no live cloud
+  provider is connected. Not a real provider integration.

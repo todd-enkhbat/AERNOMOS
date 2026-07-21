@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
@@ -9,43 +9,38 @@ import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { LiquidCard } from "@/components/liquid/LiquidCard";
 import {
   apiErrorMessage,
-  createMission,
   ensureAnonymousSession,
   listExampleMissions,
   listMissions,
   type MissionSummary
 } from "@/lib/api";
+import { OBJECTIVE_LABELS, type ObjectiveType } from "@/lib/mission-builder";
 import { formatDateTime } from "@/lib/format";
 
-const DEFAULT_AOI = {
-  type: "bbox",
-  coordinates: [-74.3, 40.3, -73.5, 41.0]
-};
+function objectiveLabel(value: string): string {
+  return OBJECTIVE_LABELS[value as ObjectiveType] ?? value;
+}
 
 export default function MissionsPage() {
   const [missions, setMissions] = useState<MissionSummary[]>([]);
   const [examples, setExamples] = useState<MissionSummary[]>([]);
-  const [title, setTitle] = useState("Maritime awareness draft");
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-
-  async function refresh() {
-    await ensureAnonymousSession();
-    const [mine, publicExamples] = await Promise.all([
-      listMissions(),
-      listExampleMissions()
-    ]);
-    setMissions(mine.missions);
-    setExamples(publicExamples.missions);
-  }
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        await refresh();
-        if (mounted) setNotice(null);
+        await ensureAnonymousSession();
+        const [mine, publicExamples] = await Promise.all([
+          listMissions(),
+          listExampleMissions()
+        ]);
+        if (mounted) {
+          setMissions(mine.missions);
+          setExamples(publicExamples.missions);
+          setNotice(null);
+        }
       } catch (error) {
         if (mounted) setNotice(apiErrorMessage(error));
       } finally {
@@ -57,34 +52,17 @@ export default function MissionsPage() {
     };
   }, []);
 
-  async function onCreate(event: FormEvent) {
-    event.preventDefault();
-    setSubmitting(true);
-    setNotice(null);
-    try {
-      await ensureAnonymousSession();
-      const created = await createMission({
-        title: title.trim() || "Untitled mission",
-        objective_type: "ship_detection",
-        area_of_interest: DEFAULT_AOI,
-        notes: "Private session mission"
-      });
-      setTitle("Maritime awareness draft");
-      await refresh();
-      setNotice(`Created private mission ${created.mission.id.slice(0, 8)}…`);
-    } catch (error) {
-      setNotice(apiErrorMessage(error, "Could not create a private mission."));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Private workspace"
         title="Your missions"
         description="Missions stay inside this browser’s private anonymous session. Other visitors cannot list or open them without a share token."
+        action={
+          <LiquidButton href="/plan" variant="primary">
+            Build a mission plan
+          </LiquidButton>
+        }
       />
 
       {notice ? (
@@ -95,24 +73,16 @@ export default function MissionsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <LiquidCard>
-          <p className="chart-label text-gold">New private mission</p>
-          <form className="mt-4 space-y-4" onSubmit={onCreate}>
-            <label className="block text-sm text-muted">
-              Title
-              <input
-                className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-cream outline-none focus:border-gold/40"
-                onChange={(event) => setTitle(event.target.value)}
-                value={title}
-              />
-            </label>
-            <p className="text-xs leading-5 text-muted">
-              Uses a default NY Harbor AOI for now. The guided planner form arrives in a
-              later phase.
-            </p>
-            <LiquidButton disabled={submitting} type="submit" variant="primary">
-              {submitting ? "Creating…" : "Create private mission"}
+          <p className="chart-label text-gold">New mission</p>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Use the guided planner to describe your objective, area, and constraints in
+            plain language — then save a private mission plan for this session.
+          </p>
+          <div className="mt-5">
+            <LiquidButton href="/plan" variant="primary">
+              Build a mission plan
             </LiquidButton>
-          </form>
+          </div>
         </LiquidCard>
 
         <LiquidCard>
@@ -121,19 +91,23 @@ export default function MissionsPage() {
             <p className="mt-4 text-sm text-muted">Loading private missions…</p>
           ) : missions.length === 0 ? (
             <p className="mt-4 text-sm text-muted">
-              No private missions yet. Create one to keep it scoped to this session only.
+              No private missions yet.{" "}
+              <Link className="text-gold hover:underline" href="/plan">
+                Build a mission plan
+              </Link>{" "}
+              to keep one scoped to this session only.
             </p>
           ) : (
             <ul className="mt-4 space-y-3">
               {missions.map((mission) => (
                 <li key={mission.id}>
                   <Link
-                    className="block rounded-xl border border-white/10 px-3 py-3 transition hover:border-gold/30"
+                    className="block rounded-xl border border-white/10 px-3 py-3 	ransition-colors hover:border-gold/30"
                     href={`/missions/${mission.id}`}
                   >
                     <p className="text-sm font-medium text-cream">{mission.title}</p>
                     <p className="mt-1 text-xs text-muted">
-                      {mission.objective_type} · {mission.status} ·{" "}
+                      {objectiveLabel(mission.objective_type)} · {mission.status} ·{" "}
                       {formatDateTime(mission.created_at)}
                     </p>
                   </Link>
@@ -155,12 +129,13 @@ export default function MissionsPage() {
             {examples.map((mission) => (
               <li key={mission.id}>
                 <Link
-                  className="block rounded-xl border border-white/10 px-3 py-3 transition hover:border-gold/30"
+                  className="block rounded-xl border border-white/10 px-3 py-3 	ransition-colors hover:border-gold/30"
                   href={`/missions/${mission.id}`}
                 >
                   <p className="text-sm font-medium text-cream">{mission.title}</p>
                   <p className="mt-1 text-xs text-muted">
-                    Example · {mission.objective_type} · {formatDateTime(mission.created_at)}
+                    Example · {objectiveLabel(mission.objective_type)} ·{" "}
+                    {formatDateTime(mission.created_at)}
                   </p>
                 </Link>
               </li>

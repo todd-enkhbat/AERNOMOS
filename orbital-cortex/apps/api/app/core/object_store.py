@@ -124,6 +124,8 @@ def content_type_for(key: str) -> str:
         return "application/geo+json"
     if key.endswith(".json"):
         return "application/json"
+    if key.endswith(".pdf"):
+        return "application/pdf"
     if key.endswith(".tif") or key.endswith(".tiff"):
         return "image/tiff"
     return "application/octet-stream"

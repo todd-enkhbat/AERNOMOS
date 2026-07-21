@@ -21,7 +21,19 @@ from app.core.logging import configure_logging, get_logger
 from app.core.ratelimit import limiter
 from app.db import SessionLocal, get_engine
 from app.db.migrate import run_migrations
-from app.routes import artifacts, jobs, missions, nodes, registry, results, routing, sessions
+from app.routes import (
+    admin,
+    artifacts,
+    jobs,
+    leads,
+    missions,
+    nodes,
+    registry,
+    results,
+    routing,
+    sessions,
+)
+from app.security.redaction import redact_request_path
 from app.seed import seed_database
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -56,8 +68,26 @@ def warm_pass_cache_if_empty() -> None:
         session.close()
 
 
+def _assert_production_secrets() -> None:
+    """Refuse to boot production with checked-in default signing salts."""
+    if settings.app_env != "production":
+        return
+    weak = []
+    if settings.artifact_signing_secret.startswith("dev-only"):
+        weak.append("ARTIFACT_SIGNING_SECRET")
+    if settings.analytics_hash_salt.startswith("dev-only"):
+        weak.append("ANALYTICS_HASH_SALT")
+    if weak:
+        raise RuntimeError(
+            "Refusing to start in production with default secrets: "
+            + ", ".join(weak)
+            + ". Set strong unique values via Fly secrets."
+        )
+
+
 @asynccontextmanager
 async def lifespan(app):  # type: ignore[no-untyped-def]
+    _assert_production_secrets()
     run_migrations()
     session = SessionLocal(bind=get_engine())
     try:
@@ -119,7 +149,7 @@ async def request_context(request, call_next):  # type: ignore[no-untyped-def]
     structlog.contextvars.bind_contextvars(
         request_id=request_id,
         method=request.method,
-        path=request.url.path,
+        path=redact_request_path(request.url.path),
     )
     started = time.perf_counter()
     try:
@@ -156,13 +186,23 @@ async def http_exception_handler(request, exc):  # type: ignore[no-untyped-def]
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):  # type: ignore[no-untyped-def]
+    errors = exc.errors()
+    message = "Request validation failed."
+    if errors:
+        first = errors[0]
+        loc = ".".join(str(part) for part in first.get("loc", ()) if part != "body")
+        msg = first.get("msg", message)
+        if loc:
+            message = f"{loc}: {msg}"
+        else:
+            message = str(msg)
     return JSONResponse(
         status_code=422,
         content={
             "error": {
                 "code": "validation_error",
-                "message": "Request validation failed.",
-                "details": jsonable_encoder(exc.errors()),
+                "message": message,
+                "details": jsonable_encoder(errors),
             }
         },
     )
@@ -227,6 +267,8 @@ def readyz() -> JSONResponse:
 
 
 app.include_router(sessions.router)
+app.include_router(admin.router)
+app.include_router(leads.router)
 app.include_router(missions.router)
 app.include_router(jobs.router)
 app.include_router(nodes.router)

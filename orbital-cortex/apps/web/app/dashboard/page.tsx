@@ -170,7 +170,7 @@ export default function DashboardPage() {
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-cream">Curated demo examples</h2>
           <Link
-            className="text-sm text-muted underline decoration-line underline-offset-4 transition hover:text-cream"
+            className="text-sm text-muted underline decoration-line underline-offset-4 	ransition-colors hover:text-cream"
             href="/missions"
           >
             Private missions
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                     <tr key={job.id}>
                       <td>
                         <Link
-                          className="font-medium text-cream transition hover:text-gold-bright"
+                          className="font-medium text-cream 	ransition-colors hover:text-gold-bright"
                           href={`/jobs/${job.id}`}
                         >
                           {labelize(job.job_type)}

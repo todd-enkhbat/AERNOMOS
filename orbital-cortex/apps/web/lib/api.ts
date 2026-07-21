@@ -131,55 +131,87 @@ export function createJob(
       Authorization: `Bearer ${apiKey}`
     },
     body: JSON.stringify(payload)
+  }).then((response) => {
+    if (response.access_token && response.job?.id) {
+      storeJobAccessToken(response.job.id, response.access_token);
+    }
+    return response;
   });
 }
 
+function jobAuthHeaders(jobId: string): HeadersInit {
+  const token =
+    typeof window !== "undefined" ? getJobAccessToken(jobId) : null;
+  return token ? { "X-Nomos-Job-Token": token } : {};
+}
+
+const JOB_TOKEN_PREFIX = "nomos_job_token:";
+
+export function storeJobAccessToken(jobId: string, token: string): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(`${JOB_TOKEN_PREFIX}${jobId}`, token);
+}
+
+export function getJobAccessToken(jobId: string): string | null {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem(`${JOB_TOKEN_PREFIX}${jobId}`);
+}
+
 export function getJob(jobId: string): Promise<JobDetailResponse> {
-  return request<JobDetailResponse>(`/v1/jobs/${jobId}`);
+  return request<JobDetailResponse>(`/v1/jobs/${jobId}`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getEvents(jobId: string): Promise<EventsResponse> {
-  return request<EventsResponse>(`/v1/jobs/${jobId}/events`);
+  return request<EventsResponse>(`/v1/jobs/${jobId}/events`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getRouting(jobId: string): Promise<RoutingResponse> {
-  return request<RoutingResponse>(`/v1/jobs/${jobId}/routing`);
+  return request<RoutingResponse>(`/v1/jobs/${jobId}/routing`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function replayRouting(jobId: string): Promise<ReplayResponse> {
-  return request<ReplayResponse>(`/v1/jobs/${jobId}/replay`, { method: "POST" });
+  return request<ReplayResponse>(`/v1/jobs/${jobId}/replay`, {
+    method: "POST",
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getDetections(jobId: string): Promise<DetectionsGeoJson> {
   return request<DetectionsGeoJson>(`/v1/jobs/${jobId}/detections`, {
-    headers: { Accept: "application/geo+json" }
+    headers: {
+      Accept: "application/geo+json",
+      ...jobAuthHeaders(jobId)
+    }
   });
 }
 
 export function getScene(jobId: string): Promise<SceneResponse> {
-  return request<SceneResponse>(`/v1/jobs/${jobId}/scene`);
+  return request<SceneResponse>(`/v1/jobs/${jobId}/scene`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function getResult(jobId: string): Promise<ResultResponse> {
-  return request<ResultResponse>(`/v1/jobs/${jobId}/result`);
+  return request<ResultResponse>(`/v1/jobs/${jobId}/result`, {
+    headers: jobAuthHeaders(jobId)
+  });
 }
 
 export function runSimulation(jobId: string): Promise<SimulateRunResponse> {
   return request<SimulateRunResponse>(`/v1/simulate/run/${jobId}`, {
-    method: "POST"
+    method: "POST",
+    headers: jobAuthHeaders(jobId)
   });
 }
 
-export type MissionSummary = {
-  id: string;
-  title: string;
-  objective_type: string;
-  status: string;
-  is_example: boolean;
-  created_at: string;
-  notes?: string | null;
-  area_of_interest?: Record<string, unknown>;
-};
+export type MissionSummary =
+  import("@/lib/generated/api-types").components["schemas"]["MissionOut"];
 
 export type SessionResponse = {
   session: {
@@ -198,10 +230,43 @@ export type ShareLinkResponse = {
     id: string;
     mission_id: string;
     token?: string;
+    created_at?: string;
     expires_at?: string | null;
     revoked_at?: string | null;
     permissions: string[];
   };
+};
+
+export type ShareLinkListResponse = {
+  share_links: ShareLinkResponse["share_link"][];
+};
+
+export type ShareResolveResponse = {
+  mission_id: string;
+  permissions: string[];
+  expires_at?: string | null;
+};
+
+export type MissionPdfExport = {
+  id: string;
+  mission_id: string;
+  export_type: string;
+  status: string;
+  artifact_key?: string | null;
+  error_message?: string | null;
+  created_at?: string | null;
+  completed_at?: string | null;
+  download_url?: string | null;
+};
+
+export type MissionPdfExportResponse = { export: MissionPdfExport };
+
+export type MissionJsonExport = {
+  schema_version: number;
+  document_type: string;
+  generated_at: string;
+  mission_input: Record<string, unknown>;
+  [key: string]: unknown;
 };
 
 export function ensureAnonymousSession(): Promise<SessionResponse> {
@@ -216,12 +281,29 @@ export function listExampleMissions(): Promise<MissionsListResponse> {
   return missionRequest<MissionsListResponse>("/v1/missions/examples");
 }
 
-export function createMission(payload: {
+export type MissionCreatePayload = {
   title: string;
   objective_type: string;
   area_of_interest: Record<string, unknown>;
+  status?: string;
+  start_time?: string;
+  end_time?: string;
+  deadline?: string;
+  max_cost_usd?: number;
+  max_data_volume_mb?: number;
+  preferred_compute_location?: string;
+  allowed_regions?: unknown[];
+  data_source_preference?: unknown[];
+  customer_systems?: unknown[];
   notes?: string;
-}): Promise<MissionResponse> {
+  organization_name?: string;
+  use_case?: string;
+  max_age_days?: number;
+  onboard_processing?: string;
+  data_residency?: string;
+};
+
+export function createMission(payload: MissionCreatePayload): Promise<MissionResponse> {
   return missionRequest<MissionResponse>("/v1/missions", {
     method: "POST",
     body: JSON.stringify(payload)
@@ -239,10 +321,377 @@ export function getMission(
   return missionRequest<MissionResponse>(`/v1/missions/${missionId}`, { headers });
 }
 
-export function createShareLink(missionId: string): Promise<ShareLinkResponse> {
+export function createShareLink(
+  missionId: string,
+  options?: { expires_at?: string; permissions?: string[] }
+): Promise<ShareLinkResponse> {
   return missionRequest<ShareLinkResponse>(`/v1/missions/${missionId}/share-links`, {
     method: "POST",
-    body: JSON.stringify({ permissions: ["read"] })
+    body: JSON.stringify({
+      permissions: options?.permissions ?? ["read"],
+      expires_at: options?.expires_at,
+    }),
   });
 }
 
+export function listShareLinks(missionId: string): Promise<ShareLinkListResponse> {
+  return missionRequest<ShareLinkListResponse>(`/v1/missions/${missionId}/share-links`);
+}
+
+export function revokeShareLink(
+  missionId: string,
+  shareLinkId: string
+): Promise<ShareLinkResponse> {
+  return missionRequest<ShareLinkResponse>(
+    `/v1/missions/${missionId}/share-links/${shareLinkId}/revoke`,
+    { method: "POST" }
+  );
+}
+
+export function resolveShareToken(token: string): Promise<ShareResolveResponse> {
+  return missionRequest<ShareResolveResponse>(`/v1/share/${encodeURIComponent(token)}`);
+}
+
+export function exportMissionJson(
+  missionId: string,
+  shareToken?: string
+): Promise<MissionJsonExport> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<MissionJsonExport>(`/v1/missions/${missionId}/exports/json`, {
+    headers,
+  });
+}
+
+export function requestMissionPdf(missionId: string): Promise<MissionPdfExportResponse> {
+  return missionRequest<MissionPdfExportResponse>(
+    `/v1/missions/${missionId}/exports/pdf`,
+    { method: "POST" }
+  );
+}
+
+export function getMissionPdfExport(
+  missionId: string,
+  exportId?: string
+): Promise<MissionPdfExportResponse> {
+  const path = exportId
+    ? `/v1/missions/${missionId}/exports/pdf/${exportId}`
+    : `/v1/missions/${missionId}/exports/pdf`;
+  return missionRequest<MissionPdfExportResponse>(path);
+}
+
+export type CatalogCandidate = {
+  id: string;
+  mission_id: string;
+  source_provider: string;
+  collection: string;
+  external_item_id: string;
+  acquisition_time: ProvenancedField<string>;
+  footprint: Record<string, unknown>;
+  available_assets: Array<{
+    key?: string | null;
+    media_type?: string | null;
+    roles: string[];
+    title?: string | null;
+  }>;
+  estimated_size_bytes?: ProvenancedField<number> | null;
+  source_url?: string | null;
+  source_timestamp: string;
+  truth_status: string;
+  created_at: string;
+};
+
+export type ProvenancedField<T = unknown> = {
+  value: T;
+  truth_status: string;
+  source?: string | null;
+  retrieved_at?: string | null;
+  effective_at?: string | null;
+  method?: string | null;
+  explanation?: string | null;
+  freshness?: string | null;
+};
+
+export type MissionInfrastructureResponse = import("@/lib/generated/api-types").components["schemas"]["MissionInfrastructureResponse"];
+
+export type CatalogCandidatesResponse = { candidates: CatalogCandidate[] };
+
+export function discoverMissionCatalog(
+  missionId: string,
+  payload: {
+    start_time?: string;
+    end_time?: string;
+    collections?: string[];
+    limit?: number;
+  } = {}
+): Promise<CatalogCandidatesResponse> {
+  return missionRequest<CatalogCandidatesResponse>(
+    `/v1/missions/${missionId}/discover`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }
+  );
+}
+
+export function listMissionCandidates(
+  missionId: string,
+  shareToken?: string
+): Promise<CatalogCandidatesResponse> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<CatalogCandidatesResponse>(
+    `/v1/missions/${missionId}/candidates`,
+    { headers }
+  );
+}
+
+export function getMissionInfrastructure(
+  missionId: string,
+  shareToken?: string
+): Promise<MissionInfrastructureResponse> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<MissionInfrastructureResponse>(
+    `/v1/missions/${missionId}/infrastructure`,
+    { headers }
+  );
+}
+
+export type MissionPlanStep = {
+  id: string;
+  mission_plan_id: string;
+  sequence: number;
+  step_type: string;
+  provider_name: string;
+  resource_id?: string | null;
+  title: string;
+  description: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  duration_seconds?: number | null;
+  estimated_cost_usd?: number | null;
+  input_artifact?: string | null;
+  output_artifact?: string | null;
+  truth_status: string;
+  source_metadata?: Record<string, unknown>;
+  feasibility_status: string;
+  rejection_reason?: string | null;
+  execution_status?: string;
+  executed_at?: string | null;
+};
+
+export type ObservedMetrics = {
+  transfer_seconds: number;
+  execution_seconds: number;
+  input_bytes: number;
+  output_bytes: number;
+  storage_location: string;
+};
+
+export type ExecutionResult = {
+  external_job_id: string;
+  output_ref: string;
+  observed: ObservedMetrics;
+};
+
+export type ExecuteStepRequest = {
+  step_id: string;
+  task_type: string;
+  input_ref: string;
+  params?: Record<string, unknown>;
+  idempotency_key?: string | null;
+};
+
+export type ExecuteStepResponse = {
+  job: {
+    external_job_id: string;
+    idempotency_key: string;
+    status: "queued" | "running" | "succeeded" | "failed";
+  };
+  estimate: {
+    estimated_seconds: number;
+    estimated_cost_usd: number;
+  };
+  plan_step_id: string;
+  provider_id: string;
+};
+
+export type ExecutionStatusResponse = {
+  job: {
+    external_job_id: string;
+    status: "queued" | "running" | "succeeded" | "failed";
+    error?: string | null;
+  };
+  task_type: string;
+  plan_step_id?: string | null;
+  result?: ExecutionResult | null;
+  observed_truth_status?: string | null;
+  download_url?: string | null;
+};
+
+export type SourceEvidence = {
+  id: string;
+  mission_id: string;
+  mission_plan_id?: string | null;
+  mission_plan_step_id?: string | null;
+  source_name: string;
+  source_type: string;
+  source_url?: string | null;
+  retrieved_at?: string | null;
+  effective_at?: string | null;
+  raw_value?: Record<string, unknown>;
+  transformed_value?: Record<string, unknown>;
+  transformation_method?: string | null;
+  truth_status: string;
+};
+
+export type PlanEstimate = {
+  value?: number | null;
+  truth_status?: string;
+  method?: string | null;
+};
+
+export type MissionPlan = {
+  id: string;
+  mission_id: string;
+  version: number;
+  recommended: boolean;
+  status: string;
+  summary: string;
+  estimated_total_time_seconds?: number | null;
+  estimated_total_cost_usd?: number | null;
+  confidence?: number | null;
+  assumptions?: unknown[];
+  created_at?: string | null;
+  pattern?: string | null;
+  plan_hash?: string | null;
+  feasibility_status?: string | null;
+  explanation?: {
+    why_recommended?: string;
+    executable_now?: string[];
+    needs_provider?: string[];
+    top_assumptions?: string[];
+    missing_integrations?: string[];
+    rejection_reasons?: Array<{ code?: string; message?: string }>;
+  } | null;
+  estimates?: {
+    duration?: PlanEstimate;
+    data_movement_mb?: PlanEstimate;
+    cost_usd?: PlanEstimate;
+  } | null;
+  score?: number | null;
+  planner_config_version?: string | null;
+  input_hash?: string | null;
+  steps?: MissionPlanStep[] | null;
+  evidence?: SourceEvidence[] | null;
+};
+
+export type MissionPlansGenerateResponse = {
+  plans: MissionPlan[];
+  recommended_plan_id?: string | null;
+  planner_config_version: string;
+  generation_strategy: string;
+};
+
+export function generateMissionPlans(
+  missionId: string
+): Promise<MissionPlansGenerateResponse> {
+  return missionRequest<MissionPlansGenerateResponse>(
+    `/v1/missions/${missionId}/plans`,
+    { method: "POST", body: "{}" }
+  );
+}
+
+export function listMissionPlans(
+  missionId: string,
+  shareToken?: string
+): Promise<{ plans: MissionPlan[]; generation_strategy: string }> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest(`/v1/missions/${missionId}/plans`, { headers });
+}
+
+export function getMissionPlan(
+  missionId: string,
+  planId: string,
+  shareToken?: string
+): Promise<{ plan: MissionPlan }> {
+  const headers: HeadersInit = {};
+  if (shareToken) {
+    headers["X-Nomos-Share-Token"] = shareToken;
+  }
+  return missionRequest<{ plan: MissionPlan }>(
+    `/v1/missions/${missionId}/plans/${planId}`,
+    { headers }
+  );
+}
+
+export function executePlanStep(
+  missionId: string,
+  planId: string,
+  body: ExecuteStepRequest
+): Promise<ExecuteStepResponse> {
+  return missionRequest<ExecuteStepResponse>(
+    `/v1/missions/${missionId}/plans/${planId}/execute`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+}
+
+export function getExecutionStatus(
+  missionId: string,
+  planId: string,
+  externalJobId: string
+): Promise<ExecutionStatusResponse> {
+  return missionRequest<ExecutionStatusResponse>(
+    `/v1/missions/${missionId}/plans/${planId}/execute/${externalJobId}`
+  );
+}
+
+
+export type FeedbackRating = "yes" | "partly" | "no";
+
+export type MissionFeedbackPayload = {
+  rating: FeedbackRating;
+  comment?: string;
+};
+
+export type DesignPartnerRequestPayload = {
+  mission_id?: string;
+  name: string;
+  work_email: string;
+  organization: string;
+  role: string;
+  mission_type: string;
+  requested_integration: string;
+  permission_to_contact: boolean;
+  /** Honeypot — humans leave empty; bots often fill it. */
+  website?: string;
+};
+
+export function submitMissionFeedback(
+  missionId: string,
+  payload: MissionFeedbackPayload
+): Promise<{ feedback: Record<string, unknown> }> {
+  return missionRequest(`/v1/missions/${missionId}/feedback`, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function submitDesignPartnerRequest(
+  payload: DesignPartnerRequestPayload
+): Promise<{ request: Record<string, unknown> }> {
+  return missionRequest("/v1/design-partner-requests", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}

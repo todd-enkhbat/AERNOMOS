@@ -1,11 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import { LiquidCard } from "@/components/liquid/LiquidCard";
 import type { CandidateScore } from "@/lib/types";
 
 export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
+  const reduced = useReducedMotion();
   const width = Math.max(0, Math.min(100, candidate.score));
   const factors = [
     ["Model", candidate.model_support_score],
@@ -39,11 +40,13 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
       ) : null}
       <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/40">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-brass to-gold-bright"
-          initial={{ width: 0 }}
-          transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
+          className="h-full w-full origin-left rounded-full bg-gradient-to-r from-brass to-gold-bright"
+          initial={reduced ? false : { scaleX: 0 }}
+          transition={
+            reduced ? { duration: 0 } : { duration: 0.28, ease: [0.32, 0.72, 0, 1] }
+          }
           viewport={{ once: true }}
-          whileInView={{ width: `${width}%` }}
+          whileInView={{ scaleX: width / 100 }}
         />
       </div>
       <div className="mt-4 grid grid-cols-4 gap-2 lg:grid-cols-7">

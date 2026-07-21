@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core import storage
 from app.core.object_store import get_object_store
 from app.db import get_db
+from app.deps.jobs import require_job_access
 from app.models.errors import ErrorResponse
 from app.models.result import ResultResponse
 
@@ -21,22 +22,21 @@ router = APIRouter(prefix="/v1", tags=["results"])
     response_model=ResultResponse,
     summary="Get the result manifest for a completed job",
     responses={
-        404: {"model": ErrorResponse, "description": "Job not found or result not ready"}
+        401: {"model": ErrorResponse, "description": "Job access token required"},
+        403: {"model": ErrorResponse, "description": "Job access denied"},
+        404: {"model": ErrorResponse, "description": "Job not found or result not ready"},
     },
 )
 def get_result(
-    job_id: str,
+    job: Dict[str, Any] = Depends(require_job_access),
     session: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    job = storage.get_job(session, job_id)
-    if job is None:
-        raise _api_error(404, "job_not_found", f"No job exists for id {job_id}.")
-    result = storage.get_result(session, job_id)
+    result = storage.get_result(session, job["id"])
     if result is None:
         raise _api_error(
             404,
             "result_not_ready",
-            f"Result is not ready for job id {job_id}.",
+            f"Result is not ready for job id {job['id']}.",
         )
     store = get_object_store()
     artifacts = [

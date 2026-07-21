@@ -1,23 +1,9 @@
 import dynamic from "next/dynamic";
-import Image from "next/image";
+import Link from "next/link";
 
-import {
-  ArchiveHeader,
-  CelestialDivider,
-  DemoBoundary,
-  ProvenancePlate
-} from "@/components/archive/ArchivePrimitives";
 import { NomosMark } from "@/components/brand/NomosMark";
-import { DemoLauncher } from "@/components/jobs/DemoLauncher";
-import { ImmersiveScrollBand } from "@/components/motion/ImmersiveScrollBand";
 import { FadeIn } from "@/components/motion/primitives";
 import { LiquidButton, LiquidCard, LiquidSection } from "@/components/liquid";
-
-const SdkResultPreview = dynamic(
-  () =>
-    import("@/components/platform/SdkResultPreview").then((m) => m.SdkResultPreview),
-  { ssr: false, loading: () => <div className="liquid-glass liquid-glass--card min-h-[280px] animate-pulse" /> }
-);
 
 const OrbitalScene = dynamic(
   () => import("@/components/orbital/OrbitalScene"),
@@ -29,173 +15,176 @@ const OrbitalScene = dynamic(
   }
 );
 
-const pipeline = [
-  { step: "01", title: "Request", detail: "Describe the job, area, budget, and priority.", proof: "POST /v1/jobs" },
-  { step: "02", title: "Score", detail: "Compare eligible compute targets across seven factors.", proof: "7 weighted factors" },
-  { step: "03", title: "Route", detail: "Select a path and preserve why it won.", proof: "sha256 replay hash" },
-  { step: "04", title: "Return", detail: "Deliver machine-readable results and artifacts.", proof: "GeoJSON + signed URLs" }
+const steps = [
+  {
+    step: "01",
+    title: "Describe the mission",
+    detail:
+      "Tell Nomos what you need: objective, area, timing, and constraints in plain language."
+  },
+  {
+    step: "02",
+    title: "Nomos evaluates real data and infrastructure",
+    detail:
+      "It searches public catalogs, calculates contact opportunities, and compares feasible routes."
+  },
+  {
+    step: "03",
+    title: "Receive a traceable recommended plan",
+    detail:
+      "You get a technical mission brief with sources, assumptions, and labeled gaps."
+  }
+];
+
+const doesToday = [
+  "Searches real public data catalogs",
+  "Calculates satellite and ground contact opportunities",
+  "Compares feasible infrastructure routes",
+  "Labels assumptions and unavailable integrations",
+  "Generates a technical mission brief"
+];
+
+const requiresProvider = [
+  "Satellite tasking",
+  "Ground-station reservation",
+  "Onboard execution",
+  "Private telemetry",
+  "Commercial pricing guarantees"
 ];
 
 export default function HomePage() {
   return (
     <div className="relative pb-6">
       <LiquidSection className="relative overflow-hidden">
-        <OrbitalScene className="pointer-events-none absolute inset-0 -top-16 h-[calc(100%+4rem)] w-full opacity-45" />
+        <OrbitalScene className="pointer-events-none absolute inset-0 -top-16 h-[calc(100%+4rem)] w-full opacity-40" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,5,6,0.88)_0%,rgba(5,5,6,0.72)_42%,rgba(5,5,6,0.35)_70%,rgba(5,5,6,0.2)_100%)]"
+        />
         <div className="page-shell relative">
-          <div className="grid gap-8 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-12">
-            <div>
-              <FadeIn>
-                <p className="chart-label flex items-center gap-2 text-silver">
-                  <NomosMark size={20} />
-                  Orbital compute orchestration
-                </p>
-              </FadeIn>
-              <FadeIn delay={0.06}>
-                <h1 className="display mt-4 text-[2.75rem] leading-[1.02] text-cream sm:text-6xl lg:text-[4.25rem]">
-                  Order, for the
-                  <br />
-                  <span className="gold-shine">orbital age.</span>
-                </h1>
-              </FadeIn>
-              <FadeIn delay={0.12}>
-                <p className="prose-compact mt-4 max-w-md text-silver">
-                  Submit a satellite-data AI job. Nomos compares orbital and cloud
-                  compute candidates, selects a route, and shows exactly why.
-                </p>
-              </FadeIn>
-              <FadeIn delay={0.18}>
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <LiquidButton href="/#demo" variant="primary">
-                    Run live demo
-                  </LiquidButton>
-                  <LiquidButton href="/network" variant="ghost">
-                    Network console →
-                  </LiquidButton>
-                </div>
-              </FadeIn>
-            </div>
-            <FadeIn className="flex justify-center lg:justify-end" delay={0.16} y={12}>
-              <DemoLauncher />
+          <div className="flex min-h-[min(78vh,720px)] flex-col justify-center py-14 lg:py-16">
+            <FadeIn>
+              <p className="chart-label flex items-center gap-2 text-silver">
+                <NomosMark size={20} />
+                Nomos Orbital
+              </p>
             </FadeIn>
-          </div>
-
-          <DemoBoundary />
-
-          <div className="mt-10 border-t border-gold/10 pt-10 lg:mt-12 lg:pt-12" id="sdk-output">
-            <SdkResultPreview />
+            <FadeIn delay={0.06}>
+              <h1 className="display mt-5 max-w-3xl text-[2.15rem] leading-[1.08] text-cream sm:text-5xl lg:text-[3.35rem]">
+                Plan how your space-data workload should move across satellite,
+                ground, and cloud infrastructure.
+              </h1>
+            </FadeIn>
+            <FadeIn delay={0.12}>
+              <p className="prose-compact mt-5 max-w-xl text-silver">
+                Describe your mission and constraints. Nomos generates a
+                source-backed execution plan using real orbital and
+                infrastructure data.
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.18}>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <LiquidButton href="/plan" variant="primary">
+                  Build a mission plan
+                </LiquidButton>
+                <LiquidButton href="/examples" variant="ghost">
+                  View example plan →
+                </LiquidButton>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </LiquidSection>
 
-      <LiquidSection className="mt-8 page-shell">
-        <ArchiveHeader
-          description="One request becomes an explainable route and a machine-readable return. Each step leaves evidence you can inspect."
-          eyebrow="How it works"
-          index="PLATE 01"
-          title="Request. Score. Route. Return."
-        />
-        <figure className="relative mt-4 min-h-[260px] overflow-hidden rounded-t-[22px] border border-b-0 border-gold/16 sm:min-h-[340px]">
-          <Image
-            alt="Celestial routing atlas with concentric orbital paths"
-            className="object-cover object-center"
-            fill
-            sizes="(max-width: 1100px) 100vw, 1100px"
-            src="/images/nomos-lithograph-hero.jpg"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,6,0.02),rgba(5,5,6,0.18)_50%,rgba(5,5,6,0.92))]" />
-          <figcaption className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-5 sm:p-6">
-            <div>
-              <p className="chart-label text-gold">Nomos routing atlas</p>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-cream/80">
-                Many possible paths collapse into one selected route and one preserved
-                explanation.
-              </p>
-            </div>
-            <p className="metric-value text-[10px] text-silver">PLATE 01 · DECISION GEOMETRY</p>
-          </figcaption>
-        </figure>
-        <LiquidCard className="!rounded-t-none !p-0">
-          <div className="grid sm:grid-cols-4">
-            {pipeline.map((item) => (
-              <div
-                className="border-b border-white/8 px-4 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0"
-                key={item.step}
-              >
+      <LiquidSection className="mt-4 page-shell">
+        <FadeIn>
+          <p className="chart-label text-gold">How it works</p>
+          <h2 className="display mt-2 max-w-2xl text-2xl text-cream sm:text-3xl">
+            Three steps to a recommended plan
+          </h2>
+        </FadeIn>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {steps.map((item, index) => (
+            <FadeIn delay={0.04 * index} key={item.step}>
+              <LiquidCard className="h-full">
                 <p className="metric-value text-[11px] text-gold">{item.step}</p>
-                <p className="mt-1 text-sm font-medium text-cream">{item.title}</p>
-                <p className="mt-2 text-xs leading-5 text-muted">{item.detail}</p>
-                <p className="metric-value mt-2 text-[10px] text-silver">{item.proof}</p>
-              </div>
-            ))}
-          </div>
-        </LiquidCard>
+                <h3 className="mt-2 text-base font-medium text-cream">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted">{item.detail}</p>
+              </LiquidCard>
+            </FadeIn>
+          ))}
+        </div>
       </LiquidSection>
 
-      <ImmersiveScrollBand
-        posterSrc="/images/control-room-tunnel.png"
-        scrollHeight="130vh"
-        videoSrc="/videos/video-immersive.optimized.mp4"
-      >
-        <FadeIn>
-          <div className="max-w-lg">
-            <LiquidCard>
-              <p className="chart-label text-gold">The problem</p>
-              <h2 className="display mt-3 text-2xl leading-tight text-cream sm:text-3xl">
-                Satellites collect more than they can send home.
-              </h2>
-              <p className="prose-compact mt-4 text-muted">
-                Every ground-station pass is minutes long. Nomos runs inference where
-                it is fastest and downlinks only the answer.
-              </p>
-              <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                <ProvenancePlate
-                  label="Physics"
-                  tone="gold"
-                  value="SGP4 contact windows"
-                />
-                <ProvenancePlate
-                  label="Execution"
-                  value="Simulated compute nodes"
-                />
-              </div>
-            </LiquidCard>
-          </div>
-        </FadeIn>
-      </ImmersiveScrollBand>
-
-      <LiquidSection className="section-gap relative z-[2] page-shell pb-4">
-        <CelestialDivider label="CONTROL PLANE" />
-        <FadeIn>
-          <div className="grid items-start gap-8 border-t border-gold/12 pt-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
-            <div>
-              <p className="chart-label text-gold">For developers</p>
+      <LiquidSection className="section-gap page-shell">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <FadeIn>
+            <LiquidCard className="h-full">
+              <p className="chart-label text-gold">Capability boundary</p>
               <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
-                A control plane, not a black box.
+                What Nomos does today
               </h2>
-              <p className="prose-compact mt-3 max-w-md text-muted">
-                Routing scores, lifecycle events, replayable decision hashes.
-                Public and documented.
+              <p className="prose-compact mt-3 text-muted">
+                Planning and provenance are live. Execution against commercial
+                providers is not claimed until those integrations exist.
               </p>
-              <p className="prose-compact mt-4 max-w-md text-silver">
-                The Golden Record was meaning compressed for distance. Nomos
-                applies the same discipline to orbital data: preserve the useful
-                signal, make the route legible, keep a record of the decision.
+              <ul className="mt-6 space-y-3">
+                {doesToday.map((item) => (
+                  <li className="flex gap-3 text-sm leading-6 text-cream/90" key={item}>
+                    <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </LiquidCard>
+          </FadeIn>
+          <FadeIn delay={0.06}>
+            <LiquidCard className="h-full">
+              <p className="chart-label text-silver">Not yet connected</p>
+              <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
+                What requires provider integration
+              </h2>
+              <p className="prose-compact mt-3 text-muted">
+                These capabilities need live provider APIs. Nomos labels them
+                honestly on every plan instead of inventing results.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <LiquidButton href="/docs" variant="outline">
-                  API reference
-                </LiquidButton>
-                <LiquidButton href="/about" variant="ghost">
-                  Read our story →
-                </LiquidButton>
-              </div>
+              <ul className="mt-6 space-y-3">
+                {requiresProvider.map((item) => (
+                  <li className="flex gap-3 text-sm leading-6 text-cream/90" key={item}>
+                    <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-silver/70" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </LiquidCard>
+          </FadeIn>
+        </div>
+      </LiquidSection>
+
+      <LiquidSection className="page-shell pb-8">
+        <FadeIn>
+          <div className="border-t border-gold/12 pt-8">
+            <p className="chart-label text-silver">Also available</p>
+            <h2 className="display mt-2 text-xl text-cream sm:text-2xl">
+              Historical simulation demo
+            </h2>
+            <p className="prose-compact mt-3 max-w-xl text-muted">
+              The legacy Job path remains for developers who want to inspect
+              routing scores and lifecycle events. Execution and detections are
+              SIMULATED. Prefer{" "}
+              <Link className="text-gold hover:underline" href="/examples">
+                curated example plans
+              </Link>{" "}
+              for the customer path.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <LiquidButton href="/jobs" variant="outline">
+                Open historical simulation demo
+              </LiquidButton>
+              <LiquidButton href="/docs" variant="ghost">
+                API reference →
+              </LiquidButton>
             </div>
-            <pre className="code-block !text-[12px]">
-              {`$ curl -X POST https://api.nomosorbital.com/v1/jobs \\
-    -H "Authorization: Bearer oc_demo_public" \\
-    -H "Content-Type: application/json" \\
-    -d '{ "job_type": "ship_detection", ... }'`}
-            </pre>
           </div>
         </FadeIn>
       </LiquidSection>

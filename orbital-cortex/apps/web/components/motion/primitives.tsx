@@ -15,26 +15,36 @@ export const springSoft = {
   damping: 28
 };
 
+/** Prefer full transform strings — Framer `x`/`y`/`scale` shorthands are main-thread. */
 export function FadeIn({
   children,
   delay = 0,
   y = 12,
-  className
+  className,
+  when = "view"
 }: {
   children: ReactNode;
   delay?: number;
   y?: number;
   className?: string;
+  /** "view" waits for scroll into viewport; "mount" plays on first paint. */
+  when?: "view" | "mount";
 }) {
   const reduced = useReducedMotion();
+  const visible = { opacity: 1, transform: "translateY(0px)" };
+  const hidden = { opacity: 0, transform: `translateY(${y}px)` };
 
   return (
     <motion.div
       className={className}
-      initial={reduced ? false : { opacity: 0, y }}
+      initial={reduced ? false : hidden}
       transition={{ ...springSoft, delay }}
-      viewport={{ once: true, margin: "-60px" }}
-      whileInView={{ opacity: 1, y: 0 }}
+      {...(when === "mount"
+        ? { animate: visible }
+        : {
+            viewport: { once: true, margin: "-40px", amount: 0.15 },
+            whileInView: visible
+          })}
     >
       {children}
     </motion.div>
@@ -44,11 +54,13 @@ export function FadeIn({
 export function Stagger({
   children,
   className,
-  gap = 0.06
+  gap = 0.06,
+  when = "view"
 }: {
   children: ReactNode;
   className?: string;
   gap?: number;
+  when?: "view" | "mount";
 }) {
   const reduced = useReducedMotion();
 
@@ -60,8 +72,12 @@ export function Stagger({
         hidden: {},
         show: { transition: { staggerChildren: gap } }
       }}
-      viewport={{ once: true, margin: "-60px" }}
-      whileInView="show"
+      {...(when === "mount"
+        ? { animate: "show" }
+        : {
+            viewport: { once: true, margin: "-40px", amount: 0.1 },
+            whileInView: "show"
+          })}
     >
       {children}
     </motion.div>
@@ -80,8 +96,8 @@ export function StaggerItem({
       className={className}
       transition={springSoft}
       variants={{
-        hidden: { opacity: 0, y: 14 },
-        show: { opacity: 1, y: 0 }
+        hidden: { opacity: 0, transform: "translateY(14px)" },
+        show: { opacity: 1, transform: "translateY(0px)" }
       }}
     >
       {children}

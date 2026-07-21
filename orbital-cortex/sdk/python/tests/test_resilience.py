@@ -106,11 +106,13 @@ class RetryTest(unittest.TestCase):
 
 class TimeoutTest(unittest.TestCase):
     def test_socket_timeout_maps_to_transport_error(self) -> None:
-        with mock.patch(
-            "orbitalcortex.transport.urlopen", side_effect=TimeoutError()
-        ):
+        # The transport routes requests through a cookie-aware opener so the
+        # private session cookie persists; a socket timeout must still surface
+        # as a TransportError.
+        transport = UrllibTransport()
+        with mock.patch.object(transport._opener, "open", side_effect=TimeoutError()):
             with self.assertRaises(TransportError) as ctx:
-                UrllibTransport().request(
+                transport.request(
                     "GET",
                     "http://127.0.0.1:8000/healthz",
                     headers={},
@@ -118,13 +120,13 @@ class TimeoutTest(unittest.TestCase):
                 )
         self.assertIn("Timed out", str(ctx.exception))
 
-    def test_timeout_is_passed_to_urlopen(self) -> None:
-        with mock.patch("orbitalcortex.transport.urlopen") as urlopen_mock:
-            urlopen_mock.return_value.__enter__.return_value.read.return_value = b"{}"
-            transport = ScriptedTransport([{}])
-            client = Client(transport=UrllibTransport(), timeout=7.5)
+    def test_timeout_is_passed_to_opener(self) -> None:
+        transport = UrllibTransport()
+        with mock.patch.object(transport._opener, "open") as open_mock:
+            open_mock.return_value.__enter__.return_value.read.return_value = b"{}"
+            client = Client(transport=transport, timeout=7.5)
             client.health()
-        _, kwargs = urlopen_mock.call_args
+        _, kwargs = open_mock.call_args
         self.assertEqual(kwargs["timeout"], 7.5)
 
 

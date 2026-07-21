@@ -206,6 +206,198 @@ textarea {
   background: var(--cobalt);
 }
 
+.truth-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.18rem 0.55rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.truth-badge--compact {
+  padding: 0.12rem 0.45rem;
+  font-size: 0.52rem;
+}
+
+.truth-badge--grounded {
+  border-color: color-mix(in srgb, var(--cobalt) 55%, transparent);
+  background: color-mix(in srgb, var(--cobalt) 14%, rgba(5, 5, 6, 0.72));
+  color: #9eb6d9;
+}
+
+.truth-badge--assumption {
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(201, 162, 39, 0.08),
+      rgba(201, 162, 39, 0.08) 4px,
+      rgba(5, 5, 6, 0.55) 4px,
+      rgba(5, 5, 6, 0.55) 8px
+    );
+  color: var(--gold-bright);
+}
+
+.truth-badge--warning {
+  border-color: color-mix(in srgb, var(--vermilion) 60%, transparent);
+  background: color-mix(in srgb, var(--vermilion) 12%, rgba(5, 5, 6, 0.72));
+  color: #d48470;
+}
+
+.integration-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.18rem 0.55rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.integration-chip--compact {
+  padding: 0.12rem 0.45rem;
+  font-size: 0.52rem;
+}
+
+.integration-chip--public {
+  border-color: color-mix(in srgb, var(--cobalt) 45%, transparent);
+  background: color-mix(in srgb, var(--cobalt) 10%, rgba(5, 5, 6, 0.72));
+  color: #9eb6d9;
+}
+
+.integration-chip--connected {
+  border-color: color-mix(in srgb, #6fcf97 50%, transparent);
+  background: color-mix(in srgb, #6fcf97 12%, rgba(5, 5, 6, 0.72));
+  color: #a8e6c1;
+}
+
+.integration-chip--pending {
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--gold) 10%, rgba(5, 5, 6, 0.72));
+  color: var(--gold-bright);
+}
+
+.integration-chip--simulated {
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(201, 162, 39, 0.1),
+      rgba(201, 162, 39, 0.1) 4px,
+      rgba(5, 5, 6, 0.55) 4px,
+      rgba(5, 5, 6, 0.55) 8px
+    );
+  color: var(--gold-bright);
+}
+
+.integration-chip--neutral {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+}
+
+.source-popover {
+  position: relative;
+  display: inline-flex;
+}
+
+.source-popover__trigger {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: help;
+  text-align: left;
+}
+
+.source-popover__panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 14rem;
+  max-width: 20rem;
+  border: 1px solid rgba(236, 234, 228, 0.12);
+  border-radius: 10px;
+  background: rgba(5, 5, 6, 0.96);
+  padding: 0.75rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.source-popover__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.freshness-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.freshness-indicator__dot {
+  height: 0.45rem;
+  width: 0.45rem;
+  border-radius: 50%;
+}
+
+.freshness-indicator--fresh {
+  color: #8eb89a;
+}
+
+.freshness-indicator--fresh .freshness-indicator__dot {
+  background: #6fa882;
+}
+
+.freshness-indicator--stale {
+  color: #d48470;
+}
+
+.freshness-indicator--stale .freshness-indicator__dot {
+  background: var(--vermilion);
+}
+
+.freshness-indicator--unknown {
+  color: var(--muted-dark);
+}
+
+.freshness-indicator--unknown .freshness-indicator__dot {
+  background: var(--silver-dim);
+}
+
+.assumption-panel {
+  border: 1px solid rgba(201, 162, 39, 0.14);
+  border-radius: 12px;
+  background:
+    linear-gradient(105deg, rgba(201, 162, 39, 0.05), transparent 42%),
+    rgba(5, 5, 6, 0.48);
+  padding: 0.9rem;
+}
+
+.assumption-panel__item {
+  border-top: 1px solid rgba(236, 234, 228, 0.08);
+  padding-top: 0.65rem;
+}
+
+.assumption-panel__item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
 .prose-essay {
   color: var(--silver);
   font-family: var(--font-serif), Georgia, serif;
@@ -303,6 +495,19 @@ textarea {
 
 .harbor-map .maplibregl-control-container {
   display: none !important;
+}
+
+/* AOI planner map — keep MapLibre + draw controls visible */
+.aoi-map .maplibregl-map,
+.aoi-map .maplibregl-canvas-container,
+.aoi-map .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.aoi-map .mapbox-gl-draw_ctrl-draw-btn {
+  background-color: rgba(12, 14, 18, 0.92);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 @media (min-width: 768px) {
@@ -500,6 +705,7 @@ textarea {
 /* ---------- atlas footer (beige end cap) ---------- */
 
 .atlas-footer {
+  width: 100%;
   background: var(--parchment);
   color: var(--parchment-ink);
 }
@@ -515,10 +721,80 @@ textarea {
 .atlas-footer__bg {
   position: absolute;
   inset: 0;
-  background-image: url("/images/celestial-atlas-horizontal.png");
-  background-size: cover;
-  background-position: center 40%;
-  opacity: 0.72;
+  width: 100%;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(245, 230, 168, 0.55), transparent 60%),
+    linear-gradient(180deg, var(--parchment) 0%, #e3d7bc 55%, #d8c9a5 100%);
+}
+
+.atlas-footer__shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-inline: 18px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+  .atlas-footer__shell {
+    padding-inline: 12px;
+  }
+}
+
+.atlas-footer__card.liquid-glass {
+  /* Hug content — no empty frosted slab beside the link columns */
+  width: fit-content;
+  max-width: 100%;
+}
+
+.atlas-footer__card.liquid-glass,
+.atlas-footer__card .liquid-glass__content {
+  max-width: 100%;
+}
+
+.atlas-footer__grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2.5rem 3.75rem;
+}
+
+.atlas-footer__brand {
+  flex: 0 1 22rem;
+  max-width: 22rem;
+}
+
+.atlas-footer__nav {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 2.75rem 3.25rem;
+}
+
+.atlas-footer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: min(1180px, 100%);
+  margin-top: 1rem;
+  padding-inline: 0.25rem;
+}
+
+@media (max-width: 899px) {
+  .atlas-footer__card.liquid-glass {
+    width: 100%;
+  }
+
+  .atlas-footer__grid {
+    flex-direction: column;
+  }
+
+  .atlas-footer__brand {
+    max-width: none;
+    flex: 1 1 auto;
+  }
 }
 
 /* ---------- Apple Liquid Glass system ---------- */
@@ -530,19 +806,12 @@ textarea {
   isolation: isolate;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.22);
-  background:
-    radial-gradient(
-      circle 90px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.1),
-      rgba(255, 255, 255, 0.035) 42%,
-      transparent 68%
-    ),
-    linear-gradient(
-      148deg,
-      rgba(255, 255, 255, 0.14) 0%,
-      rgba(255, 255, 255, 0.05) 45%,
-      rgba(201, 162, 39, 0.06) 100%
-    );
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(201, 162, 39, 0.06) 100%
+  );
   backdrop-filter: blur(32px) saturate(165%) contrast(105%);
   -webkit-backdrop-filter: blur(32px) saturate(165%) contrast(105%);
   box-shadow:
@@ -554,6 +823,24 @@ textarea {
     transform 200ms var(--ease-out),
     box-shadow 200ms var(--ease-out),
     border-color 200ms var(--ease-out);
+}
+
+/* Specular highlight lives on a dedicated layer so pointer CSS vars don't
+   restyle the full glass subtree on every mousemove. */
+.liquid-glass__specular {
+  --x: 50%;
+  --y: 32%;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 90px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.035) 42%,
+    transparent 68%
+  );
 }
 
 .liquid-glass::before {
@@ -606,37 +893,41 @@ textarea {
   border-radius: 16px;
   padding: 0.85rem 1rem;
   border-color: rgba(255, 255, 255, 0.12);
-  background:
-    radial-gradient(
-      circle 70px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.015) 45%,
-      transparent 70%
-    ),
-    rgba(5, 5, 6, 0.35);
+  background: rgba(5, 5, 6, 0.35);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     inset 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+.liquid-glass--inset > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 70px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.015) 45%,
+    transparent 70%
+  );
+}
+
 .liquid-glass--light {
   border-color: rgba(28, 25, 22, 0.12);
-  background:
-    radial-gradient(
-      circle 100px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.18),
-      rgba(255, 252, 245, 0.08) 40%,
-      transparent 68%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.28),
-      rgba(232, 226, 212, 0.14) 55%,
-      rgba(201, 162, 39, 0.06)
-    );
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(232, 226, 212, 0.14) 55%,
+    rgba(201, 162, 39, 0.06)
+  );
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
     0 18px 44px rgba(28, 25, 22, 0.12);
+}
+
+.liquid-glass--light > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 100px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 252, 245, 0.08) 40%,
+    transparent 68%
+  );
 }
 
 .liquid-glass--light::before {
@@ -651,14 +942,7 @@ textarea {
   padding: 0;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background:
-    radial-gradient(
-      circle 56px at var(--x) var(--y),
-      rgba(255, 255, 255, 0.09),
-      rgba(255, 255, 255, 0.025) 48%,
-      transparent 72%
-    ),
-    rgba(10, 10, 12, 0.45);
+  background: rgba(10, 10, 12, 0.45);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
@@ -666,23 +950,36 @@ textarea {
     0 6px 20px rgba(0, 0, 0, 0.28);
 }
 
+.liquid-glass--chip > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 56px at var(--x) var(--y),
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.025) 48%,
+    transparent 72%
+  );
+}
+
 .liquid-glass--chip-active {
   border-color: rgba(227, 192, 92, 0.55);
-  background:
-    radial-gradient(
-      circle 56px at var(--x) var(--y),
-      rgba(227, 192, 92, 0.12),
-      rgba(201, 162, 39, 0.05) 50%,
-      transparent 72%
-    ),
-    rgba(201, 162, 39, 0.1);
+  background: rgba(201, 162, 39, 0.1);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
     0 10px 24px rgba(0, 0, 0, 0.32),
     0 0 12px rgba(201, 162, 39, 0.08);
 }
 
+.liquid-glass--chip-active > .liquid-glass__specular {
+  background: radial-gradient(
+    circle 56px at var(--x) var(--y),
+    rgba(227, 192, 92, 0.12),
+    rgba(201, 162, 39, 0.05) 50%,
+    transparent 72%
+  );
+}
+
 .liquid-glass__chip-label {
+  position: relative;
+  z-index: 1;
   display: block;
   padding: 0.45rem 0.95rem;
   font-size: 0.8125rem;
@@ -704,6 +1001,10 @@ textarea {
   cursor: pointer;
   border: none;
   font: inherit;
+  /* Buttons animate with Framer y/scale — backdrop-filter + transform can blank the paint. */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(10, 10, 12, 0.72);
 }
 
 .liquid-glass--button-block {
@@ -712,6 +1013,8 @@ textarea {
 }
 
 .liquid-glass__inner {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -865,6 +1168,10 @@ textarea {
   .liquid-glass:hover::after {
     opacity: 0;
   }
+
+  .liquid-glass__specular {
+    display: none;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -970,10 +1277,7 @@ textarea {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.4;
-  background-image: url("/images/celestial-atlas-horizontal.png");
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(180deg, transparent, rgba(216, 201, 165, 0.4));
   pointer-events: none;
 }
 
@@ -1231,6 +1535,25 @@ textarea {
 
   html {
     scroll-behavior: auto;
+  }
+}
+
+@keyframes feedback-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.feedback-success-fade {
+  animation: feedback-fade 160ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-success-fade {
+    animation: none;
   }
 }
 
