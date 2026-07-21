@@ -3,6 +3,7 @@ httpx>=0.27,<1.0
 pytest>=8,<9
 ruff>=0.4,<1.0
 mypy>=1.10,<2.0
+types-PyYAML>=6.0,<7.0
 # Phase Q: tests/test_sdk_missions_phase_q.py imports the local Python SDK
 # (orbital-cortex/sdk/python) which requires tenacity at import time.
 tenacity>=8.2,<10
