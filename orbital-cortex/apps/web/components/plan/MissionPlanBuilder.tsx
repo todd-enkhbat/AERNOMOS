@@ -230,7 +230,7 @@ export function MissionPlanBuilder() {
 
       {error ? <InlineNotice message={error} /> : null}
 
-      <LiquidCard>
+      <LiquidCard interactive={false}>
         {state.step === 1 ? (
           <fieldset className="space-y-3">
             <legend className="chart-label text-gold">What are you trying to do?</legend>
@@ -245,7 +245,7 @@ export function MissionPlanBuilder() {
                     className={[
                       "block cursor-pointer rounded-xl border px-4 py-3 transition-colors",
                       selected
-                        ? "border-gold/40 bg-gold/5"
+                        ? "border-gold/45 bg-gold/10 ring-1 ring-gold/25"
                         : "border-white/10 hover:border-white/25"
                     ].join(" ")}
                     key={option.value}
@@ -254,13 +254,14 @@ export function MissionPlanBuilder() {
                       checked={selected}
                       className="sr-only"
                       name="objective"
-                      onChange={() =>
+                      onChange={() => {
+                        setError(null);
                         dispatch({
                           type: "set",
                           field: "objectiveType",
                           value: option.value
-                        })
-                      }
+                        });
+                      }}
                       type="radio"
                       value={option.value}
                     />

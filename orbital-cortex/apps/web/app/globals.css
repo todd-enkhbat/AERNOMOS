@@ -705,6 +705,7 @@ textarea {
 /* ---------- atlas footer (beige end cap) ---------- */
 
 .atlas-footer {
+  width: 100%;
   background: var(--parchment);
   color: var(--parchment-ink);
 }
@@ -720,10 +721,80 @@ textarea {
 .atlas-footer__bg {
   position: absolute;
   inset: 0;
-  background-image: url("/images/celestial-atlas-horizontal.png");
-  background-size: cover;
-  background-position: center 40%;
-  opacity: 0.72;
+  width: 100%;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(245, 230, 168, 0.55), transparent 60%),
+    linear-gradient(180deg, var(--parchment) 0%, #e3d7bc 55%, #d8c9a5 100%);
+}
+
+.atlas-footer__shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-inline: 18px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+  .atlas-footer__shell {
+    padding-inline: 12px;
+  }
+}
+
+.atlas-footer__card.liquid-glass {
+  /* Hug content — no empty frosted slab beside the link columns */
+  width: fit-content;
+  max-width: 100%;
+}
+
+.atlas-footer__card.liquid-glass,
+.atlas-footer__card .liquid-glass__content {
+  max-width: 100%;
+}
+
+.atlas-footer__grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2.5rem 3.75rem;
+}
+
+.atlas-footer__brand {
+  flex: 0 1 22rem;
+  max-width: 22rem;
+}
+
+.atlas-footer__nav {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 2.75rem 3.25rem;
+}
+
+.atlas-footer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: min(1180px, 100%);
+  margin-top: 1rem;
+  padding-inline: 0.25rem;
+}
+
+@media (max-width: 899px) {
+  .atlas-footer__card.liquid-glass {
+    width: 100%;
+  }
+
+  .atlas-footer__grid {
+    flex-direction: column;
+  }
+
+  .atlas-footer__brand {
+    max-width: none;
+    flex: 1 1 auto;
+  }
 }
 
 /* ---------- Apple Liquid Glass system ---------- */
@@ -930,6 +1001,10 @@ textarea {
   cursor: pointer;
   border: none;
   font: inherit;
+  /* Buttons animate with Framer y/scale — backdrop-filter + transform can blank the paint. */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(10, 10, 12, 0.72);
 }
 
 .liquid-glass--button-block {
@@ -1202,10 +1277,7 @@ textarea {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.4;
-  background-image: url("/images/celestial-atlas-horizontal.png");
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(180deg, transparent, rgba(216, 201, 165, 0.4));
   pointer-events: none;
 }
 

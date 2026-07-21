@@ -55,7 +55,7 @@ export function LiquidCard({
         reduced || inset || !trackPointer
           ? undefined
           : {
-              transform: "translateY(-2px)",
+              y: -2,
               transition: { duration: 0.2, ease: easeOut }
             }
       }

@@ -54,6 +54,8 @@ export function LiquidButton({
     .filter(Boolean)
     .join(" ");
 
+  // Use y/scale props — never a CSS `transform` string. Framer cannot reliably
+  // interpolate transform strings between hover/tap and can collapse to scale(0).
   const interaction = {
     onMouseLeave: trackPointer ? onMouseLeave : undefined,
     onMouseMove: trackPointer ? onMouseMove : undefined,
@@ -61,14 +63,16 @@ export function LiquidButton({
       reduced || disabled || !finePointer
         ? undefined
         : {
-            transform: "translateY(-3px) scale(1)",
+            y: -3,
+            scale: 1,
             transition: { duration: 0.18, ease: easeOut }
           },
     whileTap:
       reduced || disabled
         ? undefined
         : {
-            transform: "translateY(0px) scale(0.97)",
+            y: 0,
+            scale: 0.97,
             transition: { duration: 0.12, ease: easeOut }
           },
     transition: spring

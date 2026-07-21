@@ -45,7 +45,8 @@ export function LiquidChip({
         reduced || !finePointer
           ? undefined
           : {
-              transform: "translateY(-2px) scale(1)",
+              y: -2,
+              scale: 1,
               transition: { duration: 0.2, ease: easeOut }
             }
       }
@@ -53,7 +54,8 @@ export function LiquidChip({
         reduced
           ? undefined
           : {
-              transform: "translateY(0px) scale(0.97)",
+              y: 0,
+              scale: 0.97,
               transition: { duration: 0.12, ease: easeOut }
             }
       }
