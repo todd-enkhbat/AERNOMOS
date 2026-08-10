@@ -3,6 +3,7 @@ import { Fraunces, IBM_Plex_Mono, Inter_Tight } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { DemoEnvironmentBanner } from "@/components/layout/DemoEnvironmentBanner";
+import { MetalScrollRail } from "@/components/layout/MetalScrollRail";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import "./globals.css";
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     template: "%s · Nomos Orbital"
   },
   description:
-    "Plan how space-data workloads should move across satellite, ground, and cloud. Real catalogs and orbital math; simulated execution stays labeled.",
+    "Orchestrate space-data jobs across satellite, ground, and cloud. Real catalogs and orbital math; provider execution stays labeled until connected.",
   icons: {
     icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
     apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050506"
+  themeColor: "#002FA7"
 };
 
 export default function RootLayout({
@@ -70,6 +71,7 @@ export default function RootLayout({
           </main>
           <SiteFooter />
         </div>
+        <MetalScrollRail />
       </body>
     </html>
   );

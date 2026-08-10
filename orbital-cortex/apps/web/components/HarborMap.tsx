@@ -346,7 +346,7 @@ export function HarborMap({
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_82%,rgba(5,5,6,0.15)_100%)]"
+        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_82%,rgba(0,16,69,0.15)_100%)]"
       />
       <div
         aria-hidden

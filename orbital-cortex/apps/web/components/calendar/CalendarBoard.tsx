@@ -593,7 +593,7 @@ function MetaDisk({
       className="flex h-[6.75rem] w-[6.75rem] flex-col items-center justify-center rounded-full px-2 text-center"
       style={{
         background:
-          "radial-gradient(circle at 32% 28%, rgba(236,234,228,0.07), rgba(5,5,6,0.9) 68%)",
+          "radial-gradient(circle at 32% 28%, rgba(236,234,228,0.07), rgba(0,16,69,0.9) 68%)",
         boxShadow:
           tone === "gold"
             ? "inset 0 0 0 1px rgba(201,162,39,0.45)"
@@ -628,7 +628,7 @@ function SignalDisk({
         borderColor:
           tone === "gold" ? "rgba(201,162,39,0.28)" : "rgba(168,77,53,0.35)",
         background:
-          "radial-gradient(circle at 50% 20%, rgba(236,234,228,0.05), rgba(5,5,6,0.75) 70%)"
+          "radial-gradient(circle at 50% 20%, rgba(236,234,228,0.05), rgba(0,16,69,0.75) 70%)"
       }}
     >
       <p className={`chart-label ${tone === "gold" ? "text-gold" : "text-vermilion"}`}>

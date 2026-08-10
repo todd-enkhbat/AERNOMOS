@@ -21,7 +21,8 @@ export function FadeIn({
   delay = 0,
   y = 12,
   className,
-  when = "view"
+  when = "view",
+  viewportMargin = "-40px"
 }: {
   children: ReactNode;
   delay?: number;
@@ -29,6 +30,8 @@ export function FadeIn({
   className?: string;
   /** "view" waits for scroll into viewport; "mount" plays on first paint. */
   when?: "view" | "mount";
+  /** IntersectionObserver rootMargin when `when="view"`. */
+  viewportMargin?: string;
 }) {
   const reduced = useReducedMotion();
   const visible = { opacity: 1, transform: "translateY(0px)" };
@@ -42,7 +45,7 @@ export function FadeIn({
       {...(when === "mount"
         ? { animate: visible }
         : {
-            viewport: { once: true, margin: "-40px", amount: 0.15 },
+            viewport: { once: true, margin: viewportMargin, amount: 0.12 },
             whileInView: visible
           })}
     >

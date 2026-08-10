@@ -39,7 +39,8 @@ curl https://api.nomosorbital.com/readyz
 | `S3_SECRET_ACCESS_KEY` | R2 API token |
 | `CORS_ORIGINS` | Comma-separated web origins (must include live Vercel/domain URLs) |
 | `PUBLIC_BASE_URL` | `https://api.nomosorbital.com` (signed artifact URLs) |
-| `ARTIFACT_SIGNING_SECRET` | HMAC for local artifact backend (if used) |
+| `ARTIFACT_SIGNING_SECRET` | HMAC for local artifact backend (if used); must not start with `dev-only` |
+| `ANALYTICS_HASH_SALT` | HMAC salt for privacy-safe analytics session hashes; must not start with `dev-only` |
 | `APP_ENV` | `production` (set in fly.toml) |
 
 List names only: `fly secrets list -a orbital-cortex-api`

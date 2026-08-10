@@ -158,7 +158,7 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
                 aria-current={isActive ? "true" : undefined}
                 aria-label={`Show ${slide.title}`}
                 className={[
-                  "relative shrink-0 origin-center cursor-pointer overflow-hidden rounded-[18px] border bg-[#050506] transition-shadow duration-200",
+                  "relative shrink-0 origin-center cursor-pointer overflow-hidden rounded-[18px] border bg-[#001045] transition-shadow duration-200",
                   isActive
                     ? "z-20 border-gold/35 shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
                     : "z-10 border-white/8"
@@ -207,8 +207,8 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
                   className={[
                     "absolute inset-0",
                     isActive
-                      ? "bg-gradient-to-t from-black/80 via-black/20 to-black/5"
-                      : "bg-black/45"
+                      ? "bg-gradient-to-t from-klein-void/85 via-klein-void/20 to-klein-void/5"
+                      : "bg-klein-void/60"
                   ].join(" ")}
                 />
 

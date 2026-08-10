@@ -18,19 +18,19 @@ export const metadata: Metadata = {
 
 export default function CalendarPage() {
   return (
-    <div className="pb-10">
-      <LiquidSection className="page-shell pt-6 md:pt-10" orbs={false}>
-        <FadeIn>
-          <div className="max-w-4xl">
+    <div className="pb-6">
+      <LiquidSection className="page-shell py-10 md:py-12" orbs={false}>
+        <FadeIn when="mount" y={6}>
+          <div className="max-w-3xl">
             <p className="chart-label text-gold">Calendar</p>
-            <h1 className="display mt-4 text-4xl leading-[1.02] text-cream sm:text-6xl md:text-7xl">
+            <h1 className="display mt-3 text-3xl leading-[1.08] text-cream sm:text-4xl lg:text-5xl">
               Use this calendar.
             </h1>
-            <p className="prose-compact mt-5 max-w-2xl text-lg text-cream/75 sm:text-xl">
+            <p className="prose-compact mt-3 max-w-2xl text-cream/85">
               A verified public register of industry gatherings. Export it, search it, and
               keep it. You may see Nomos Orbital there.
             </p>
-            <div className="mt-7 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap gap-2">
               <LiquidButton href="#interest" variant="primary">
                 Register interest
               </LiquidButton>
@@ -48,11 +48,11 @@ export default function CalendarPage() {
         </FadeIn>
       </LiquidSection>
 
-      <LiquidSection className="page-shell section-gap" orbs={false}>
+      <LiquidSection className="page-shell home-band" orbs={false}>
         <CalendarBoard />
       </LiquidSection>
 
-      <div className="page-shell section-gap">
+      <div className="page-shell home-band">
         <ArchiveHeader
           description="How this register is built: presence labels, date validity, and ways to take the data with you."
           eyebrow="Field register"
@@ -71,7 +71,7 @@ export default function CalendarPage() {
         </p>
       </div>
 
-      <LiquidSection className="page-shell section-gap" orbs={false}>
+      <LiquidSection className="page-shell home-band" orbs={false}>
         <CalendarInterestForm />
       </LiquidSection>
     </div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { NomosMark } from "@/components/brand/NomosMark";
@@ -9,6 +10,7 @@ const productLinks = [
   { href: "/examples", label: "Example plans" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
+  { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/calendar", label: "Calendar" },
   { href: "/about/final-symposium", label: "Final Symposium" }
@@ -48,11 +50,20 @@ function FooterLinkList({
 
 export function SiteFooter() {
   return (
-    <footer className="atlas-footer relative mt-16 overflow-hidden">
+    <footer className="atlas-footer relative mt-8 overflow-hidden md:mt-10">
       <div className="atlas-footer__bridge" aria-hidden />
-      <div className="atlas-footer__bg" aria-hidden />
+      <div className="atlas-footer__bg" aria-hidden>
+        <Image
+          alt=""
+          className="atlas-footer__bg-img object-cover object-center"
+          fill
+          sizes="100vw"
+          src="/images/celestial-circuit-atlas.jpg"
+          unoptimized
+        />
+      </div>
 
-      <div className="atlas-footer__shell relative py-10 md:py-12">
+      <div className="atlas-footer__shell relative z-[1] py-10 md:py-12">
         <LiquidCard className="atlas-footer__card" interactive={false} tone="light">
           {/*
             Three equal columns on desktop so Product / Developers span to the
@@ -94,11 +105,11 @@ export function SiteFooter() {
         </LiquidCard>
 
         <div className="atlas-footer__meta">
-          <p className="metric-value text-[11px] text-parchment-muted">
+          <p className="metric-value text-[11px] text-cream/70">
             © {new Date().getFullYear()} Nomos Orbital
           </p>
           <Link
-            className="text-[11px] text-parchment-muted transition-colors hover:text-parchment-ink"
+            className="text-[11px] text-cream/70 transition-colors hover:text-cream"
             href="/plan"
           >
             Build a mission plan

@@ -70,8 +70,8 @@ export default function NetworkPage() {
   );
 
   return (
-    <div className="relative pb-10">
-      <LiquidSection className="page-shell">
+    <div className="relative pb-6">
+      <LiquidSection className="page-shell" orbs={false}>
         <PageHeader
           description="Inspect the reference registry used by the router: real public orbital geometry, pinned TLEs, reference ground sites, and simulated compute candidates."
           eyebrow="Network"
@@ -87,11 +87,11 @@ export default function NetworkPage() {
         />
       </LiquidSection>
 
-      <LiquidSection className="section-gap page-shell">
+      <LiquidSection className="home-band page-shell" orbs={false}>
         <NetworkConsole />
       </LiquidSection>
 
-      <section className="section-gap relative">
+      <section className="home-band relative">
         <div className="page-shell mb-1">
           <p className="chart-label text-gold">Orbital context</p>
           <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
@@ -105,7 +105,7 @@ export default function NetworkPage() {
         <SputnikScrollStory />
       </section>
 
-      <LiquidSection className="section-gap page-shell">
+      <LiquidSection className="home-band page-shell" orbs={false}>
         <LiquidCard>
           <div className="flex items-center gap-2.5">
             <Server className="text-gold" size={17} strokeWidth={1.8} />
@@ -151,7 +151,7 @@ function TopologyColumn({
   nodes: string[];
 }) {
   return (
-    <div className="rounded-xl border border-gold/10 bg-black/25 p-3.5">
+    <div className="rounded-xl border border-gold/10 bg-klein-void/45 p-3.5">
       <div className="flex items-center gap-2 text-gold">
         <Icon size={16} strokeWidth={1.8} />
         <p className="text-sm font-medium text-cream">{label}</p>

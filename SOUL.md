@@ -16,7 +16,7 @@ Nomos Orbital brings **order to the orbital age**.
 
 Space is filling with compute, sensors, and satellites faster than anyone can coordinate them. Every satellite collects more than it can send home. Ground-station passes last minutes, and most sensor data is discarded before a human asks a question of it. The bottleneck is no longer collection. It is deciding where a space-data workload should move, and proving why.
 
-Nomos helps operators plan that movement across satellite, ground, and cloud infrastructure. It searches real public data, calculates contact opportunities, compares feasible routes, and returns a source-backed mission brief with labeled assumptions. Live tasking, reservation, and onboard execution require provider integrations that Nomos does not pretend to have.
+Nomos helps operators orchestrate that movement across satellite, ground, and cloud infrastructure. It searches real public data, calculates contact opportunities, compares feasible routes, runs the job with a source-backed audit trail, and labels assumptions honestly. Live commercial tasking, reservation, and onboard provider execution require integrations that Nomos does not pretend to have.
 
 Nomos means order, law, and the act of binding things together. Astronomy is star-arranging. The long mission is to make machinery in orbit legible and accountable so that intelligence moving off-planet remains something humans can direct, audit, and trust.
 
@@ -27,34 +27,39 @@ Intellectual lineage: Carl Sagan and the Golden Record, engineering humility, Ru
 ## 2. Positioning
 
 - **Primary tagline:** *Order, for the orbital age.*
-- **Category:** Mission planning for space-data workloads.
-- **Final product claim (allowed):** Nomos turns a space-data objective into a source-backed infrastructure plan. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief.
-- **Elevator:** Nomos plans how space-data workloads should move across satellite, ground, and cloud infrastructure, using real orbital and catalog data, and returns a source-backed execution plan.
-- **Homepage promise:** Describe your mission and constraints. Nomos generates a source-backed execution plan using real orbital and infrastructure data.
-- **Developer framing (docs / deep technical only):** A control plane for routing and audit when jobs are submitted. Do not lead the homepage with this language.
+- **Category:** Job orchestration for space-data workloads.
+- **Final product claim (allowed):** Nomos turns a space-data objective into a source-backed infrastructure plan, then routes and runs the job with a traceable record. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief. Live commercial tasking, reservation, and onboard provider execution require integrations Nomos does not pretend to have.
+- **Elevator:** Nomos is the job orchestrator for space-data workloads — it decides where work should run across satellite, ground, and cloud, routes under real orbital and catalog data, and executes with a source-backed audit trail.
+- **Homepage promise:** Submit the workload. Nomos routes it under real orbital and infrastructure constraints, then runs it with a source-backed audit trail.
+- **Developer framing (docs / deep technical):** A control plane for routing, execution, and audit when jobs are submitted.
 - **Internal analogy only:** Stripe for orbital compute. Kubernetes for orbital infrastructure.
-- **Problem:** Satellites collect more than they can send home. Operators need a traceable plan before they commit to a route.
+- **Problem:** Satellites collect more than they can send home. Operators need an orchestrated, auditable path before and while work runs.
 
-Nomos is not a satellite operator, launch company, ground-station provider, or data reseller. It is the planning and verification layer above those systems.
+Nomos is not a satellite operator, launch company, ground-station provider, or data reseller. It is the orchestration and verification layer above those systems.
 
 ### Homepage-facing language (prefer)
 
-- Plan how your space-data workload should move
-- Source-backed execution plan
-- Real orbital and infrastructure data
+- Orchestrate space-data jobs across satellite, ground, and cloud
+- Route under real orbital and infrastructure constraints
+- Run with a source-backed audit trail
 - Technical mission brief
 - Assumptions and unavailable integrations
 
-### Language to demote from hero / first screen
+### Language to keep precise (do not overclaim)
 
-Keep these in `/docs` or deep technical sections only:
+Forbidden live claims stay forbidden (Section 3). Prefer:
 
-- orchestration layer
+- orchestration / job orchestrator (homepage-ok)
+- routed execution path
+- source-backed audit trail
+
+Keep these in `/docs` or deep technical sections unless the product surface already proves them:
+
 - deterministic routing
-- control plane
 - compliance-aware infrastructure
 - autonomous orbital intelligence
 - multi-domain workload placement
+- live satellite tasking / ground reservation as completed fact
 
 ## 3. Source of truth
 
@@ -146,23 +151,23 @@ The customer planning path is the spine. The developer demo and mission narrativ
 
 ### Homepage order
 
-1. Hero: mission-planning promise, primary CTA to `/plan`, secondary CTA to `/examples`
-2. Three steps: describe → evaluate → recommended plan
+1. Hero: job-orchestrator promise, primary CTA to `/plan`, secondary CTA to `/examples`
+2. Three steps: describe → route → run with a record
 3. What Nomos does today / What requires provider integration
 4. Demoted historical simulation demo link to `/jobs` (not the primary action)
 5. About, contact, and footer elsewhere in the site chrome
 
-Keep the main navigation product-first: Dashboard, Plan, Missions, Network, Calendar, About, Docs. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
+Keep the main navigation product-first: Dashboard, Plan, Missions, Network, Capabilities, Calendar, About, Docs. Capabilities (`/capabilities`) is the public truth map: live product, provider gaps, aspirations, and forward work. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
 
 ## 5. Hero narrative
 
 The marketing hero is plain and outcome-led:
 
 1. Brand: Nomos Orbital
-2. One headline about planning workload movement across satellite, ground, and cloud
-3. One subhead about source-backed plans from real data
-4. Primary and secondary CTAs
-5. One dominant visual (`OrbitalScene`)
+2. One headline about orchestrating jobs across satellite, ground, and cloud
+3. One subhead about routing under real constraints and running with an audit trail
+4. Primary and secondary CTAs, fully inside the art's central portal
+5. One dominant visual (portal circuit hero on homepage; About may use different art)
 
 Readability beats decorative complexity in the first viewport. No stat strips, fake metrics, or demo launcher in the hero.
 
@@ -183,11 +188,13 @@ Moodboard language:
 
 Palette:
 
-- near-black `#050506`
-- warm parchment and off-white
+- Yves Klein field `#002FA7` (`--klein`), deepening to `#001a75` / `#001045`
+- warm parchment and off-white for honesty / boundary bands
 - brass and gold only for active signal, selected route, and scarce emphasis
+- cream and silver for body copy on the blue field
 - rare cobalt for provenance and archival source
 - rare vermilion for stamp-like section indices
+- do not use charcoal `#050506` or pure black glass on marketing or tool chrome; blue-tinted ink glass only
 
 Typography:
 

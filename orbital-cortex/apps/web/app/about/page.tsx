@@ -17,46 +17,54 @@ const AboutScrollStory = dynamic(
 export default function AboutPage() {
   return (
     <div className="pb-6">
-      <div className="relative overflow-hidden">
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
             alt=""
             aria-hidden
-            className="object-cover object-center opacity-30"
+            className="object-cover object-center opacity-50"
             fill
             priority
             sizes="100vw"
-            src="/images/voyager-heritage.png"
+            src="/images/lady-philosophy-circuit-hero.jpg"
+            unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-void/50 via-void/90 to-void" />
+          <div className="absolute inset-0 bg-gradient-to-b from-klein-void/35 via-klein-deep/80 to-klein-void" />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-klein-deep"
+          />
         </div>
-        <LiquidSection className="relative py-12 md:py-16" orbs={false}>
+        <LiquidSection className="relative py-10 md:py-14" orbs={false}>
           <div className="page-shell">
-            <FadeIn>
+            <FadeIn when="mount" y={6}>
               <p className="chart-label text-gold">About</p>
               <h1 className="display mt-2 max-w-2xl text-3xl leading-tight text-cream md:text-5xl">
                 We make orbital decisions legible.
               </h1>
-              <p className="prose-compact mt-3 max-w-xl text-silver">
+              <p className="prose-compact mt-3 max-w-xl text-cream/85">
                 Nomos is the orchestration layer above satellites, ground stations,
                 and cloud compute. Submit one job, compare every eligible route, and
                 preserve why the winner was chosen.
               </p>
-              <div className="mt-6">
-                <LiquidButton href="/#demo" variant="primary">
-                  Run live demo
+              <div className="mt-6 flex flex-wrap gap-3">
+                <LiquidButton href="/plan" variant="primary">
+                  Build a mission plan
+                </LiquidButton>
+                <LiquidButton href="/examples" variant="ghost">
+                  View example plan →
                 </LiquidButton>
               </div>
             </FadeIn>
           </div>
         </LiquidSection>
-      </div>
+      </section>
 
-      <div className="page-shell mt-6">
+      <div className="page-shell home-band">
         <DemoBoundary />
       </div>
 
-      <section className="mt-12">
+      <section className="home-band">
         <div className="page-shell">
           <p className="chart-label text-gold">The Golden Record lineage</p>
           <h2 className="display mt-2 max-w-2xl text-3xl text-cream">
@@ -70,11 +78,11 @@ export default function AboutPage() {
         <AboutScrollStory />
       </section>
 
-      <LiquidSection className="section-gap page-shell">
+      <LiquidSection className="home-band page-shell">
         <AboutContent />
       </LiquidSection>
 
-      <LiquidSection className="section-gap page-shell">
+      <LiquidSection className="home-band page-shell">
         <LiquidCard className="relative overflow-hidden">
           <div className="absolute right-5 top-5 font-mono text-[10px] tracking-[0.16em] text-vermilion">
             ESSAY 01
@@ -96,7 +104,7 @@ export default function AboutPage() {
         </LiquidCard>
       </LiquidSection>
 
-      <LiquidSection className="section-gap page-shell">
+      <LiquidSection className="home-band page-shell">
         <LiquidCard>
           <p className="chart-label text-gold">Field register</p>
           <h2 className="display mt-2 max-w-2xl text-2xl text-cream">Calendar</h2>

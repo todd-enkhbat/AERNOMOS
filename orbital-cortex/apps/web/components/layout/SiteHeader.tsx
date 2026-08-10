@@ -12,6 +12,7 @@ const navItems = [
   { href: "/plan", label: "Plan" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
+  { href: "/capabilities", label: "Capabilities" },
   { href: "/calendar", label: "Calendar" },
   { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }
@@ -23,7 +24,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="page-shell pt-3">
+      <div className="page-shell pt-1.5 md:pt-2">
         <div
           className="liquid-glass liquid-glass--card !rounded-2xl !p-0"
           onMouseLeave={onMouseLeave}
@@ -39,7 +40,7 @@ export function SiteHeader() {
                   Nomos Orbital
                 </span>
                 <span className="chart-label hidden text-muted-dark sm:block">
-                  Mission planning for space data
+                  Job orchestration for space data
                 </span>
               </span>
             </Link>
@@ -65,7 +66,7 @@ export function SiteHeader() {
             </nav>
 
             <LiquidButton className="hidden sm:inline-flex" href="/plan" variant="primary">
-              Build a plan
+              Orchestrate a job
             </LiquidButton>
           </div>
         </div>

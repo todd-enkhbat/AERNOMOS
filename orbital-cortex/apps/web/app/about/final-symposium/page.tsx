@@ -49,7 +49,7 @@ export default function FinalSymposiumPage() {
           src="/images/final-symposium-atlas.jpg"
           unoptimized
         />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,6,0.18),rgba(5,5,6,0.7)_52%,#050506_96%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,16,69,0.18),rgba(0,16,69,0.7)_52%,#001045_96%)]" />
         <div className="page-shell relative flex min-h-[72dvh] items-end pb-12 pt-28">
           <div className="max-w-3xl">
             <p className="chart-label text-gold">Founder essay · Philosophical foundation</p>

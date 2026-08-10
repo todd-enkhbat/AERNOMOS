@@ -35,7 +35,7 @@ const AoiMapDraw = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[280px] items-center justify-center rounded-xl border border-white/10 bg-black/20 text-sm text-muted sm:h-[340px]">
+      <div className="flex h-[280px] items-center justify-center rounded-xl border border-white/10 bg-klein-void/40 text-sm text-muted sm:h-[340px]">
         Loading map…
       </div>
     )
@@ -51,7 +51,7 @@ const STEPS = [
 ] as const;
 
 function fieldClassName() {
-  return "mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-cream outline-none focus:border-gold/40";
+  return "mt-1.5 w-full rounded-lg border border-white/10 bg-klein-void/50 px-3 py-2 text-cream outline-none focus:border-gold/40";
 }
 
 function labelClassName() {
