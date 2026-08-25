@@ -34,6 +34,7 @@ class Job:
         sensor (JobSensor):
         status (JobStatus):
         updated_at (str):
+        is_example (bool | Unset):  Default: False.
         schema_version (int | Unset):  Default: 1.
         selected_route_id (None | str | Unset):
     """
@@ -48,6 +49,7 @@ class Job:
     sensor: JobSensor
     status: JobStatus
     updated_at: str
+    is_example: bool | Unset = False
     schema_version: int | Unset = 1
     selected_route_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -73,6 +75,8 @@ class Job:
 
         updated_at = self.updated_at
 
+        is_example = self.is_example
+
         schema_version = self.schema_version
 
         selected_route_id: None | str | Unset
@@ -97,6 +101,8 @@ class Job:
                 "updated_at": updated_at,
             }
         )
+        if is_example is not UNSET:
+            field_dict["is_example"] = is_example
         if schema_version is not UNSET:
             field_dict["schema_version"] = schema_version
         if selected_route_id is not UNSET:
@@ -129,6 +135,8 @@ class Job:
 
         updated_at = d.pop("updated_at")
 
+        is_example = d.pop("is_example", UNSET)
+
         schema_version = d.pop("schema_version", UNSET)
 
         def _parse_selected_route_id(data: object) -> None | str | Unset:
@@ -151,6 +159,7 @@ class Job:
             sensor=sensor,
             status=status,
             updated_at=updated_at,
+            is_example=is_example,
             schema_version=schema_version,
             selected_route_id=selected_route_id,
         )

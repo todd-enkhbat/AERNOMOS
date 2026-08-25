@@ -73,7 +73,9 @@ def sync_detailed(
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
-    Returns immediately; poll the job until it reaches a terminal state.
+    Returns immediately; poll the job until it reaches a terminal state. Private visitor jobs include a
+    one-time `access_token` — store it and send `X-Nomos-Job-Token` on subsequent reads. Curated example
+    jobs remain publicly readable.
 
     Args:
         body (JobCreate):
@@ -105,7 +107,9 @@ def sync(
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
-    Returns immediately; poll the job until it reaches a terminal state.
+    Returns immediately; poll the job until it reaches a terminal state. Private visitor jobs include a
+    one-time `access_token` — store it and send `X-Nomos-Job-Token` on subsequent reads. Curated example
+    jobs remain publicly readable.
 
     Args:
         body (JobCreate):
@@ -132,7 +136,9 @@ async def asyncio_detailed(
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
-    Returns immediately; poll the job until it reaches a terminal state.
+    Returns immediately; poll the job until it reaches a terminal state. Private visitor jobs include a
+    one-time `access_token` — store it and send `X-Nomos-Job-Token` on subsequent reads. Curated example
+    jobs remain publicly readable.
 
     Args:
         body (JobCreate):
@@ -162,7 +168,9 @@ async def asyncio(
     """Submit a job
 
      Accepts a versioned job spec, persists it as `queued`, and hands execution to the async worker.
-    Returns immediately; poll the job until it reaches a terminal state.
+    Returns immediately; poll the job until it reaches a terminal state. Private visitor jobs include a
+    one-time `access_token` — store it and send `X-Nomos-Job-Token` on subsequent reads. Curated example
+    jobs remain publicly readable.
 
     Args:
         body (JobCreate):

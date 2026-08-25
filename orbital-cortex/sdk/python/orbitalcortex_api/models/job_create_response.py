@@ -21,10 +21,12 @@ class JobCreateResponse:
     """
     Attributes:
         job (Job):
+        access_token (None | str | Unset):
         routing_decision (None | RoutingDecision | Unset):
     """
 
     job: Job
+    access_token: None | str | Unset = UNSET
     routing_decision: None | RoutingDecision | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -32,6 +34,12 @@ class JobCreateResponse:
         from ..models.routing_decision import RoutingDecision
 
         job = self.job.to_dict()
+
+        access_token: None | str | Unset
+        if isinstance(self.access_token, Unset):
+            access_token = UNSET
+        else:
+            access_token = self.access_token
 
         routing_decision: dict[str, Any] | None | Unset
         if isinstance(self.routing_decision, Unset):
@@ -48,6 +56,8 @@ class JobCreateResponse:
                 "job": job,
             }
         )
+        if access_token is not UNSET:
+            field_dict["access_token"] = access_token
         if routing_decision is not UNSET:
             field_dict["routing_decision"] = routing_decision
 
@@ -60,6 +70,15 @@ class JobCreateResponse:
 
         d = dict(src_dict)
         job = Job.from_dict(d.pop("job"))
+
+        def _parse_access_token(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        access_token = _parse_access_token(d.pop("access_token", UNSET))
 
         def _parse_routing_decision(data: object) -> None | RoutingDecision | Unset:
             if data is None:
@@ -80,6 +99,7 @@ class JobCreateResponse:
 
         job_create_response = cls(
             job=job,
+            access_token=access_token,
             routing_decision=routing_decision,
         )
 

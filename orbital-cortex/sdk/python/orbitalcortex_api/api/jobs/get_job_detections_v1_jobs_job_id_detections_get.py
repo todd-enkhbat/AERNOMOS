@@ -8,12 +8,17 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     job_id: str,
+    *,
+    x_nomos_job_token: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    if not isinstance(x_nomos_job_token, Unset):
+        headers["x-nomos-job-token"] = x_nomos_job_token
 
     _kwargs: dict[str, Any] = {
         "method": "get",
@@ -22,6 +27,7 @@ def _get_kwargs(
         ),
     }
 
+    _kwargs["headers"] = headers
     return _kwargs
 
 
@@ -31,6 +37,16 @@ def _parse_response(
     if response.status_code == 200:
         response_200 = response.json()
         return response_200
+
+    if response.status_code == 401:
+        response_401 = ErrorResponse.from_dict(response.json())
+
+        return response_401
+
+    if response.status_code == 403:
+        response_403 = ErrorResponse.from_dict(response.json())
+
+        return response_403
 
     if response.status_code == 404:
         response_404 = ErrorResponse.from_dict(response.json())
@@ -63,6 +79,7 @@ def sync_detailed(
     job_id: str,
     *,
     client: AuthenticatedClient | Client,
+    x_nomos_job_token: None | str | Unset = UNSET,
 ) -> Response[Any | ErrorResponse | HTTPValidationError]:
     """Get job detections as GeoJSON
 
@@ -70,6 +87,7 @@ def sync_detailed(
 
     Args:
         job_id (str):
+        x_nomos_job_token (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -81,6 +99,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         job_id=job_id,
+        x_nomos_job_token=x_nomos_job_token,
     )
 
     response = client.get_httpx_client().request(
@@ -94,6 +113,7 @@ def sync(
     job_id: str,
     *,
     client: AuthenticatedClient | Client,
+    x_nomos_job_token: None | str | Unset = UNSET,
 ) -> Any | ErrorResponse | HTTPValidationError | None:
     """Get job detections as GeoJSON
 
@@ -101,6 +121,7 @@ def sync(
 
     Args:
         job_id (str):
+        x_nomos_job_token (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -113,6 +134,7 @@ def sync(
     return sync_detailed(
         job_id=job_id,
         client=client,
+        x_nomos_job_token=x_nomos_job_token,
     ).parsed
 
 
@@ -120,6 +142,7 @@ async def asyncio_detailed(
     job_id: str,
     *,
     client: AuthenticatedClient | Client,
+    x_nomos_job_token: None | str | Unset = UNSET,
 ) -> Response[Any | ErrorResponse | HTTPValidationError]:
     """Get job detections as GeoJSON
 
@@ -127,6 +150,7 @@ async def asyncio_detailed(
 
     Args:
         job_id (str):
+        x_nomos_job_token (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -138,6 +162,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         job_id=job_id,
+        x_nomos_job_token=x_nomos_job_token,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -149,6 +174,7 @@ async def asyncio(
     job_id: str,
     *,
     client: AuthenticatedClient | Client,
+    x_nomos_job_token: None | str | Unset = UNSET,
 ) -> Any | ErrorResponse | HTTPValidationError | None:
     """Get job detections as GeoJSON
 
@@ -156,6 +182,7 @@ async def asyncio(
 
     Args:
         job_id (str):
+        x_nomos_job_token (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,5 +196,6 @@ async def asyncio(
         await asyncio_detailed(
             job_id=job_id,
             client=client,
+            x_nomos_job_token=x_nomos_job_token,
         )
     ).parsed
