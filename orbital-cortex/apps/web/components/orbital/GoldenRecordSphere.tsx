@@ -6,6 +6,11 @@ import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
 
+import {
+  createGoldenRecordDisc,
+  loadGoldenRecordTexture
+} from "@/components/orbital/goldenRecordDisc";
+
 type GoldenRecordSphereProps = {
   className?: string;
   /** Total scroll height of the parent section. */
@@ -47,34 +52,15 @@ export function GoldenRecordSphere({
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load("/images/nomos-golden-record.png");
-    texture.colorSpace = THREE.SRGBColorSpace;
-
-    const disc = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.15, 1.15, 0.06, 128),
-      new THREE.MeshStandardMaterial({
-        map: texture,
-        metalness: 0.92,
-        roughness: 0.22,
-        emissive: new THREE.Color("#3d3010"),
-        emissiveIntensity: 0.15
-      })
-    );
-    disc.rotation.x = Math.PI / 2;
+    const texture = loadGoldenRecordTexture();
+    const { disc, ring } = createGoldenRecordDisc(texture);
     scene.add(disc);
-
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(1.32, 0.012, 8, 128),
-      new THREE.MeshBasicMaterial({ color: 0xc9a227, transparent: true, opacity: 0.55 })
-    );
-    ring.rotation.x = Math.PI / 2;
     scene.add(ring);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-    const key = new THREE.DirectionalLight(0xfff0c8, 1.4);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.38);
+    const key = new THREE.DirectionalLight(0xfff0c8, 1.45);
     key.position.set(2, 2, 4);
-    const rim = new THREE.DirectionalLight(0xe3c05c, 0.8);
+    const rim = new THREE.DirectionalLight(0xe3c05c, 0.75);
     rim.position.set(-3, -1, -2);
     scene.add(ambient, key, rim);
 
@@ -102,10 +88,8 @@ export function GoldenRecordSphere({
       const staticProgress = reduced ? 0.5 : progress;
       disc.rotation.z =
         staticProgress * Math.PI * 2.4 + (reduced ? 0 : performance.now() * 0.00008);
-      disc.rotation.y = Math.sin(staticProgress * Math.PI) * (reduced ? 0 : 0.35);
-      disc.rotation.x =
-        Math.PI / 2 + Math.cos(staticProgress * Math.PI * 0.5) * (reduced ? 0 : 0.18);
-      ring.rotation.z = disc.rotation.z;
+      disc.rotation.y = Math.sin(staticProgress * Math.PI) * (reduced ? 0 : 0.1);
+      disc.rotation.x = 0;
       renderer.render(scene, camera);
       if (!reduced && inView && pageVisible) {
         raf = requestAnimationFrame(tick);

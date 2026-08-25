@@ -15,7 +15,7 @@ const HarborMap = dynamic(
   () => import("@/components/HarborMap").then((m) => m.HarborMap),
   {
     ssr: false,
-    loading: () => <div className="min-h-[260px] animate-pulse rounded-[18px] bg-black/40" />
+    loading: () => <div className="min-h-[260px] animate-pulse rounded-[18px] bg-klein-void/55" />
   }
 );
 

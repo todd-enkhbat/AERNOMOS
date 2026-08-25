@@ -89,7 +89,7 @@ export function CalendarInterestForm() {
             initial={reduced ? undefined : { opacity: 0, y: 8, scale: 0.97 }}
             style={{
               background:
-                "radial-gradient(circle at 40% 30%, rgba(201,162,39,0.12), rgba(5,5,6,0.85) 70%)"
+                "radial-gradient(circle at 40% 30%, rgba(201,162,39,0.12), rgba(0,16,69,0.85) 70%)"
             }}
             transition={{ duration: 0.18, ease: EASE_OUT }}
           >

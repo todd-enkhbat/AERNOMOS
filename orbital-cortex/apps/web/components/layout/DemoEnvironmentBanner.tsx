@@ -1,7 +1,7 @@
 export function DemoEnvironmentBanner() {
   return (
     <div
-      className="border-b border-gold/20 bg-[rgba(201,162,39,0.08)] px-4 py-2.5 text-center text-[13px] leading-snug text-cream/90"
+      className="relative z-[60] border-b border-gold/10 bg-klein-void/55 px-4 py-1.5 text-center text-[11px] leading-snug text-cream/70 backdrop-blur-md"
       role="status"
     >
       Demo environment. Do not submit proprietary or export-controlled information.

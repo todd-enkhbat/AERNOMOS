@@ -252,7 +252,7 @@ export function SputnikScrollStory() {
                 sizes="320px"
                 src="/images/network/orbital-nodes.png"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(5,5,6,0.2),rgba(5,5,6,0.72))]" />
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,16,69,0.2),rgba(0,16,69,0.72))]" />
             </div>
           ) : null}
         </div>

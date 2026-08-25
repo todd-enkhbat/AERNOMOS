@@ -35,7 +35,7 @@ const AoiMapDraw = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[280px] items-center justify-center rounded-xl border border-white/10 bg-black/20 text-sm text-muted sm:h-[340px]">
+      <div className="flex h-[280px] items-center justify-center rounded-xl border border-white/10 bg-klein-void/40 text-sm text-muted sm:h-[340px]">
         Loading map…
       </div>
     )
@@ -51,7 +51,7 @@ const STEPS = [
 ] as const;
 
 function fieldClassName() {
-  return "mt-1.5 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-cream outline-none focus:border-gold/40";
+  return "mt-1.5 w-full rounded-lg border border-white/10 bg-klein-void/50 px-3 py-2 text-cream outline-none focus:border-gold/40";
 }
 
 function labelClassName() {
@@ -180,7 +180,7 @@ export function MissionPlanBuilder() {
       const created = await createMission(payload);
       router.push(`/missions/${created.mission.id}`);
     } catch (err) {
-      setError(apiErrorMessage(err, "Could not create this mission plan."));
+      setError(apiErrorMessage(err, "Could not save this request."));
       setSubmitting(false);
     }
   }
@@ -197,7 +197,7 @@ export function MissionPlanBuilder() {
 
   return (
     <div className="space-y-6">
-      <ol className="flex flex-wrap gap-2" aria-label="Mission plan steps">
+      <ol className="flex flex-wrap gap-2" aria-label="Request steps">
         {STEPS.map((step) => {
           const active = state.step === step.id;
           const done = state.step > step.id;
@@ -618,10 +618,10 @@ export function MissionPlanBuilder() {
         {state.step === 5 ? (
           <div className="space-y-4">
             <div>
-              <p className="chart-label text-gold">Review your mission plan</p>
+              <p className="chart-label text-gold">Review your request</p>
               <p className="mt-2 text-sm text-muted">
-                Confirm these details. Saving creates a private mission for this browser
-                session only.
+                Confirm these details. Submitting saves a private mission record for
+                this browser session only.
               </p>
             </div>
             <dl className="grid gap-3 text-sm sm:grid-cols-2">
@@ -708,7 +708,7 @@ export function MissionPlanBuilder() {
               type="button"
               variant="primary"
             >
-              {submitting ? "Saving…" : "Create mission plan"}
+              {submitting ? "Submitting…" : "Submit request"}
             </LiquidButton>
           )}
         </div>

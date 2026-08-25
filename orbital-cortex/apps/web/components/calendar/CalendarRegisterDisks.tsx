@@ -47,8 +47,8 @@ export function CalendarRegisterDisks() {
             className="relative flex aspect-square w-full items-center justify-center rounded-full"
             style={{
               background:
-                "radial-gradient(circle at 35% 28%, rgba(236,234,228,0.08), rgba(5,5,6,0.92) 62%)",
-              boxShadow: `inset 0 0 0 1px ${disk.ring}, inset 0 0 0 8px rgba(5,5,6,0.55), 0 18px 40px rgba(0,0,0,0.45)`
+                "radial-gradient(circle at 35% 28%, rgba(236,234,228,0.08), rgba(0,16,69,0.92) 62%)",
+              boxShadow: `inset 0 0 0 1px ${disk.ring}, inset 0 0 0 8px rgba(0,16,69,0.55), 0 18px 40px rgba(0,0,0,0.45)`
             }}
           >
             <div

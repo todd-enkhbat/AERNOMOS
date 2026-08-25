@@ -127,7 +127,7 @@ export default function JobsPage() {
       <PageHeader
         eyebrow="Historical simulation demo"
         title="Run a simulated space-data job"
-        description="This path is a labeled historical demo, not the primary product. Submit a job to inspect routing. The board shows curated example jobs only — not every visitor submission. Prefer /plan and /examples for mission planning."
+        description="This path is a labeled historical demo, not the primary product. Submit a job to inspect routing. The board shows curated example jobs only — not every visitor submission. Prefer /plan and /examples for the request path."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}

@@ -28,6 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY apps/api/ ./
 # Seed data is resolved relative to the repo root (../../simulator).
 COPY simulator/ /srv/simulator/
+# Phase N provider registry YAML (REPO_ROOT/config/providers → /srv/config/providers).
+COPY config/ /srv/config/
 
 EXPOSE 8000
 

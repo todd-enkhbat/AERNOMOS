@@ -8,11 +8,11 @@ import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { useLiquidMouse } from "@/components/liquid/useLiquidMouse";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/plan", label: "Plan" },
+  { href: "/plan", label: "Request" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
-  { href: "/calendar", label: "Calendar" },
+  { href: "/dashboard", label: "Control" },
+  { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }
 ];
@@ -23,7 +23,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="page-shell pt-3">
+      <div className="page-shell pt-1.5 md:pt-2">
         <div
           className="liquid-glass liquid-glass--card !rounded-2xl !p-0"
           onMouseLeave={onMouseLeave}
@@ -39,7 +39,7 @@ export function SiteHeader() {
                   Nomos Orbital
                 </span>
                 <span className="chart-label hidden text-muted-dark sm:block">
-                  Mission planning for space data
+                  Space intelligence infrastructure
                 </span>
               </span>
             </Link>
@@ -65,7 +65,7 @@ export function SiteHeader() {
             </nav>
 
             <LiquidButton className="hidden sm:inline-flex" href="/plan" variant="primary">
-              Build a plan
+              Run a request
             </LiquidButton>
           </div>
         </div>

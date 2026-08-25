@@ -337,7 +337,7 @@ function MissionDetailInner() {
             <section className="rounded-2xl border border-gold/25 bg-[radial-gradient(circle_at_80%_0%,rgba(201,162,39,0.12),transparent_48%),rgba(10,10,11,0.82)] p-6 sm:p-9">
               <p className="chart-label text-gold">Recommendation not generated</p>
               <h2 className="mt-4 max-w-2xl font-serif text-4xl leading-tight tracking-[-0.03em] text-cream">
-                Generate a source-backed mission plan.
+                Generate a recommended execution path.
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
                 Nomos will compare existing imagery, customer edge, ground-to-cloud, and onboard paths. Missing integrations will remain unavailable instead of being simulated.

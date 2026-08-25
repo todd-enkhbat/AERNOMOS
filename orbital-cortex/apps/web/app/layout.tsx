@@ -3,6 +3,7 @@ import { Fraunces, IBM_Plex_Mono, Inter_Tight } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { DemoEnvironmentBanner } from "@/components/layout/DemoEnvironmentBanner";
+import { MetalScrollRail } from "@/components/layout/MetalScrollRail";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import "./globals.css";
@@ -28,26 +29,26 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nomos Orbital | Source-backed mission planning",
+    default: "Nomos Orbital | Space Intelligence Infrastructure",
     template: "%s · Nomos Orbital"
   },
   description:
-    "Plan how space-data workloads should move across satellite, ground, and cloud. Real catalogs and orbital math; simulated execution stays labeled.",
+    "Nomos Orbital is building the intelligence and orchestration layer across satellites, ground infrastructure, and cloud compute. Express what you need; Nomos determines how the space stack can deliver it.",
   icons: {
     icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
     apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
   },
   openGraph: {
-    title: "Nomos Orbital",
+    title: "Nomos Orbital | The intelligence layer for space",
     description:
-      "Source-backed mission plans for space-data workloads. Curated examples and a labeled historical simulation demo.",
+      "Turning fragmented space infrastructure into a programmable network. One request, routed across orbital, ground, and cloud systems, with every decision explained.",
     siteName: "Nomos Orbital",
     type: "website"
   }
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050506"
+  themeColor: "#002FA7"
 };
 
 export default function RootLayout({
@@ -70,6 +71,7 @@ export default function RootLayout({
           </main>
           <SiteFooter />
         </div>
+        <MetalScrollRail />
       </body>
     </html>
   );

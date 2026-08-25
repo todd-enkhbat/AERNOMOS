@@ -1,14 +1,16 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { NomosMark } from "@/components/brand/NomosMark";
 import { LiquidCard } from "@/components/liquid/LiquidCard";
 
 const productLinks = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/plan", label: "Build a plan" },
-  { href: "/examples", label: "Example plans" },
+  { href: "/plan", label: "Run a request" },
+  { href: "/examples", label: "Example requests" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
+  { href: "/dashboard", label: "Network control" },
+  { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/calendar", label: "Calendar" },
   { href: "/about/final-symposium", label: "Final Symposium" }
@@ -48,11 +50,20 @@ function FooterLinkList({
 
 export function SiteFooter() {
   return (
-    <footer className="atlas-footer relative mt-16 overflow-hidden">
+    <footer className="atlas-footer relative mt-8 overflow-hidden md:mt-10">
       <div className="atlas-footer__bridge" aria-hidden />
-      <div className="atlas-footer__bg" aria-hidden />
+      <div className="atlas-footer__bg" aria-hidden>
+        <Image
+          alt=""
+          className="atlas-footer__bg-img object-cover object-center"
+          fill
+          sizes="100vw"
+          src="/images/celestial-circuit-atlas.jpg"
+          unoptimized
+        />
+      </div>
 
-      <div className="atlas-footer__shell relative py-10 md:py-12">
+      <div className="atlas-footer__shell relative z-[1] py-10 md:py-12">
         <LiquidCard className="atlas-footer__card" interactive={false} tone="light">
           {/*
             Three equal columns on desktop so Product / Developers span to the
@@ -69,8 +80,9 @@ export function SiteFooter() {
                 </div>
               </div>
               <p className="prose-compact mt-4 max-w-sm text-parchment-muted">
-                Source-backed mission plans for space-data workloads. Real orbital
-                and catalog data, labeled assumptions, no false execution claims.
+                Nomos Orbital is building the intelligence layer for space
+                infrastructure: one request, routed across orbital, ground, and
+                cloud systems, with every decision explained.
               </p>
               <div className="mt-5 space-y-2">
                 <a
@@ -80,8 +92,9 @@ export function SiteFooter() {
                   api.nomosorbital.com
                 </a>
                 <p className="max-w-sm text-xs leading-5 text-parchment-muted">
-                  Production API and real orbital math. Simulated compute execution
-                  and offline reference results.
+                  Early-access demo: production API, real orbital data and
+                  calculations. Provider execution stays simulated or planned until
+                  integrations exist.
                 </p>
               </div>
             </div>
@@ -94,14 +107,14 @@ export function SiteFooter() {
         </LiquidCard>
 
         <div className="atlas-footer__meta">
-          <p className="metric-value text-[11px] text-parchment-muted">
+          <p className="metric-value text-[11px] text-cream/70">
             © {new Date().getFullYear()} Nomos Orbital
           </p>
           <Link
-            className="text-[11px] text-parchment-muted transition-colors hover:text-parchment-ink"
+            className="text-[11px] text-cream/70 transition-colors hover:text-cream"
             href="/plan"
           >
-            Build a mission plan
+            Run a request
           </Link>
         </div>
       </div>

@@ -177,7 +177,7 @@ export function DemoLauncher() {
             </div>
             <p className="mt-3 text-center text-xs text-muted-dark">
               Historical simulation demo. Real API and orbital math; SIMULATED
-              execution and canned detections. Prefer /plan for mission planning.
+              execution and canned detections. Prefer /plan for the request path.
             </p>
           </motion.div>
         ) : (

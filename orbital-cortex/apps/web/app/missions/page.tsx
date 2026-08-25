@@ -57,10 +57,10 @@ export default function MissionsPage() {
       <PageHeader
         eyebrow="Private workspace"
         title="Your missions"
-        description="Missions stay inside this browser’s private anonymous session. Other visitors cannot list or open them without a share token."
+        description="Every request you submit becomes a private mission record in this browser’s anonymous session. Other visitors cannot list or open them without a share token."
         action={
           <LiquidButton href="/plan" variant="primary">
-            Build a mission plan
+            Run a request
           </LiquidButton>
         }
       />
@@ -73,14 +73,15 @@ export default function MissionsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <LiquidCard>
-          <p className="chart-label text-gold">New mission</p>
+          <p className="chart-label text-gold">New request</p>
           <p className="mt-3 text-sm leading-6 text-muted">
-            Use the guided planner to describe your objective, area, and constraints in
-            plain language — then save a private mission plan for this session.
+            Describe your objective, area, and constraints in plain language.
+            Nomos evaluates the available paths and saves a private mission
+            record for this session.
           </p>
           <div className="mt-5">
             <LiquidButton href="/plan" variant="primary">
-              Build a mission plan
+              Run a request
             </LiquidButton>
           </div>
         </LiquidCard>
@@ -93,7 +94,7 @@ export default function MissionsPage() {
             <p className="mt-4 text-sm text-muted">
               No private missions yet.{" "}
               <Link className="text-gold hover:underline" href="/plan">
-                Build a mission plan
+                Run a request
               </Link>{" "}
               to keep one scoped to this session only.
             </p>

@@ -38,7 +38,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
           Binding: {candidate.binding_constraint.replaceAll("_", " ")}
         </p>
       ) : null}
-      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/40">
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-klein-void/55">
         <motion.div
           className="h-full w-full origin-left rounded-full bg-gradient-to-r from-brass to-gold-bright"
           initial={reduced ? false : { scaleX: 0 }}
@@ -52,7 +52,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
       <div className="mt-4 grid grid-cols-4 gap-2 lg:grid-cols-7">
         {factors.map(([label, value]) => (
           <div
-            className="rounded-lg border border-gold/10 bg-black/30 px-2.5 py-2"
+            className="rounded-lg border border-gold/10 bg-klein-void/50 px-2.5 py-2"
             key={label}
           >
             <p className="chart-label text-[0.58rem] text-muted-dark">{label}</p>
@@ -66,7 +66,7 @@ export function ScoreBar({ candidate }: { candidate: CandidateScore }) {
         <div className="mt-4 space-y-1.5">
           {candidate.reasons.slice(0, 4).map((reason) => (
             <p
-              className="rounded-lg bg-black/25 px-3 py-2 text-xs leading-snug text-muted"
+              className="rounded-lg bg-klein-void/45 px-3 py-2 text-xs leading-snug text-muted"
               key={reason}
             >
               {reason}

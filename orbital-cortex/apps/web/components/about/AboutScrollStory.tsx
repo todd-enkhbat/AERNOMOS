@@ -5,6 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 import { LiquidButton } from "@/components/liquid/LiquidButton";
+import {
+  createGoldenRecordDisc,
+  loadGoldenRecordTexture
+} from "@/components/orbital/goldenRecordDisc";
 
 const pillars = [
   {
@@ -57,41 +61,29 @@ export function AboutScrollStory() {
     }
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-    camera.position.z = 3.4;
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.z = 3.15;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
-    const texture = new THREE.TextureLoader().load("/images/nomos-golden-record.png");
-    texture.colorSpace = THREE.SRGBColorSpace;
-
-    const disc = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.15, 1.15, 0.06, 128),
-      new THREE.MeshStandardMaterial({
-        map: texture,
-        metalness: 0.92,
-        roughness: 0.2,
-        emissive: new THREE.Color("#3d3010"),
-        emissiveIntensity: 0.18
-      })
-    );
-    disc.rotation.x = Math.PI / 2;
+    const texture = loadGoldenRecordTexture();
+    const { disc, ring } = createGoldenRecordDisc(texture);
     scene.add(disc);
-
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(1.34, 0.014, 8, 128),
-      new THREE.MeshBasicMaterial({ color: 0xe3c05c, transparent: true, opacity: 0.45 })
-    );
-    ring.rotation.x = Math.PI / 2;
     scene.add(ring);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const key = new THREE.DirectionalLight(0xfff0c8, 1.5);
-    key.position.set(2, 2, 4);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const key = new THREE.DirectionalLight(0xfff4d4, 1.85);
+    key.position.set(2.8, 3.2, 5);
     scene.add(key);
+    const fill = new THREE.DirectionalLight(0xe3c05c, 0.55);
+    fill.position.set(-2.8, -0.2, 2);
+    scene.add(fill);
+    const rimLight = new THREE.DirectionalLight(0xffe08a, 0.4);
+    rimLight.position.set(0, -2, -3);
+    scene.add(rimLight);
 
     let raf = 0;
     let inView = true;
@@ -115,8 +107,9 @@ export function AboutScrollStory() {
       const p = reduced ? 0.5 : progressRef.current;
       disc.rotation.z =
         p * Math.PI * 2.6 + (reduced ? 0 : performance.now() * 0.00006);
-      disc.rotation.y = Math.sin(p * Math.PI) * 0.4;
-      ring.rotation.z = disc.rotation.z;
+      // Very light yaw so the record reads as a round plate, not an ellipse.
+      disc.rotation.y = Math.sin(p * Math.PI) * 0.1;
+      disc.rotation.x = 0;
       renderer.render(scene, camera);
       if (!reduced && inView && pageVisible) {
         raf = requestAnimationFrame(tick);
@@ -169,7 +162,7 @@ export function AboutScrollStory() {
             className="pointer-events-none absolute h-[320px] w-[320px] rounded-full bg-gold/10 blur-[80px]"
           />
           <div
-            className="relative h-[min(340px,68vw)] w-[min(340px,68vw)]"
+            className="relative aspect-square h-[min(340px,68vw)] w-[min(340px,68vw)] overflow-hidden rounded-full shadow-[0_0_0_1px_rgba(227,192,92,0.22),0_20px_50px_rgba(0,10,40,0.35)]"
             ref={mountRef}
           />
         </div>
