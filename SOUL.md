@@ -27,23 +27,44 @@ Intellectual lineage: Carl Sagan and the Golden Record, engineering humility, Ru
 ## 2. Positioning
 
 - **Primary tagline:** *Order, for the orbital age.*
-- **Category:** Job orchestration for space-data workloads.
+- **Category:** Space intelligence infrastructure. The intelligence and orchestration layer for space infrastructure.
+- **Category rule:** Mission planning is a current product surface and an output, never the company category. The company is the layer that turns fragmented space infrastructure into a programmable network. Do not let current limitations define the company; state them as product maturity.
+- **One-line description:** Nomos turns fragmented space infrastructure into a programmable network.
+- **Interaction model:** Tell the network what you need. Nomos determines how the space stack can deliver it.
+- **North star:** One request. The whole space stack. Space should be callable.
 - **Final product claim (allowed):** Nomos turns a space-data objective into a source-backed infrastructure plan, then routes and runs the job with a traceable record. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief. Live commercial tasking, reservation, and onboard provider execution require integrations Nomos does not pretend to have.
-- **Elevator:** Nomos is the job orchestrator for space-data workloads — it decides where work should run across satellite, ground, and cloud, routes under real orbital and catalog data, and executes with a source-backed audit trail.
-- **Homepage promise:** Submit the workload. Nomos routes it under real orbital and infrastructure constraints, then runs it with a source-backed audit trail.
+- **Elevator:** Nomos is building the intelligence layer for space. It reasons across satellites, ground infrastructure, and cloud compute to determine how a space-data objective should be fulfilled, and explains every decision. Today it recommends and routes with real public data; provider integrations turn those decisions into execution.
+- **Homepage promise:** Tell the network what you need. Nomos determines how satellites, ground systems, and cloud compute deliver it.
 - **Developer framing (docs / deep technical):** A control plane for routing, execution, and audit when jobs are submitted.
-- **Internal analogy only:** Stripe for orbital compute. Kubernetes for orbital infrastructure.
-- **Problem:** Satellites collect more than they can send home. Operators need an orchestrated, auditable path before and while work runs.
+- **Internal analogy only:** Uber-style abstraction for space infrastructure. Stripe for orbital compute. Kubernetes for orbital infrastructure. Never shipped as copy.
+- **Problem:** Space is powerful; access to it is still bespoke. Every team coordinates operators, spacecraft, ground networks, compute environments, and constraints by hand.
+- **Progression (vision spine):** Understand → Recommend → Route → Orchestrate → Execute. The first three exist today; the last two arrive with integrations and stay labeled until then.
 
-Nomos is not a satellite operator, launch company, ground-station provider, or data reseller. It is the orchestration and verification layer above those systems.
+Nomos is not a satellite operator, launch company, ground-station provider, or data reseller. It is the intelligence and orchestration layer above those systems. Do not reduce Nomos to a router, a mission planner, an onboard-inference company, a ground-station marketplace, or cloud for satellites; each is one component or output beneath the abstraction.
 
 ### Homepage-facing language (prefer)
 
-- Orchestrate space-data jobs across satellite, ground, and cloud
-- Route under real orbital and infrastructure constraints
-- Run with a source-backed audit trail
-- Technical mission brief
+- The intelligence layer for space
+- Space intelligence infrastructure
+- Different infrastructure. One interface.
+- The infrastructure can stay heterogeneous. Access to it should not.
+- One request. The whole space stack.
+- Run a request (primary CTA)
+- Recommended execution path (output)
 - Assumptions and unavailable integrations
+
+### Status labels (marketing surfaces)
+
+Use one consistent status system instead of repeated caveat paragraphs: **LIVE** (working now, on real data), **REFERENCE** (real public facts in the registry, cited), **SIMULATED** (modeled behavior, always labeled), **PLANNED** (requires provider integration, never claimed early). Defined on the homepage maturity band and `/capabilities`.
+
+### Marketing framing (homepage / brand, not product proof)
+
+Use these as metaphors for the long mission. They must never be read as live marketplace claims.
+
+- **Conductor:** Nomos is the connectivity orchestrator for the space industry. Like a conductor, it does not replace the instruments. It holds the score so satellite, ground, and cloud can play the same mission.
+- **On-demand fleet:** Satellites should become callable infrastructure, closer to ordering a ride than filing a weeks-long tasking ticket. Near-term product earns that future with source-backed plans. Live commercial tasking still requires provider integrations.
+- **Category line (aspirational, homepage-ok when paired with truth):** The intelligence layer for space. Job routing is one mechanism inside it.
+- **Do not say:** Nomos is Uber for satellites as a completed product fact, or that operators can currently task arbitrary satellites through Nomos.
 
 ### Language to keep precise (do not overclaim)
 
@@ -151,23 +172,25 @@ The customer planning path is the spine. The developer demo and mission narrativ
 
 ### Homepage order
 
-1. Hero: job-orchestrator promise, primary CTA to `/plan`, secondary CTA to `/examples`
-2. Three steps: describe → route → run with a record
-3. What Nomos does today / What requires provider integration
-4. Demoted historical simulation demo link to `/jobs` (not the primary action)
-5. About, contact, and footer elsewhere in the site chrome
+1. Hero: intelligence-layer category and promise, primary CTA "Run a request" to `/plan`, secondary CTA to `/network`, small "early access · live demo" status
+2. Problem: space is powerful, access is bespoke; today's chain vs the Nomos chain
+3. Network abstraction: one request → Nomos → orbital + ground + cloud → result; "Different infrastructure. One interface."
+4. Intelligence loop: express the outcome → understand the environment → determine the path → execute across the network (04 labeled planned)
+5. What exists today (available now) vs coming with network integrations, plus the status-label key
+6. Product surfaces: run a request, example requests, the network; developer and sim-demo links demoted below
+7. Vision close: one request, the whole space stack; Understand → Execute progression strip
 
-Keep the main navigation product-first: Dashboard, Plan, Missions, Network, Capabilities, Calendar, About, Docs. Capabilities (`/capabilities`) is the public truth map: live product, provider gaps, aspirations, and forward work. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
+Keep the main navigation brand-first and product-accessible: Request (`/plan`), Missions, Network, Control (`/dashboard`), Capabilities, About, Docs. Calendar stays reachable from the footer and About, not top navigation. UI labels may differ from internal routes; do not rename routes for branding. Capabilities (`/capabilities`) is the public truth map: live product, provider gaps, aspirations, and forward work. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
 
 ## 5. Hero narrative
 
-The marketing hero is plain and outcome-led:
+The marketing hero is plain and category-led:
 
-1. Brand: Nomos Orbital
-2. One headline about orchestrating jobs across satellite, ground, and cloud
-3. One subhead about routing under real constraints and running with an audit trail
-4. Primary and secondary CTAs, fully inside the art's central portal
-5. One dominant visual (portal circuit hero on homepage; About may use different art)
+1. Eyebrow: space intelligence infrastructure (with the Nomos mark)
+2. One headline naming the category: the intelligence layer for space
+3. One subhead on the interaction model: tell the network what you need; Nomos determines how satellites, ground systems, and cloud deliver it
+4. Primary CTA "Run a request" and secondary CTA to the network, fully inside the art's central portal, with a small early-access status line
+5. One dominant visual (portal hero on homepage; About may use different art)
 
 Readability beats decorative complexity in the first viewport. No stat strips, fake metrics, or demo launcher in the hero.
 
@@ -219,21 +242,27 @@ Avoid neon SaaS gradients, excessive blur, cartoon rockets, stock astronaut imag
 ## 8. Approved copy
 
 - **Final claim:** Nomos turns a space-data objective into a source-backed infrastructure plan. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief.
-- **Hero:** Plan how your space-data workload should move across satellite, ground, and cloud infrastructure.
-- **Hero subline:** Describe your mission and constraints. Nomos generates a source-backed execution plan using real orbital and infrastructure data.
-- **Primary CTA:** Build a mission plan
-- **Secondary CTA:** View example plan
+- **Hero eyebrow:** Space intelligence infrastructure
+- **Hero:** The intelligence layer for space.
+- **Hero subline:** Tell the network what you need. Nomos determines how satellites, ground systems, and cloud compute deliver it.
+- **Hero (alt):** Make space programmable. / One request. The whole space stack.
+- **Primary CTA:** Run a request
+- **Secondary CTA:** See the network
 - **Tagline (brand):** Order, for the orbital age.
-- **Problem:** Satellites collect more than they can send home.
-- **Does today:** Searches real public catalogs; calculates contact opportunities; compares feasible routes; labels assumptions; generates a technical mission brief.
-- **Requires provider:** Satellite tasking; ground-station reservation; onboard execution; private telemetry; commercial pricing guarantees.
-- **About:** Nomos, the Golden Record, and source-backed orbital planning.
+- **Site title:** Nomos Orbital | Space Intelligence Infrastructure
+- **Meta description:** Nomos Orbital is building the intelligence and orchestration layer across satellites, ground infrastructure, and cloud compute.
+- **Problem:** Space is powerful. Access to it is still bespoke.
+- **Network line:** Different infrastructure. One interface. / The infrastructure can stay heterogeneous. Access to it should not.
+- **Does today:** Reasons over real public orbital and infrastructure data; calculates contact opportunities; compares feasible processing routes; exposes assumptions and sources; explores execution with labeled simulation.
+- **Coming with integrations:** Satellite tasking; ground-station reservation; onboard workload execution; private telemetry; live commercial availability and pricing; automated multi-provider execution.
+- **Request page (`/plan`):** eyebrow Nomos intelligence · H1 What do you need from the network? · output described as a recommended execution path or mission brief, never the company category.
+- **About:** Order, for the orbital age. Belief → problem → role → name → Golden Record → today → direction.
 - **Demo (jobs):** Historical simulation demo. No account needed. Production API, real orbital math, SIMULATED execution and detections.
-- **Footer:** est. among the stars · Source-backed mission plans for space-data workloads.
+- **Footer:** est. among the stars · Nomos Orbital is building the intelligence layer for space infrastructure: one request, routed across orbital, ground, and cloud systems, with every decision explained.
 
 ## 9. Instructions for agents
 
-1. Lead the homepage and customer path with mission planning, not the job demo.
+1. Lead every surface with the intelligence-layer category. Mission planning is a surface and an output, not the company; the job demo is demoted further still.
 2. Keep `/examples` as the home for curated public examples with truth disclosures.
 3. Preserve Request → Score → Route → Return for the historical simulation demo and docs; label it SIMULATED.
 4. Do not claim live tasking, operational ground-station access, real orbital compute, live inference, commercial pricing guarantees, real authentication, or cryptographically signed events.

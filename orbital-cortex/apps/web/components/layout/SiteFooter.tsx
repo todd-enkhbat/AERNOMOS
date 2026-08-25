@@ -5,11 +5,11 @@ import { NomosMark } from "@/components/brand/NomosMark";
 import { LiquidCard } from "@/components/liquid/LiquidCard";
 
 const productLinks = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/plan", label: "Build a plan" },
-  { href: "/examples", label: "Example plans" },
+  { href: "/plan", label: "Run a request" },
+  { href: "/examples", label: "Example requests" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
+  { href: "/dashboard", label: "Network control" },
   { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/calendar", label: "Calendar" },
@@ -80,8 +80,9 @@ export function SiteFooter() {
                 </div>
               </div>
               <p className="prose-compact mt-4 max-w-sm text-parchment-muted">
-                Source-backed mission plans for space-data workloads. Real orbital
-                and catalog data, labeled assumptions, no false execution claims.
+                Nomos Orbital is building the intelligence layer for space
+                infrastructure: one request, routed across orbital, ground, and
+                cloud systems, with every decision explained.
               </p>
               <div className="mt-5 space-y-2">
                 <a
@@ -91,8 +92,9 @@ export function SiteFooter() {
                   api.nomosorbital.com
                 </a>
                 <p className="max-w-sm text-xs leading-5 text-parchment-muted">
-                  Production API and real orbital math. Simulated compute execution
-                  and offline reference results.
+                  Early-access demo: production API, real orbital data and
+                  calculations. Provider execution stays simulated or planned until
+                  integrations exist.
                 </p>
               </div>
             </div>
@@ -112,7 +114,7 @@ export function SiteFooter() {
             className="text-[11px] text-cream/70 transition-colors hover:text-cream"
             href="/plan"
           >
-            Build a mission plan
+            Run a request
           </Link>
         </div>
       </div>

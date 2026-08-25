@@ -110,9 +110,9 @@ export default function DashboardPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Control plane"
-        title="Public demo operations"
-        description="Metrics over curated demo examples only. Private missions live under Missions. Visitor job submissions are not listed publicly."
+        eyebrow="Nomos control plane"
+        title="Network control"
+        description="A view of requests, infrastructure candidates, and routing decisions represented in Nomos. Metrics cover curated demo examples only; private missions live under Missions and are never listed publicly."
         action={
           <Link
             className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
@@ -193,7 +193,15 @@ export default function DashboardPage() {
               {jobs.length === 0 ? (
                 <tr>
                   <td className="text-muted" colSpan={6}>
-                    No jobs yet. Create one to inspect its route, lifecycle, and result.
+                    No demo requests represented right now. Open a curated{" "}
+                    <Link className="text-gold hover:underline" href="/examples">
+                      example request
+                    </Link>{" "}
+                    to see routing decisions, or submit one through the{" "}
+                    <Link className="text-gold hover:underline" href="/jobs">
+                      historical simulation demo
+                    </Link>
+                    .
                   </td>
                 </tr>
               ) : (
@@ -240,11 +248,11 @@ export default function DashboardPage() {
         <div className="glass p-6 lg:col-span-2">
           <div className="flex items-center gap-3">
             <Server className="text-gold" size={18} strokeWidth={1.8} />
-            <h2 className="text-lg font-semibold text-cream">How to read this dashboard</h2>
+            <h2 className="text-lg font-semibold text-cream">How to read this view</h2>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
             {[
-              ["Jobs", "Persisted records from the shared public queue."],
+              ["Requests", "Persisted job records from the shared public demo queue."],
               ["Routes", "Deterministic scores over simulated compute candidates."],
               ["Estimates", "Modeled latency and cost, not provider telemetry."]
             ].map(([item, detail]) => (

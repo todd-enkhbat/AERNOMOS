@@ -79,22 +79,24 @@ export function AboutContent({ compact = false }: { compact?: boolean }) {
                   </div>
                 </div>
                 <p className="prose-compact mt-4 text-muted">
-                  We are building the orchestration layer for space-data AI: submit a
-                  job once, route it across orbital and cloud compute, inspect every
-                  score, and retrieve artifacts through signed URLs. The demo runs
-                  against production infrastructure at api.nomosorbital.com, with
-                  simulated compute execution and offline reference results.
+                  We are building the intelligence layer for space
+                  infrastructure: express an objective once, let Nomos reason
+                  across orbital, ground, and cloud resources, inspect every
+                  score, and retrieve results with their provenance attached.
+                  The demo runs against production infrastructure at
+                  api.nomosorbital.com, with simulated compute execution and
+                  offline reference results.
                 </p>
                 <p className="prose-compact mt-3 text-muted">
                   Nomos is not a satellite operator or ground-station provider. It is
-                  the routing, orchestration, and verification layer above them.
+                  the intelligence and orchestration layer above them.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link
                     className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void 	ransition-colors hover:bg-gold-bright"
-                    href="/#demo"
+                    href="/plan"
                   >
-                    Run live demo
+                    Run a request
                   </Link>
                   <Link
                     className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-cream 	ransition-colors hover:border-white/25"

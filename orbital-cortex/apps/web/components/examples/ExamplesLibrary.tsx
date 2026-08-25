@@ -254,11 +254,11 @@ export function ExamplesLibrary() {
     <div className="page-shell pb-16">
       <PageHeader
         eyebrow="Examples"
-        title="See the planner's real output"
-        description="Curated public missions that run through the same source-backed planner customers use. Every step carries a truth label — real, calculated, estimated, simulated, or unavailable — so nothing masquerades as live execution."
+        title="See the network's real output"
+        description="Curated public requests routed through the same intelligence layer customers use. Every step carries a truth label — real, calculated, estimated, simulated, or unavailable — so nothing masquerades as live execution."
         action={
           <LiquidButton href="/plan" variant="primary">
-            Build a mission plan
+            Run a request
           </LiquidButton>
         }
       />
@@ -400,12 +400,12 @@ export function ExamplesLibrary() {
         <LiquidCard className="mt-8">
           <p className="chart-label text-gold">No examples seeded yet</p>
           <p className="prose-compact mt-3 max-w-2xl text-muted">
-            Run the API seed to publish curated example missions, or build your own
-            private plan.
+            Run the API seed to publish curated example missions, or submit a
+            private request of your own.
           </p>
           <div className="mt-5">
             <LiquidButton href="/plan" variant="primary">
-              Build a mission plan
+              Run a request
             </LiquidButton>
           </div>
         </LiquidCard>

@@ -132,7 +132,7 @@ export function NetworkMetricsCarousel(props: NetworkMetricsCarouselProps) {
   return (
     <div className="mt-8">
       <h2 className="display max-w-3xl text-2xl leading-tight text-cream md:text-[2rem]">
-        Four inputs the router can explain
+        Four inputs the intelligence layer can explain
       </h2>
 
       <div className="relative mt-6 overflow-hidden" ref={viewportRef}>

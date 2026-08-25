@@ -2,18 +2,18 @@ import { PageHeader } from "@/components/PageHeader";
 import { MissionPlanBuilder } from "@/components/plan/MissionPlanBuilder";
 
 export const metadata = {
-  title: "Build a mission plan · Nomos Orbital",
+  title: "Run a request",
   description:
-    "Create a private mission plan with an area of interest, timing, and constraints. No account required."
+    "Describe an objective and Nomos evaluates orbital, data, ground, and compute paths across the infrastructure represented in the system. No account required."
 };
 
 export default function PlanPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Mission planner"
-        title="Build a mission plan"
-        description="Five short steps. Your plan stays private to this browser session — no account creation required."
+        eyebrow="Nomos intelligence"
+        title="What do you need from the network?"
+        description="Describe an objective and Nomos evaluates available orbital, data, ground, and compute paths using the infrastructure currently represented in the system. Requests stay private to this browser session. No account required."
       />
       <MissionPlanBuilder />
     </div>

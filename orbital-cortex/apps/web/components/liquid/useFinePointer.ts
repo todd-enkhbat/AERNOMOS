@@ -4,15 +4,11 @@ import { useEffect, useState } from "react";
 
 const QUERY = "(hover: hover) and (pointer: fine)";
 
-function matchesFinePointer() {
-  if (typeof window === "undefined") {
-    return true;
-  }
-  return window.matchMedia(QUERY).matches;
-}
-
 export function useFinePointer() {
-  const [finePointer, setFinePointer] = useState(matchesFinePointer);
+  // Fixed SSR-safe default so the client's first (pre-hydration) render
+  // matches the server regardless of the visitor's actual pointer type.
+  // The real value applies a tick after mount, once hydration is done.
+  const [finePointer, setFinePointer] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia(QUERY);

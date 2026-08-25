@@ -9,7 +9,7 @@ import { TruthBadge } from "@/components/truth/TruthBadge";
 export const metadata: Metadata = {
   title: "Capabilities",
   description:
-    "What Nomos can do today, what still requires provider integration, and the direction ahead. Planning is live. Execution claims stay labeled."
+    "What Nomos can do today, what still requires provider integration, and the direction ahead. The intelligence layer is live; execution claims stay labeled."
 };
 
 type TodayCapability = {
@@ -146,18 +146,34 @@ export default function CapabilitiesPage() {
               What we can do, what we will not pretend, and where we are going.
             </h1>
             <p className="prose-compact mt-3 max-w-xl text-cream/85">
-              Nomos turns a space-data objective into a source-backed
-              infrastructure plan. Planning is live. Missing integrations are
-              labeled, never invented.
+              Nomos reasons over real orbital and infrastructure data to
+              determine how a request should move through the space stack. The
+              intelligence layer is live. Missing integrations are labeled,
+              never invented.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <LiquidButton href="/plan" variant="primary">
-                Build a mission plan
+                Run a request
               </LiquidButton>
               <LiquidButton href="/examples" variant="ghost">
-                View example plan →
+                View example request →
               </LiquidButton>
             </div>
+            <dl className="mt-7 grid max-w-2xl gap-2 text-xs sm:grid-cols-2">
+              {[
+                ["LIVE", "Working in the product now, on real data."],
+                ["REFERENCE", "Real public facts in the registry, with citations."],
+                ["SIMULATED", "Modeled behavior, always labeled as such."],
+                ["PLANNED", "Requires provider integration. Never claimed early."]
+              ].map(([label, detail]) => (
+                <div className="flex items-baseline gap-2.5" key={label}>
+                  <dt className="metric-value shrink-0 text-[10px] tracking-[0.14em] text-gold">
+                    {label}
+                  </dt>
+                  <dd className="leading-5 text-cream/70">{detail}</dd>
+                </div>
+              ))}
+            </dl>
           </FadeIn>
         </div>
       </LiquidSection>
@@ -311,7 +327,7 @@ export default function CapabilitiesPage() {
           <div className="border-t border-gold/12 pt-8">
             <p className="chart-label text-silver">Prove it</p>
             <h2 className="display mt-2 max-w-2xl text-xl text-cream sm:text-2xl">
-              See a source-backed plan, or build your own.
+              See the network&rsquo;s real output, or run your own request.
             </h2>
             <p className="prose-compact mt-3 max-w-xl text-muted">
               Curated examples disclose what is real, calculated, estimated,
@@ -320,10 +336,10 @@ export default function CapabilitiesPage() {
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <LiquidButton href="/plan" variant="primary">
-                Build a mission plan
+                Run a request
               </LiquidButton>
               <LiquidButton href="/examples" variant="outline">
-                View example plans
+                View example requests
               </LiquidButton>
               <LiquidButton href="/docs" variant="ghost">
                 API reference →

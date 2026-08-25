@@ -73,11 +73,46 @@ export default function NetworkPage() {
     <div className="relative pb-6">
       <LiquidSection className="page-shell" orbs={false}>
         <PageHeader
-          description="Inspect the reference registry used by the router: real public orbital geometry, pinned TLEs, reference ground sites, and simulated compute candidates."
+          description="Orbital, ground, and cloud resources represented in Nomos today: real public orbital geometry, reference ground sites, and clearly labeled simulated compute candidates. This registry is what the intelligence layer evaluates when it routes a request."
           eyebrow="Network"
-          title="How the reference network fits together"
+          title="The network Nomos reasons across"
         />
         {notice ? <InlineNotice message={notice} /> : null}
+
+        <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {[
+            {
+              name: "Orbital",
+              detail: "Spacecraft, payloads, and eventually onboard compute."
+            },
+            {
+              name: "Ground",
+              detail: "Stations, communications, and terrestrial edge compute."
+            },
+            {
+              name: "Cloud",
+              detail: "Elastic processing, storage, models, and downstream services."
+            },
+            {
+              name: "Nomos",
+              detail: "The intelligence layer deciding which resources take part."
+            },
+            {
+              name: "Requests",
+              detail: "Objectives submitted to the network for evaluation."
+            }
+          ].map((layer) => (
+            <div
+              className="rounded-xl border border-gold/15 bg-klein-void/45 p-3.5"
+              key={layer.name}
+            >
+              <p className="metric-value text-[10px] tracking-[0.16em] text-gold">
+                {layer.name.toUpperCase()}
+              </p>
+              <p className="mt-1.5 text-xs leading-5 text-muted">{layer.detail}</p>
+            </div>
+          ))}
+        </div>
 
         <NetworkMetricsCarousel
           activeJobs={activeJobs}

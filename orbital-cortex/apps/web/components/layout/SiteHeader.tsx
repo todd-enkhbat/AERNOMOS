@@ -8,12 +8,11 @@ import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { useLiquidMouse } from "@/components/liquid/useLiquidMouse";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/plan", label: "Plan" },
+  { href: "/plan", label: "Request" },
   { href: "/missions", label: "Missions" },
   { href: "/network", label: "Network" },
+  { href: "/dashboard", label: "Control" },
   { href: "/capabilities", label: "Capabilities" },
-  { href: "/calendar", label: "Calendar" },
   { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }
 ];
@@ -40,7 +39,7 @@ export function SiteHeader() {
                   Nomos Orbital
                 </span>
                 <span className="chart-label hidden text-muted-dark sm:block">
-                  Job orchestration for space data
+                  Space intelligence infrastructure
                 </span>
               </span>
             </Link>
@@ -66,7 +65,7 @@ export function SiteHeader() {
             </nav>
 
             <LiquidButton className="hidden sm:inline-flex" href="/plan" variant="primary">
-              Orchestrate a job
+              Run a request
             </LiquidButton>
           </div>
         </div>

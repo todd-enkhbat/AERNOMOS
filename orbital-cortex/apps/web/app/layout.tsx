@@ -29,19 +29,19 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nomos Orbital | Source-backed mission planning",
+    default: "Nomos Orbital | Space Intelligence Infrastructure",
     template: "%s · Nomos Orbital"
   },
   description:
-    "Orchestrate space-data jobs across satellite, ground, and cloud. Real catalogs and orbital math; provider execution stays labeled until connected.",
+    "Nomos Orbital is building the intelligence and orchestration layer across satellites, ground infrastructure, and cloud compute. Express what you need; Nomos determines how the space stack can deliver it.",
   icons: {
     icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
     apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
   },
   openGraph: {
-    title: "Nomos Orbital",
+    title: "Nomos Orbital | The intelligence layer for space",
     description:
-      "Source-backed mission plans for space-data workloads. Curated examples and a labeled historical simulation demo.",
+      "Turning fragmented space infrastructure into a programmable network. One request, routed across orbital, ground, and cloud systems, with every decision explained.",
     siteName: "Nomos Orbital",
     type: "website"
   }
