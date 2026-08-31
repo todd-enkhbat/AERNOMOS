@@ -2008,10 +2008,6 @@ body.is-scroll-rail-dragging {
   animation: route-flow-dash 3s linear infinite;
 }
 
-.route-flow--late {
-  animation-delay: 1.1s;
-}
-
 @keyframes route-flow-dash {
   to {
     stroke-dashoffset: -56;
