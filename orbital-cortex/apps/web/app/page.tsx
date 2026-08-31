@@ -2,21 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { NomosMark } from "@/components/brand/NomosMark";
+import { FragmentedStack, UnifiedStack } from "@/components/home/StackDiagrams";
 import { FadeIn } from "@/components/motion/primitives";
 import { LiquidButton, LiquidCard, LiquidSection } from "@/components/liquid";
-
-const bespokeChain = [
-  "Request",
-  "Satellite operator",
-  "Flight constraints",
-  "Ground provider",
-  "Data transfer",
-  "Compute environment",
-  "Custom pipeline",
-  "Result"
-];
-
-const nomosChain = ["Request", "Nomos", "Best available path", "Result"];
 
 const loopSteps = [
   {
@@ -118,174 +106,6 @@ const progression = [
   { phase: "Execute", now: false }
 ];
 
-function ChainColumn({
-  label,
-  items,
-  highlight
-}: {
-  label: string;
-  items: string[];
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={[
-        "rounded-2xl border p-5 sm:p-6",
-        highlight
-          ? "border-gold/35 bg-gold/[0.05]"
-          : "border-white/10 bg-klein-void/40"
-      ].join(" ")}
-    >
-      <p className={`chart-label ${highlight ? "text-gold" : "text-muted-dark"}`}>
-        {label}
-      </p>
-      <ol className="mt-4 flex flex-col items-start gap-1">
-        {items.map((item, index) => (
-          <li className="flex flex-col items-start gap-1" key={item}>
-            {index > 0 ? (
-              <span
-                aria-hidden
-                className={`ml-3 text-xs leading-none ${
-                  highlight ? "text-gold/70" : "text-muted-dark/70"
-                }`}
-              >
-                ↓
-              </span>
-            ) : null}
-            <span
-              className={[
-                "metric-value rounded-lg border px-2.5 py-1 text-[11px] tracking-[0.08em]",
-                item === "Nomos"
-                  ? "border-gold/60 bg-gold/15 text-gold-bright"
-                  : highlight
-                    ? "border-gold/25 text-cream/90"
-                    : "border-white/10 text-muted"
-              ].join(" ")}
-            >
-              {item.toUpperCase()}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <p
-        className={`mt-4 text-xs leading-5 ${
-          highlight ? "text-cream/70" : "text-muted-dark"
-        }`}
-      >
-        {highlight
-          ? "Nomos absorbs the coordination. The request stays simple."
-          : "Rebuilt by every team, for every mission."}
-      </p>
-    </div>
-  );
-}
-
-function LayerCard({
-  name,
-  detail
-}: {
-  name: string;
-  detail: string;
-}) {
-  return (
-    <div className="rounded-xl border border-gold/20 bg-klein-void/55 px-2 py-3 text-center sm:px-4 sm:py-4">
-      <p className="metric-value text-[10px] tracking-[0.14em] text-gold-bright sm:text-[11px]">
-        {name}
-      </p>
-      <p className="mt-1.5 hidden text-[11px] leading-4 text-muted sm:block">{detail}</p>
-    </div>
-  );
-}
-
-function NetworkDiagram() {
-  return (
-    <div aria-label="One request enters Nomos. Nomos routes it across orbital nodes, ground networks, and cloud compute, and returns a result." role="img">
-      <div className="mx-auto max-w-2xl">
-        <div className="mx-auto w-fit rounded-full border border-white/20 bg-klein-void/60 px-4 py-1.5">
-          <p className="metric-value text-[11px] tracking-[0.14em] text-cream">
-            ONE REQUEST
-          </p>
-        </div>
-
-        <svg
-          aria-hidden
-          className="mx-auto block h-8 w-0.5"
-          preserveAspectRatio="none"
-          viewBox="0 0 2 32"
-        >
-          <path d="M1 0 V32" fill="none" stroke="rgba(201,162,39,0.35)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-          <path className="route-flow" d="M1 0 V32" fill="none" stroke="#e3c05c" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-        </svg>
-
-        <div className="mx-auto w-fit rounded-2xl border border-gold/45 bg-gold/[0.07] px-6 py-3.5 text-center">
-          <p className="display text-lg leading-none text-cream sm:text-xl">Nomos</p>
-          <p className="metric-value mt-1.5 text-[10px] tracking-[0.16em] text-gold">
-            INTELLIGENCE · ROUTING
-          </p>
-        </div>
-
-        <svg
-          aria-hidden
-          className="block h-10 w-full"
-          preserveAspectRatio="none"
-          viewBox="0 0 100 40"
-        >
-          <path
-            d="M50 0 L16.7 40 M50 0 V40 M50 0 L83.3 40"
-            fill="none"
-            stroke="rgba(201,162,39,0.3)"
-            strokeWidth="1"
-            vectorEffect="non-scaling-stroke"
-          />
-          <path
-            className="route-flow"
-            d="M50 0 L16.7 40"
-            fill="none"
-            stroke="#e3c05c"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <LayerCard detail="Spacecraft, payloads, onboard compute" name="ORBITAL NODES" />
-          <LayerCard detail="Stations, comms, terrestrial edge" name="GROUND NETWORKS" />
-          <LayerCard detail="Elastic processing, storage, models" name="CLOUD COMPUTE" />
-        </div>
-
-        <svg
-          aria-hidden
-          className="block h-10 w-full"
-          preserveAspectRatio="none"
-          viewBox="0 0 100 40"
-        >
-          <path
-            d="M16.7 0 L50 40 M50 0 V40 M83.3 0 L50 40"
-            fill="none"
-            stroke="rgba(201,162,39,0.3)"
-            strokeWidth="1"
-            vectorEffect="non-scaling-stroke"
-          />
-          <path
-            className="route-flow route-flow--late"
-            d="M83.3 0 L50 40"
-            fill="none"
-            stroke="#e3c05c"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-
-        <div className="mx-auto w-fit rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5">
-          <p className="metric-value text-[11px] tracking-[0.14em] text-gold-bright">
-            RESULT
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function HomePage() {
   return (
     <div className="relative pb-6">
@@ -370,36 +190,35 @@ export default function HomePage() {
         </FadeIn>
         <div className="mt-7 grid gap-4 md:grid-cols-2">
           <FadeIn viewportMargin="0px" y={6}>
-            <ChainColumn items={bespokeChain} label="Today" />
+            <FragmentedStack />
           </FadeIn>
           <FadeIn delay={0.05} viewportMargin="0px" y={6}>
-            <ChainColumn highlight items={nomosChain} label="With Nomos" />
+            <UnifiedStack />
           </FadeIn>
         </div>
       </LiquidSection>
 
       <LiquidSection className="home-band page-shell" orbs={false}>
         <FadeIn viewportMargin="0px" y={6}>
-          <p className="chart-label text-gold">The network</p>
-          <h2 className="display mt-2 max-w-2xl text-2xl text-cream sm:text-3xl">
-            Different infrastructure. One interface.
-          </h2>
-          <p className="prose-compact mt-3 max-w-2xl text-muted">
-            Nomos does not replace satellites, ground stations, or clouds. It
-            sits above them: an intelligence layer that reasons across orbital,
-            ground, and cloud resources and determines which of them should
-            take part in fulfilling each request.
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.05} viewportMargin="0px" y={6}>
-          <div className="mt-8">
-            <NetworkDiagram />
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="chart-label text-gold">The network</p>
+            <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
+              Different infrastructure. One interface.
+            </h2>
+            <p className="prose-compact mt-3 text-muted">
+              Nomos does not replace satellites, ground stations, or clouds. It
+              sits above them: an intelligence layer that reasons across orbital,
+              ground, and cloud resources and determines which of them should
+              take part in fulfilling each request.
+            </p>
           </div>
         </FadeIn>
-        <FadeIn delay={0.08} viewportMargin="0px" y={6}>
-          <p className="display mx-auto mt-8 max-w-xl text-center text-lg italic text-cream/85 sm:text-xl">
-            The infrastructure can stay heterogeneous. Access to it should not.
-          </p>
+        <FadeIn delay={0.06} viewportMargin="0px" y={6}>
+          <figure className="mx-auto mt-9 max-w-2xl border-t border-gold/15 pt-8">
+            <blockquote className="display text-center text-xl italic leading-snug text-cream/90 sm:text-2xl">
+              The infrastructure can stay heterogeneous. Access to it should not.
+            </blockquote>
+          </figure>
         </FadeIn>
       </LiquidSection>
 
