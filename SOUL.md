@@ -174,13 +174,29 @@ The customer planning path is the spine. The developer demo and mission narrativ
 
 1. Hero: intelligence-layer category and promise, primary CTA "Run a request" to `/plan`, secondary CTA to `/network`, small "early access · live demo" status
 2. Problem: space is powerful, access is bespoke; today's chain vs the Nomos chain
-3. Network abstraction: one request → Nomos → orbital + ground + cloud → result; "Different infrastructure. One interface."
-4. Intelligence loop: express the outcome → understand the environment → determine the path → execute across the network (04 labeled planned)
-5. What exists today (available now) vs coming with network integrations, plus the status-label key
-6. Product surfaces: run a request, example requests, the network; developer and sim-demo links demoted below
-7. Vision close: one request, the whole space stack; Understand → Execute progression strip
+3. Product story: one request in, one mission brief out. Show the actual mental model in three beats: describe an outcome and constraints, resolve feasible paths over public data and represented infrastructure, then receive a source-backed technical plan.
+4. Explainable result: a visible reference mission brief should show the route, rationale, alternatives, evidence, assumptions, and missing integrations. It is not a fake execution dashboard or an opaque score.
+5. Product maturity: compact, side-by-side distinction between planning and explanation available now, and coordination/execution that requires integrations. Keep LIVE, REFERENCE, SIMULATED, and PLANNED visible as the shared truth key.
+6. Vision close: one request, the whole space stack, over a single full-bleed infrastructure image. Link to request, examples, network, docs, and capabilities without repeating a grid of generic product cards.
 
 Keep the main navigation brand-first and product-accessible: Request (`/plan`), Missions, Network, Control (`/dashboard`), Capabilities, About, Docs. Calendar stays reachable from the footer and About, not top navigation. UI labels may differ from internal routes; do not rename routes for branding. Capabilities (`/capabilities`) is the public truth map: live product, provider gaps, aspirations, and forward work. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
+
+The Capabilities page uses one persistent visual metaphor: **the user sees one
+request; Nomos sees the space stack**. Its product story is a sequence rather than
+a feature grid: request simplicity, the evolving intelligence loop, current
+evidence, claim classification, the provider-integration boundary, and the network
+effect. Scroll motion must reveal causality. Reduced-motion users receive the same
+ordered content without sticky pacing. Future nodes remain physically disconnected
+and labeled PLANNED; simulated behavior remains a separate branch, never the main
+route.
+
+The product-evidence scene is a mission-analysis plate, not a process chart. Its
+geometry must correspond to physical or operational meaning: the propagated orbit,
+spacecraft position, AOI footprint, access rays, AOS/LOS window, candidate handoff,
+and attached evidence readout share one coordinate system. Pipeline language is
+anchored to those objects; it never returns to an arbitrary spline with labeled
+nodes. Small screens receive a deliberate recomposition, not a scaled-down desktop
+drawing.
 
 ## 5. Hero narrative
 
@@ -218,16 +234,58 @@ Palette:
 - rare cobalt for provenance and archival source
 - rare vermilion for stamp-like section indices
 - do not use charcoal `#050506` or pure black glass on marketing or tool chrome; blue-tinted ink glass only
+- use one site-wide scroll grammar: sections enter, resolve, and recede as a user
+  moves through the page; reserve sticky in-place state changes for causal stories,
+  never for forms, tables, or records
 
 Typography:
 
-- editorial serif for manifesto and display
-- restrained grotesk for explanation
+- restrained grotesk for homepage marketing, product explanation, product page
+  headers, and conversion surfaces; the homepage hero establishes this scale
+- About uses the same Inter Tight sans-serif as the product pages, including narrative headings (October 2026 user direction).
+- editorial serif only for manifesto, archival quotation, and rare
+  narrative display moments, never as a font switch between product steps
 - monospace for code, IDs, coordinates, and measurements
 
 Use fine linework, generous spacing, controlled grain, engraved hatching, polar grids, and specimen labels. Ornament stays peripheral.
 
+Selected marketing headers and the shared footer can use a living ASCII/glyph field:
+slow orbital waves, a damped pointer disturbance, and expanding click/touch ripples.
+This is decorative, never operational telemetry. Keep text readable, preserve touch
+scrolling and link behavior, provide pause controls, stop off-screen rendering, and
+show a static composition for reduced motion. About and Network introduce this
+interaction language; the footer uses the same field instead of a static circuit-board image.
+
 Avoid neon SaaS gradients, excessive blur, cartoon rockets, stock astronaut imagery, generic glossy globes, and AI clichés. Glass belongs on interactive control surfaces, not every decorative layer.
+
+Homepage architecture diagrams should read as system instruments, not decorative
+space art. Show recognizable satellites, antennas, compute, interfaces, constraints,
+and provenance with a restrained icon system. Complexity must explain the access
+model: fragmented provider surfaces on one side, a single Nomos request surface and
+selected path on the other. Illustrative routes remain conceptual and never imply a
+live provider connection. In the fragmented state, map each independent provider
+contract to a fixed row rather than drawing approximate diagonal wires: alignment is
+part of the claim that every connection must be coordinated separately.
+
+Every top-level product page follows the same evidence-first order: state the
+user's task, show the relevant record or proof surface, then offer one clear next
+action. Avoid interchangeable card grids and empty metric strips. An unavailable
+API or private workspace is explicitly unavailable, never represented as a healthy
+zero or an empty record. Primary route actions use the tactile liquid-glass control;
+form inputs and segmented controls stay quieter so action hierarchy remains clear.
+Registry maps are keyless, self-contained vector instruments. They plot only sourced
+coordinates. When the API is unavailable, the public-coordinate snapshot bundled
+with the registry may keep geography useful if it is labeled as pinned reference
+data. Never render placeholder locations, a third-party API-key watermark, or imply
+that an interactive map represents live booking, access, or operational availability.
+The ground-network atlas pairs a rotatable country-bounded globe with an analytical
+flat-map view, provider filters, a synchronized station inspector, and truth-status
+facts. Interaction must answer a network question; decorative pan and zoom alone do
+not count as product value.
+The 3D globe may sit over a dark, realistic deep-space field to establish depth. Keep
+the galaxy low-luminance and restrained so country boundaries, markers, metadata, and
+the analytical Map view remain primary; do not apply the galaxy texture behind the
+flat projection.
 
 ## 7. Voice
 

@@ -1,0 +1,1819 @@
+.page {
+  --cap-ink: #001045;
+  --cap-ink-soft: #001a75;
+  --cap-paper: #001045;
+  --cap-paper-2: #001a75;
+  --cap-line: rgba(242, 238, 228, 0.18);
+  --cap-line-dark: rgba(242, 238, 228, 0.16);
+  position: relative;
+  overflow: clip;
+  background:
+    radial-gradient(circle at 72% 16%, rgba(0, 47, 167, 0.42), transparent 28%),
+    linear-gradient(180deg, #001a75 0%, var(--cap-ink) 38%, #000b30 100%);
+  color: var(--cream);
+}
+
+.technicalLabel,
+.eyebrow,
+.stepIndex,
+.stateLabel,
+.instrumentHeader,
+.instrumentFooter,
+.evidenceIndex,
+.evidenceCopy small,
+.truthRouteNode small,
+.truthNodeIndex,
+.boundaryTopology > div > p,
+.boundaryNote,
+.densityMeter,
+.requestCore span,
+.requestCore small,
+.signalRow,
+.heroSystemMeta {
+  font-family: var(--font-mono), monospace;
+  text-transform: uppercase;
+}
+
+.technicalLabel {
+  color: var(--gold-bright);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+}
+
+.sceneGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(242, 238, 228, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 238, 228, 0.028) 1px, transparent 1px);
+  background-position: center;
+  background-size: 80px 80px;
+  mask-image: linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent);
+}
+
+.stickyStage {
+  position: sticky;
+  top: var(--header-offset);
+  min-height: calc(100dvh - var(--header-offset));
+  overflow: hidden;
+}
+
+/* Scene 01 */
+.hero {
+  position: relative;
+  min-height: max(58rem, calc(100dvh - 1rem));
+  background:
+    radial-gradient(circle at 50% 60%, rgba(0, 47, 167, 0.2), transparent 34%),
+    linear-gradient(180deg, #001a75 0%, #001045 72%, #000b30 100%);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 26%;
+  background: linear-gradient(180deg, transparent, rgba(0, 16, 69, 0.26));
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: max(58rem, calc(100dvh - 1rem));
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(6rem, 9vw, 9rem) 0 clamp(3rem, 5vw, 5rem);
+}
+
+.heroHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(17rem, 0.55fr);
+  gap: clamp(2rem, 7vw, 8rem);
+  align-items: end;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--gold-bright);
+  font-size: 0.63rem;
+  letter-spacing: 0.2em;
+}
+
+.hero h1 {
+  margin-top: 1.1rem;
+  color: #f7f5ef;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(4.2rem, 8vw, 8.2rem);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  line-height: 0.86;
+}
+
+.heroLead {
+  max-width: 30rem;
+  padding-bottom: 0.55rem;
+  color: rgba(242, 238, 228, 0.7);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.65;
+}
+
+.heroSystem {
+  position: relative;
+  margin-top: clamp(3rem, 6vw, 6.5rem);
+  border-top: 1px solid rgba(227, 192, 92, 0.24);
+  border-bottom: 1px solid rgba(227, 192, 92, 0.14);
+}
+
+.heroSystem svg {
+  display: block;
+  width: 100%;
+  min-height: 25rem;
+}
+
+.heroGeometry circle,
+.heroGeometry ellipse {
+  fill: none;
+  stroke: rgba(242, 238, 228, 0.08);
+  stroke-width: 1;
+}
+
+.heroGeometry ellipse {
+  stroke-dasharray: 4 8;
+}
+
+.heroInputPath,
+.heroCandidate,
+.heroRejected,
+.heroSelected {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.heroInputPath {
+  stroke: rgba(242, 238, 228, 0.62);
+  stroke-width: 1.5;
+}
+
+.heroCandidate {
+  stroke: rgba(200, 196, 220, 0.8);
+  stroke-dasharray: 4 7;
+  stroke-width: 1;
+}
+
+.heroRejected {
+  stroke: rgba(200, 196, 220, 0.38);
+  stroke-dasharray: 2 8;
+  stroke-width: 1;
+}
+
+.heroSelected {
+  filter: drop-shadow(0 0 8px rgba(227, 192, 92, 0.42));
+  stroke: var(--gold-bright);
+  stroke-width: 2;
+}
+
+.heroNode rect,
+.loopNode rect,
+.loopResult rect {
+  fill: rgba(0, 16, 69, 0.9);
+  stroke: rgba(242, 238, 228, 0.22);
+}
+
+.heroNode text,
+.heroCore text,
+.loopCore text,
+.loopNode text,
+.loopResult text {
+  fill: var(--cream);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+.svgSub {
+  fill: rgba(200, 196, 220, 0.58) !important;
+  font-size: 6.5px !important;
+  letter-spacing: 0.8px !important;
+}
+
+.heroCore circle {
+  fill: rgba(0, 16, 69, 0.72);
+  stroke: rgba(227, 192, 92, 0.46);
+}
+
+.heroCore circle:nth-child(2) {
+  fill: rgba(0, 47, 167, 0.26);
+  stroke-dasharray: 3 5;
+}
+
+.heroResult rect {
+  stroke: var(--gold-bright);
+}
+
+.heroSystemMeta {
+  position: absolute;
+  inset: 0.9rem 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  color: rgba(200, 196, 220, 0.46);
+  font-size: 0.48rem;
+  letter-spacing: 0.13em;
+}
+
+/* Scene 02 */
+.requestScene {
+  position: relative;
+  height: 430vh;
+  background: #001045;
+  color: var(--cream);
+}
+
+.requestScene .stickyStage {
+  background:
+    radial-gradient(circle at 66% 50%, rgba(201, 162, 39, 0.12), transparent 26%),
+    linear-gradient(180deg, #001a75, #001045);
+}
+
+.requestScene .sceneGrid {
+  background-image:
+    linear-gradient(rgba(14, 19, 28, 0.042) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 19, 28, 0.042) 1px, transparent 1px);
+}
+
+.requestStageInner {
+  display: grid;
+  min-height: calc(100dvh - var(--header-offset));
+  grid-template-columns: minmax(17rem, 0.72fr) minmax(30rem, 1.28fr);
+  gap: clamp(3rem, 8vw, 9rem);
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.requestTitleBlock .technicalLabel {
+  color: #6e5b20;
+}
+
+.requestTitleBlock h2 {
+  margin-top: 1rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(3.4rem, 6vw, 6.7rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+.requestTitleBlock > p {
+  max-width: 26rem;
+  margin-top: 1.5rem;
+  color: rgba(16, 20, 28, 0.64);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.requestInstrument {
+  position: relative;
+  display: grid;
+  min-height: min(44rem, calc(100dvh - 9rem));
+  grid-template-rows: auto 1fr auto;
+  border: 1px solid rgba(14, 19, 28, 0.26);
+  background: rgba(239, 235, 226, 0.72);
+  box-shadow: 0 36px 90px rgba(42, 34, 18, 0.12);
+  transform-origin: center;
+}
+
+.requestCore {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  border-bottom: 1px solid rgba(14, 19, 28, 0.2);
+}
+
+.requestCore span,
+.requestCore small {
+  color: rgba(16, 20, 28, 0.5);
+  font-size: 0.52rem;
+  letter-spacing: 0.13em;
+}
+
+.requestCore strong {
+  max-width: 36rem;
+  margin: 0.85rem 0 1rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.8rem);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.signalField {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.signalRow {
+  display: grid;
+  grid-template-columns: 1.8rem 1fr;
+  gap: 0.22rem 0.55rem;
+  align-content: center;
+  min-height: 5.4rem;
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid rgba(14, 19, 28, 0.12);
+}
+
+.signalRow:nth-child(odd) {
+  border-right: 1px solid rgba(14, 19, 28, 0.12);
+}
+
+.signalRow span {
+  grid-row: 1 / 3;
+  color: #866b18;
+  font-size: 0.5rem;
+}
+
+.signalRow b {
+  font-size: 0.56rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+.signalRow em {
+  overflow: hidden;
+  color: rgba(16, 20, 28, 0.64);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.75rem;
+  font-style: normal;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.requestProgress {
+  height: 3px;
+  overflow: hidden;
+  background: rgba(14, 19, 28, 0.08);
+}
+
+.requestProgress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+  background: var(--gold);
+  transition: transform 500ms var(--ease-out);
+}
+
+/* Scene 03 */
+.loopScene {
+  height: 390vh;
+  background: #001045;
+}
+
+.loopScene .stickyStage {
+  background:
+    radial-gradient(circle at 64% 50%, rgba(0, 47, 167, 0.18), transparent 38%),
+    #001045;
+}
+
+.loopInner {
+  display: grid;
+  min-height: calc(100dvh - var(--header-offset));
+  grid-template-columns: minmax(17rem, 0.62fr) minmax(31rem, 1.38fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.loopCopy {
+  position: relative;
+  z-index: 2;
+}
+
+.loopCopy > div:nth-child(2) {
+  min-height: 22rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stepIndex {
+  color: rgba(227, 192, 92, 0.64);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+}
+
+.loopCopy h2 {
+  margin-top: 0.7rem;
+  color: var(--gold-bright);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.loopCopy h3 {
+  max-width: 9ch;
+  margin-top: 1rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(3rem, 5.4vw, 5.7rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.94;
+}
+
+.loopCopy p:not(.stepIndex) {
+  max-width: 29rem;
+  margin-top: 1.35rem;
+  color: rgba(216, 212, 203, 0.64);
+  line-height: 1.7;
+}
+
+.reducedStateList {
+  display: grid;
+  gap: 2rem;
+}
+
+.loopCopy > .reducedStateList {
+  display: grid;
+  min-height: 0;
+  justify-content: stretch;
+}
+
+.reducedStateList article {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(242, 238, 228, 0.14);
+}
+
+.stepRail {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.stepRail span {
+  display: grid;
+  width: 2.1rem;
+  height: 2.1rem;
+  place-items: center;
+  border: 1px solid rgba(242, 238, 228, 0.14);
+  color: rgba(242, 238, 228, 0.36);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.52rem;
+  transition: border-color 350ms ease, color 350ms ease, background 350ms ease;
+}
+
+.stepRail .stepActive {
+  border-color: var(--gold-bright);
+  background: rgba(227, 192, 92, 0.08);
+  color: var(--gold-bright);
+}
+
+.intelligenceDiagram {
+  position: relative;
+  min-width: 0;
+}
+
+.intelligenceDiagram svg {
+  display: block;
+  width: 100%;
+  max-height: calc(100dvh - 8rem);
+}
+
+.loopGeometry circle,
+.loopGeometry path {
+  fill: none;
+  stroke: rgba(242, 238, 228, 0.075);
+}
+
+.loopGeometry circle:nth-child(2) {
+  stroke-dasharray: 4 7;
+}
+
+.loopInput,
+.loopRoute path,
+.loopSelected {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.loopInput {
+  stroke: rgba(242, 238, 228, 0.7);
+  stroke-width: 1.3;
+}
+
+.loopCore circle {
+  fill: rgba(0, 16, 69, 0.82);
+  stroke: rgba(227, 192, 92, 0.5);
+}
+
+.loopRoute path {
+  stroke-width: 1.4;
+}
+
+.loopRoute text {
+  font-family: var(--font-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+
+.loopRoutefeasible path { stroke: var(--gold-bright); }
+.loopRoutefeasible text { fill: var(--gold-bright); }
+.loopRouteconditional path { stroke: rgba(200, 196, 220, 0.7); stroke-dasharray: 4 5; }
+.loopRouteconditional text { fill: rgba(200, 196, 220, 0.74); }
+.loopRouterejected path { stroke: rgba(200, 196, 220, 0.38); stroke-dasharray: 2 7; }
+.loopRouterejected text { fill: rgba(196, 99, 72, 0.84); }
+
+.loopSelected {
+  filter: drop-shadow(0 0 7px rgba(227, 192, 92, 0.45));
+  stroke: var(--gold-bright);
+  stroke-width: 2.3;
+}
+
+/* Scene 04 */
+.evidenceScene {
+  height: 560vh;
+  background: var(--cap-paper);
+  color: #111722;
+}
+
+.evidenceScene .stickyStage {
+  background:
+    radial-gradient(circle at 38% 56%, rgba(0, 47, 167, 0.08), transparent 30%),
+    linear-gradient(180deg, var(--cap-paper), var(--cap-paper-2));
+}
+
+.evidenceInner {
+  display: grid;
+  min-height: calc(100dvh - var(--header-offset));
+  grid-template-columns: minmax(0, 1.58fr) minmax(15rem, 0.42fr);
+  grid-template-rows: auto 1fr;
+  gap: 1.5rem clamp(2rem, 6vw, 6rem);
+  align-items: center;
+  padding: 2.5rem 0;
+}
+
+.evidenceTitle {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid var(--cap-line-dark);
+  padding-bottom: 1.2rem;
+}
+
+.evidenceTitle .technicalLabel {
+  color: #6e5b20;
+}
+
+.evidenceTitle h2 {
+  color: #111722;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(2.7rem, 5vw, 5.7rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.91;
+  text-align: right;
+}
+
+.evidenceInstrument {
+  min-width: 0;
+  border: 1px solid rgba(14, 19, 28, 0.34);
+  background: rgba(239, 235, 226, 0.54);
+  box-shadow: 0 30px 70px rgba(37, 31, 21, 0.08);
+}
+
+.instrumentHeader,
+.instrumentFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.9rem;
+  color: rgba(16, 20, 28, 0.58);
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+}
+
+.instrumentHeader { border-bottom: 1px solid rgba(14, 19, 28, 0.18); }
+.instrumentFooter { border-top: 1px solid rgba(14, 19, 28, 0.18); }
+
+.evidenceCanvas svg {
+  display: block;
+  width: 100%;
+}
+
+.traceMobile {
+  display: none !important;
+}
+
+.traceReferenceGrid path,
+.traceEarth,
+.traceAtmosphere,
+.traceEarthCoordinates path,
+.traceOrbitGhost,
+.traceOrbitPre,
+.traceOrbitAccess,
+.traceOrbitPost,
+.traceAccess path,
+.traceRoute,
+.traceTick path,
+.traceOrbitLeader,
+.traceSatelliteLabel path,
+.traceRouteLabel path,
+.traceRanking path,
+.traceBrief path,
+.tracePrivate path,
+.traceObserved path,
+.tracePipeline path,
+.traceSource path,
+.traceTarget path,
+.traceStation path,
+.traceSatellite path,
+.traceSatellite circle {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.traceReferenceGrid path {
+  stroke: rgba(14, 19, 28, 0.065);
+  stroke-width: 1;
+}
+
+.traceEarth {
+  stroke: rgba(17, 23, 34, 0.72);
+  stroke-width: 1.35;
+}
+
+.traceAtmosphere {
+  stroke: rgba(62, 96, 181, 0.34);
+  stroke-dasharray: 3 7;
+}
+
+.traceEarthCoordinates path {
+  stroke: rgba(17, 23, 34, 0.1);
+  stroke-dasharray: 2 6;
+}
+
+.evidenceCanvas text {
+  fill: rgba(16, 20, 28, 0.64);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+.evidenceCanvas .traceMicro {
+  fill: rgba(16, 20, 28, 0.42);
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+.traceSource path,
+.traceOrbitLeader,
+.traceSatelliteLabel path,
+.traceRouteLabel path,
+.traceRanking path,
+.traceBrief path,
+.tracePrivate path,
+.traceObserved path {
+  stroke: rgba(16, 20, 28, 0.34);
+}
+
+.traceOrbitGhost {
+  stroke: rgba(16, 20, 28, 0.14);
+  stroke-dasharray: 3 8;
+}
+
+.traceOrbitPre,
+.traceOrbitPost {
+  stroke: rgba(17, 23, 34, 0.58);
+  stroke-width: 1.15;
+}
+
+.traceOrbitAccess {
+  stroke: #9d7a1d;
+  stroke-width: 2.2;
+}
+
+.traceOrbitLabel {
+  fill: #705819 !important;
+}
+
+.traceTick path {
+  stroke: #7b601b;
+  stroke-width: 1.2;
+}
+
+.traceTick text {
+  fill: #705819;
+  font-size: 9px;
+}
+
+.traceSatellite path,
+.traceSatellite circle {
+  stroke: #111722;
+  stroke-width: 1.15;
+}
+
+.traceSatellite path:first-child {
+  fill: #a8842c;
+  stroke: #6f5313;
+}
+
+.traceSatellite path:nth-child(2) {
+  fill: rgba(0, 47, 167, 0.09);
+  stroke: rgba(0, 47, 167, 0.7);
+}
+
+.traceSatellite circle {
+  fill: var(--cap-paper);
+}
+
+.traceTarget path:first-child {
+  fill: rgba(0, 47, 167, 0.055);
+  stroke: rgba(0, 47, 167, 0.68);
+  stroke-width: 1.35;
+}
+
+.traceTarget path:not(:first-child) {
+  stroke: rgba(0, 47, 167, 0.25);
+}
+
+.traceTarget circle {
+  fill: #3157b2;
+}
+
+.traceTarget text {
+  fill: rgba(0, 47, 167, 0.76);
+}
+
+.traceAccess path {
+  stroke: rgba(0, 47, 167, 0.42);
+  stroke-dasharray: 4 6;
+}
+
+.traceAccess path:nth-child(3) {
+  stroke: rgba(157, 122, 29, 0.62);
+  stroke-dasharray: none;
+}
+
+.traceAccess text {
+  fill: rgba(0, 47, 167, 0.66);
+  font-size: 9px;
+}
+
+.traceRoute {
+  stroke: rgba(157, 122, 29, 0.62);
+  stroke-dasharray: 8 5 2 5;
+}
+
+.traceStation path,
+.traceStation circle {
+  stroke: #6f5313;
+  stroke-width: 1.2;
+}
+
+.traceStation circle {
+  fill: #a8842c;
+}
+
+.traceRanking text:first-of-type {
+  fill: #6f5313;
+}
+
+.tracePrivate text:first-of-type {
+  fill: rgba(0, 47, 167, 0.72);
+}
+
+.traceObserved circle {
+  fill: #a8842c;
+  stroke: #6f5313;
+  vector-effect: non-scaling-stroke;
+}
+
+.traceObserved text:first-of-type {
+  fill: #6f5313;
+}
+
+.tracePipeline path {
+  stroke: rgba(16, 20, 28, 0.18);
+}
+
+.tracePipeline text {
+  fill: rgba(16, 20, 28, 0.32);
+  font-size: 8px;
+  letter-spacing: 0.9px;
+}
+
+.tracePipeline .tracePipelineActive path {
+  stroke: #9d7a1d;
+}
+
+.tracePipeline .tracePipelineActive text {
+  fill: #705819;
+}
+
+.evidenceCopy article {
+  min-height: 22rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.evidenceIndex {
+  color: rgba(16, 20, 28, 0.46);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+}
+
+.evidenceCopy .stateLabel {
+  width: fit-content;
+  margin-top: 1.1rem;
+}
+
+.evidenceCopy h3 {
+  margin-top: 1.3rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.evidenceCopy p {
+  max-width: 29rem;
+  margin-top: 1.2rem;
+  color: rgba(16, 20, 28, 0.65);
+  line-height: 1.65;
+}
+
+.evidenceCopy small {
+  margin-top: 1.5rem;
+  color: rgba(16, 20, 28, 0.45);
+  font-size: 0.52rem;
+  letter-spacing: 0.13em;
+}
+
+.evidenceRail {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.3rem;
+}
+
+.evidenceRail span {
+  height: 2px;
+  background: rgba(14, 19, 28, 0.12);
+}
+
+.evidenceRail .evidenceRailActive { background: #9d7a1d; }
+
+.reducedEvidenceList {
+  display: grid;
+  gap: 1rem;
+}
+
+.reducedEvidenceList article {
+  min-height: 0;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--cap-line-dark);
+}
+
+/* Shared truth state treatments */
+.stateLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.3rem;
+  padding: 0.22rem 0.42rem;
+  border: 1px solid currentColor;
+  font-size: 0.47rem;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+.stateLIVE { color: var(--cream); }
+.stateREFERENCE { color: var(--gold-bright); }
+.stateSIMULATED { color: #7a5b18; background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgba(122, 91, 24, 0.1) 3px 5px); }
+.statePLANNED { color: rgba(216, 212, 203, 0.62); border-style: dashed; }
+
+/* Scene 05 */
+.truthScene {
+  padding: clamp(5rem, 7vw, 7.5rem) 0;
+  background:
+    radial-gradient(circle at 70% 28%, rgba(0, 47, 167, 0.42), transparent 34%),
+    linear-gradient(145deg, #001a75 0%, #001045 58%, #000b30 100%);
+  color: var(--cream);
+}
+
+.truthInner {
+  display: grid;
+  grid-template-columns: minmax(22rem, 0.82fr) minmax(32rem, 1.18fr);
+  gap: clamp(3rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.truthHeading .technicalLabel { color: #6e5b20; }
+
+.truthHeading h2 {
+  margin-top: 1.2rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(3.6rem, 5.5vw, 6.4rem);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  line-height: 0.88;
+}
+
+.truthHeading > p {
+  max-width: 34rem;
+  margin-top: 1.7rem;
+  color: rgba(16, 20, 28, 0.64);
+  line-height: 1.7;
+}
+
+.truthRoute {
+  position: relative;
+  display: grid;
+  padding-top: 1rem;
+}
+
+.truthRouteLine {
+  position: absolute;
+  top: 1rem;
+  bottom: 8.4rem;
+  left: 2.85rem;
+  width: 1px;
+  background: linear-gradient(180deg, #8d6d18 0 72%, rgba(139, 70, 50, 0.3) 72% 100%);
+}
+
+.truthRouteNode {
+  position: relative;
+  display: grid;
+  min-height: 5.25rem;
+  grid-template-columns: 2rem 1rem minmax(0, 1fr) auto;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  border-bottom: 1px solid var(--cap-line-dark);
+}
+
+.truthNodeIndex {
+  color: rgba(16, 20, 28, 0.44);
+  font-size: 0.48rem;
+}
+
+.truthRouteNode i {
+  position: relative;
+  z-index: 1;
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 2px solid #001045;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+.truthDotREFERENCE { color: #8d6d18; background: #8d6d18; }
+.truthDotLIVE { color: var(--cream); background: var(--cream); }
+.truthDotPLANNED { color: rgba(216, 212, 203, 0.62); background: #001045; }
+
+.truthRouteNode strong {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.truthRouteNode small {
+  grid-column: 3 / -1;
+  align-self: start;
+  color: rgba(16, 20, 28, 0.46);
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+}
+
+.truthBranch {
+  display: grid;
+  grid-template-columns: 3.3rem 1fr;
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+
+.truthBranch > span {
+  height: 2rem;
+  border-right: 1px solid #8d6d18;
+  border-bottom: 1px solid #8d6d18;
+}
+
+.truthBranch > div {
+  padding: 0.8rem 0;
+}
+
+.truthBranch strong,
+.truthBranch small {
+  display: block;
+  margin-top: 0.75rem;
+}
+
+.truthBranch small { color: rgba(16, 20, 28, 0.56); }
+
+.truthLegend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 2rem;
+  border-top: 1px solid var(--cap-line-dark);
+}
+
+.truthLegend article {
+  min-height: 7rem;
+  padding: 1rem 1rem 1rem 0;
+}
+
+.truthLegend article:nth-child(even) {
+  padding-right: 0;
+  padding-left: 1rem;
+  border-left: 1px solid var(--cap-line-dark);
+}
+
+.truthLegend article:nth-child(n + 3) { border-top: 1px solid var(--cap-line-dark); }
+.truthLegend h3 { margin-top: 1.2rem; font-size: 0.9rem; }
+.truthLegend p { margin-top: 0.6rem; color: rgba(16, 20, 28, 0.58); font-size: 0.75rem; line-height: 1.55; }
+
+/* Scene 06 */
+.boundaryScene {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(5rem, 7vw, 7.5rem) 0;
+  background: #001045;
+}
+
+.boundaryImage {
+  object-fit: cover;
+  object-position: 78% 52%;
+  filter: saturate(0.55) contrast(1.12) brightness(0.48);
+  opacity: 0.48;
+  transform: scale(1.04);
+}
+
+.boundaryShade {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0, 16, 69, 0.98) 0%, rgba(0, 16, 69, 0.92) 48%, rgba(0, 16, 69, 0.5) 100%),
+    linear-gradient(180deg, rgba(0, 26, 117, 0.68), rgba(0, 11, 48, 0.9));
+}
+
+.boundaryScene .sceneGrid { z-index: 2; }
+
+.boundaryInner { position: relative; z-index: 3; }
+
+.boundaryHeading h2 {
+  max-width: 64rem;
+  margin-top: 1.2rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(3.3rem, 5.5vw, 6.2rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.91;
+}
+
+.boundaryHeading h2 span { color: rgba(242, 238, 228, 0.32); }
+
+.boundaryTopology {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr);
+  margin-top: clamp(3rem, 5vw, 5rem);
+  border-top: 1px solid var(--cap-line);
+  border-bottom: 1px solid var(--cap-line);
+}
+
+.availableField,
+.futureField {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  padding: 1.25rem 0;
+}
+
+.boundaryTopology > div > p {
+  grid-column: 1 / -1;
+  margin-bottom: 1.2rem;
+  color: rgba(242, 238, 228, 0.4);
+  font-size: 0.52rem;
+  letter-spacing: 0.15em;
+}
+
+.connectedNode,
+.futureNode {
+  position: relative;
+  display: grid;
+  min-height: 4.15rem;
+  grid-template-columns: 2rem 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  border-top: 1px solid rgba(242, 238, 228, 0.12);
+}
+
+.connectedNode:nth-of-type(even),
+.futureNode:nth-of-type(even) {
+  padding-right: 1.15rem;
+  border-right: 1px solid rgba(242, 238, 228, 0.1);
+}
+
+.connectedNode:nth-of-type(odd),
+.futureNode:nth-of-type(odd) {
+  padding-left: 1.15rem;
+}
+
+.connectedNode::after { display: none; }
+
+.connectedNode > span,
+.futureNode > span {
+  color: rgba(227, 192, 92, 0.54);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+}
+
+.connectedNode strong,
+.futureNode strong {
+  font-size: 0.77rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.connectedNode .stateLabel,
+.futureNode .stateLabel {
+  grid-row: 2;
+  grid-column: 2;
+  justify-self: start;
+}
+
+.futureNode {
+  opacity: 0.34;
+}
+
+.futureNode::before {
+  display: none;
+}
+
+.integrationBoundary {
+  position: relative;
+  border-right: 1px dashed rgba(227, 192, 92, 0.42);
+  border-left: 1px solid rgba(227, 192, 92, 0.24);
+}
+
+.integrationBoundary span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18rem;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  color: rgba(227, 192, 92, 0.68);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.16em;
+  text-align: center;
+}
+
+.futureField { padding-left: 2rem; }
+
+.boundaryNote {
+  max-width: 62rem;
+  margin-top: 1.5rem;
+  color: rgba(216, 212, 203, 0.68);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.65;
+}
+
+/* Scene 07 */
+.networkScene {
+  height: 300vh;
+  background: #001045;
+}
+
+.networkScene .stickyStage {
+  background:
+    radial-gradient(circle at 50% 55%, rgba(0, 47, 167, 0.24), transparent 35%),
+    #001045;
+}
+
+.networkInner {
+  display: grid;
+  min-height: calc(100dvh - var(--header-offset));
+  grid-template-rows: auto 1fr auto;
+  padding: 2.5rem 0;
+}
+
+.networkHeading {
+  display: grid;
+  grid-template-columns: 1.4fr 0.6fr;
+  gap: 2rem;
+  align-items: end;
+}
+
+.networkHeading .technicalLabel { grid-column: 1 / -1; }
+
+.networkHeading h2 {
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(3.2rem, 5.7vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.91;
+}
+
+.networkHeading p {
+  color: rgba(216, 212, 203, 0.62);
+  line-height: 1.6;
+}
+
+.networkTopology {
+  position: relative;
+  min-height: 29rem;
+  margin-top: 1rem;
+}
+
+.networkTopology svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.networkTopology svg path {
+  fill: none;
+  stroke: rgba(227, 192, 92, 0.64);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.networkRequest,
+.networkCore {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.networkRequest {
+  top: 4%;
+  display: grid;
+  min-width: 12rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(242, 238, 228, 0.4);
+  background: rgba(0, 16, 69, 0.94);
+  text-align: center;
+}
+
+.networkRequest span,
+.networkRequest small {
+  color: rgba(200, 196, 220, 0.54);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.14em;
+}
+
+.networkRequest strong { margin: 0.2rem 0; font-size: 0.78rem; }
+
+.networkCore {
+  top: 50%;
+  display: grid;
+  width: 8.5rem;
+  height: 8.5rem;
+  place-content: center;
+  place-items: center;
+  border: 1px solid rgba(227, 192, 92, 0.58);
+  border-radius: 50%;
+  background: rgba(0, 16, 69, 0.9);
+  box-shadow: 0 0 70px rgba(0, 47, 167, 0.34);
+}
+
+.networkCore span {
+  margin-top: 0.3rem;
+  color: var(--gold-bright);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+}
+
+.networkNode {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+.networkNode i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid var(--gold-bright);
+  background: #001045;
+  transform: rotate(45deg);
+}
+
+.networkNode span {
+  color: rgba(242, 238, 228, 0.7);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+}
+
+.densityMeter {
+  display: grid;
+  grid-template-columns: auto repeat(3, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  color: rgba(200, 196, 220, 0.46);
+  font-size: 0.48rem;
+  letter-spacing: 0.13em;
+}
+
+.densityMeter i { height: 2px; background: rgba(242, 238, 228, 0.1); }
+.densityMeter .densityActive { background: var(--gold-bright); }
+.densityMeter strong { color: var(--gold-bright); font-weight: 500; }
+
+/* Scene 08 */
+.endScene {
+  position: relative;
+  min-height: 92vh;
+  overflow: hidden;
+  background: #000b30;
+}
+
+.endInner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 92vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8rem 0;
+  text-align: center;
+}
+
+.endInner h2 {
+  margin-top: 1.5rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(4rem, 8vw, 8.4rem);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  line-height: 0.86;
+}
+
+.endInner > p {
+  margin-top: 1.8rem;
+  color: rgba(216, 212, 203, 0.62);
+  font-size: 1rem;
+}
+
+.endActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 2.5rem;
+}
+
+.endActions > a:not([class]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem 0.7rem;
+  color: rgba(242, 238, 228, 0.68);
+  font-size: 0.8rem;
+}
+
+.endOrbit {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.endOrbit span {
+  position: absolute;
+  width: min(74vw, 70rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(227, 192, 92, 0.1);
+  border-radius: 50%;
+}
+
+.endOrbit span:nth-child(2) { width: min(54vw, 51rem); border-style: dashed; }
+.endOrbit span:nth-child(3) { width: min(34vw, 32rem); border-color: rgba(0, 47, 167, 0.2); }
+
+/* Keep every capability scene inside the same dark Nomos field. */
+.requestScene,
+.evidenceScene,
+.truthScene {
+  background-color: #001045;
+  color: var(--cream);
+}
+
+.requestScene .stickyStage,
+.evidenceScene .stickyStage {
+  background:
+    radial-gradient(circle at 66% 50%, rgba(0, 47, 167, 0.2), transparent 34%),
+    linear-gradient(180deg, #001a75, #001045 72%, #000b30);
+}
+
+.requestScene .sceneGrid {
+  background-image:
+    linear-gradient(rgba(242, 238, 228, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 238, 228, 0.035) 1px, transparent 1px);
+}
+
+.requestTitleBlock .technicalLabel,
+.evidenceTitle .technicalLabel,
+.truthHeading .technicalLabel {
+  color: var(--gold-bright);
+}
+
+.requestTitleBlock > p,
+.evidenceCopy p,
+.truthHeading > p,
+.truthLegend p,
+.truthBranch small {
+  color: rgba(216, 212, 203, 0.68);
+}
+
+.requestInstrument,
+.evidenceInstrument {
+  border-color: rgba(227, 192, 92, 0.28);
+  background: rgba(0, 10, 42, 0.9);
+  box-shadow: 0 30px 80px rgba(0, 4, 25, 0.42);
+}
+
+.requestCore,
+.instrumentHeader,
+.signalRow,
+.instrumentFooter {
+  border-color: rgba(200, 196, 220, 0.14);
+}
+
+.requestCore span,
+.requestCore small,
+.instrumentHeader,
+.instrumentFooter,
+.evidenceIndex,
+.evidenceCopy small,
+.truthNodeIndex,
+.truthRouteNode small {
+  color: rgba(200, 196, 220, 0.56);
+}
+
+.requestCore strong,
+.signalRow b,
+.evidenceTitle h2,
+.evidenceCopy h3,
+.truthHeading h2,
+.truthRouteNode strong,
+.truthLegend h3,
+.truthBranch strong {
+  color: var(--cream);
+}
+
+.signalRow span {
+  color: var(--gold-bright);
+}
+
+.signalRow em {
+  color: rgba(216, 212, 203, 0.7);
+}
+
+.requestProgress {
+  background: rgba(242, 238, 228, 0.08);
+}
+
+.evidenceTitle,
+.truthLegend,
+.truthRouteNode,
+.reducedEvidenceList article {
+  border-color: var(--cap-line-dark);
+}
+
+.traceReferenceGrid path,
+.traceEarthCoordinates path,
+.tracePipeline path {
+  stroke: rgba(242, 238, 228, 0.08);
+}
+
+.traceEarth,
+.traceOrbitPre,
+.traceOrbitPost,
+.traceSatellite path,
+.traceSatellite circle,
+.traceSource path,
+.traceOrbitLeader,
+.traceSatelliteLabel path,
+.traceRouteLabel path,
+.traceRanking path,
+.traceBrief path,
+.tracePrivate path,
+.traceObserved path {
+  stroke: rgba(242, 238, 228, 0.54);
+}
+
+.traceAtmosphere,
+.traceTarget path,
+.traceAccess path {
+  stroke: rgba(227, 192, 92, 0.52);
+}
+
+.traceOrbitGhost {
+  stroke: rgba(242, 238, 228, 0.14);
+}
+
+.evidenceCanvas text,
+.evidenceCanvas .traceMicro,
+.tracePipeline text {
+  fill: rgba(216, 212, 203, 0.64);
+}
+
+.traceSatellite path:first-child,
+.traceStation circle,
+.traceObserved circle {
+  fill: var(--gold);
+  stroke: var(--gold-bright);
+}
+
+.traceSatellite path:nth-child(2),
+.traceTarget path:first-child {
+  fill: rgba(227, 192, 92, 0.12);
+  stroke: rgba(227, 192, 92, 0.68);
+}
+
+.traceTarget circle {
+  fill: var(--gold-bright);
+}
+
+.traceTarget text,
+.traceAccess text,
+.tracePrivate text:first-of-type {
+  fill: var(--gold-bright);
+}
+
+.traceSatellite circle {
+  fill: var(--cap-paper);
+}
+
+.traceOrbitAccess,
+.traceRoute,
+.traceTick path,
+.traceStation path,
+.tracePipeline .tracePipelineActive path {
+  stroke: var(--gold-bright);
+}
+
+.traceOrbitLabel,
+.traceTick text,
+.traceRanking text:first-of-type,
+.traceObserved text:first-of-type,
+.tracePipeline .tracePipelineActive text {
+  fill: var(--gold-bright) !important;
+}
+
+.evidenceRail span {
+  background: rgba(242, 238, 228, 0.12);
+}
+
+.evidenceRail .evidenceRailActive {
+  background: var(--gold-bright);
+}
+
+.stateLIVE { color: var(--cream); }
+.stateREFERENCE { color: var(--gold-bright); }
+.stateSIMULATED {
+  color: var(--gold-bright);
+  background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgba(227, 192, 92, 0.1) 3px 5px);
+}
+.statePLANNED { color: rgba(216, 212, 203, 0.62); }
+
+.truthRouteLine {
+  background: linear-gradient(180deg, var(--gold-bright) 0 72%, rgba(216, 212, 203, 0.34) 72% 100%);
+}
+
+.truthRouteNode i {
+  border-color: #001045;
+}
+
+.truthDotREFERENCE { color: var(--gold-bright); background: var(--gold-bright); }
+.truthDotLIVE { color: var(--cream); background: var(--cream); }
+.truthDotPLANNED { color: rgba(216, 212, 203, 0.62); background: #001045; }
+
+.truthBranch > span {
+  border-color: var(--gold-bright);
+}
+
+@media (max-width: 960px) {
+  .stickyStage {
+    top: 8.8rem;
+    min-height: calc(100dvh - 8.8rem);
+  }
+
+  .heroHeader,
+  .requestStageInner,
+  .loopInner,
+  .truthInner {
+    grid-template-columns: 1fr;
+  }
+
+  .heroLead { margin-top: 1.5rem; }
+  .heroSystem svg { min-height: auto; }
+
+  .requestStageInner,
+  .loopInner {
+    min-height: calc(100dvh - 8.8rem);
+    gap: 2rem;
+  }
+
+  .requestTitleBlock h2,
+  .loopCopy h3 { max-width: 12ch; }
+  .requestTitleBlock > p { display: none; }
+  .requestInstrument { min-height: 27rem; }
+  .signalRow { min-height: 3.8rem; }
+
+  .loopCopy > div:nth-child(2) { min-height: 12rem; }
+  .intelligenceDiagram svg { max-height: 44vh; }
+
+  .evidenceInner {
+    min-height: calc(100dvh - 8.8rem);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .evidenceTitle { grid-column: 1; }
+  .evidenceInstrument { max-width: 45rem; }
+  .evidenceCopy article { min-height: 9rem; }
+
+  .truthLegend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .truthLegend article:nth-child(3) { border-left: 0; border-top: 1px solid var(--cap-line-dark); }
+  .truthLegend article:nth-child(4) { border-top: 1px solid var(--cap-line-dark); }
+
+  .networkHeading { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .sceneGrid { background-size: 48px 48px; }
+
+  .hero {
+    min-height: 47rem;
+  }
+
+  .heroInner {
+    min-height: 47rem;
+    padding-top: 4rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(3.7rem, 16vw, 5.1rem);
+    line-height: 0.9;
+  }
+
+  .heroLead { font-size: 0.95rem; }
+  .heroSystem { margin-top: 2.5rem; }
+  .heroSystem svg { width: 150%; transform: translateX(-23%); }
+  .heroSystemMeta { display: none; }
+
+  .requestScene { height: 480vh; }
+  .requestStageInner { padding: 1.5rem 0; }
+  .requestTitleBlock .technicalLabel { display: none; }
+  .requestTitleBlock h2 { font-size: clamp(2.7rem, 13vw, 4rem); }
+  .requestInstrument { min-height: min(30rem, calc(100dvh - 23rem)); }
+  .requestCore { padding: 1rem; }
+  .requestCore strong { font-size: 1.35rem; }
+  .signalField { grid-template-columns: 1fr; overflow: hidden; }
+  .signalRow { min-height: 2.55rem; grid-template-columns: 1.5rem 5.7rem 1fr; align-items: center; padding: 0.35rem 0.65rem; }
+  .signalRow:nth-child(odd) { border-right: 0; }
+  .signalRow span { grid-row: auto; }
+  .signalRow em { font-size: 0.62rem; }
+
+  .loopScene { height: 420vh; }
+  .loopInner { gap: 0.5rem; padding: 1.2rem 0; }
+  .loopCopy > .technicalLabel { display: none; }
+  .loopCopy > div:nth-child(2) { min-height: 11rem; }
+  .loopCopy h3 { font-size: clamp(2.55rem, 12vw, 3.6rem); }
+  .loopCopy p:not(.stepIndex) { margin-top: 0.7rem; font-size: 0.78rem; line-height: 1.5; }
+  .stepRail { margin-top: 0.7rem; }
+  .stepRail span { width: 1.7rem; height: 1.7rem; }
+  .intelligenceDiagram svg { width: 124%; max-height: 43vh; transform: translateX(-12%); }
+
+  .evidenceScene { height: 610vh; }
+  .evidenceInner { gap: 0.8rem; padding: 1rem 0; }
+  .evidenceTitle .technicalLabel { display: none; }
+  .evidenceTitle h2 { width: 100%; font-size: clamp(2.5rem, 11vw, 3.5rem); text-align: left; }
+  .instrumentFooter { display: none; }
+  .traceDesktop { display: none !important; }
+  .traceMobile { display: block !important; }
+  .evidenceCanvas .traceMobile { min-height: 0; }
+  .traceMobile text { font-size: 11px; }
+  .traceMobile .traceMicro { font-size: 9px; }
+  .evidenceCopy article { min-height: 11rem; }
+  .evidenceCopy h3 { margin-top: 0.7rem; font-size: 2rem; }
+  .evidenceCopy p { margin-top: 0.65rem; font-size: 0.76rem; line-height: 1.5; }
+  .evidenceCopy small { margin-top: 0.7rem; }
+
+  .truthScene,
+  .boundaryScene { padding: 5rem 0; }
+  .truthHeading h2,
+  .boundaryHeading h2 { font-size: clamp(3.2rem, 14vw, 4.7rem); }
+  .truthRouteNode { grid-template-columns: 1.7rem 0.8rem minmax(0, 1fr); }
+  .truthRouteNode .stateLabel { grid-column: 3; width: fit-content; }
+  .truthRouteNode small { grid-column: 3; }
+  .truthRouteLine { left: 2.22rem; bottom: 10.6rem; }
+  .truthLegend { grid-template-columns: 1fr; }
+  .truthLegend article + article { border-top: 1px solid var(--cap-line-dark); border-left: 0; }
+
+  .boundaryTopology {
+    grid-template-columns: 1fr;
+    margin-top: 4rem;
+  }
+
+  .integrationBoundary {
+    min-height: 4rem;
+    border-top: 1px solid rgba(227, 192, 92, 0.24);
+    border-right: 0;
+    border-bottom: 1px dashed rgba(227, 192, 92, 0.42);
+    border-left: 0;
+  }
+
+  .integrationBoundary span { transform: translate(-50%, -50%); }
+  .connectedNode::after { right: 50%; width: 1px; height: 1.5rem; border-top: 0; border-right: 1px solid rgba(227, 192, 92, 0.52); top: 100%; }
+  .futureNode::before { display: none; }
+  .futureField { padding-left: 0; }
+
+  .networkScene { height: 330vh; }
+  .networkInner { padding: 1.2rem 0; }
+  .networkHeading .technicalLabel { display: none; }
+  .networkHeading h2 { font-size: clamp(2.9rem, 12vw, 4rem); }
+  .networkHeading p { font-size: 0.8rem; }
+  .networkTopology { min-height: 25rem; }
+  .networkNode span { display: none; }
+  .networkCore { width: 6.5rem; height: 6.5rem; }
+  .densityMeter { grid-template-columns: repeat(3, 1fr); }
+  .densityMeter > span,
+  .densityMeter strong { grid-column: 1 / -1; }
+
+  .endInner h2 { font-size: clamp(3.9rem, 16vw, 5.4rem); }
+  .endActions { flex-direction: column; align-items: center; }
+  .endOrbit span { width: 100vw; }
+  .endOrbit span:nth-child(2) { width: 76vw; }
+  .endOrbit span:nth-child(3) { width: 52vw; }
+}
+
+@media (max-width: 640px) {
+  .availableField,
+  .futureField {
+    grid-template-columns: 1fr;
+  }
+
+  .connectedNode:nth-of-type(even),
+  .connectedNode:nth-of-type(odd),
+  .futureNode:nth-of-type(even),
+  .futureNode:nth-of-type(odd) {
+    padding-right: 0;
+    padding-left: 0;
+    border-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .requestScene,
+  .loopScene,
+  .evidenceScene,
+  .networkScene {
+    height: auto;
+  }
+
+  .stickyStage {
+    position: relative;
+    top: 0;
+  }
+
+  .loopInner,
+  .evidenceInner {
+    min-height: auto;
+    align-items: start;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+
+  .loopCopy > div:nth-child(2),
+  .evidenceCopy article {
+    min-height: 0;
+  }
+
+  .stepRail,
+  .evidenceRail {
+    display: none;
+  }
+
+  .requestProgress span {
+    transition: none;
+  }
+}

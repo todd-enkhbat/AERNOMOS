@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { DemoBoundary } from "@/components/archive/ArchivePrimitives";
 import { Loader2, SendHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -9,6 +8,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { apiErrorMessage, createJob, listJobs } from "@/lib/api";
 import { DEMO_API_KEY } from "@/lib/constants";
@@ -127,7 +127,7 @@ export default function JobsPage() {
       <PageHeader
         eyebrow="Historical simulation demo"
         title="Run a simulated space-data job"
-        description="This path is a labeled historical demo, not the primary product. Submit a job to inspect routing. The board shows curated example jobs only — not every visitor submission. Prefer /plan and /examples for the request path."
+        description="This path is a labeled historical demo, not the primary product. Submit a job to inspect routing. The board shows curated example jobs only, not every visitor submission. Prefer /plan and /examples for the request path."
       />
 
       {notice ? <InlineNotice message={notice} /> : null}
@@ -152,7 +152,9 @@ export default function JobsPage() {
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Job type</span>
               <select
+                autoComplete="off"
                 className="input-field"
+                name="job_type"
                 onChange={(event) => setJobType(event.target.value as JobType)}
                 value={jobType}
               >
@@ -169,7 +171,9 @@ export default function JobsPage() {
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Sensor</span>
               <select
+                autoComplete="off"
                 className="input-field"
+                name="sensor"
                 onChange={(event) => setSensor(event.target.value as Sensor)}
                 value={sensor}
               >
@@ -186,7 +190,9 @@ export default function JobsPage() {
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Priority</span>
               <select
+                autoComplete="off"
                 className="input-field"
+                name="priority"
                 onChange={(event) => setPriority(event.target.value as Priority)}
                 value={priority}
               >
@@ -203,8 +209,11 @@ export default function JobsPage() {
             <label className="block">
               <span className="chart-label mb-2 block text-muted">Max cost USD</span>
               <input
+                autoComplete="off"
                 className="input-field"
+                inputMode="decimal"
                 min="1"
+                name="max_cost_usd"
                 onChange={(event) => setMaxCost(event.target.value)}
                 type="number"
                 value={maxCost}
@@ -218,7 +227,9 @@ export default function JobsPage() {
                 Compute preference
               </span>
               <select
+                autoComplete="off"
                 className="input-field"
+                name="compute_preference"
                 onChange={(event) =>
                   setPreference(event.target.value as ComputePreference)
                 }
@@ -239,7 +250,9 @@ export default function JobsPage() {
                 Area of interest
               </span>
               <textarea
+                autoComplete="off"
                 className="input-field metric-value min-h-[140px] resize-y text-sm"
+                name="area_of_interest"
                 onChange={(event) => setAoi(event.target.value)}
                 value={aoi}
               />
@@ -260,19 +273,20 @@ export default function JobsPage() {
             </pre>
           </details>
 
-          <motion.button
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3.5 font-semibold text-void transition-colors hover:bg-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
+          <LiquidButton
+            className="mt-6"
             disabled={submitting}
+            fullWidth
             type="submit"
-            whileTap={{ scale: 0.98 }}
+            variant="primary"
           >
             {submitting ? (
               <Loader2 className="animate-spin" size={18} strokeWidth={2} />
             ) : (
               <SendHorizontal size={18} strokeWidth={2} />
             )}
-            Submit mission
-          </motion.button>
+            Submit simulated job
+          </LiquidButton>
         </form>
 
         <section>

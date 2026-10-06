@@ -1,12 +1,11 @@
 "use client";
 
+import { FileCheck2, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { InlineNotice } from "@/components/InlineNotice";
 import { PageHeader } from "@/components/PageHeader";
 import { LiquidButton } from "@/components/liquid/LiquidButton";
-import { LiquidCard } from "@/components/liquid/LiquidCard";
 import {
   apiErrorMessage,
   ensureAnonymousSession,
@@ -14,8 +13,8 @@ import {
   listMissions,
   type MissionSummary
 } from "@/lib/api";
-import { OBJECTIVE_LABELS, type ObjectiveType } from "@/lib/mission-builder";
 import { formatDateTime } from "@/lib/format";
+import { OBJECTIVE_LABELS, type ObjectiveType } from "@/lib/mission-builder";
 
 function objectiveLabel(value: string): string {
   return OBJECTIVE_LABELS[value as ObjectiveType] ?? value;
@@ -29,6 +28,7 @@ export default function MissionsPage() {
 
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       try {
         await ensureAnonymousSession();
@@ -36,17 +36,24 @@ export default function MissionsPage() {
           listMissions(),
           listExampleMissions()
         ]);
-        if (mounted) {
-          setMissions(mine.missions);
-          setExamples(publicExamples.missions);
-          setNotice(null);
-        }
+        if (!mounted) return;
+        setMissions(mine.missions);
+        setExamples(publicExamples.missions);
+        setNotice(null);
       } catch (error) {
-        if (mounted) setNotice(apiErrorMessage(error));
+        if (mounted) {
+          setNotice(
+            apiErrorMessage(
+              error,
+              "The private mission workspace is temporarily unavailable. You can still build a new plan or inspect a curated example."
+            )
+          );
+        }
       } finally {
         if (mounted) setLoading(false);
       }
     })();
+
     return () => {
       mounted = false;
     };
@@ -55,103 +62,155 @@ export default function MissionsPage() {
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Private workspace"
-        title="Your missions"
-        description="Every request you submit becomes a private mission record in this browser’s anonymous session. Other visitors cannot list or open them without a share token."
         action={
           <LiquidButton href="/plan" variant="primary">
-            Run a request
+            Build a mission plan
           </LiquidButton>
         }
+        description="Plans created here stay private to this browser session until you explicitly make a share link. This is your technical record, not a public activity feed."
+        eyebrow="Private workspace"
+        title="Your missions"
       />
 
-      {notice ? (
-        <div className="mb-4">
-          <InlineNotice message={notice} />
-        </div>
-      ) : null}
-
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <LiquidCard>
-          <p className="chart-label text-gold">New request</p>
-          <p className="mt-3 text-sm leading-6 text-muted">
-            Describe your objective, area, and constraints in plain language.
-            Nomos evaluates the available paths and saves a private mission
-            record for this session.
-          </p>
-          <div className="mt-5">
-            <LiquidButton href="/plan" variant="primary">
-              Run a request
-            </LiquidButton>
+      <section className="nomos-ledger mt-6" aria-labelledby="private-missions-title">
+        <div className="nomos-ledger__header">
+          <div>
+            <p className="chart-label text-gold">PRIVATE MISSION LEDGER</p>
+            <h2 className="mt-1 text-base font-medium text-cream" id="private-missions-title">
+              This browser&apos;s mission records
+            </h2>
           </div>
-        </LiquidCard>
+          <div className="nomos-ledger__meta">
+            <span>anonymous session</span>
+            <span>
+              {notice
+                ? "records unavailable"
+                : loading
+                ? "loading"
+                : missions.length + " record" + (missions.length === 1 ? "" : "s")}
+            </span>
+          </div>
+        </div>
 
-        <LiquidCard>
-          <p className="chart-label text-gold">This session</p>
-          {loading ? (
-            <p className="mt-4 text-sm text-muted">Loading private missions…</p>
-          ) : missions.length === 0 ? (
-            <p className="mt-4 text-sm text-muted">
-              No private missions yet.{" "}
-              <Link className="text-gold hover:underline" href="/plan">
-                Run a request
-              </Link>{" "}
-              to keep one scoped to this session only.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {missions.map((mission) => (
-                <li key={mission.id}>
-                  <Link
-                    className="block rounded-xl border border-white/10 px-3 py-3 	ransition-colors hover:border-gold/30"
-                    href={`/missions/${mission.id}`}
-                  >
-                    <p className="text-sm font-medium text-cream">{mission.title}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {objectiveLabel(mission.objective_type)} · {mission.status} ·{" "}
-                      {formatDateTime(mission.created_at)}
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </LiquidCard>
-      </div>
-
-      <section className="mt-8">
-        <LiquidCard>
-          <p className="chart-label text-gold">Public examples</p>
-          <p className="mt-2 text-sm text-muted">
-            Curated examples are stored separately and marked <code>is_example</code>. They
-            are not private user submissions.
-          </p>
-          <ul className="mt-4 space-y-3">
-            {examples.map((mission) => (
-              <li key={mission.id}>
-                <Link
-                  className="block rounded-xl border border-white/10 px-3 py-3 	ransition-colors hover:border-gold/30"
-                  href={`/missions/${mission.id}`}
-                >
-                  <p className="text-sm font-medium text-cream">{mission.title}</p>
-                  <p className="mt-1 text-xs text-muted">
-                    Example · {objectiveLabel(mission.objective_type)} ·{" "}
-                    {formatDateTime(mission.created_at)}
-                  </p>
-                </Link>
-              </li>
+        {loading ? (
+          <div className="nomos-empty-state">
+            <span className="nomos-empty-state__mark">
+              <LockKeyhole aria-hidden size={18} />
+            </span>
+            <div>
+              <h2>Loading your private workspace.</h2>
+            </div>
+          </div>
+        ) : notice ? (
+          <div className="nomos-empty-state">
+            <span className="nomos-empty-state__mark">
+              <LockKeyhole aria-hidden size={18} />
+            </span>
+            <div>
+              <p className="chart-label text-gold">PRIVATE WORKSPACE</p>
+              <h2>Mission records are temporarily unavailable.</h2>
+              <p>
+                Nomos will not represent an unavailable session as an empty one.
+                Start a new plan or inspect a clearly labeled public example while
+                this workspace reconnects.
+              </p>
+              <div className="nomos-empty-state__actions">
+                <LiquidButton href="/plan" variant="primary">
+                  Build a mission plan
+                </LiquidButton>
+                <LiquidButton href="/examples" variant="outline">
+                  Open an example
+                </LiquidButton>
+              </div>
+            </div>
+          </div>
+        ) : missions.length === 0 ? (
+          <div className="nomos-empty-state">
+            <span className="nomos-empty-state__mark">
+              <FileCheck2 aria-hidden size={18} />
+            </span>
+            <div>
+              <h2>There is no mission record yet.</h2>
+              <p>
+                Start with an outcome, area, and constraints. Nomos will save the
+                resulting plan privately to this browser session.
+              </p>
+              <div className="nomos-empty-state__actions">
+                <LiquidButton href="/plan" variant="primary">
+                  Build a mission plan
+                </LiquidButton>
+                <LiquidButton href="/examples" variant="outline">
+                  Open an example
+                </LiquidButton>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="nomos-ledger__body">
+            {missions.map((mission, index) => (
+              <Link
+                className="nomos-ledger__row"
+                href={"/missions/" + mission.id}
+                key={mission.id}
+              >
+                <span className="nomos-ledger__index">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span>
+                  <span className="nomos-ledger__row-title">{mission.title}</span>
+                  <span className="nomos-ledger__row-detail">
+                    {objectiveLabel(mission.objective_type)} · {formatDateTime(mission.created_at)}
+                  </span>
+                </span>
+                <span className="nomos-ledger__status">{mission.status}</span>
+              </Link>
             ))}
-          </ul>
-        </LiquidCard>
+          </div>
+        )}
       </section>
 
-      <p className="mt-6 text-xs text-muted">
-        The legacy simulated job demo remains at{" "}
-        <Link className="text-gold hover:underline" href="/jobs">
-          /jobs
-        </Link>{" "}
-        for internal use and is no longer linked from primary navigation.
-      </p>
+      <section className="mt-10" aria-labelledby="reference-missions-title">
+        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-gold/15 pb-4">
+          <div>
+            <p className="chart-label text-gold">REFERENCE MISSIONS</p>
+            <h2 className="display mt-1 text-2xl text-cream" id="reference-missions-title">
+              Learn from an explained route.
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
+              These curated missions are public specimens. Their real, calculated,
+              estimated, simulated, and unavailable parts stay labeled.
+            </p>
+          </div>
+          <LiquidButton href="/examples" variant="outline">
+            View all examples
+          </LiquidButton>
+        </div>
+
+        {examples.length ? (
+          <div className="nomos-ledger__body">
+            {examples.slice(0, 3).map((mission, index) => (
+              <Link
+                className="nomos-ledger__row"
+                href={"/missions/" + mission.id}
+                key={mission.id}
+              >
+                <span className="nomos-ledger__index">R{index + 1}</span>
+                <span>
+                  <span className="nomos-ledger__row-title">{mission.title}</span>
+                  <span className="nomos-ledger__row-detail">
+                    {objectiveLabel(mission.objective_type)} · reference mission
+                  </span>
+                </span>
+                <span className="nomos-ledger__status">open plan</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted">
+            Reference missions are unavailable right now.
+          </p>
+        )}
+      </section>
     </div>
   );
 }

@@ -217,7 +217,9 @@ export function CalendarBoard() {
               />
               <input
                 aria-label="Search calendar"
-                className="w-full rounded-xl border border-white/10 bg-void/40 py-2.5 pl-10 pr-3 text-sm text-cream outline-none ring-gold/40 placeholder:text-muted focus:ring-1"
+                autoComplete="off"
+                className="w-full rounded-xl border border-white/10 bg-void/40 py-2.5 pl-10 pr-3 text-sm text-cream ring-gold/40 placeholder:text-muted focus-visible:ring-1"
+                name="calendar_search"
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search places, programs, tags, eligibility…"
                 value={query}

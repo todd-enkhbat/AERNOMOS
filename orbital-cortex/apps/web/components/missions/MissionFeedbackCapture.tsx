@@ -94,15 +94,15 @@ export function MissionFeedbackCapture({
     <div className="grid gap-8 lg:grid-cols-2">
       <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
         <p className="chart-label text-gold">Optional feedback</p>
-        <h3 className="mt-3 font-serif text-2xl tracking-[-0.02em] text-cream">
+        <h3 className="mt-3 font-sans text-2xl font-medium tracking-[-0.035em] text-cream">
           Was this plan useful?
         </h3>
         <p className="mt-2 text-sm leading-6 text-muted">
-          A few clicks. Never required — your plan stays fully usable either way.
+          A few clicks. Never required. Your plan stays fully usable either way.
         </p>
         {feedbackDone ? (
-          <p className="feedback-success-fade mt-5 text-sm text-cobalt">
-            Thanks — feedback recorded.
+          <p aria-live="polite" className="feedback-success-fade mt-5 text-sm text-cobalt" role="status">
+            Thanks. Feedback recorded.
           </p>
         ) : (
           <>
@@ -129,14 +129,16 @@ export function MissionFeedbackCapture({
             <label className="mt-4 block text-xs text-muted">
               Comment (optional, {COMMENT_MAX} chars max)
               <textarea
+                autoComplete="off"
                 className={fieldClass}
                 maxLength={COMMENT_MAX}
+                name="mission_feedback_comment"
                 onChange={(event) => setComment(event.target.value)}
                 rows={3}
                 value={comment}
               />
             </label>
-            {feedbackError ? <p className="mt-2 text-sm text-vermilion">{feedbackError}</p> : null}
+            {feedbackError ? <p className="mt-2 text-sm text-vermilion" role="alert">{feedbackError}</p> : null}
             <div className="mt-4">
               <LiquidButton
                 disabled={!rating || feedbackBusy}
@@ -154,28 +156,31 @@ export function MissionFeedbackCapture({
 
       <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
         <p className="chart-label text-gold">Design partner</p>
-        <h3 className="mt-3 font-serif text-2xl tracking-[-0.02em] text-cream">
+        <h3 className="mt-3 font-sans text-2xl font-medium tracking-[-0.035em] text-cream">
           Use this for a real mission
         </h3>
         <p className="mt-2 text-sm leading-6 text-muted">
-          Optional. Tell us who to contact — we only store this privately.
+          Optional. Tell us who to contact. We only store this privately.
         </p>
         {leadDone ? (
-          <p className="feedback-success-fade mt-5 text-sm text-cobalt">
+          <p aria-live="polite" className="feedback-success-fade mt-5 text-sm text-cobalt" role="status">
             Request received. We will follow up if appropriate.
           </p>
         ) : (
           <form className="mt-5 space-y-3" onSubmit={onSubmitLead}>
             <label className="block text-xs text-muted">
               Name
-              <input className={fieldClass} onChange={(e) => setName(e.target.value)} required value={name} />
+              <input autoComplete="name" className={fieldClass} name="name" onChange={(e) => setName(e.target.value)} required value={name} />
             </label>
             <label className="block text-xs text-muted">
               Work email
               <input
+                autoComplete="email"
                 className={fieldClass}
+                name="work_email"
                 onChange={(e) => setWorkEmail(e.target.value)}
                 required
+                spellCheck={false}
                 type="email"
                 value={workEmail}
               />
@@ -183,7 +188,9 @@ export function MissionFeedbackCapture({
             <label className="block text-xs text-muted">
               Organization
               <input
+                autoComplete="organization"
                 className={fieldClass}
+                name="organization"
                 onChange={(e) => setOrganization(e.target.value)}
                 required
                 value={organization}
@@ -191,12 +198,14 @@ export function MissionFeedbackCapture({
             </label>
             <label className="block text-xs text-muted">
               Role
-              <input className={fieldClass} onChange={(e) => setRole(e.target.value)} required value={role} />
+              <input autoComplete="organization-title" className={fieldClass} name="role" onChange={(e) => setRole(e.target.value)} required value={role} />
             </label>
             <label className="block text-xs text-muted">
               Mission type
               <input
+                autoComplete="off"
                 className={fieldClass}
+                name="mission_type"
                 onChange={(e) => setMissionType(e.target.value)}
                 required
                 value={missionType}
@@ -205,7 +214,9 @@ export function MissionFeedbackCapture({
             <label className="block text-xs text-muted">
               Requested integration
               <input
+                autoComplete="off"
                 className={fieldClass}
+                name="requested_integration"
                 onChange={(e) => setRequestedIntegration(e.target.value)}
                 required
                 value={requestedIntegration}
@@ -230,12 +241,13 @@ export function MissionFeedbackCapture({
               <input
                 checked={permission}
                 className="mt-1"
+                name="permission_to_contact"
                 onChange={(e) => setPermission(e.target.checked)}
                 type="checkbox"
               />
               <span>I give Nomos Orbital permission to contact me about this request.</span>
             </label>
-            {leadError ? <p className="text-sm text-vermilion">{leadError}</p> : null}
+            {leadError ? <p className="text-sm text-vermilion" role="alert">{leadError}</p> : null}
             <LiquidButton disabled={!permission || leadBusy} type="submit" variant="outline">
               {leadBusy ? "Sending…" : "Request design-partner contact"}
             </LiquidButton>

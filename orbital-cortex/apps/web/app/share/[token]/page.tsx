@@ -167,7 +167,7 @@ function ShareMissionInner() {
         <p className="text-sm text-muted">Loading shared mission brief…</p>
       ) : error || !mission ? (
         <section className="rounded-xl border border-vermilion/30 bg-vermilion/5 p-6">
-          <h2 className="font-serif text-2xl text-cream">Share unavailable</h2>
+          <h2 className="font-sans text-2xl font-medium tracking-[-0.035em] text-cream">Share unavailable</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
             {error ??
               "This share link is invalid, expired, or revoked. No mission data is available."}
@@ -175,7 +175,7 @@ function ShareMissionInner() {
         </section>
       ) : plans.length === 0 ? (
         <section className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-          <h2 className="font-serif text-2xl text-cream">No plan generated yet</h2>
+          <h2 className="font-sans text-2xl font-medium tracking-[-0.035em] text-cream">No plan generated yet</h2>
           <p className="mt-2 text-sm text-muted">
             This shared mission does not include generated plans. Ask the owner to generate a
             plan, then share again.

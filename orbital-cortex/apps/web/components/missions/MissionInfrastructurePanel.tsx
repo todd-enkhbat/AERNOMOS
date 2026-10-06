@@ -24,7 +24,7 @@ function ProvenancedField({
   format?: (value: unknown) => string;
 }) {
   if (!metric) return null;
-  const display = format ? format(metric.value) : String(metric.value ?? "—");
+  const display = format ? format(metric.value) : String(metric.value ?? "Unavailable");
   return (
     <div>
       <dt className="text-muted/80">{label}</dt>

@@ -154,7 +154,7 @@ export function ExecutionDemoPanel({
 
       setPhase("done");
       await onRefreshPlan();
-      onNotice("CPU demo complete — observed metrics recorded on the plan step.");
+      onNotice("CPU demo complete. Observed metrics were recorded on the plan step.");
     } catch (exc) {
       const message = apiErrorMessage(exc, "CPU demo execution failed.");
       setError(message);
@@ -186,7 +186,7 @@ export function ExecutionDemoPanel({
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <p className="chart-label text-gold">Real CPU demo · Phase M</p>
-          <h3 className="mt-2 font-serif text-2xl tracking-[-0.02em] text-cream">
+          <h3 className="mt-2 font-sans text-2xl font-medium tracking-[-0.035em] text-cream">
             Run a measured crop + thumbnail
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
@@ -194,7 +194,7 @@ export function ExecutionDemoPanel({
             <span className="text-silver">{executableStep.title}</span> using a{" "}
             <strong className="font-normal text-cream">fixture GeoTIFF</strong>, not
             your catalog scene. Durations and byte counts are measured and labeled{" "}
-            <TruthBadge compact status="OBSERVED" /> — local CPU, $0 estimate.
+            <TruthBadge compact status="OBSERVED" />, local CPU, $0 estimate.
           </p>
 
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">

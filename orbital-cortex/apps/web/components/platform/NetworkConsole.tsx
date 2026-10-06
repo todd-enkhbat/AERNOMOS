@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { LiquidCard } from "@/components/liquid/LiquidCard";
 import { ScoreBar } from "@/components/ScoreBar";
 import { ContactWindowTimeline } from "@/components/network/ContactWindowTimeline";
 import {
@@ -15,8 +14,9 @@ import {
   listJobs
 } from "@/lib/api";
 import { EMPTY_NODES } from "@/lib/constants";
+import { REFERENCE_GROUND_STATIONS } from "@/lib/reference-ground-stations";
 import type { ContactWindow, Job, NodesResponse, RoutingDecision, Satellite } from "@/lib/types";
-import { formatDateTime, formatMinutes, formatPercent } from "@/lib/format";
+import { formatDateTime, formatMinutes } from "@/lib/format";
 
 const NetworkGlobeMap = dynamic(
   () =>
@@ -31,12 +31,14 @@ export function NetworkConsole() {
   const [windows, setWindows] = useState<ContactWindow[]>([]);
   const [recentJob, setRecentJob] = useState<Job | null>(null);
   const [route, setRoute] = useState<RoutingDecision | null>(null);
+  const [windowsConnected, setWindowsConnected] = useState<boolean | null>(null);
+  const [satellitesConnected, setSatellitesConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
     let mounted = true;
     async function load() {
       try {
-        const [nodeRes, satRes, winRes, jobsRes] = await Promise.all([
+        const [nodeResult, satelliteResult, windowResult, jobsResult] = await Promise.allSettled([
           getNodes(),
           getSatellites(),
           getContactWindows({ upcoming: true, limit: 24 }),
@@ -45,11 +47,24 @@ export function NetworkConsole() {
         if (!mounted) {
           return;
         }
-        setNodes(nodeRes);
-        setSatellites(satRes.satellites);
-        setWindows(winRes.contact_windows);
+        if (nodeResult.status === "fulfilled") setNodes(nodeResult.value);
+        if (satelliteResult.status === "fulfilled") {
+          setSatellites(satelliteResult.value.satellites);
+          setSatellitesConnected(true);
+        } else {
+          setSatellitesConnected(false);
+        }
+        if (windowResult.status === "fulfilled") {
+          setWindows(windowResult.value.contact_windows);
+          setWindowsConnected(true);
+        } else {
+          setWindowsConnected(false);
+        }
+        if (jobsResult.status !== "fulfilled") return;
         const candidate =
-          jobsRes.jobs.find((j) => j.status === "complete") ?? jobsRes.jobs[0] ?? null;
+          jobsResult.value.jobs.find((j) => j.status === "complete") ??
+          jobsResult.value.jobs[0] ??
+          null;
         setRecentJob(candidate);
         if (candidate) {
           try {
@@ -62,7 +77,10 @@ export function NetworkConsole() {
           }
         }
       } catch {
-        /* parent shows notice */
+        if (mounted) {
+          setWindowsConnected(false);
+          setSatellitesConnected(false);
+        }
       }
     }
     load();
@@ -81,37 +99,70 @@ export function NetworkConsole() {
     [route]
   );
 
-  return (
-    <div className="space-y-6">
-      <LiquidCard className="overflow-hidden">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="chart-label text-gold">Ground mesh</p>
-            <h2 className="display mt-1 text-xl text-cream">Reference station registry</h2>
-            <p className="prose-compact mt-1 text-muted">
-              {nodes.ground_stations.length} public reference locations. Coordinates are
-              real; operational availability and access are simulated.
-            </p>
-          </div>
-        </div>
-        <NetworkGlobeMap stations={nodes.ground_stations} />
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {nodes.ground_stations.map((gs) => (
-            <li
-              className="flex items-center justify-between gap-2 border-t border-gold/10 pt-2 text-sm"
-              key={gs.id}
-            >
-              <span className="text-cream/85">{gs.name}</span>
-              <span className="metric-value text-[11px] text-muted">
-                {formatPercent(gs.availability)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </LiquidCard>
+  const apiGroundStations = useMemo(
+    () =>
+      nodes.ground_stations.filter(
+        (station) =>
+          Number.isFinite(station.latitude) &&
+          Number.isFinite(station.longitude) &&
+          station.latitude >= -90 &&
+          station.latitude <= 90 &&
+          station.longitude >= -180 &&
+          station.longitude <= 180
+      ),
+    [nodes.ground_stations]
+  );
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <LiquidCard>
+  const groundStations =
+    apiGroundStations.length > 0
+      ? apiGroundStations
+      : REFERENCE_GROUND_STATIONS;
+  const registryMode = apiGroundStations.length > 0 ? "api" : "reference";
+
+  return (
+    <div>
+      <NetworkGlobeMap
+        contactWindows={windows}
+        registryMode={registryMode}
+        stations={groundStations}
+      />
+
+      <section className="network-purpose page-shell" aria-labelledby="network-purpose-title">
+        <div className="network-purpose__statement">
+          <p className="chart-label text-gold">Why the atlas exists</p>
+          <h2 id="network-purpose-title">A map becomes useful when it changes the plan.</h2>
+          <p>
+            Nomos does not show infrastructure as decoration. It uses sourced locations,
+            orbital geometry, timing, and constraints to determine which path is feasible
+            for a specific objective.
+          </p>
+        </div>
+        <ol className="network-purpose__sequence">
+          <li>
+            <span>01</span>
+            <strong>Start with the objective</strong>
+            <p>Area, timing, data product, policy, and delivery constraints.</p>
+          </li>
+          <li>
+            <span>02</span>
+            <strong>Calculate the geometry</strong>
+            <p>Satellite opportunities and ground contact windows from orbital elements.</p>
+          </li>
+          <li>
+            <span>03</span>
+            <strong>Compare feasible paths</strong>
+            <p>Orbital, ground, and cloud roles evaluated against the same request.</p>
+          </li>
+          <li>
+            <span>04</span>
+            <strong>Return the evidence</strong>
+            <p>A recommended route with sources, assumptions, and unavailable steps exposed.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section className="network-evidence page-shell" aria-label="Network calculation evidence">
+        <article className="network-evidence__panel">
           <p className="chart-label text-gold">Contact windows</p>
           <h3 className="display mt-1 text-lg text-cream">SGP4 pass schedule</h3>
           <p className="mt-2 text-xs leading-5 text-muted">
@@ -119,18 +170,26 @@ export function NetworkConsole() {
             estimates, not booked ground-station sessions.
           </p>
           <div className="mt-4">
-            <ContactWindowTimeline windows={windows} />
+            {windowsConnected === true ? (
+              <ContactWindowTimeline windows={windows} />
+            ) : (
+              <p className="border-t border-gold/10 pt-4 text-xs leading-5 text-muted">
+                {windowsConnected === null
+                  ? "Loading calculated contact windows…"
+                  : "The calculation API is unavailable. No pass result is shown."}
+              </p>
+            )}
           </div>
-        </LiquidCard>
+        </article>
 
-        <LiquidCard>
+        <article className="network-evidence__panel">
           <p className="chart-label text-gold">Satellite registry</p>
           <p className="mt-2 text-xs leading-5 text-muted">
             Real NORAD identities with pinned orbital elements. Downlink rates are
             reference model inputs.
           </p>
           <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            {satellitesConnected === true ? <table className="w-full text-left text-sm">
               <thead>
                 <tr className="chart-label text-muted-dark">
                   <th className="pb-2 font-medium">Name</th>
@@ -147,13 +206,19 @@ export function NetworkConsole() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table> : (
+              <p className="border-t border-gold/10 pt-4 text-xs leading-5 text-muted">
+                {satellitesConnected === null
+                  ? "Loading the satellite registry…"
+                  : "The registry API is unavailable. No satellite record is shown."}
+              </p>
+            )}
           </div>
-        </LiquidCard>
-      </div>
+        </article>
+      </section>
 
       {route && recentJob ? (
-        <section className="space-y-3">
+        <section className="page-shell mt-6 space-y-3">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <p className="chart-label text-gold">Latest demo routing decision</p>
             <Link className="text-sm text-muted hover:text-cream" href={`/jobs/${recentJob.id}`}>

@@ -192,7 +192,7 @@ export function MissionPlanBuilder() {
       const valid = validateAreaOfInterest(area);
       return `${aoiAreaKm2(valid).toFixed(1)} km²`;
     } catch {
-      return "—";
+      return "Unavailable";
     }
   })();
 
@@ -237,7 +237,7 @@ export function MissionPlanBuilder() {
           <fieldset className="space-y-3">
             <legend className="chart-label text-gold">What are you trying to do?</legend>
             <p className="text-sm text-muted">
-              Pick the closest match. You can refine details later — no account needed.
+              Pick the closest match. You can refine details later. No account is needed.
             </p>
             <div className="mt-4 space-y-2">
               {OBJECTIVE_OPTIONS.map((option) => {
@@ -304,8 +304,10 @@ export function MissionPlanBuilder() {
                 <label className={labelClassName()} key={field}>
                   {label}
                   <input
+                    autoComplete="off"
                     className={fieldClassName()}
                     inputMode="decimal"
+                    name={field}
                     onChange={(event) =>
                       dispatch({ type: "set", field, value: event.target.value })
                     }
@@ -326,6 +328,7 @@ export function MissionPlanBuilder() {
               <input
                 accept=".json,.geojson,application/geo+json,application/json"
                 className="mt-1.5 block w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-cream"
+                name="area_geojson"
                 onChange={onUpload}
                 type="file"
               />
@@ -335,7 +338,9 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 Start date
                 <input
+                  autoComplete="off"
                   className={fieldClassName()}
+                  name="start_date"
                   onChange={(event) =>
                     dispatch({ type: "set", field: "startDate", value: event.target.value })
                   }
@@ -346,7 +351,9 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 End date
                 <input
+                  autoComplete="off"
                   className={fieldClassName()}
+                  name="end_date"
                   onChange={(event) =>
                     dispatch({ type: "set", field: "endDate", value: event.target.value })
                   }
@@ -357,8 +364,10 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 Desired data freshness (max age, days)
                 <input
+                  autoComplete="off"
                   className={fieldClassName()}
                   inputMode="numeric"
+                  name="max_age_days"
                   onChange={(event) =>
                     dispatch({ type: "set", field: "maxAgeDays", value: event.target.value })
                   }
@@ -369,7 +378,9 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 Satellite or sensor preference
                 <input
+                  autoComplete="off"
                   className={fieldClassName()}
+                  name="sensor_preference"
                   onChange={(event) =>
                     dispatch({
                       type: "set",
@@ -397,7 +408,9 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 Deadline
                 <input
+                  autoComplete="off"
                   className={fieldClassName()}
+                  name="deadline"
                   onChange={(event) =>
                     dispatch({ type: "set", field: "deadline", value: event.target.value })
                   }
@@ -408,7 +421,9 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 Preferred place to process
                 <select
+                  autoComplete="off"
                   className={fieldClassName()}
+                  name="preferred_compute_location"
                   onChange={(event) =>
                     dispatch({
                       type: "set",
@@ -428,7 +443,9 @@ export function MissionPlanBuilder() {
               <label className={labelClassName()}>
                 Onboard processing
                 <select
+                  autoComplete="off"
                   className={fieldClassName()}
+                  name="onboard_processing"
                   onChange={(event) =>
                     dispatch({
                       type: "set",
@@ -461,8 +478,10 @@ export function MissionPlanBuilder() {
                   <label className={labelClassName()}>
                     Max cost (USD)
                     <input
+                      autoComplete="off"
                       className={fieldClassName()}
                       inputMode="decimal"
+                      name="max_cost_usd"
                       onChange={(event) =>
                         dispatch({
                           type: "set",
@@ -476,8 +495,10 @@ export function MissionPlanBuilder() {
                   <label className={labelClassName()}>
                     Max data volume (MB)
                     <input
+                      autoComplete="off"
                       className={fieldClassName()}
                       inputMode="decimal"
+                      name="max_data_volume_mb"
                       onChange={(event) =>
                         dispatch({
                           type: "set",
@@ -491,7 +512,9 @@ export function MissionPlanBuilder() {
                   <label className={labelClassName()}>
                     Allowed geographic regions
                     <input
+                      autoComplete="off"
                       className={fieldClassName()}
+                      name="allowed_regions"
                       onChange={(event) =>
                         dispatch({
                           type: "set",
@@ -506,7 +529,9 @@ export function MissionPlanBuilder() {
                   <label className={labelClassName()}>
                     Data residency requirement
                     <input
+                      autoComplete="off"
                       className={fieldClassName()}
+                      name="data_residency"
                       onChange={(event) =>
                         dispatch({
                           type: "set",
@@ -521,7 +546,9 @@ export function MissionPlanBuilder() {
                   <label className={`${labelClassName()} sm:col-span-2`}>
                     Existing cloud or infrastructure
                     <input
+                      autoComplete="off"
                       className={fieldClassName()}
+                      name="cloud_provider"
                       onChange={(event) =>
                         dispatch({
                           type: "set",
@@ -550,7 +577,9 @@ export function MissionPlanBuilder() {
             <label className={labelClassName()}>
               Mission title
               <input
+                autoComplete="off"
                 className={fieldClassName()}
+                name="mission_title"
                 onChange={(event) =>
                   dispatch({ type: "set", field: "title", value: event.target.value })
                 }
@@ -561,7 +590,9 @@ export function MissionPlanBuilder() {
             <label className={labelClassName()}>
               Organization name (optional)
               <input
+                autoComplete="organization"
                 className={fieldClassName()}
+                name="organization_name"
                 onChange={(event) =>
                   dispatch({
                     type: "set",
@@ -575,7 +606,9 @@ export function MissionPlanBuilder() {
             <label className={labelClassName()}>
               Use case
               <textarea
+                autoComplete="off"
                 className={`${fieldClassName()} min-h-[88px]`}
+                name="use_case"
                 onChange={(event) =>
                   dispatch({ type: "set", field: "useCase", value: event.target.value })
                 }
@@ -585,7 +618,9 @@ export function MissionPlanBuilder() {
             <label className={labelClassName()}>
               Technical notes
               <textarea
+                autoComplete="off"
                 className={`${fieldClassName()} min-h-[88px]`}
+                name="technical_notes"
                 onChange={(event) =>
                   dispatch({ type: "set", field: "notes", value: event.target.value })
                 }
@@ -632,10 +667,10 @@ export function MissionPlanBuilder() {
                 value={
                   state.objectiveType
                     ? OBJECTIVE_LABELS[state.objectiveType as ObjectiveType]
-                    : "—"
+                    : "Not provided"
                 }
               />
-              <ReviewItem label="Title" value={state.title || "—"} />
+              <ReviewItem label="Title" value={state.title || "Not provided"} />
               <ReviewItem label="Mode" value={state.missionMode} />
               <ReviewItem label="Approx. area" value={areaPreview} />
               <ReviewItem

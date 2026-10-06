@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Apple-like right-edge scroll control: brushed parchment rail + golden thumb.
+ * Right-edge route control: blue-tinted metal rail + golden progress thumb.
  * Native macOS/Electron overlay scrollbars ignore most webkit styling, so we
  * hide them and drive a thin metal rail from document scroll.
  */

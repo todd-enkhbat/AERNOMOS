@@ -336,7 +336,7 @@ function MissionDetailInner() {
           {!plans.length ? (
             <section className="rounded-2xl border border-gold/25 bg-[radial-gradient(circle_at_80%_0%,rgba(201,162,39,0.12),transparent_48%),rgba(10,10,11,0.82)] p-6 sm:p-9">
               <p className="chart-label text-gold">Recommendation not generated</p>
-              <h2 className="mt-4 max-w-2xl font-serif text-4xl leading-tight tracking-[-0.03em] text-cream">
+              <h2 className="mt-4 max-w-2xl font-sans text-4xl font-medium leading-tight tracking-[-0.045em] text-cream">
                 Generate a recommended execution path.
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
@@ -388,7 +388,7 @@ function MissionDetailInner() {
         </div>
       ) : (
         <section className="rounded-xl border border-vermilion/30 bg-vermilion/5 p-6">
-          <h2 className="font-serif text-2xl text-cream">Mission unavailable</h2>
+          <h2 className="font-sans text-2xl font-medium tracking-[-0.035em] text-cream">Mission unavailable</h2>
           <p className="mt-2 text-sm text-muted">
             Return to your private mission list or open a valid share link.
           </p>
