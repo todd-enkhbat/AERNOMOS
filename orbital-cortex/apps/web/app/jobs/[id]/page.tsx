@@ -14,7 +14,6 @@ import {
   Terminal
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -27,6 +26,7 @@ import { HarborMap } from "@/components/HarborMap";
 import { InlineNotice } from "@/components/InlineNotice";
 import { JobStepper } from "@/components/jobs/JobStepper";
 import { PageHeader } from "@/components/PageHeader";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { RouteExplain } from "@/components/RouteExplain";
 import { TruthBadge } from "@/components/truth";
 import { ScoreBar } from "@/components/ScoreBar";
@@ -218,13 +218,13 @@ export default function JobDetailPage() {
             : "Loading demo job state."
         }
         action={
-          <Link
-            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream 	ransition-colors hover:border-gold/50 hover:text-gold-bright"
+          <LiquidButton
             href="/jobs"
+            variant="outline"
           >
             <ChevronLeft size={17} strokeWidth={2} />
             All demo jobs
-          </Link>
+          </LiquidButton>
         }
       />
 
@@ -323,11 +323,12 @@ export default function JobDetailPage() {
                       ) : null}
                     </div>
                   ) : null}
-                  <button
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-5 py-3 text-sm font-medium text-cream 	ransition-colors hover:border-gold/50 hover:text-gold-bright disabled:cursor-not-allowed disabled:opacity-60"
+                  <LiquidButton
                     disabled={replaying || !route}
+                    fullWidth
                     onClick={handleReplayRouting}
                     type="button"
+                    variant="outline"
                   >
                     {replaying ? (
                       <Loader2 className="animate-spin" size={17} strokeWidth={2} />
@@ -335,7 +336,7 @@ export default function JobDetailPage() {
                       <Route size={17} strokeWidth={2} />
                     )}
                     Replay routing
-                  </button>
+                  </LiquidButton>
                   <p className="text-xs leading-5 text-muted-dark">
                     Replay recomputes the stored routing inputs and verifies that the
                     decision hash is identical.
@@ -365,11 +366,13 @@ export default function JobDetailPage() {
                         The production worker normally advances this job automatically.
                         Use this only if the shared queue is unavailable.
                       </p>
-                      <button
-                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm text-cream 	ransition-colors hover:border-gold/40"
+                      <LiquidButton
+                        className="mt-3"
                         disabled={running}
+                        fullWidth
                         onClick={handleRunSimulation}
                         type="button"
+                        variant="outline"
                       >
                         {running ? (
                           <Loader2 className="animate-spin" size={17} strokeWidth={2} />
@@ -377,7 +380,7 @@ export default function JobDetailPage() {
                           <Play size={17} strokeWidth={2} />
                         )}
                         Advance job manually
-                      </button>
+                      </LiquidButton>
                     </details>
                   ) : null}
                 </div>

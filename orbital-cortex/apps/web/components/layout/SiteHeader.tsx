@@ -1,7 +1,9 @@
 "use client";
 
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { NomosMark } from "@/components/brand/NomosMark";
 import { LiquidButton } from "@/components/liquid/LiquidButton";
@@ -19,6 +21,7 @@ const navItems = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
   const { ref, onMouseMove, onMouseLeave } = useLiquidMouse<HTMLDivElement>();
 
   return (
@@ -44,7 +47,7 @@ export function SiteHeader() {
               </span>
             </Link>
 
-            <nav className="hidden items-center gap-0.5 md:flex">
+            <nav aria-label="Primary" className="hidden items-center gap-0.5 md:flex">
               {navItems.map((item) => {
                 const active =
                   pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -64,30 +67,52 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <LiquidButton className="hidden sm:inline-flex" href="/plan" variant="primary">
+            <LiquidButton className="!hidden md:!inline-flex" href="/plan" variant="primary">
               Run a request
             </LiquidButton>
+            <button
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+              className="liquid-nav-pill grid h-10 w-10 place-items-center rounded-full text-cream md:hidden"
+              onClick={() => setMenuOpen((open) => !open)}
+              type="button"
+            >
+              {menuOpen ? <X aria-hidden size={18} /> : <Menu aria-hidden size={18} />}
+            </button>
           </div>
         </div>
 
-        <nav className="liquid-glass liquid-glass--card mt-1.5 flex gap-1 overflow-x-auto !rounded-xl !p-1.5 md:hidden">
-          {navItems.map((item) => {
-            const active =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
+        {menuOpen ? (
+          <nav
+            aria-label="Primary mobile"
+            className="liquid-glass liquid-glass--card mt-1.5 grid grid-cols-2 gap-1 !rounded-xl !p-1.5 md:hidden"
+          >
+            {navItems.map((item) => {
+              const active =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  aria-current={active ? "page" : undefined}
+                  className={`liquid-nav-pill flex min-h-[40px] items-center justify-center rounded-lg px-2 py-2 text-center text-xs leading-tight ${
+                    active ? "liquid-nav-pill--active" : "text-muted"
+                  }`}
+                  href={item.href}
+                  key={item.href}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
               <Link
-                aria-current={active ? "page" : undefined}
-                className={`liquid-nav-pill shrink-0 rounded-lg px-3 py-1.5 text-[13px] ${
-                  active ? "liquid-nav-pill--active" : "text-muted"
-                }`}
-                href={item.href}
-                key={item.href}
+                className="col-span-2 flex min-h-[42px] items-center justify-center rounded-lg bg-gold px-3 py-2 text-xs font-semibold text-klein-void"
+                href="/plan"
+                onClick={() => setMenuOpen(false)}
               >
-                {item.label}
+                Build a mission plan
               </Link>
-            );
-          })}
-        </nav>
+          </nav>
+        ) : null}
       </div>
     </header>
   );

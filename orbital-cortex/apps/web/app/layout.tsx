@@ -1,33 +1,52 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, IBM_Plex_Mono, Inter_Tight } from "next/font/google";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 
 import { DemoEnvironmentBanner } from "@/components/layout/DemoEnvironmentBanner";
 import { MetalScrollRail } from "@/components/layout/MetalScrollRail";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteCadence } from "@/components/motion/SiteCadence";
 import "./globals.css";
 
-const serif = Fraunces({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  weight: ["300", "400", "500"],
+const serif = localFont({
+  src: [
+    {
+      path: "./fonts/fraunces-latin-normal.woff2",
+      style: "normal",
+      weight: "300 900"
+    },
+    {
+      path: "./fonts/fraunces-latin-italic.woff2",
+      style: "italic",
+      weight: "300 900"
+    }
+  ],
   variable: "--font-serif"
 });
 
-const sans = Inter_Tight({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const sans = localFont({
+  src: "./fonts/inter-tight-latin.woff2",
+  weight: "100 900",
   variable: "--font-sans"
 });
 
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const mono = localFont({
+  src: [
+    {
+      path: "./fonts/ibm-plex-mono-latin-400.woff2",
+      weight: "400"
+    },
+    {
+      path: "./fonts/ibm-plex-mono-latin-500.woff2",
+      weight: "500"
+    }
+  ],
   variable: "--font-mono"
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nomosorbital.com"),
   title: {
     default: "Nomos Orbital | Space Intelligence Infrastructure",
     template: "%s · Nomos Orbital"
@@ -42,13 +61,28 @@ export const metadata: Metadata = {
     title: "Nomos Orbital | The intelligence layer for space",
     description:
       "Turning fragmented space infrastructure into a programmable network. One request, routed across orbital, ground, and cloud systems, with every decision explained.",
+    images: [
+      {
+        url: "/og.png",
+        width: 1730,
+        height: 909,
+        alt: "Nomos Orbital. The intelligence layer for space."
+      }
+    ],
     siteName: "Nomos Orbital",
     type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nomos Orbital | The intelligence layer for space",
+    description:
+      "Turning fragmented space infrastructure into a programmable network.",
+    images: ["/og.png"]
   }
 };
 
 export const viewport: Viewport = {
-  themeColor: "#002FA7"
+  themeColor: "#001045"
 };
 
 export default function RootLayout({
@@ -63,6 +97,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <div className="starfield" aria-hidden />
+        <SiteCadence />
         <div className="relative z-10 flex min-h-screen flex-col">
           <DemoEnvironmentBanner />
           <SiteHeader />

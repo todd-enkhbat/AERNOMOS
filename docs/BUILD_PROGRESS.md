@@ -2,12 +2,40 @@
 
 Current phase: **complete** (A–T finished)
 
+## Complete website restoration (October 6, 2026)
+
+- The first October 6 production publish used committed code while the newer homepage, product pages, typography, responsive navigation, source-backed network atlas, imagery, and design assets still existed only in the local working tree. That produced an inconsistent site.
+- Prepared a complete release from those local website files in an isolated checkout on top of current `main`, including the local font files, image assets, `.vercelignore`, and design record. The original working checkout was left intact.
+- Validation before release: web lint and production build passed (19 routes). Browser review covered the homepage, About, and Capabilities on desktop and the homepage at 390px; the compact mobile navigation is present, the new hero and font load, and no horizontal overflow was observed.
+- Release target: Vercel project `aernomos` on `nomosorbital.com`. Verify the final production deployment and route behavior after publishing.
+
 ## Planning form visual polish (October 6, 2026)
 
 - Replaced the planning builder's unreliable translucent Tailwind variable backgrounds with explicit blue ink controls, legible labels and placeholders, clear hover/focus states, and browser-native dark date/select menus. The change covers all builder steps, including constraints and advanced fields.
 - Step navigation now has a larger touch target and only earlier steps are actionable; press feedback respects reduced-motion settings. The form card uses `overflow: clip` so focusing Continue cannot scroll its contents under the top edge.
 - Corrected the footer CSS module's local selector scoping so the shared footer styling compiles.
 - Lint, TypeScript, and production build passed (19 routes). Browser review covered the objective-to-constraints flow at desktop and 390px mobile widths: blue fields render, the card no longer scrolls internally, and mobile has no horizontal overflow. No deployment.
+
+## Interactive marketing field and typography (October 6, 2026)
+
+- Follow-up user request: match About typography to other product pages and add Bessemer-inspired pointer/touch glyph motion, including the footer shown in the reference.
+- About now uses the existing Inter Tight sans-serif for all headings. Updated SOUL.md to record that direction.
+- Added reusable `components/visual/OrbitalField.tsx` and its CSS module: animated ASCII/glyph topography, blue/gold wave bands, damped pointer displacement and illumination, expanding click/touch ripples, capped pixel ratio and frame rate, offscreen/document-visibility suspension, full effect cleanup, keyboard pause/resume, and static reduced-motion rendering.
+- Integrated the field into About and Network heroes and the shared footer. Replaced the footer's static circuit-board image with the field and an oversized closing statement; preserved existing navigation and product truth. No dependencies or external requests added by the field.
+- Browser validation: desktop About/Network and 390px mobile footer; no horizontal overflow; all About headings resolve to sans-serif. Canvas frame comparisons verified animation advances, pause stops changes, and reduced motion is static with motion controls hidden. Simulated touch pointer events preserve default scrolling. Keyboard pause/resume works.
+- Lint, standalone TypeScript, and the final production build passed (19 static routes). The local Network API is not running on port 8000; that existing data-service limitation is unrelated to the visual changes.
+- Local changes only, no commit or deployment. Existing unrelated working-tree changes preserved.
+
+## About page visual refinement (October 6, 2026)
+
+- User-directed post-release polish, limited to `/about`; mission-planner phases A–T remain complete.
+- Replaced stacked liquid/noise surfaces and whole-section fading on About with a continuous blue field, cream narrative headings, and restrained gold labels. Preserved the existing content, images, links, and product boundaries.
+- Corrected the belief section's grid-item placement and the archival introduction's eyebrow/heading alignment. Rebalanced headings, column gaps, image heights, and section spacing on desktop and mobile.
+- Replaced the cropped, almost face-on record stage with an About-specific Three.js solid gold disk: visible thickness, beveled rim, studio reflections, engraved face, scroll rotation, and damped fine-pointer tilt. Separated the face from the cylinder cap to prevent depth flicker.
+- Story passages remain in document order beside a sticky record on desktop, and stack normally on mobile. Reduced motion removes sticky pacing and rotation. A same-size image stays visible while the texture loads or WebGL is unavailable; context-loss fallback was exercised in-browser.
+- Files: `app/about/page.tsx`, `app/about/AboutPage.module.css`, `components/about/AboutScrollStory.tsx`, `components/about/AboutScrollStory.module.css`, `components/about/GoldenRecord.tsx`, `components/about/AboutContent.module.css` (under `orbital-cortex/apps/web`). No runtime dependencies added; shared record components and other routes were not changed by this task.
+- Validation: `npm run lint`, `npx tsc --noEmit`, and `npm run build` passed (19 static routes). Production preview reviewed at 1440×900 and 390×844; no horizontal overflow or broken images. Checked archive alternate-image keyboard activation/focus, reduced motion, and actual WebGL context loss. Removed only empty duplicate `node_modules/@types/* 2*` directories that were preventing TypeScript discovery.
+- Status: implemented and locally validated; not committed or deployed. Preview: `http://127.0.0.1:3001/about`. Next step is user review; no new build phase started.
 
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
@@ -30,6 +58,29 @@ Current phase: **complete** (A–T finished)
 - Phase R: Accelerator-ready curated demos 1–3 — pinned real STAC fixtures, one-command seed reset, cold/back-to-back/offline/disclosure tests, finished + timed 90s script
 - Phase S: Security review + hardening — `orbital-cortex/docs/security-review.md`, job access tokens, mission rate limits, SSRF allowlist, log redaction, production secret gate
 - Phase T: Final validation and release documentation — `docs/final-validation-report.md`; SOUL / AGENTS / capability-truth aligned to allowed claim
+- Homepage cinematic hierarchy refinement — full-bleed product hero, challenge/solution sequence, truthful proof rail, and direct network-atlas handoff
+- Capabilities cinematic system narrative — eight responsive scenes that explain the request abstraction, intelligence loop, current evidence, truth system, provider boundary, and network effect
+
+### Capabilities cinematic system narrative (August 2026)
+
+- Replaced the previous list/card implementation with eight engineered scenes centered on the metaphor: the user sees one request; Nomos sees the space stack.
+- Added scroll-driven request decomposition, a four-state intelligence loop, candidate-path elimination, a six-stage evidence instrument, claim classification, a physically incomplete provider topology, and a growing network visualization.
+- Preserved the canonical LIVE / REFERENCE / SIMULATED / PLANNED marketing states and underlying CALCULATED / ESTIMATED / OBSERVED / UNAVAILABLE truth language.
+- Kept satellite tasking, station reservation, onboard execution, private telemetry, commercial pricing, and multi-provider execution disconnected and explicitly PLANNED.
+- Added a reduced-motion narrative, mobile vertical topology, route-scoped persistent-header contrast, and no new runtime dependencies.
+- Rebuilt Scene 04 as a mission-analysis plate: one coherent Earth/orbit coordinate system now anchors the AOI footprint, spacecraft, SGP4 trajectory, AOS/LOS access segment, line-of-sight geometry, candidate ground route, privacy annotation, and observed fixture output. The former arbitrary capability spline and node chart were removed; mobile uses a separately composed technical plate rather than shrinking desktop labels.
+- Files: `orbital-cortex/apps/web/app/capabilities/page.tsx`, `orbital-cortex/apps/web/components/capabilities/CapabilitiesExperience.tsx`, `CapabilitiesExperience.module.css`, `orbital-cortex/apps/web/app/globals.css`, `SOUL.md`.
+- Validation: web lint, TypeScript, and production build pass; browser QA completed at 1440×1000 and 390×844 with no horizontal overflow or framework overlay; reduced-motion collapses sticky sections into normal flow.
+
+### Homepage cinematic hierarchy refinement (August 2026)
+
+- Rebuilt the homepage opening around a clear sequence: promise → verified product proof → challenge → Nomos layer → product workflow.
+- Replaced the previous framed hero and comparison-diagram opening with full-width photographic sections and editorial typography while preserving the Nomos cobalt, gold, and instrument-archive identity.
+- Added only truthful proof points: public catalog search, orbital/contact calculations, and source-backed plans. No customer, deployment, or commercial metrics were invented.
+- Kept primary actions on the tactile liquid-glass button system and linked the infrastructure explanation directly to the interactive network atlas.
+- Added a bespoke Nomos social-preview card and Open Graph/X metadata so shared links carry the same visual language.
+- Files: `orbital-cortex/apps/web/app/page.tsx`, `orbital-cortex/apps/web/app/HomePage.module.css`, `orbital-cortex/apps/web/app/layout.tsx`, `orbital-cortex/apps/web/public/og.png`.
+- Validation: web lint and TypeScript pass; desktop and mobile browser QA completed with no overflow, framework overlay, or failed loaded images.
 
 ## In progress
 None — mission-planner build complete.
@@ -665,3 +716,432 @@ npm run build                                     # pass
 - Opportunistic session cleanup only (no scheduled retention sweeper).
 - Confirm Fly overrides `ARTIFACT_SIGNING_SECRET` / `ANALYTICS_HASH_SALT` in production.
 - See Phase T report for production web lag + Redis readiness.
+
+---
+
+## Homepage network-visual refinement (August 2026)
+
+### Work completed
+- Replaced the two ellipse-and-gradient stack cards with one responsive comparison
+  instrument spanning the full problem section.
+- Direct integration now shows six distinct provider surfaces, interface details,
+  and independent routes across orbital, ground, and cloud infrastructure.
+- The Nomos view shows one request, an explicit intelligence layer, the same six
+  resources, a selected path, and source-backed-plan framing.
+- Reused the installed Lucide icon system and Nomos mark; no generated imagery or
+  fabricated operational/provider data was added.
+- Added restrained signal motion with a static reduced-motion state, semantic image
+  labels, mobile reflow, and overflow-safe provider cards.
+- Added a concise design-principle bridge so the diagram connects to the following
+  network section instead of reading as an isolated component.
+- Replaced the lower homepage's repeated text-card sections with a single product
+  narrative: describe a request, resolve feasible paths, and receive a source-backed
+  mission brief. The request and mission-brief specimens make the product output
+  concrete without claiming live provider execution.
+- Added one media-led resolve stage and one full-bleed closing CTA using existing
+  Nomos circuit artwork. These are intentionally image-ready surfaces that can be
+  swapped for future photography or video without changing the information order.
+- Compressed product maturity into one clear now-versus-integration comparison with
+  a shared truth-status rail. Links to examples, network, docs, and capabilities now
+  live in their relevant product context rather than a generic card grid.
+- Rebuilt the fragmented side of the comparison as a six-row contract matrix.
+  Each direct connection and provider port shares the same CSS grid row, removing
+  the earlier hand-tuned diagonal-wire alignment error at desktop and mobile widths.
+
+### Files changed
+- `orbital-cortex/apps/web/components/home/StackDiagrams.tsx`
+- `orbital-cortex/apps/web/components/home/HomeNarrative.tsx`
+- `orbital-cortex/apps/web/components/home/HomeNarrative.module.css`
+- `orbital-cortex/apps/web/app/page.tsx`
+- `orbital-cortex/apps/web/app/globals.css`
+- `SOUL.md`
+- `docs/BUILD_PROGRESS.md`
+
+### Validation
+- `npm run lint` — pass
+- `npx tsc --noEmit` — pass
+- `npm run build` — pass (19 routes)
+- Browser QA at 1440px desktop and 390px mobile — no horizontal overflow, no
+  framework error overlay, no page errors, and all homepage sections reviewed.
+- Scoped axe WCAG A/AA audit on `main` — 0 violations. The two hero text checks are
+  incomplete because their image-background contrast cannot be calculated by axe;
+  both were visually reviewed.
+- Reduced-motion browser check — all three signal animations resolve to `none`.
+
+---
+
+## Site-wide product-surface refinement (August 2026)
+
+### Work completed
+- Established a shared page architecture for product routes: decisive title and
+  task, a single evidence or record surface, and a clear next action.
+- Redesigned About as an editorial sequence, with non-card pillars and linked
+  archival destinations. Replaced its remaining flat links with liquid-glass actions.
+- Reframed Network around a three-layer atlas that explains orbital, ground, and
+  cloud roles before showing the existing registry, passes, and route model.
+- Rebuilt Missions as a private mission ledger and Control as a reference-control
+  surface. Neither presents unavailable API state as zero telemetry or an empty
+  session record.
+- Converted the Docs quickstart into a four-call request ledger, while preserving
+  the technical endpoint and code reference beneath it.
+- Applied tactile liquid-glass controls to top-level actions, the historical-demo
+  submit and audit actions, the Final Symposium close, and a visible two-row mobile
+  navigation grid.
+- Updated generic server-error wording to a useful availability state for product
+  surfaces without hiding meaningful client validation errors.
+
+### Files changed
+- `orbital-cortex/apps/web/app/about/page.tsx`
+- `orbital-cortex/apps/web/app/about/final-symposium/page.tsx`
+- `orbital-cortex/apps/web/app/dashboard/page.tsx`
+- `orbital-cortex/apps/web/app/docs/page.tsx`
+- `orbital-cortex/apps/web/app/jobs/page.tsx`
+- `orbital-cortex/apps/web/app/jobs/[id]/page.tsx`
+- `orbital-cortex/apps/web/app/missions/page.tsx`
+- `orbital-cortex/apps/web/app/network/page.tsx`
+- `orbital-cortex/apps/web/app/globals.css`
+- `orbital-cortex/apps/web/components/PageHeader.tsx`
+- `orbital-cortex/apps/web/components/about/AboutContent.tsx`
+- `orbital-cortex/apps/web/components/layout/SiteHeader.tsx`
+- `orbital-cortex/apps/web/lib/api.ts`
+- `SOUL.md`
+- `docs/BUILD_PROGRESS.md`
+
+### Validation
+- `npm run lint` — pass
+- `npx tsc --noEmit` — pass
+- `npm run build` — pass (19 routes)
+- Desktop browser review: Network, Missions, Control, Docs, and Final Symposium.
+- Mobile browser review: Network and Control, including the mobile navigation.
+- Scoped axe WCAG A/AA audit on Control — 0 violations; 1 contrast-incomplete item
+  set (image and translucent-glass backgrounds) was visually reviewed.
+
+---
+
+## Network registry map repair (August 2026)
+
+### Work completed
+- Removed the CARTO raster-tile dependency that rendered an `API KEY REQUIRED`
+  watermark on the Network page.
+- Replaced the tile embed with a bundled Natural Earth vector map, using numbered
+  markers tied directly to sourced ground-station coordinates.
+- Removed zoom controls and simulated availability percentages from the registry
+  presentation.
+- Replaced the interim unavailable panel with a full-viewport interactive atlas.
+  After product review, replaced that presentation again with a purpose-built ground
+  network workspace: a real 3D sphere with country boundaries, analytical flat-map
+  toggle, provider filters, station selection, and a synchronized truth-status
+  inspector. Removed decorative telemetry and the oversized instruction copy.
+- When the API is unavailable, the atlas uses the same six public-coordinate records
+  bundled with the API seed and labels them `PINNED SNAPSHOT`. It never presents
+  these coordinates as live access, booking, or operational availability.
+- Numbered markers, station details, the location rail, and the Ground Stations
+  inspector resolve from the same source, avoiding contradictory zero counts.
+- Split registry, satellite, contact-window, and optional job loading with
+  `Promise.allSettled`, so one unavailable endpoint no longer erases otherwise valid
+  network data.
+- Removed the unrelated Sputnik history scroll, photo carousel, simulated route
+  topology, and empty node groups from `/network`.
+- Replaced them with one business sequence explaining Objective → Geometry → Feasible
+  paths → Evidence, followed by the actual contact-window and satellite surfaces.
+- Added responsive desktop and mobile layouts without horizontal overflow.
+- Added an original low-luminance deep-space galaxy backdrop behind the 3D globe only.
+  The image is compressed to WebP, darkened for marker contrast, and omitted from the
+  analytical Map view.
+
+### Files changed
+- `orbital-cortex/apps/web/components/network/NetworkGlobeMap.tsx`
+- `orbital-cortex/apps/web/components/network/GroundNetworkGlobe.tsx`
+- `orbital-cortex/apps/web/components/platform/NetworkConsole.tsx`
+- `orbital-cortex/apps/web/lib/reference-ground-stations.ts`
+- `orbital-cortex/apps/web/app/network/page.tsx`
+- `orbital-cortex/apps/web/public/images/network/deep-space-galaxy.webp`
+- `orbital-cortex/apps/web/app/globals.css`
+- `orbital-cortex/apps/web/package.json`
+- `orbital-cortex/apps/web/package-lock.json`
+- `SOUL.md`
+- `docs/BUILD_PROGRESS.md`
+
+### Validation
+- `npm run lint` — pass
+- `npx tsc --noEmit` — pass
+- `npm run build` — pass (19 routes)
+- Browser QA at 1440px desktop and 390px mobile — no error overlay, no CARTO
+  watermark, six sourced markers, working Globe/Map and provider toggles, WebGL globe
+  rendering, synchronized station selection, and no horizontal overflow.
+
+---
+
+## Site-wide archive and materiality pass (September 2026)
+
+### Work completed
+- Introduced an archive-image primitive with clip reveal, scroll parallax,
+  pointer-responsive depth, registration marks, captioning, responsive image sizes,
+  and a deterministic reduced-motion state.
+- Added the supplied NASA / Voyager reference material to a route-owned production
+  image library under `public/images/archive/`; no fabricated customer, provider,
+  price, availability, or execution evidence was introduced.
+- Re-art-directed the homepage around physical spacecraft hardware, human wonder,
+  documentary Earth observation, and a ruled product narrative. Removed icon tiles
+  from the reasoning loop and colored feature cards from the maturity comparison.
+- Rebuilt About as an archival editorial story: a full-bleed orbital hero, a concise
+  belief sequence, Golden Record lineage, and three large photographic chapters.
+  Corrected inherited copy that could overstate the mission-planner audit surface.
+- Rebuilt Network's opening as a full-bleed orbital-trail composition and converted
+  the calculation surfaces beneath the interactive atlas from repeated glass cards
+  into one ruled evidence field. The globe/map inspector and pinned public fallback
+  remain truthful and interactive.
+- Added photographic hardware depth to the Capabilities integration horizon while
+  preserving the exact LIVE / REFERENCE / SIMULATED / PLANNED boundary.
+- Replaced the permanently expanded mobile navigation with a compact accessible
+  menu, 40px tap targets, route state, and a direct mission-plan action.
+- Added a Golden Record image fallback when WebGL context creation fails; the About
+  page no longer crashes on constrained browsers or headless rendering.
+
+### Files changed
+- `orbital-cortex/apps/web/app/page.tsx`, `orbital-cortex/apps/web/app/HomePage.module.css`
+- `orbital-cortex/apps/web/components/home/{HomeNarrative.tsx,HomeNarrative.module.css}`
+- `orbital-cortex/apps/web/app/about/{page.tsx,AboutPage.module.css}`
+- `orbital-cortex/apps/web/components/about/{AboutContent.tsx,AboutContent.module.css,AboutScrollStory.tsx}`
+- `orbital-cortex/apps/web/app/network/{page.tsx,NetworkPage.module.css}`
+- `orbital-cortex/apps/web/components/network/NetworkGlobeMap.tsx`
+- `orbital-cortex/apps/web/components/platform/NetworkConsole.tsx`
+- `orbital-cortex/apps/web/components/capabilities/{CapabilitiesExperience.tsx,CapabilitiesExperience.module.css}`
+- `orbital-cortex/apps/web/components/visual/{ArchiveImage.tsx,ArchiveImage.module.css}`
+- `orbital-cortex/apps/web/components/layout/SiteHeader.tsx`
+- `orbital-cortex/apps/web/app/globals.css`
+- `orbital-cortex/apps/web/public/images/archive/*`
+
+### Validation
+- `npm run lint` — pass
+- `npx tsc --noEmit` — pass
+- `npm run build` — pass (19 static/dynamic routes generated)
+- Desktop QA at 1440×1000 and mobile QA at 390×844 across Home, About,
+  Network, and Capabilities: no horizontal overflow or broken loaded images.
+- Reduced-motion QA: archive reveals resolve visible without animation.
+- WebGL-unavailable QA: About uses the photographic record fallback with no runtime
+  overlay. Fresh desktop smoke screenshots for About and Capabilities are clean.
+- Local route smoke: `/`, `/about`, `/network`, `/capabilities`, `/missions`,
+  `/docs`, `/dashboard`, and `/plan` all return HTTP 200.
+
+### Archive interaction QA refinement (September 2026)
+
+- Repaired the archive-image entrance so fast/programmatic scrolling can never
+  leave a photograph fully clipped. The base image now remains visible as a
+  progressive enhancement; the inset reveal, parallax, and depth response layer
+  on top and resolve deterministically for reduced-motion users.
+- Gated pointer-responsive tilt behind a fine-pointer media query so touch input
+  does not drive hover-only depth effects.
+- Added an accessible Plate 01/02 control to the About verification chapter,
+  integrating the supplied Golden Record handling photograph as a deliberate
+  alternate archive view with synchronized alt text and caption.
+
+Validation:
+- `npm run lint` — pass
+- `npx tsc --noEmit` — pass
+- `npm run build` — pass (19 static/dynamic routes generated)
+- Browser QA at 1280px desktop and 390×844 mobile across Home, About, Network,
+  and Capabilities: no horizontal overflow, broken visible images, framework
+  overlays, or console errors.
+- Interaction QA: mobile navigation opens cleanly; About Plate 01/02 swaps the
+  image, caption, accessible name, and pressed state; Network globe canvas renders.
+- Reduced-motion QA: archive image is fully visible with no entrance clip or
+  parallax inset.
+
+---
+
+## Homepage visual-system consolidation (September 2026)
+
+### Work completed
+- Audited the full homepage against its strongest first viewport, the canonical
+  product soul, and the repository's design-engineering workflow.
+- Added `DESIGN.md` as the concise implementation contract for Nomos typography,
+  color roles, spacing, imagery, shape, motion, accessibility, and product truth.
+- Kept the existing hero intact and propagated its Inter Tight display language,
+  dark orbital field, brass signal color, ruled proof surfaces, and restrained
+  interaction grammar through every later homepage section.
+- Removed the abrupt Fraunces and parchment theme switch from the product story,
+  recommendation, maturity, and footer. Fraunces remains reserved for the About,
+  manifesto, archival quotation, and rare editorial surfaces defined in `SOUL.md`.
+- Re-art-directed the recommendation section as a dark hardware-backed proof scene
+  while preserving the existing mission-plan content and truth-status vocabulary.
+- Replaced the footer's light glass card with a quieter dark technical frame so the
+  final call to action and footer read as one continuous close.
+- Tightened oversized lower-page spacing without changing routes, APIs, data,
+  authentication, infrastructure, analytics, or product behavior.
+- Installed and inspected the requested Taste, Image-to-Code, and Vercel web-design
+  skills. Used VoltAgent's DESIGN.md collection only as structural documentation
+  inspiration; no external visual language or arbitrary dependency was copied.
+
+### Files changed
+- `DESIGN.md`
+- `SOUL.md`
+- `orbital-cortex/apps/web/app/HomePage.module.css`
+- `orbital-cortex/apps/web/components/home/HomeNarrative.tsx`
+- `orbital-cortex/apps/web/components/home/HomeNarrative.module.css`
+- `orbital-cortex/apps/web/components/layout/SiteFooter.tsx`
+- `orbital-cortex/apps/web/app/globals.css`
+- `docs/BUILD_PROGRESS.md`
+
+### Validation
+- `npm run lint` — pass
+- `npx tsc --noEmit` — pass
+- `npm run build` — pass (19 static/dynamic routes generated)
+- Browser QA at 1440×900 and 390×844 — coherent section transitions,
+  intentional mobile stacking, no horizontal overflow, and no broken visible image.
+- Requested reference images were used to extract hierarchy, typography, contrast,
+  and composition principles; no screenshot was reproduced literally.
+
+---
+
+## Site-wide typography and design compliance pass (September 2026)
+
+### Work completed
+- Audited every application route and dynamic fallback against `SOUL.md`,
+  `DESIGN.md`, the supplied references, Taste, and the Vercel interface guidance.
+- Made Inter Tight the shared product display language instead of allowing the
+  global `.display` helper to inherit Fraunces. Fraunces is now an explicit
+  editorial opt-in used only by About and the Final Symposium essay.
+- Removed the remaining cream theme inversions from Capabilities and the founder
+  essay close. Capabilities now remains in one dark orbital field from its hero
+  through its final action while retaining the existing evidence, truth-state,
+  and scroll-story behavior.
+- Normalized Network, mission, share, error, and empty-state headings to the same
+  sans product hierarchy used by the homepage hero.
+- Tightened the shared surface system: reading cards now use a restrained 12px
+  radius, inset controls use 8px, and the persistent navigation keeps its
+  intentional 16px radius.
+- Removed the unused parchment-section helper so a future page cannot silently
+  reintroduce a light marketing band outside the documented design contract.
+- Added names and autocomplete metadata to mission-plan, calendar, feedback, and
+  demo controls; restored visible focus treatment; added alert/status semantics;
+  and retained touch feedback without changing form behavior.
+- Repaired undefined Framer Motion opacity start values found during browser QA.
+  The affected Capabilities transitions now begin from deterministic state.
+- Preserved all routes, API calls, session behavior, data labels, truth statuses,
+  images, and business logic. No dependency, backend, deployment, authentication,
+  analytics, or environment configuration was changed.
+
+### Design contract
+- Product routes (`/`, `/plan`, `/examples`, `/missions`, `/jobs`, `/network`,
+  `/dashboard`, `/capabilities`, `/docs`, `/calendar`, and mission/share details)
+  use Inter Tight for headings and body copy, with IBM Plex Mono for real technical
+  notation.
+- Editorial routes (`/about`, `/about/final-symposium`) may use Fraunces for
+  narrative headings and essay prose. Controls, navigation, and metadata remain
+  sans or mono.
+- Website routes stay on the dark Nomos canvas. Parchment is reserved for exports
+  and isolated reading artifacts, not scroll-driven theme inversion.
+
+### Validation
+- `npm run lint` — pass with no warnings or errors.
+- `npx tsc --noEmit` — pass.
+- `npm run build` — pass; all 19 static/dynamic routes generated.
+- `git diff --check` — pass.
+- Browser QA at 1440×900 and 390×844 across all primary routes, both editorial
+  routes, and dynamic mission/job/share fallbacks: no framework overlay, broken
+  layout, or horizontal overflow observed.
+- Local HTTP smoke for all 15 page-route variants — every route returned 200.
+- Browser diagnostics after the motion repair produced no new runtime error or
+  animation warning. API-backed pages showed their existing truthful unavailable
+  states because the local backend was intentionally not running.
+
+---
+
+## Site-wide motion cadence and Capabilities identity repair (September 2026)
+
+### Work completed
+- Added one reversible route-level scroll grammar: upcoming sections enter, the
+  current section resolves at full contrast, and completed sections recede. The
+  effect is progressive enhancement, uses opacity/transform only, and turns off
+  for reduced-motion users.
+- Kept `/capabilities` on its purpose-built pinned sequence because its scrolling
+  explains causal state changes. Product forms, records, tables, maps, and other
+  routes remain in normal document flow rather than being forced into scroll traps.
+- Added a restrained, scroll-linked orbital field behind normal routes so motion
+  connects the site without competing with content or changing application logic.
+- Repaired the Capabilities palette from unrelated charcoal/black to the canonical
+  Nomos Klein/deep-blue field, including the claim-status, provider-boundary,
+  network, and closing scenes.
+- Replaced pseudo control-room scene IDs and fabricated-looking object/node labels
+  with truthful product language and infrastructure categories.
+- Aligned remaining homepage, Network, archive-frame, browser theme, and custom
+  scroll-rail dark surfaces with the same blue-tinted Nomos canvas.
+- Documented the persistent motion contract in `DESIGN.md` and `SOUL.md`.
+
+### Files changed
+- `DESIGN.md`, `SOUL.md`, `docs/BUILD_PROGRESS.md`
+- `orbital-cortex/apps/web/app/layout.tsx`, `app/globals.css`
+- `orbital-cortex/apps/web/components/motion/SiteCadence.tsx`
+- `orbital-cortex/apps/web/components/capabilities/CapabilitiesExperience.tsx`
+- `orbital-cortex/apps/web/components/capabilities/CapabilitiesExperience.module.css`
+- `orbital-cortex/apps/web/app/HomePage.module.css`
+- `orbital-cortex/apps/web/components/home/HomeNarrative.module.css`
+- `orbital-cortex/apps/web/app/network/NetworkPage.module.css`
+- `orbital-cortex/apps/web/components/visual/ArchiveImage.module.css`
+- `orbital-cortex/apps/web/components/layout/MetalScrollRail.tsx`
+
+### Validation
+- `npm run lint` — pass with no warnings or errors.
+- `npx tsc --noEmit` — pass.
+- `npm run build` — pass; all 19 static/dynamic routes generated.
+- `git diff --check` — pass.
+- Browser QA across Home, Docs, Network, and the full Capabilities sequence: the
+  route cadence remains reversible, Capabilities retains its pinned choreography,
+  and no new runtime error or animation warning was observed.
+
+### Capabilities density refinement
+- Rebalanced the Truth Status scene so its four-state key occupies the previously
+  unused left column beside the route, rather than sitting below the composition.
+- Replaced vague ambition/demo copy with explicit language about references,
+  calculations, estimates, simulations, and provider-dependent access.
+- Rebuilt the provider-boundary comparison as compact 2×2 and 2×3 fields. This
+  removes the artificial empty half-column caused by stacking 4 rows against 6.
+- Removed red and electric-blue semantic accents from Capabilities. LIVE uses
+  cream, REFERENCE/SIMULATED use brass, and PLANNED uses subdued cream with a
+  dashed outline; the Klein field remains the page background.
+- Reduced desktop and mobile section padding while retaining clear grouping and
+  the existing scroll narrative.
+
+Validation: `npm run lint`, `npx tsc --noEmit`, `npm run build`, and
+`git diff --check` all pass. Production build generated all 19 routes.
+
+---
+
+## Vercel production release (September 21, 2026)
+
+### Work completed
+- Added a scoped root `.vercelignore` so monorepo deploys upload the production
+  web source without local Python environments, Next caches, API source, or SDK
+  source while retaining the website `/docs` route and the ground-station fixture.
+- Replaced build-time `next/font/google` downloads with the same Fraunces, Inter
+  Tight, and IBM Plex Mono Latin font assets self-hosted through `next/font/local`.
+  This makes production builds deterministic and preserves the established type
+  system without an external font fetch.
+- Built a protected production candidate on Vercel, verified all 19 generated
+  routes, smoke-tested 15 public/dynamic route variants, and confirmed the web
+  proxy reaches the live API health and readiness endpoints.
+- Promoted deployment `dpl_2fzrdRNfEzHnVFuND8b5vjF4ohLb` to production.
+  `https://nomosorbital.com` serves the new Capabilities/Network/design-system
+  changes through Cloudflare and Vercel.
+
+### Validation
+- `npm run lint` — pass, no warnings or errors.
+- `npx tsc --noEmit` — pass.
+- `npm run build` — pass locally; 19 routes generated.
+- Vercel production build — READY; 19 routes generated.
+- Candidate route smoke — 15/15 returned HTTP 200 through deployment protection.
+- Production route smoke — Home, Capabilities, Network, Docs, Plan, Missions, and
+  Examples returned HTTP 200.
+- Production API proxy — `/api/oc/healthz` reports OK; `/api/oc/readyz` reports
+  database and Redis ready.
+- Production browser QA — Network hero and interactive ground atlas render with
+  API-connected station data and no browser console warnings or errors.
+- Post-deploy Vercel scan — no error logs and no HTTP 500 logs for the deployment.
+
+### Residual dependency risk
+- `npm audit --omit=dev` reports 5 production dependency advisories (3 high,
+  2 critical) in the existing Next.js 14, MapLibre, d3-color, nanoid, and PostCSS
+  dependency graph. The automated fixes require breaking Next.js/MapLibre upgrades,
+  so they were not folded into this visual release. Track as a separate tested
+  dependency-upgrade task rather than applying `npm audit fix --force` in production.

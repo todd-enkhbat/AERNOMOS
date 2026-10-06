@@ -1,115 +1,98 @@
-import Image from "next/image";
-import Link from "next/link";
-
 import { NomosMark } from "@/components/brand/NomosMark";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { FadeIn } from "@/components/motion/primitives";
+import { ArchiveImage } from "@/components/visual/ArchiveImage";
 
-const pillars = [
+import styles from "./AboutContent.module.css";
+
+const chapters = [
   {
-    label: "Nomos",
-    title: "Order among the stars",
-    body: [
-      "Nomos (νόμος) is Greek for law, custom, and the ordering principle behind how things are arranged. In orbital infrastructure, the hard problem is not raw compute. It is scheduling under constraints: contact windows, downlink budgets, model compatibility, and auditability.",
-      "Nomos Orbital is the control plane that imposes that order. One request enters the network. Every candidate node is scored. The winning route is deterministic, hashed, and replayable."
-    ]
+    label: "01 / NOMOS",
+    title: "Order among independent systems.",
+    image: "/images/archive/voyager-record-team.jpg",
+    alt: "Three members of the Voyager record team holding the record components",
+    caption: "VOYAGER RECORD TEAM / 1977",
+    body:
+      "Nomos (νόμος) is the ordering principle behind how things are arranged. Space infrastructure has no single operator: public catalogs, orbital geometry, ground access, compute environments, and mission constraints all live in different systems. Nomos makes them reason together without pretending they are one provider."
   },
   {
-    label: "Golden Record",
-    title: "Distilled signal across distance",
-    body: [
-      "In 1977, NASA bolted a gold-plated copper phonograph to Voyager. The Golden Record carried the Sounds of Earth: music, greetings, and instructions for playback, encoded so a distant civilization could reconstruct meaning from a single artifact.",
-      "Our mark is that disc. Orbital AI faces the same constraint: bandwidth is scarce, passes are brief, and only the answer should cross the link. Nomos routes inference where it belongs and downlinks results, not raw noise."
-    ]
+    label: "02 / SIGNAL",
+    title: "Distill the answer before it crosses the link.",
+    image: "/images/archive/golden-record-display.jpg",
+    alt: "The Sounds of Earth golden phonograph record",
+    caption: "THE SOUNDS OF EARTH / NASA ARCHIVE",
+    body:
+      "Voyager’s Golden Record carried a legible artifact across enormous distance. That discipline matters in orbit, where bandwidth is scarce and contact windows are brief. Nomos determines what matters, where processing belongs, and what evidence must travel with the result."
   },
   {
-    label: "Verification",
-    title: "A control surface with memory",
-    body: [
-      "Orbital infrastructure demands precise coordination under noisy constraints: contact windows, downlink budgets, model compatibility, and audit requirements. The hard part is making every decision legible after the fact.",
-      "That discipline shapes the product. Every job emits an append-only event trail and a hashed routing decision. The console is a working control surface, not a marketing shell."
-    ]
+    label: "03 / VERIFICATION",
+    title: "A decision you can inspect.",
+    image: "/images/archive/golden-record-lab.jpg",
+    alternateImage: "/images/archive/golden-record-handling.jpg",
+    alt: "A technician inspecting a reflective Voyager Golden Record in a laboratory",
+    alternateAlt: "A technician handling a gold phonograph record with white gloves",
+    caption: "GOLDEN RECORD LAB / JULY 1977",
+    alternateCaption: "GOLDEN RECORD HANDLING / NASA ARCHIVE",
+    body:
+      "A credible plan states the public facts it used, the geometry it calculated, the assumptions it made, and the integrations it does not have. Nomos makes that evidence part of the mission brief, so a human can challenge the route before anyone acts on it."
   }
 ];
 
-export function AboutContent({ compact = false }: { compact?: boolean }) {
+export function AboutContent() {
   return (
-    <>
-      <div className={`grid gap-4 ${compact ? "lg:grid-cols-3" : "gap-5"}`}>
-        {pillars.map((pillar, index) => (
-          <FadeIn delay={index * 0.06} key={pillar.label}>
-            <article className="glass glass-hover h-full p-5 sm:p-6">
-              <p className="chart-label text-gold">{pillar.label}</p>
-              <h3
-                className={`display mt-2 leading-tight text-cream ${
-                  compact ? "text-lg" : "text-xl sm:text-2xl"
-                }`}
-              >
-                {pillar.title}
-              </h3>
-              <div className="prose-compact mt-3 text-muted">
-                {pillar.body.map((paragraph) => (
-                  <p key={paragraph.slice(0, 32)}>{paragraph}</p>
-                ))}
-              </div>
-            </article>
-          </FadeIn>
+    <section className={styles.story} aria-labelledby="about-system-title">
+      <FadeIn className={styles.intro} viewportMargin="0px" y={6}>
+        <p className="chart-label text-gold">The operating idea</p>
+        <h2 id="about-system-title">A control layer with memory.</h2>
+        <p>
+          Nomos is not another satellite company. It is the reasoning surface above
+          the orbital, ground, and compute systems that already exist.
+        </p>
+      </FadeIn>
+
+      <div className={styles.chapters}>
+        {chapters.map((chapter, index) => (
+          <article className={styles.chapter} key={chapter.label}>
+            <ArchiveImage
+              alt={chapter.alt}
+              alternateAlt={chapter.alternateAlt}
+              alternateCaption={chapter.alternateCaption}
+              alternateSrc={chapter.alternateImage}
+              caption={chapter.caption}
+              className={styles.chapterImage}
+              objectPosition={index === 0 ? "center 34%" : "center"}
+              sizes="(max-width: 900px) 100vw, 58vw"
+              src={chapter.image}
+              tone={index === 1 ? "gold" : "neutral"}
+            />
+            <FadeIn className={styles.chapterCopy} viewportMargin="0px" y={6}>
+              <p className={styles.index}>{chapter.label}</p>
+              <h3>{chapter.title}</h3>
+              <p className={styles.body}>{chapter.body}</p>
+            </FadeIn>
+          </article>
         ))}
       </div>
 
-      {!compact ? (
-        <FadeIn className="mt-5">
-          <div className="glass overflow-hidden">
-            <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="relative min-h-[240px] lg:min-h-[320px]">
-                <Image
-                  alt="NASA tape reels beside the Voyager Golden Record and spacecraft"
-                  className="object-cover object-center"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  src="/images/voyager-heritage.png"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-void/60 lg:bg-gradient-to-l lg:from-void/40 lg:to-transparent" />
-              </div>
-              <div className="flex flex-col justify-center p-5 sm:p-7">
-                <div className="flex items-center gap-3">
-                  <NomosMark size={36} />
-                  <div>
-                    <p className="text-sm font-semibold text-cream">Nomos Orbital</p>
-                    <p className="chart-label text-muted-dark">est. among the stars</p>
-                  </div>
-                </div>
-                <p className="prose-compact mt-4 text-muted">
-                  We are building the intelligence layer for space
-                  infrastructure: express an objective once, let Nomos reason
-                  across orbital, ground, and cloud resources, inspect every
-                  score, and retrieve results with their provenance attached.
-                  The demo runs against production infrastructure at
-                  api.nomosorbital.com, with simulated compute execution and
-                  offline reference results.
-                </p>
-                <p className="prose-compact mt-3 text-muted">
-                  Nomos is not a satellite operator or ground-station provider. It is
-                  the intelligence and orchestration layer above them.
-                </p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Link
-                    className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void 	ransition-colors hover:bg-gold-bright"
-                    href="/plan"
-                  >
-                    Run a request
-                  </Link>
-                  <Link
-                    className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-cream 	ransition-colors hover:border-white/25"
-                    href="/docs"
-                  >
-                    API reference
-                  </Link>
-                </div>
-              </div>
-            </div>
+      <FadeIn className={styles.closing} viewportMargin="0px" y={6}>
+        <div className={styles.brandLine}>
+          <NomosMark size={40} />
+          <div>
+            <strong>Nomos Orbital</strong>
+            <span>EST. AMONG THE STARS</span>
           </div>
-        </FadeIn>
-      ) : null}
-    </>
+        </div>
+        <p>
+          Today the product searches public catalogs, calculates orbital and contact
+          geometry, compares feasible infrastructure patterns, and returns a
+          source-backed technical brief. Live provider execution arrives through
+          integrations and is never claimed early.
+        </p>
+        <div className={styles.actions}>
+          <LiquidButton href="/plan" variant="primary">Build a mission plan</LiquidButton>
+          <LiquidButton href="/docs" variant="outline">Read the API reference</LiquidButton>
+        </div>
+      </FadeIn>
+    </section>
   );
 }

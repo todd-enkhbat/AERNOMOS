@@ -93,18 +93,32 @@ export default function DocsPage() {
         </div>
       </section>
 
-      <section className="mb-6 grid gap-3 md:grid-cols-4">
-        {[
-          ["01 Request", "POST a job with an area, sensor, priority, and budget."],
-          ["02 Poll", "Read the persisted lifecycle until complete or failed."],
-          ["03 Explain", "Inspect candidates, hard constraints, scores, and replay hash."],
-          ["04 Return", "Fetch GeoJSON plus the signed artifact manifest."]
-        ].map(([title, detail]) => (
-          <div className="glass p-4" key={title}>
-            <p className="chart-label text-gold">{title}</p>
-            <p className="mt-2 text-sm leading-6 text-muted">{detail}</p>
+      <section className="nomos-ledger mb-6" aria-labelledby="docs-workflow-title">
+        <div className="nomos-ledger__header">
+          <div>
+            <p className="chart-label text-gold">REQUEST LIFECYCLE</p>
+            <h2 className="mt-1 text-base font-medium text-cream" id="docs-workflow-title">
+              Four calls. One inspectable record.
+            </h2>
           </div>
-        ))}
+          <span className="nomos-ledger__meta">historical simulation API</span>
+        </div>
+        <div className="nomos-ledger__body">
+          {[
+            ["01", "Request", "POST a job with an area, sensor, priority, and budget."],
+            ["02", "Poll", "Read the persisted lifecycle until the demo job completes or fails."],
+            ["03", "Explain", "Inspect candidates, hard constraints, scores, and replay hash."],
+            ["04", "Return", "Fetch simulated GeoJSON and the signed artifact manifest."]
+          ].map(([index, title, detail]) => (
+            <div className="nomos-ledger__row" key={index}>
+              <span className="nomos-ledger__index">{index}</span>
+              <span>
+                <span className="nomos-ledger__row-title">{title}</span>
+                <span className="nomos-ledger__row-detail">{detail}</span>
+              </span>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

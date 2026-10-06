@@ -1,25 +1,16 @@
 "use client";
 
-import {
-  Activity,
-  Clock3,
-  DollarSign,
-  RadioTower,
-  Satellite,
-  Server,
-  ShieldCheck
-} from "lucide-react";
+import { Activity } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { InlineNotice } from "@/components/InlineNotice";
-import { MetricCard } from "@/components/MetricCard";
 import { PageHeader } from "@/components/PageHeader";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { apiErrorMessage, getNodes, getRouting, listJobs } from "@/lib/api";
 import { EMPTY_NODES } from "@/lib/constants";
+import { formatDateTime, formatMinutes, labelize } from "@/lib/format";
 import type { Job, NodesResponse, RoutingDecision } from "@/lib/types";
-import { formatCurrency, formatDateTime, formatMinutes, labelize } from "@/lib/format";
 
 export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -33,9 +24,8 @@ export default function DashboardPage() {
     async function load() {
       try {
         const [jobsResponse, nodesResponse] = await Promise.all([listJobs(), getNodes()]);
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
+
         setJobs(jobsResponse.jobs);
         setNodes(nodesResponse);
 
@@ -49,15 +39,15 @@ export default function DashboardPage() {
             }
           })
         );
+
         if (mounted) {
           setRoutes(
             Object.fromEntries(routePairs.filter(Boolean) as Array<[string, RoutingDecision]>)
           );
+          setNotice(null);
         }
       } catch (error) {
-        if (mounted) {
-          setNotice(apiErrorMessage(error));
-        }
+        if (mounted) setNotice(apiErrorMessage(error));
       }
     }
 
@@ -71,225 +61,177 @@ export default function DashboardPage() {
     const activeJobs = jobs.filter(
       (job) => job.status !== "complete" && job.status !== "failed"
     ).length;
-    const completedToday = jobs.filter((job) => {
-      const updated = new Date(job.updated_at);
-      const now = new Date();
-      return (
-        job.status === "complete" &&
-        updated.getFullYear() === now.getFullYear() &&
-        updated.getMonth() === now.getMonth() &&
-        updated.getDate() === now.getDate()
-      );
-    }).length;
     const routeValues = Object.values(routes);
     const averageLatency =
       routeValues.length > 0
         ? routeValues.reduce((sum, route) => sum + route.estimated_latency_minutes, 0) /
           routeValues.length
         : 0;
-    const budgetHeadroom = jobs.reduce((sum, job) => {
-      const route = routes[job.id];
-      if (!route) {
-        return sum;
-      }
-      return sum + Math.max(0, job.max_cost_usd - route.estimated_cost_usd);
-    }, 0);
+    const representedInfrastructure =
+      nodes.compute_nodes.length + nodes.ground_stations.length;
 
-    return {
-      activeJobs,
-      completedToday,
-      averageLatency,
-      orbitalNodesOnline: nodes.compute_nodes.filter(
-        (node) => node.type === "orbital" && node.power_state === "nominal"
-      ).length,
-      groundStationsAvailable: nodes.ground_stations.length,
-      budgetHeadroom
-    };
+    return { activeJobs, averageLatency, representedInfrastructure };
   }, [jobs, nodes, routes]);
 
   return (
     <div className="page-shell pb-16">
       <PageHeader
-        eyebrow="Nomos control plane"
-        title="Network control"
-        description="A view of requests, infrastructure candidates, and routing decisions represented in Nomos. Metrics cover curated demo examples only; private missions live under Missions and are never listed publicly."
         action={
-          <Link
-            className="inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-void transition-colors hover:bg-gold-bright"
-            href="/missions"
-          >
-            <Activity size={17} strokeWidth={2} />
+          <LiquidButton href="/missions" variant="primary">
             Open missions
-          </Link>
+          </LiquidButton>
         }
+        description="A reference view of the historical routing demo and the public infrastructure records it evaluates. Private customer missions remain in your mission workspace."
+        eyebrow="Nomos reference control"
+        title="The system, without invented telemetry."
       />
 
-      {notice ? <InlineNotice message={notice} /> : null}
+      {notice ? (
+        <>
+          <section className="nomos-ledger mt-6" aria-labelledby="control-unavailable-title">
+            <div className="nomos-empty-state">
+              <span className="nomos-empty-state__mark">
+                <Activity aria-hidden size={18} />
+              </span>
+              <div>
+                <p className="chart-label text-gold">REFERENCE STATUS</p>
+                <h2 id="control-unavailable-title">Live reference data is unavailable.</h2>
+                <p>
+                  Nomos does not render unavailable infrastructure as healthy zeroes.
+                  Your private mission workspace and the technical documentation remain
+                  available while this reference view reconnects.
+                </p>
+                <div className="nomos-empty-state__actions">
+                  <LiquidButton href="/missions" variant="primary">
+                    Open missions
+                  </LiquidButton>
+                  <LiquidButton href="/docs" variant="outline">
+                    Read the API reference
+                  </LiquidButton>
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      ) : (
+        <>
+          <section className="control-figures" aria-label="Reference control summary">
+            <div className="control-figure">
+              <span>active reference jobs</span>
+              <strong>{metrics.activeJobs}</strong>
+              <p>Queued, routing, executing, or downlinking in the historical demo.</p>
+            </div>
+            <div className="control-figure">
+              <span>represented infrastructure</span>
+              <strong>{metrics.representedInfrastructure}</strong>
+              <p>Public reference stations and clearly labeled compute candidates.</p>
+            </div>
+            <div className="control-figure">
+              <span>mean route estimate</span>
+              <strong>{formatMinutes(metrics.averageLatency)}</strong>
+              <p>Modeled timing for selected historical-demo routes, not provider telemetry.</p>
+            </div>
+          </section>
 
-      <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <MetricCard
-          icon={Activity}
-          label="Active Jobs"
-          value={String(metrics.activeJobs)}
-          detail="Queued, scheduled, or running"
-          tone="dark"
-        />
-        <MetricCard
-          icon={ShieldCheck}
-          label="Completed Today"
-          value={String(metrics.completedToday)}
-          detail="Jobs with generated result manifests"
-        />
-        <MetricCard
-          icon={Clock3}
-          label="Average Latency"
-          value={formatMinutes(metrics.averageLatency)}
-          detail="Mean selected-route estimate"
-        />
-        <MetricCard
-          icon={Satellite}
-          label="Simulated Orbital Nodes"
-          value={String(metrics.orbitalNodesOnline)}
-          detail="Reference compute candidates marked nominal"
-        />
-        <MetricCard
-          icon={RadioTower}
-          label="Ground Stations"
-          value={String(metrics.groundStationsAvailable)}
-          detail="Public reference sites in the registry"
-        />
-        <MetricCard
-          icon={DollarSign}
-          label="Budget Headroom"
-          value={formatCurrency(metrics.budgetHeadroom)}
-          detail="Requested budget minus modeled route cost"
-        />
-      </section>
-
-      <section className="mt-10">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-cream">Curated demo examples</h2>
-          <Link
-            className="text-sm text-muted underline decoration-line underline-offset-4 	ransition-colors hover:text-cream"
-            href="/missions"
-          >
-            Private missions
-          </Link>
-        </div>
-
-        <div className="table-shell">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Job</th>
-                <th>Status</th>
-                <th>Route</th>
-                <th>Latency</th>
-                <th>Cost</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {jobs.length === 0 ? (
-                <tr>
-                  <td className="text-muted" colSpan={6}>
-                    No demo requests represented right now. Open a curated{" "}
-                    <Link className="text-gold hover:underline" href="/examples">
-                      example request
-                    </Link>{" "}
-                    to see routing decisions, or submit one through the{" "}
-                    <Link className="text-gold hover:underline" href="/jobs">
-                      historical simulation demo
-                    </Link>
-                    .
-                  </td>
-                </tr>
-              ) : (
-                jobs.slice(0, 8).map((job) => {
-                  const route = routes[job.id];
-                  return (
-                    <tr key={job.id}>
-                      <td>
-                        <Link
-                          className="font-medium text-cream 	ransition-colors hover:text-gold-bright"
-                          href={`/jobs/${job.id}`}
-                        >
-                          {labelize(job.job_type)}
-                        </Link>
-                        <p className="metric-value mt-1 text-xs text-muted-dark">
-                          {job.id}
-                        </p>
-                      </td>
-                      <td>
-                        <StatusBadge status={job.status} />
-                      </td>
-                      <td className="metric-value text-sm text-silver">
-                        {route?.selected_node_id ?? "pending"}
-                      </td>
-                      <td className="metric-value text-sm text-cream/85">
-                        {route ? formatMinutes(route.estimated_latency_minutes) : "0m"}
-                      </td>
-                      <td className="metric-value text-sm text-cream/85">
-                        {route ? formatCurrency(route.estimated_cost_usd) : "$0"}
-                      </td>
-                      <td className="text-sm text-muted">
-                        {formatDateTime(job.updated_at)}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mt-10 grid gap-4 lg:grid-cols-3">
-        <div className="glass p-6 lg:col-span-2">
-          <div className="flex items-center gap-3">
-            <Server className="text-gold" size={18} strokeWidth={1.8} />
-            <h2 className="text-lg font-semibold text-cream">How to read this view</h2>
-          </div>
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {[
-              ["Requests", "Persisted job records from the shared public demo queue."],
-              ["Routes", "Deterministic scores over simulated compute candidates."],
-              ["Estimates", "Modeled latency and cost, not provider telemetry."]
-            ].map(([item, detail]) => (
-              <div
-                className="rounded-xl border border-line bg-void/40 p-4"
-                key={item}
-              >
-                <p className="chart-label text-muted-dark">{item}</p>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  {detail}
+          <section className="mt-10" aria-labelledby="reference-queue-title">
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-gold/15 pb-4">
+              <div>
+                <p className="chart-label text-gold">HISTORICAL DEMO</p>
+                <h2 className="display mt-1 text-2xl text-cream" id="reference-queue-title">
+                  Reference queue
+                </h2>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
+                  This is a transparent reference system for routing scores and
+                  lifecycle events. It is not a live provider operations console.
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="glass p-6">
-          <h2 className="text-lg font-semibold text-cream">Network mix</h2>
-          <div className="mt-5 space-y-3">
-            <p className="flex justify-between border-b border-line pb-2.5 text-sm">
-              <span className="text-muted">Orbital</span>
-              <span className="metric-value text-cream/90">
-                {nodes.compute_nodes.filter((node) => node.type === "orbital").length}
-              </span>
-            </p>
-            <p className="flex justify-between border-b border-line pb-2.5 text-sm">
-              <span className="text-muted">Cloud</span>
-              <span className="metric-value text-cream/90">
-                {nodes.compute_nodes.filter((node) => node.type === "ground_cloud").length}
-              </span>
-            </p>
-            <p className="flex justify-between text-sm">
-              <span className="text-muted">Ground stations</span>
-              <span className="metric-value text-cream/90">{nodes.ground_stations.length}</span>
-            </p>
-          </div>
-        </div>
-      </section>
+              <LiquidButton href="/jobs" variant="outline">
+                Open historical demo
+              </LiquidButton>
+            </div>
+
+            <div className="table-shell mt-5">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Job</th>
+                    <th>Status</th>
+                    <th>Selected route</th>
+                    <th>Estimated latency</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobs.length === 0 ? (
+                    <tr>
+                      <td className="text-muted" colSpan={5}>
+                        No reference jobs are represented right now. Use a curated
+                        <Link className="text-gold hover:underline" href="/examples">
+                          {" "}example mission
+                        </Link>
+                        {" "}to inspect a source-backed plan instead.
+                      </td>
+                    </tr>
+                  ) : (
+                    jobs.slice(0, 8).map((job) => {
+                      const route = routes[job.id];
+                      return (
+                        <tr key={job.id}>
+                          <td>
+                            <Link
+                              className="font-medium text-cream transition-colors hover:text-gold-bright"
+                              href={"/jobs/" + job.id}
+                            >
+                              {labelize(job.job_type)}
+                            </Link>
+                            <p className="metric-value mt-1 text-xs text-muted-dark">
+                              {job.id}
+                            </p>
+                          </td>
+                          <td><StatusBadge status={job.status} /></td>
+                          <td className="metric-value text-sm text-silver">
+                            {route?.selected_node_id ?? "pending"}
+                          </td>
+                          <td className="metric-value text-sm text-cream/85">
+                            {route ? formatMinutes(route.estimated_latency_minutes) : "pending"}
+                          </td>
+                          <td className="text-sm text-muted">{formatDateTime(job.updated_at)}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className="nomos-ledger mt-10" aria-labelledby="control-scope-title">
+            <div className="nomos-ledger__header">
+              <div>
+                <p className="chart-label text-gold">READING THE VIEW</p>
+                <h2 className="mt-1 text-base font-medium text-cream" id="control-scope-title">
+                  What this reference surface means
+                </h2>
+              </div>
+            </div>
+            <div className="nomos-ledger__body">
+              {[
+                ["01", "Data scope", "Curated public demo records only. Private missions are not listed here."],
+                ["02", "Route values", "Latency and route scores are modeled estimates for the historical simulation path."],
+                ["03", "Provider boundary", "Public orbital math and references are real. Live tasking, booking, telemetry, and pricing are not connected."]
+              ].map(([index, title, detail]) => (
+                <div className="nomos-ledger__row" key={index}>
+                  <span className="nomos-ledger__index">{index}</span>
+                  <span>
+                    <span className="nomos-ledger__row-title">{title}</span>
+                    <span className="nomos-ledger__row-detail">{detail}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

@@ -84,6 +84,7 @@ export function CalendarInterestForm() {
 
         {done ? (
           <motion.div
+            aria-live="polite"
             animate={reduced ? undefined : { opacity: 1, y: 0, scale: 1 }}
             className="flex min-h-[18rem] flex-col justify-center rounded-full border border-gold/25 px-8 py-10 text-center"
             initial={reduced ? undefined : { opacity: 0, y: 8, scale: 0.97 }}
@@ -92,6 +93,7 @@ export function CalendarInterestForm() {
                 "radial-gradient(circle at 40% 30%, rgba(201,162,39,0.12), rgba(0,16,69,0.85) 70%)"
             }}
             transition={{ duration: 0.18, ease: EASE_OUT }}
+            role="status"
           >
             <p className="chart-label text-gold">Received</p>
             <p className="display mt-3 text-2xl text-cream">Interest registered.</p>
@@ -107,26 +109,34 @@ export function CalendarInterestForm() {
         ) : (
           <form className="space-y-3" onSubmit={onSubmit}>
             <Field
+              autoComplete="name"
               label="Name"
+              name="name"
               onChange={(value) => onChange("name", value)}
               required
               value={form.name}
             />
             <Field
+              autoComplete="email"
               label="Work email"
+              name="email"
               onChange={(value) => onChange("email", value)}
               required
               type="email"
               value={form.email}
             />
             <Field
+              autoComplete="organization"
               label="Organization"
+              name="organization"
               onChange={(value) => onChange("organization", value)}
               required
               value={form.organization}
             />
             <Field
+              autoComplete="organization-title"
               label="Role"
+              name="role"
               onChange={(value) => onChange("role", value)}
               placeholder="Founder, BD, missions, operations…"
               value={form.role}
@@ -134,7 +144,9 @@ export function CalendarInterestForm() {
             <label className="block">
               <span className="chart-label text-cream/50">Event of interest</span>
               <select
-                className="mt-1.5 w-full rounded-xl border border-gold/15 bg-void/50 px-3 py-2.5 text-sm text-cream outline-none ring-gold/35 focus:ring-1"
+                autoComplete="off"
+                className="mt-1.5 w-full rounded-xl border border-gold/15 bg-void/50 px-3 py-2.5 text-sm text-cream ring-gold/35 focus-visible:ring-1"
+                name="event_interest"
                 onChange={(e) => onChange("eventInterest", e.target.value)}
                 value={form.eventInterest}
               >
@@ -149,13 +161,15 @@ export function CalendarInterestForm() {
             <label className="block">
               <span className="chart-label text-cream/50">Message</span>
               <textarea
-                className="mt-1.5 min-h-[96px] w-full rounded-xl border border-gold/15 bg-void/50 px-3 py-2.5 text-sm text-cream outline-none ring-gold/35 placeholder:text-muted focus:ring-1"
+                autoComplete="off"
+                className="mt-1.5 min-h-[96px] w-full rounded-xl border border-gold/15 bg-void/50 px-3 py-2.5 text-sm text-cream ring-gold/35 placeholder:text-muted focus-visible:ring-1"
+                name="message"
                 onChange={(e) => onChange("message", e.target.value)}
                 placeholder="Meeting ask, partnership note, or operational context…"
                 value={form.message}
               />
             </label>
-            {error ? <p className="text-xs text-vermilion">{error}</p> : null}
+            {error ? <p className="text-xs text-vermilion" role="alert">{error}</p> : null}
             <div className="pt-1">
               <LiquidButton disabled={pending} type="submit" variant="primary">
                 {pending ? "Sending…" : "Register interest"}
@@ -174,7 +188,9 @@ function Field({
   onChange,
   required,
   type = "text",
-  placeholder
+  placeholder,
+  name,
+  autoComplete
 }: {
   label: string;
   value: string;
@@ -182,15 +198,20 @@ function Field({
   required?: boolean;
   type?: string;
   placeholder?: string;
+  name: string;
+  autoComplete: string;
 }) {
   return (
     <label className="block">
       <span className="chart-label text-cream/50">{label}</span>
       <input
-        className="mt-1.5 w-full rounded-xl border border-gold/15 bg-void/50 px-3 py-2.5 text-sm text-cream outline-none ring-gold/35 placeholder:text-muted focus:ring-1"
+        autoComplete={autoComplete}
+        className="mt-1.5 w-full rounded-xl border border-gold/15 bg-void/50 px-3 py-2.5 text-sm text-cream ring-gold/35 placeholder:text-muted focus-visible:ring-1"
+        name={name}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
+        spellCheck={type === "email" ? false : undefined}
         type={type}
         value={value}
       />

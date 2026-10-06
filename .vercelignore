@@ -1,0 +1,12 @@
+/.git
+/.vercel
+/.cursor
+/.venv
+**/.venv
+**/.next
+**/node_modules
+**/__pycache__
+/docs
+/src
+orbital-cortex/apps/api
+orbital-cortex/sdk

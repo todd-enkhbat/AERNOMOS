@@ -140,7 +140,7 @@ function FeaturedSpecimen({
             <p className="chart-label text-muted-dark">Est. duration</p>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-sm text-cream">
-                {durationMinutes != null ? formatMinutes(durationMinutes) : "—"}
+                {durationMinutes != null ? formatMinutes(durationMinutes) : "Unavailable"}
               </span>
               <TruthBadge compact status={durationStatus} />
             </div>
@@ -196,7 +196,7 @@ function FeaturedSpecimen({
         </div>
         <p className="mt-4 text-xs leading-5 text-muted">
           Mission owners can run the real CPU demo (fixture crop + thumbnail with
-          OBSERVED metrics) from the mission brief timeline — not live catalog download.
+          OBSERVED metrics) from the mission brief timeline, not a live catalog download.
         </p>
       </LiquidCard>
     </FadeIn>
@@ -255,7 +255,7 @@ export function ExamplesLibrary() {
       <PageHeader
         eyebrow="Examples"
         title="See the network's real output"
-        description="Curated public requests routed through the same intelligence layer customers use. Every step carries a truth label — real, calculated, estimated, simulated, or unavailable — so nothing masquerades as live execution."
+        description="Curated public requests routed through the same intelligence layer customers use. Every step carries a truth label: real, calculated, estimated, simulated, or unavailable. Nothing masquerades as live execution."
         action={
           <LiquidButton href="/plan" variant="primary">
             Run a request

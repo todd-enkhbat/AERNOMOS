@@ -44,6 +44,12 @@ export function apiErrorMessage(
   if (!(error instanceof Error) || error.message === "Failed to fetch") {
     return fallback;
   }
+  if (
+    error instanceof ApiError &&
+    (error.status >= 500 || error.code === "request_failed")
+  ) {
+    return fallback;
+  }
   return error.message;
 }
 

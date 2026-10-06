@@ -138,10 +138,10 @@ function statusTruth(status: string | null | undefined): string {
 function availabilityForStep(step: MissionPlanStep): string {
   const integration = integrationStatusFromStep(step.source_metadata);
   if (integration === "simulated") {
-    return "Simulated registry entry — not live provider access";
+    return "Simulated registry entry, not live provider access";
   }
   if (integration === "public_data_only" || integration === "sandbox_requested") {
-    return "Public provider facts only — live access not verified";
+    return "Public provider facts only. Live access is not verified";
   }
   if (integration === "sandbox_connected" || integration === "partner_connected") {
     return "Connected provider integration";
@@ -218,7 +218,7 @@ function Section({
     <section aria-labelledby={`mission-section-${index}`} className="border-t border-white/10 pt-8">
       <div className="mb-5 flex items-baseline gap-3">
         <span className="font-mono text-xs text-vermilion">{index}</span>
-        <h2 className="font-serif text-2xl tracking-[-0.02em] text-cream" id={`mission-section-${index}`}>
+        <h2 className="font-sans text-2xl font-medium tracking-[-0.035em] text-cream" id={`mission-section-${index}`}>
           {title}
         </h2>
       </div>
@@ -271,7 +271,7 @@ function FeasibilitySummary({ plans }: { plans: MissionPlan[] }) {
               }}
             />
           </div>
-          <p className="mt-4 font-serif text-4xl text-cream">{bucket.value}</p>
+          <p className="mt-4 font-sans text-4xl font-medium tracking-[-0.045em] text-cream">{bucket.value}</p>
           <p className="mt-2 text-xs leading-5 text-muted">{bucket.detail}</p>
         </article>
       ))}
@@ -655,7 +655,7 @@ export function MissionBrief({
       <section aria-labelledby="mission-section-01" className="relative overflow-hidden rounded-2xl border border-gold/30 bg-[radial-gradient(circle_at_80%_0%,rgba(201,162,39,0.16),transparent_45%),rgba(10,10,11,0.88)] p-6 shadow-lift sm:p-9">
         <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-gold to-transparent" />
         <p className="chart-label text-gold">01 · Executive recommendation</p>
-        <h2 className="mt-5 max-w-4xl font-serif text-4xl leading-[1.04] tracking-[-0.035em] text-cream sm:text-6xl" id="mission-section-01">
+        <h2 className="mt-5 max-w-4xl font-sans text-4xl font-medium leading-[1.04] tracking-[-0.05em] text-cream sm:text-6xl" id="mission-section-01">
           {recommended
             ? `Recommended plan: ${primary.summary.toLowerCase()}`
             : "No executable recommendation"}
@@ -829,7 +829,9 @@ export function MissionBrief({
                   <label className="block text-xs text-muted">
                     Link expiry
                     <select
+                      autoComplete="off"
                       className="mt-1 w-full rounded-lg border border-white/15 bg-void px-3 py-2 text-sm text-cream"
+                      name="share_expiry_days"
                       onChange={(event) => onShareExpiresDaysChange(Number(event.target.value))}
                       value={shareExpiresDays ?? 7}
                     >
@@ -931,7 +933,7 @@ export function MissionBrief({
               <p>
                 This mission plan uses real public orbital and catalog data where
                 available. The optional CPU demo runs crop + thumbnail on a fixture
-                GeoTIFF with measured OBSERVED durations — not your STAC scene and not
+                GeoTIFF with measured OBSERVED durations, not your STAC scene and not
                 GPU inference. Satellite tasking, provider reservation, onboard
                 execution, and commercial guarantees are not performed unless
                 explicitly marked as connected.

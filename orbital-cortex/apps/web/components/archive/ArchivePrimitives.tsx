@@ -6,6 +6,7 @@ type ArchiveHeaderProps = {
   title: string;
   description?: string;
   action?: ReactNode;
+  editorial?: boolean;
 };
 
 export function ArchiveHeader({
@@ -13,7 +14,8 @@ export function ArchiveHeader({
   eyebrow,
   title,
   description,
-  action
+  action,
+  editorial = false
 }: ArchiveHeaderProps) {
   return (
     <header className="archive-header">
@@ -24,7 +26,9 @@ export function ArchiveHeader({
       <div className="archive-header__body">
         <div>
           <p className="chart-label text-gold">{eyebrow}</p>
-          <h2 className="display mt-2 max-w-3xl text-2xl leading-tight text-cream sm:text-3xl">
+          <h2
+            className={`${editorial ? "display-editorial" : "display"} mt-2 max-w-3xl text-2xl leading-tight text-cream sm:text-3xl`}
+          >
             {title}
           </h2>
           {description ? (

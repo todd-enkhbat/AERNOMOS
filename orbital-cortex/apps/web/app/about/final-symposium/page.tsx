@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 
 import {
   ArchiveHeader,
   CelestialDivider,
   ProvenancePlate
 } from "@/components/archive/ArchivePrimitives";
+import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { LiquidCard } from "@/components/liquid/LiquidCard";
 
 export const metadata: Metadata = {
@@ -53,7 +53,7 @@ export default function FinalSymposiumPage() {
         <div className="page-shell relative flex min-h-[72dvh] items-end pb-12 pt-28">
           <div className="max-w-3xl">
             <p className="chart-label text-gold">Founder essay · Philosophical foundation</p>
-            <h1 className="display mt-4 text-4xl leading-[1.02] text-cream sm:text-6xl">
+            <h1 className="display-editorial mt-4 text-4xl leading-[1.02] text-cream sm:text-6xl">
               The Final Symposium
             </h1>
             <p className="prose-compact mt-5 max-w-2xl text-silver">
@@ -84,6 +84,7 @@ export default function FinalSymposiumPage() {
         <section className="mx-auto mt-16 max-w-3xl">
           <ArchiveHeader
             description="Institutions do not defeat impermanence. They delay forgetting."
+            editorial
             eyebrow="Prologue"
             index="ESSAY 01"
             title="A response to cosmic impermanence, not a solution to it."
@@ -115,7 +116,7 @@ export default function FinalSymposiumPage() {
               <p className="font-mono text-xs tracking-[0.18em] text-vermilion">
                 {foundation.index}
               </p>
-              <h2 className="display mt-4 text-2xl text-cream">{foundation.title}</h2>
+              <h2 className="display-editorial mt-4 text-2xl text-cream">{foundation.title}</h2>
               <p className="prose-compact mt-4 text-muted">{foundation.body}</p>
             </LiquidCard>
           ))}
@@ -123,6 +124,7 @@ export default function FinalSymposiumPage() {
 
         <section className="mx-auto mt-20 max-w-3xl">
           <ArchiveHeader
+            editorial
             eyebrow="Corrigibility"
             index="PRINCIPLE"
             title="Keep the means of setting judgment right constantly at hand."
@@ -142,30 +144,30 @@ export default function FinalSymposiumPage() {
           </div>
         </section>
 
-        <section className="mt-20 overflow-hidden rounded-[20px] border border-gold/15 bg-[#e8e2d4] p-6 text-parchment-ink sm:p-10">
-          <p className="chart-label text-parchment-muted">Near-term work</p>
-          <h2 className="display mt-3 max-w-3xl text-3xl">
+        <section className="mt-20 overflow-hidden rounded-[12px] border border-gold/20 bg-void/70 p-6 text-cream sm:p-10">
+          <p className="chart-label text-gold">Near-term work</p>
+          <h2 className="display-editorial mt-3 max-w-3xl text-3xl">
             The mission begins with a small, exact promise.
           </h2>
-          <p className="mt-5 max-w-3xl font-serif text-lg leading-8 text-parchment-muted">
+          <p className="mt-5 max-w-3xl font-serif text-lg leading-8 text-silver">
             Route a space-data job. Compare the candidates. Explain the decision.
             Preserve enough evidence to replay it. The Final Symposium is not a claim
             that this product solves mortality or cosmic entropy. It is a reason to
             build accountable infrastructure now.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              className="rounded-xl bg-[#1c1916] px-4 py-2.5 text-sm font-medium text-[#e8e2d4] 	ransition-colors hover:opacity-85"
+            <LiquidButton
               href="/about"
+              variant="outline"
             >
               Back to About
-            </Link>
-            <Link
-              className="rounded-xl border border-parchment-ink/25 px-4 py-2.5 text-sm font-medium 	ransition-colors hover:border-parchment-ink/50"
-              href="/#demo"
+            </LiquidButton>
+            <LiquidButton
+              href="/plan"
+              variant="primary"
             >
-              Run the product demo
-            </Link>
+              Build a mission plan
+            </LiquidButton>
           </div>
         </section>
       </div>
