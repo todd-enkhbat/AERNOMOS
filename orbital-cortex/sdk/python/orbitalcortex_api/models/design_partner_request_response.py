@@ -39,7 +39,9 @@ class DesignPartnerRequestResponse:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.design_partner_request import DesignPartnerRequest
+        from ..models.design_partner_request import (
+            DesignPartnerRequest,
+        )
 
         d = dict(src_dict)
         request = DesignPartnerRequest.from_dict(d.pop("request"))

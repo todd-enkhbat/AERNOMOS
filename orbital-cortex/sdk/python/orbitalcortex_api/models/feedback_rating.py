@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class FeedbackRating(str, Enum):
+class FeedbackRating(StrEnum):
     NO = "no"
     PARTLY = "partly"
     YES = "yes"

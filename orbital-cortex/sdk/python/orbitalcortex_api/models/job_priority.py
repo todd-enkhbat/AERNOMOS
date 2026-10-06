@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JobPriority(str, Enum):
+class JobPriority(StrEnum):
     CHEAPEST = "cheapest"
     FASTEST = "fastest"
     MOST_RELIABLE = "most_reliable"

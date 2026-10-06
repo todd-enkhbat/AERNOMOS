@@ -134,7 +134,9 @@ class CatalogCandidateOut:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.catalog_candidate_asset_out import CatalogCandidateAssetOut
+        from ..models.catalog_candidate_asset_out import (
+            CatalogCandidateAssetOut,
+        )
         from ..models.catalog_candidate_out_asset_metadata import (
             CatalogCandidateOutAssetMetadata,
         )

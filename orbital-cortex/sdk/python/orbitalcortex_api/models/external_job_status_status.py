@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ExternalJobStatusStatus(str, Enum):
+class ExternalJobStatusStatus(StrEnum):
     FAILED = "failed"
     QUEUED = "queued"
     RUNNING = "running"

@@ -69,7 +69,9 @@ class ExecuteStepRequest:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.execute_step_request_params import ExecuteStepRequestParams
+        from ..models.execute_step_request_params import (
+            ExecuteStepRequestParams,
+        )
 
         d = dict(src_dict)
         input_ref = d.pop("input_ref")

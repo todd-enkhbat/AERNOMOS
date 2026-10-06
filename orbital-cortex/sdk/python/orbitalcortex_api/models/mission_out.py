@@ -191,7 +191,9 @@ class MissionOut:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.mission_out_area_of_interest import MissionOutAreaOfInterest
+        from ..models.mission_out_area_of_interest import (
+            MissionOutAreaOfInterest,
+        )
 
         d = dict(src_dict)
         area_of_interest = MissionOutAreaOfInterest.from_dict(d.pop("area_of_interest"))

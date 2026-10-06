@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TruthStatus(str, Enum):
+class TruthStatus(StrEnum):
     CALCULATED = "CALCULATED"
     ESTIMATED = "ESTIMATED"
     OBSERVED = "OBSERVED"

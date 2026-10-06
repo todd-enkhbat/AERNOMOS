@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     COMPLETE = "complete"
     DOWNLINKING = "downlinking"
     EXECUTING = "executing"

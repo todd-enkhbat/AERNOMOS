@@ -27,7 +27,9 @@ class SceneResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.scene_response_scene_type_0 import SceneResponseSceneType0
+        from ..models.scene_response_scene_type_0 import (
+            SceneResponseSceneType0,
+        )
 
         scene: dict[str, Any] | None | Unset
         if isinstance(self.scene, Unset):
@@ -47,7 +49,9 @@ class SceneResponse:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.scene_response_scene_type_0 import SceneResponseSceneType0
+        from ..models.scene_response_scene_type_0 import (
+            SceneResponseSceneType0,
+        )
 
         d = dict(src_dict)
 

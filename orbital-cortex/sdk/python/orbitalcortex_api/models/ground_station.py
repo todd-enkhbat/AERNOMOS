@@ -108,7 +108,9 @@ class GroundStation:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.ground_station_source_metadata import GroundStationSourceMetadata
+        from ..models.ground_station_source_metadata import (
+            GroundStationSourceMetadata,
+        )
 
         d = dict(src_dict)
         availability = d.pop("availability")

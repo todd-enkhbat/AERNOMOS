@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ComputeNodeType(str, Enum):
+class ComputeNodeType(StrEnum):
     GROUND_CLOUD = "ground_cloud"
     GROUND_STATION = "ground_station"
     ORBITAL = "orbital"

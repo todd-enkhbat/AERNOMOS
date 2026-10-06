@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JobCreateComputePreference(str, Enum):
+class JobCreateComputePreference(StrEnum):
     CHEAPEST = "cheapest"
     FASTEST = "fastest"
     GROUND_ONLY = "ground_only"

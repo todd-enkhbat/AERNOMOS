@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JobCreateSensor(str, Enum):
+class JobCreateSensor(StrEnum):
     ANY = "any"
     HYPERSPECTRAL = "hyperspectral"
     OPTICAL = "optical"

@@ -140,7 +140,9 @@ class SourceEvidenceOut:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.source_evidence_out_raw_value import SourceEvidenceOutRawValue
+        from ..models.source_evidence_out_raw_value import (
+            SourceEvidenceOutRawValue,
+        )
         from ..models.source_evidence_out_transformed_value import (
             SourceEvidenceOutTransformedValue,
         )

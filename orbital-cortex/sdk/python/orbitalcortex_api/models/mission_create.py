@@ -201,7 +201,9 @@ class MissionCreate:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.mission_create_area_of_interest import MissionCreateAreaOfInterest
+        from ..models.mission_create_area_of_interest import (
+            MissionCreateAreaOfInterest,
+        )
 
         d = dict(src_dict)
         area_of_interest = MissionCreateAreaOfInterest.from_dict(

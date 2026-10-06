@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JobCreateJobType(str, Enum):
+class JobCreateJobType(StrEnum):
     CROP_HEALTH = "crop_health"
     DISASTER_RESPONSE = "disaster_response"
     SHIP_DETECTION = "ship_detection"

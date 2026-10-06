@@ -188,8 +188,12 @@ class CandidateScore:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.candidate_score_weights import CandidateScoreWeights
-        from ..models.hard_constraint_failure import HardConstraintFailure
+        from ..models.candidate_score_weights import (
+            CandidateScoreWeights,
+        )
+        from ..models.hard_constraint_failure import (
+            HardConstraintFailure,
+        )
 
         d = dict(src_dict)
         availability_score = d.pop("availability_score")

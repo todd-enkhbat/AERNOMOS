@@ -70,7 +70,9 @@ class MissionInfrastructureResponse:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
-        from ..models.mission_ground_station_out import MissionGroundStationOut
+        from ..models.mission_ground_station_out import (
+            MissionGroundStationOut,
+        )
         from ..models.mission_satellite_out import MissionSatelliteOut
         from ..models.orbital_snapshot_out import OrbitalSnapshotOut
 
