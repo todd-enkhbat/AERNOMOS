@@ -1,0 +1,127 @@
+.hero {
+  position: relative;
+  min-height: min(58rem, 92svh);
+  overflow: hidden;
+  border-bottom: 1px solid rgba(227, 192, 92, 0.22);
+  background: #001045;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: 56% 58%;
+  filter: saturate(0.78) contrast(1.12) brightness(0.82);
+  transform: scale(1.02);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 67% 48%, rgba(0, 47, 167, 0.08), transparent 40%),
+    linear-gradient(90deg, rgba(0, 16, 69, 0.94), rgba(0, 26, 117, 0.48) 52%, rgba(0, 16, 69, 0.18)),
+    linear-gradient(180deg, rgba(0, 16, 69, 0.12), rgba(0, 26, 117, 0.18) 55%, rgba(0, 11, 48, 0.94));
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: inherit;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: clamp(8rem, 16vw, 14rem);
+  padding-bottom: clamp(2rem, 5vw, 4.5rem);
+}
+
+.heroStatement {
+  max-width: 66rem;
+}
+
+.heroStatement h1 {
+  max-width: 62rem;
+  margin-top: 0.8rem;
+  color: var(--cream);
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: clamp(3.5rem, 8vw, 8.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.88;
+}
+
+.heroStatement > p:last-child {
+  max-width: 43rem;
+  margin-top: 1.5rem;
+  color: rgba(242, 238, 228, 0.78);
+  font-size: clamp(1rem, 1.35vw, 1.16rem);
+  line-height: 1.7;
+}
+
+.layerRail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: clamp(2.5rem, 6vw, 5.5rem);
+  border: solid rgba(227, 192, 92, 0.32);
+  border-width: 1px 0;
+  background: rgba(0, 5, 24, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.layer {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(5rem, 0.45fr) minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: baseline;
+  padding: 1.2rem 1.25rem;
+}
+
+.layer + .layer {
+  border-left: 1px solid rgba(227, 192, 92, 0.22);
+}
+
+.layer span {
+  color: var(--gold-bright);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.52rem;
+}
+
+.layer strong {
+  color: var(--cream);
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.layer p {
+  color: rgba(216, 212, 203, 0.62);
+  font-size: 0.64rem;
+  line-height: 1.5;
+}
+
+.notice { padding-top: 1rem; }
+
+.consoleSection {
+  padding-top: clamp(4rem, 8vw, 7rem);
+}
+
+@media (max-width: 900px) {
+  .hero { min-height: 52rem; }
+  .layerRail { grid-template-columns: 1fr; }
+  .layer + .layer {
+    border-top: 1px solid rgba(227, 192, 92, 0.2);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero { min-height: 50rem; }
+  .heroImage { object-position: 61% center; }
+  .heroStatement h1 { font-size: clamp(3.35rem, 17vw, 5.5rem); }
+  .layer {
+    grid-template-columns: auto minmax(5rem, 0.5fr) minmax(0, 1fr);
+    padding: 0.95rem 0;
+  }
+}
+
+/* Glyphs remain behind the network description and away from atlas controls. */
+.heroContent { position: relative; z-index: 2; pointer-events: none; }
+.heroContent a, .heroContent button { pointer-events: auto; }

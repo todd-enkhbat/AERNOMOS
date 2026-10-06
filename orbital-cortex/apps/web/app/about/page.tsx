@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { OrbitalField } from "@/components/visual/OrbitalField";
 import Link from "next/link";
 
 import { DemoBoundary } from "@/components/archive/ArchivePrimitives";
 import { AboutContent } from "@/components/about/AboutContent";
 import { FadeIn } from "@/components/motion/primitives";
 import { LiquidButton } from "@/components/liquid/LiquidButton";
-import { LiquidCard } from "@/components/liquid/LiquidCard";
-import { LiquidSection } from "@/components/liquid/LiquidSection";
+
+import styles from "./AboutPage.module.css";
 
 export const metadata: Metadata = {
   title: "About",
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 const AboutScrollStory = dynamic(
   () =>
     import("@/components/about/AboutScrollStory").then((module) => module.AboutScrollStory),
-  { ssr: false }
+  {}
 );
 
 const believe = [
@@ -53,40 +54,36 @@ const progression = [
 
 export default function AboutPage() {
   return (
-    <div className="pb-6">
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
+    <div className={styles.page}>
+      <section className={styles.hero} data-cadence="off">
+        <div className={styles.heroMedia}>
           <Image
             alt=""
             aria-hidden
-            className="object-cover object-center opacity-50"
+            className={styles.heroImage}
             fill
             priority
             sizes="100vw"
-            src="/images/lady-philosophy-circuit-hero.jpg"
-            unoptimized
+            src="/images/archive/nomos-orbital-trails.png"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-klein-void/35 via-klein-deep/80 to-klein-void" />
-          <div
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-klein-deep"
-          />
+          <div aria-hidden className={styles.heroScrim} />
         </div>
-        <LiquidSection className="relative py-10 md:py-14" orbs={false}>
-          <div className="page-shell">
+        <OrbitalField />
+        <div className={styles.heroSection}>
+          <div className={`page-shell ${styles.heroContent}`}>
             <FadeIn when="mount" y={6}>
-              <p className="chart-label text-gold">About</p>
-              <h1 className="display mt-2 max-w-2xl text-3xl leading-tight text-cream md:text-5xl">
+              <p className="chart-label text-gold-bright">About / Nomos Orbital</p>
+              <h1>
                 Order, for the orbital age.
               </h1>
-              <p className="prose-compact mt-3 max-w-xl text-cream/85">
+              <p className={styles.heroLead}>
                 Nomos Orbital is building the intelligence layer above space
                 infrastructure: one place where an objective becomes a routed
                 path across satellites, ground systems, and cloud compute.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className={styles.heroActions}>
                 <LiquidButton href="/plan" variant="primary">
-                  Run a request
+                  Build a mission plan
                 </LiquidButton>
                 <LiquidButton href="/network" variant="ghost">
                   See the network →
@@ -94,44 +91,44 @@ export default function AboutPage() {
               </div>
             </FadeIn>
           </div>
-        </LiquidSection>
+        </div>
       </section>
 
-      <LiquidSection className="home-band page-shell">
+      <section className={`page-shell ${styles.beliefSection}`} data-cadence="off">
         <FadeIn viewportMargin="0px" y={6}>
           <p className="chart-label text-gold">What we believe</p>
-          <h2 className="display mt-2 max-w-2xl text-2xl text-cream sm:text-3xl">
+          <h2 className={styles.beliefTitle}>
             One request should be able to reach the whole space stack.
           </h2>
         </FadeIn>
-        <div className="mt-7 space-y-6">
+        <div className={styles.beliefs}>
           {believe.map((item, index) => (
             <FadeIn delay={0.05 * index} key={item.index} viewportMargin="0px" y={6}>
-              <div className="grid gap-3 border-l border-gold/25 pl-5 sm:grid-cols-[4rem_minmax(0,1fr)] sm:gap-6">
-                <p className="metric-value text-[11px] text-gold">{item.index}</p>
+              <div className={styles.belief}>
+                <p className={styles.beliefIndex}>{item.index}</p>
                 <div>
-                  <h3 className="display text-xl text-cream sm:text-2xl">{item.title}</h3>
-                  <p className="prose-compact mt-3 max-w-2xl text-muted">{item.detail}</p>
+                  <h3>{item.title}</h3>
+                  <p>{item.detail}</p>
                 </div>
               </div>
             </FadeIn>
           ))}
         </div>
-        <FadeIn delay={0.16} viewportMargin="0px" y={6}>
-          <p className="prose-compact mt-8 max-w-2xl text-silver">
+        <FadeIn className={styles.beliefClose} delay={0.16} viewportMargin="0px" y={6}>
+          <p>
             Nomos is not a satellite operator, a launch company, a ground-station
             provider, or a data reseller. The infrastructure can stay
             heterogeneous. Nomos is the layer that reasons across it, decides how
             it should work together, and keeps every decision explainable.
           </p>
         </FadeIn>
-      </LiquidSection>
+      </section>
 
-      <section className="home-band">
-        <div className="page-shell">
+      <section className={styles.lineage} data-cadence="off">
+        <div className={`page-shell ${styles.lineageIntro}`}>
           <p className="chart-label text-gold">The Golden Record lineage</p>
-          <h2 className="display mt-2 max-w-2xl text-3xl text-cream">
-            Scroll to turn the record.
+          <h2 className="display-editorial mt-2 max-w-2xl text-3xl text-cream">
+            Meaning, carried across distance.
           </h2>
           <p className="prose-compact mt-3 max-w-2xl text-muted">
             In space, distance makes information expensive. Bandwidth is scarce,
@@ -144,14 +141,14 @@ export default function AboutPage() {
         <AboutScrollStory />
       </section>
 
-      <LiquidSection className="home-band page-shell">
+      <section className={`page-shell ${styles.archive}`} data-cadence="off">
         <AboutContent />
-      </LiquidSection>
+      </section>
 
-      <LiquidSection className="home-band page-shell">
+      <section className={`page-shell ${styles.today}`} data-cadence="off">
         <FadeIn viewportMargin="0px" y={6}>
           <p className="chart-label text-gold">Where the product stands</p>
-          <h2 className="display mt-2 max-w-2xl text-2xl text-cream sm:text-3xl">
+          <h2 className="display-editorial mt-2 max-w-2xl text-2xl text-cream sm:text-3xl">
             Today, and the direction from here
           </h2>
           <p className="prose-compact mt-3 max-w-2xl text-muted">
@@ -200,46 +197,28 @@ export default function AboutPage() {
             .
           </p>
         </FadeIn>
-      </LiquidSection>
+      </section>
 
-      <LiquidSection className="home-band page-shell">
-        <LiquidCard className="relative overflow-hidden">
-          <div className="absolute right-5 top-5 font-mono text-[10px] tracking-[0.16em] text-vermilion">
-            ESSAY 01
-          </div>
-          <p className="chart-label text-gold">The long mission</p>
-          <h2 className="display mt-2 max-w-2xl text-2xl text-cream">
-            The Final Symposium
-          </h2>
-          <p className="prose-compact mt-4 max-w-2xl text-silver">
-            A founder-authored inquiry into entropy, memory, human corrigibility,
-            and why intelligence should remain legible as it moves farther from Earth.
-            It is a philosophical foundation, not a product roadmap.
-          </p>
-          <div className="mt-5">
-            <LiquidButton href="/about/final-symposium" variant="outline">
-              Read the essay
-            </LiquidButton>
-          </div>
-        </LiquidCard>
-      </LiquidSection>
-
-      <LiquidSection className="home-band page-shell">
-        <LiquidCard>
-          <p className="chart-label text-gold">Field register</p>
-          <h2 className="display mt-2 max-w-2xl text-2xl text-cream">Calendar</h2>
-          <p className="prose-compact mt-4 max-w-2xl text-silver">
-            Potential presence, application windows, eligibility research, and live
-            GitHub search for adjacent open-source work. Presence is potential until
-            marked planned.
-          </p>
-          <div className="mt-5">
-            <LiquidButton href="/calendar" variant="outline">
-              Open calendar
-            </LiquidButton>
-          </div>
-        </LiquidCard>
-      </LiquidSection>
+      <section className={`page-shell ${styles.links}`} data-cadence="off">
+        <div className="about-archive-links">
+          <Link className="about-archive-link" href="/about/final-symposium">
+            <p className="chart-label text-gold">ESSAY 01 · THE LONG MISSION</p>
+            <h2>The Final Symposium</h2>
+            <p>
+              A founder-authored inquiry into entropy, memory, and why intelligence
+              should remain legible as it moves farther from Earth.
+            </p>
+          </Link>
+          <Link className="about-archive-link" href="/calendar">
+            <p className="chart-label text-gold">FIELD REGISTER · CALENDAR</p>
+            <h2>Where the work convenes</h2>
+            <p>
+              A verified public register of industry gatherings, application windows,
+              and adjacent open-source work. Presence stays labeled until planned.
+            </p>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

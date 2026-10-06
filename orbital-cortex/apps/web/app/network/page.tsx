@@ -1,18 +1,14 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
-import { Cloud, RadioTower, Satellite as SatelliteIcon, Server } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { OrbitalField } from "@/components/visual/OrbitalField";
+import { useEffect, useState } from "react";
 
 import { InlineNotice } from "@/components/InlineNotice";
-import { NetworkMetricsCarousel } from "@/components/network/NetworkMetricsCarousel";
-import { PageHeader } from "@/components/PageHeader";
-import { LiquidCard, LiquidSection } from "@/components/liquid";
-import { apiErrorMessage, getNodes, listJobs } from "@/lib/api";
-import { EMPTY_NODES } from "@/lib/constants";
-import type { ComputeNode, NodesResponse } from "@/lib/types";
-import { formatMinutes, formatPercent, labelize } from "@/lib/format";
+import { apiErrorMessage, getNodes } from "@/lib/api";
+
+import styles from "./NetworkPage.module.css";
 
 const NetworkConsole = dynamic(
   () =>
@@ -20,34 +16,17 @@ const NetworkConsole = dynamic(
   { ssr: false, loading: () => <div className="liquid-glass liquid-glass--card min-h-[320px] animate-pulse" /> }
 );
 
-const SputnikScrollStory = dynamic(
-  () =>
-    import("@/components/network/SputnikScrollStory").then((m) => m.SputnikScrollStory),
-  { ssr: false, loading: () => <div className="h-[180vh] animate-pulse" /> }
-);
-
 export default function NetworkPage() {
-  const [nodes, setNodes] = useState<NodesResponse>(EMPTY_NODES);
-  const [activeJobs, setActiveJobs] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
     async function load() {
       try {
-        const [nodeResponse, jobsResponse] = await Promise.all([
-          getNodes(),
-          listJobs()
-        ]);
+        await getNodes();
         if (!mounted) {
           return;
         }
-        setNodes(nodeResponse);
-        setActiveJobs(
-          jobsResponse.jobs.filter(
-            (job) => job.status !== "complete" && job.status !== "failed"
-          ).length
-        );
       } catch (error) {
         if (mounted) {
           setNotice(apiErrorMessage(error));
@@ -60,195 +39,51 @@ export default function NetworkPage() {
     };
   }, []);
 
-  const orbital = useMemo(
-    () => nodes.compute_nodes.filter((node) => node.type === "orbital"),
-    [nodes]
-  );
-  const cloud = useMemo(
-    () => nodes.compute_nodes.filter((node) => node.type === "ground_cloud"),
-    [nodes]
-  );
-
   return (
     <div className="relative pb-6">
-      <LiquidSection className="page-shell" orbs={false}>
-        <PageHeader
-          description="Orbital, ground, and cloud resources represented in Nomos today: real public orbital geometry, reference ground sites, and clearly labeled simulated compute candidates. This registry is what the intelligence layer evaluates when it routes a request."
-          eyebrow="Network"
-          title="The network Nomos reasons across"
+      <section className={styles.hero}>
+        <Image
+          alt="Long-exposure orbital light trails photographed against deep space"
+          className={styles.heroImage}
+          fill
+          priority
+          sizes="100vw"
+          src="/images/archive/orbital-star-trails.jpg"
         />
-        {notice ? <InlineNotice message={notice} /> : null}
-
-        <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          {[
-            {
-              name: "Orbital",
-              detail: "Spacecraft, payloads, and eventually onboard compute."
-            },
-            {
-              name: "Ground",
-              detail: "Stations, communications, and terrestrial edge compute."
-            },
-            {
-              name: "Cloud",
-              detail: "Elastic processing, storage, models, and downstream services."
-            },
-            {
-              name: "Nomos",
-              detail: "The intelligence layer deciding which resources take part."
-            },
-            {
-              name: "Requests",
-              detail: "Objectives submitted to the network for evaluation."
-            }
-          ].map((layer) => (
-            <div
-              className="rounded-xl border border-gold/15 bg-klein-void/45 p-3.5"
-              key={layer.name}
-            >
-              <p className="metric-value text-[10px] tracking-[0.16em] text-gold">
-                {layer.name.toUpperCase()}
-              </p>
-              <p className="mt-1.5 text-xs leading-5 text-muted">{layer.detail}</p>
-            </div>
-          ))}
+        <div aria-hidden className={styles.heroScrim} />
+        <OrbitalField />
+        <div className={`page-shell ${styles.heroContent}`}>
+          <div className={styles.heroStatement}>
+            <p className="chart-label text-gold-bright">Network / Ground atlas</p>
+            <h1>See the infrastructure behind the route.</h1>
+            <p>
+              Nomos combines sourced ground locations, public orbital data, contact
+              geometry, and represented compute constraints to explain which path can
+              fulfill a request, and which cannot.
+            </p>
+          </div>
+          <div className={styles.layerRail} aria-label="Infrastructure layers">
+            {[
+              ["01", "Orbital", "Public catalogs, orbital geometry, and communication opportunities."],
+              ["02", "Ground", "Reference station locations and the handoff constraints a route must respect."],
+              ["03", "Cloud", "Customer-controlled and represented processing environments for feasible delivery patterns."]
+            ].map(([index, name, detail]) => (
+              <div className={styles.layer} key={name}>
+                <span>{index}</span>
+                <strong>{name}</strong>
+                <p>{detail}</p>
+              </div>
+            ))}
+          </div>
         </div>
-
-        <NetworkMetricsCarousel
-          activeJobs={activeJobs}
-          cloudCount={cloud.length}
-          groundStationCount={nodes.ground_stations.length}
-          orbitalCount={orbital.length}
-        />
-      </LiquidSection>
-
-      <LiquidSection className="home-band page-shell" orbs={false}>
-        <NetworkConsole />
-      </LiquidSection>
-
-      <section className="home-band relative">
-        <div className="page-shell mb-1">
-          <p className="chart-label text-gold">Orbital context</p>
-          <h2 className="display mt-2 text-2xl text-cream sm:text-3xl">
-            From first signal to an explainable network
-          </h2>
-          <p className="prose-compact mt-3 max-w-2xl text-muted">
-            This visual is historical context. The registry and pass schedule above
-            are the product evidence.
-          </p>
-        </div>
-        <SputnikScrollStory />
       </section>
 
-      <LiquidSection className="home-band page-shell" orbs={false}>
-        <LiquidCard>
-          <div className="flex items-center gap-2.5">
-            <Server className="text-gold" size={17} strokeWidth={1.8} />
-            <h2 className="text-base font-semibold text-cream">Route model</h2>
-          </div>
-          <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
-            <TopologyColumn
-              icon={SatelliteIcon}
-              label="Orbital compute"
-              nodes={orbital.map((node) => node.id)}
-            />
-            <Connector />
-            <TopologyColumn
-              icon={RadioTower}
-              label="Ground stations"
-              nodes={nodes.ground_stations.map((station) => station.id)}
-            />
-            <Connector />
-            <TopologyColumn
-              icon={Cloud}
-              label="Cloud fallback"
-              nodes={cloud.map((node) => node.id)}
-            />
-          </div>
-        </LiquidCard>
+      {notice ? <div className={`page-shell ${styles.notice}`}><InlineNotice message={notice} /></div> : null}
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          <NodeGroup title="Simulated orbital candidates" nodes={orbital} />
-          <NodeGroup title="Simulated cloud fallback" nodes={cloud} />
-        </div>
-      </LiquidSection>
-    </div>
-  );
-}
+      <section className={styles.consoleSection}>
+        <NetworkConsole />
+      </section>
 
-function TopologyColumn({
-  icon: Icon,
-  label,
-  nodes
-}: {
-  icon: LucideIcon;
-  label: string;
-  nodes: string[];
-}) {
-  return (
-    <div className="rounded-xl border border-gold/10 bg-klein-void/45 p-3.5">
-      <div className="flex items-center gap-2 text-gold">
-        <Icon size={16} strokeWidth={1.8} />
-        <p className="text-sm font-medium text-cream">{label}</p>
-      </div>
-      <div className="mt-3 space-y-1.5">
-        {nodes.length === 0 ? (
-          <p className="text-xs text-muted">No nodes registered.</p>
-        ) : (
-          nodes.map((node) => (
-            <p className="metric-value text-[11px] text-cream/75" key={node}>
-              {node}
-            </p>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Connector() {
-  return (
-    <div className="hidden min-w-10 items-center justify-center lg:flex">
-      <div className="h-px w-full bg-gradient-to-r from-gold/25 via-gold/10 to-gold/25" />
-    </div>
-  );
-}
-
-function NodeGroup({ title, nodes }: { title: string; nodes: ComputeNode[] }) {
-  return (
-    <div>
-      <h2 className="mb-3 text-base font-semibold text-cream">{title}</h2>
-      {nodes.length === 0 ? (
-        <LiquidCard>
-          <p className="text-sm text-muted">No compute nodes in this tier.</p>
-        </LiquidCard>
-      ) : (
-        <div className="grid gap-3">
-          {nodes.map((node) => (
-            <LiquidCard key={node.id}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-sm font-medium text-cream">{node.name}</h3>
-                  <p className="metric-value mt-0.5 text-[11px] text-muted-dark">{node.id}</p>
-                </div>
-                <span className="metric-value text-[11px] text-gold-bright">
-                  {formatPercent(node.availability)}
-                </span>
-              </div>
-              <p className="metric-value mt-2 text-[11px] text-muted">
-                {node.gpu_class} · {formatMinutes(node.latency_minutes)}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {node.supported_models.map((model) => (
-                  <span className="text-[11px] text-muted" key={model}>
-                    {labelize(model)}
-                  </span>
-                ))}
-              </div>
-            </LiquidCard>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

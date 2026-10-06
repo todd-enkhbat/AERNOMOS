@@ -1,0 +1,177 @@
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vw, 6rem);
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.65fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: end;
+}
+
+.intro h2,
+.chapterCopy h3 {
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.intro h2 {
+  max-width: 45rem;
+  margin-top: 0.75rem;
+  color: var(--cream);
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 0.98;
+}
+
+.intro > p:last-child {
+  color: rgba(216, 212, 203, 0.75);
+  font-size: clamp(0.95rem, 1.25vw, 1.08rem);
+  line-height: 1.7;
+}
+
+.chapters {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3.5rem, 7vw, 7rem);
+}
+
+.chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: center;
+}
+
+.chapter:nth-child(even) {
+  grid-template-columns: minmax(18rem, 0.65fr) minmax(0, 1.35fr);
+}
+
+.chapter:nth-child(even) .chapterImage {
+  grid-column: 2;
+}
+
+.chapter:nth-child(even) .chapterCopy {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.chapterImage {
+  min-height: clamp(24rem, 38vw, 34rem);
+}
+
+.chapterCopy {
+  max-width: 30rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(227, 192, 92, 0.34);
+}
+
+.index {
+  color: var(--gold-bright);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+}
+
+.chapterCopy h3 {
+  margin-top: 1rem;
+  color: var(--cream);
+  font-size: clamp(2rem, 3.8vw, 3.75rem);
+  line-height: 1.02;
+}
+
+.body {
+  margin-top: 1.45rem;
+  color: rgba(242, 238, 228, 0.8);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+.closing {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.5fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  padding: clamp(2rem, 4vw, 3.5rem) 0;
+  border: solid rgba(227, 192, 92, 0.26);
+  border-width: 1px 0;
+}
+
+.brandLine {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brandLine div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+
+.brandLine strong {
+  color: var(--cream);
+  font-size: 0.95rem;
+}
+
+.brandLine span {
+  color: var(--gold);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+}
+
+.closing > p {
+  max-width: 48rem;
+  color: rgba(216, 212, 203, 0.76);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.actions {
+  display: flex;
+  grid-column: 2;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .intro,
+  .chapter,
+  .chapter:nth-child(even),
+  .closing {
+    grid-template-columns: 1fr;
+  }
+
+  .chapter:nth-child(even) .chapterImage,
+  .chapter:nth-child(even) .chapterCopy,
+  .actions {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  .chapter:nth-child(even) .chapterCopy {
+    order: 2;
+  }
+
+  .chapterImage {
+    min-height: min(78vw, 38rem);
+  }
+}
+
+@media (max-width: 600px) {
+  .story { gap: 4.5rem; }
+  .chapters { gap: 5.5rem; }
+  .chapterImage { min-height: 90vw; }
+  .closing { padding: 2rem 0; }
+}
+
+/* Keep the eyebrow with its heading, instead of occupying a grid cell. */
+.intro > p:first-child { grid-column: 1 / -1; }
+.intro { row-gap: 0.8rem; }
+.intro h2 { margin-top: 0; }
+@media (max-width: 900px) {
+  .intro { row-gap: 1.25rem; }
+  .intro > p:last-child { max-width: 38rem; }
+}

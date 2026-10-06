@@ -1,0 +1,38 @@
+.field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  font-family: var(--font-mono), monospace;
+  background: radial-gradient(ellipse at 80% 50%, #0036a73d, transparent 65%);
+}
+.field canvas { width: 100%; height: 100%; display: block; }
+.hero canvas { mask-image: linear-gradient(90deg, transparent 12%, #0005 45%, #000 72%); }
+.footer canvas { mask-image: linear-gradient(180deg, #000, #0009 55%, #000); }
+.toggle {
+  position: absolute;
+  right: max(1.25rem, calc((100% - 1180px) / 2));
+  bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #a5bdf23b;
+  border-radius: 3px;
+  background: #001045d9;
+  color: #bdcdeb;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  pointer-events: auto;
+  transition: color 150ms ease-out, border-color 150ms ease-out;
+}
+.toggle:hover { color: #f4daa0; border-color: #e3c05c88; }
+.toggle:active { transform: scale(0.97); }
+.footer .toggle { top: 1.5rem; bottom: auto; }
+@media (max-width: 600px) {
+  .hero canvas { mask-image: linear-gradient(180deg, #000b, #0002 60%, #0006); opacity: 0.65; }
+  .toggle { bottom: 0.5rem; right: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { .toggle { display: none; } }
