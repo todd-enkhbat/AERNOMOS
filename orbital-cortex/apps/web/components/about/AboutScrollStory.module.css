@@ -1,0 +1,65 @@
+.story {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  padding-block: 2rem 4rem;
+}
+.recordColumn { min-width: 0; }
+.record {
+  position: sticky;
+  top: calc(var(--header-offset) + 3rem);
+  margin: 0;
+}
+.record figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 8%;
+  padding-top: 1rem;
+  border-top: 1px solid #e3c05c38;
+  color: #e3c05c;
+  font: 0.6rem var(--font-mono), monospace;
+  letter-spacing: 0.12em;
+}
+.record figcaption span { color: #bdc7df; }
+.chapter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 34rem;
+  padding-block: 4rem;
+}
+.chapter + .chapter { border-top: 1px solid #e3c05c26; }
+.label { color: #e3c05c; font: 0.65rem var(--font-mono), monospace; letter-spacing: 0.15em; text-transform: uppercase; }
+.label span { margin-right: 1.1rem; color: #9baad0; }
+.chapter h3 {
+  margin-top: 1.3rem;
+  color: var(--cream);
+  font: 500 clamp(2rem, 3.4vw, 3.5rem)/1.05 var(--font-sans), Arial, sans-serif;
+  letter-spacing: -0.035em;
+  max-width: 12ch;
+}
+.body { margin-top: 1.5rem; color: #c8cede; font-size: 1rem; line-height: 1.8; max-width: 43ch; }
+.canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 65svh;
+}
+.canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 240ms ease-out; }
+.canvas[data-ready="true"] canvas { opacity: 1; }
+.fallback { object-fit: contain; padding: 12%; clip-path: circle(35%); transition: opacity 240ms ease-out; }
+.canvas[data-ready="true"] .fallback { opacity: 0; }
+@media (max-width: 900px) {
+  .story { grid-template-columns: 1fr; gap: 1.5rem; padding-bottom: 1rem; }
+  .record { position: relative; top: auto; max-width: 30rem; margin-inline: auto; }
+  .canvas { max-height: none; }
+  .chapter { min-height: 0; padding-block: 2.5rem; }
+  .chapter h3 { max-width: 20ch; }
+  .body { max-width: 60ch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .record { position: relative; top: auto; }
+  .chapter { min-height: 0; padding-block: 2.5rem; }
+  .canvas canvas, .fallback { transition: none; }
+}

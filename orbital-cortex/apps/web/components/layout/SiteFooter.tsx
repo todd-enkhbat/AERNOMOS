@@ -1,8 +1,9 @@
-import Image from "next/image";
+import { OrbitalField } from "@/components/visual/OrbitalField";
 import Link from "next/link";
 
 import { NomosMark } from "@/components/brand/NomosMark";
-import { LiquidCard } from "@/components/liquid/LiquidCard";
+
+import styles from "./SiteFooter.module.css";
 
 const productLinks = [
   { href: "/plan", label: "Run a request" },
@@ -31,12 +32,12 @@ function FooterLinkList({
 }) {
   return (
     <div>
-      <p className="chart-label text-parchment-muted">{title}</p>
+      <p className="chart-label text-gold-bright">{title}</p>
       <ul className="mt-3 space-y-2">
         {links.map((link) => (
           <li key={link.label}>
             <Link
-              className="text-sm text-parchment-ink/75 transition-colors hover:text-parchment-ink"
+              className="text-sm text-cream/70 transition-colors hover:text-cream"
               href={link.href}
             >
               {link.label}
@@ -50,48 +51,38 @@ function FooterLinkList({
 
 export function SiteFooter() {
   return (
-    <footer className="atlas-footer relative mt-8 overflow-hidden md:mt-10">
-      <div className="atlas-footer__bridge" aria-hidden />
-      <div className="atlas-footer__bg" aria-hidden>
-        <Image
-          alt=""
-          className="atlas-footer__bg-img object-cover object-center"
-          fill
-          sizes="100vw"
-          src="/images/celestial-circuit-atlas.jpg"
-          unoptimized
-        />
+    <footer className={`atlas-footer relative overflow-hidden ${styles.footer}`}>
+      <OrbitalField variant="footer" />
+      <div className={`page-shell ${styles.signal}`} aria-hidden>
+        <span>One request.</span>
+        <span>The whole space stack.</span>
       </div>
 
       <div className="atlas-footer__shell relative z-[1] py-10 md:py-12">
-        <LiquidCard className="atlas-footer__card" interactive={false} tone="light">
-          {/*
-            Three equal columns on desktop so Product / Developers span to the
-            right edge — no empty frosted dead zone beside the link lists.
-          */}
+        <div className="atlas-footer__card">
           <div className="atlas-footer__grid">
             <div className="atlas-footer__brand">
-              <p className="chart-label text-parchment-muted">Contact</p>
+              <p className="chart-label text-gold-bright">Contact</p>
               <div className="mt-3 flex items-center gap-3">
                 <NomosMark size={36} />
                 <div>
-                  <p className="display text-xl text-parchment-ink">Nomos Orbital</p>
-                  <p className="chart-label mt-0.5 text-parchment-muted">est. among the stars</p>
+                  <p className="text-xl font-medium tracking-[-0.025em] text-cream">Nomos Orbital</p>
+                  <p className="chart-label mt-0.5 text-muted-dark">est. among the stars</p>
                 </div>
               </div>
-              <p className="prose-compact mt-4 max-w-sm text-parchment-muted">
+              <p className="prose-compact mt-4 max-w-sm text-cream/70">
                 Nomos Orbital is building the intelligence layer for space
                 infrastructure: one request, routed across orbital, ground, and
                 cloud systems, with every decision explained.
               </p>
               <div className="mt-5 space-y-2">
                 <a
-                  className="metric-value block text-sm text-parchment-muted transition-colors hover:text-parchment-ink"
+                  className="metric-value block text-sm text-cream/70 transition-colors hover:text-cream"
                   href="https://api.nomosorbital.com"
                 >
                   api.nomosorbital.com
                 </a>
-                <p className="max-w-sm text-xs leading-5 text-parchment-muted">
+                <p className="max-w-sm text-xs leading-5 text-muted">
                   Early-access demo: production API, real orbital data and
                   calculations. Provider execution stays simulated or planned until
                   integrations exist.
@@ -104,7 +95,7 @@ export function SiteFooter() {
               <FooterLinkList title="Developers" links={developerLinks} />
             </nav>
           </div>
-        </LiquidCard>
+        </div>
 
         <div className="atlas-footer__meta">
           <p className="metric-value text-[11px] text-cream/70">

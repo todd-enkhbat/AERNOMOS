@@ -1,20 +1,15 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion, useScroll } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-
-import { LiquidButton } from "@/components/liquid/LiquidButton";
-import {
-  createGoldenRecordDisc,
-  loadGoldenRecordTexture
-} from "@/components/orbital/goldenRecordDisc";
+import { useReducedMotion, useScroll } from "framer-motion";
+import { useRef } from "react";
+import { GoldenRecord } from "./GoldenRecord";
+import styles from "./AboutScrollStory.module.css";
 
 const pillars = [
   {
     label: "Nomos",
     title: "Order among the stars",
-    body: "Nomos (νόμος) is Greek for law and the ordering principle behind how things are arranged. Orbital infrastructure is a scheduling problem under contact windows, downlink budgets, and audit constraints. Nomos Orbital is the control plane that imposes that order."
+    body: "Nomos (νόμος) is Greek for law and the ordering principle behind how things are arranged. Orbital infrastructure is a planning problem under contact windows, data availability, policy limits, and processing constraints. Nomos is the intelligence layer that makes those facts legible together."
   },
   {
     label: "Golden Record",
@@ -23,186 +18,36 @@ const pillars = [
   },
   {
     label: "Verification",
-    title: "A control surface with memory",
-    body: "Orbital infrastructure demands precise coordination under noisy constraints: contact windows, downlink budgets, model compatibility, and audit requirements. Every job emits an append-only event trail and a hashed route so decisions can be replayed instead of merely trusted."
+    title: "A decision with memory",
+    body: "A mission brief should preserve why a path was selected: the public facts, calculation methods, assumptions, rejected alternatives, and missing integrations. Nomos returns that evidence with the recommendation so the decision can be inspected instead of merely trusted."
   }
 ];
 
 export function AboutScrollStory() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const mountRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const [activeIndex, setActiveIndex] = useState(0);
-
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"]
+    offset: ["start center", "end center"]
   });
 
-  useEffect(() => {
-    const unsub = scrollYProgress.on("change", (v) => {
-      progressRef.current = v;
-      if (v < 0.34) {
-        setActiveIndex(0);
-      } else if (v < 0.67) {
-        setActiveIndex(1);
-      } else {
-        setActiveIndex(2);
-      }
-    });
-    return unsub;
-  }, [scrollYProgress]);
-
-  useEffect(() => {
-    const mount = mountRef.current;
-    if (!mount) {
-      return;
-    }
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-    camera.position.z = 3.15;
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    mount.appendChild(renderer.domElement);
-
-    const texture = loadGoldenRecordTexture();
-    const { disc, ring } = createGoldenRecordDisc(texture);
-    scene.add(disc);
-    scene.add(ring);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const key = new THREE.DirectionalLight(0xfff4d4, 1.85);
-    key.position.set(2.8, 3.2, 5);
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0xe3c05c, 0.55);
-    fill.position.set(-2.8, -0.2, 2);
-    scene.add(fill);
-    const rimLight = new THREE.DirectionalLight(0xffe08a, 0.4);
-    rimLight.position.set(0, -2, -3);
-    scene.add(rimLight);
-
-    let raf = 0;
-    let inView = true;
-    let pageVisible = document.visibilityState === "visible";
-
-    const resize = () => {
-      const w = mount.clientWidth;
-      const h = mount.clientHeight;
-      if (w === 0 || h === 0) {
-        return;
-      }
-      renderer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const tick = () => {
-      raf = 0;
-      const p = reduced ? 0.5 : progressRef.current;
-      disc.rotation.z =
-        p * Math.PI * 2.6 + (reduced ? 0 : performance.now() * 0.00006);
-      // Very light yaw so the record reads as a round plate, not an ellipse.
-      disc.rotation.y = Math.sin(p * Math.PI) * 0.1;
-      disc.rotation.x = 0;
-      renderer.render(scene, camera);
-      if (!reduced && inView && pageVisible) {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-    const requestRender = () => {
-      if (raf === 0) {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-    const visibility = new IntersectionObserver(
-      ([entry]) => {
-        inView = entry.isIntersecting;
-        if (inView && pageVisible && !reduced) {
-          requestRender();
-        }
-      },
-      { rootMargin: "120px" }
-    );
-    const onVisibilityChange = () => {
-      pageVisible = document.visibilityState === "visible";
-      if (pageVisible && inView && !reduced) {
-        requestRender();
-      }
-    };
-
-    visibility.observe(mount);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    tick();
-
-    return () => {
-      cancelAnimationFrame(raf);
-      visibility.disconnect();
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("resize", resize);
-      texture.dispose();
-      renderer.dispose();
-      mount.removeChild(renderer.domElement);
-    };
-  }, [reduced]);
-
-  const pillar = pillars[activeIndex];
-
   return (
-    <section className="scroll-story-stage relative isolate" ref={sectionRef}>
-      <div className="scroll-story-stage__sticky z-0 grid items-center lg:grid-cols-[1fr_1fr]">
-        <div className="relative flex h-full items-center justify-center py-10">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute h-[320px] w-[320px] rounded-full bg-gold/10 blur-[80px]"
-          />
-          <div
-            className="relative aspect-square h-[min(340px,68vw)] w-[min(340px,68vw)] overflow-hidden rounded-full shadow-[0_0_0_1px_rgba(227,192,92,0.22),0_20px_50px_rgba(0,10,40,0.35)]"
-            ref={mountRef}
-          />
-        </div>
-
-        <div className="relative hidden h-full min-h-[280px] items-center overflow-hidden lg:flex">
-          <AnimatePresence mode="wait">
-            <motion.article
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute inset-0 flex flex-col justify-center pr-8"
-              exit={{ opacity: 0, y: -16 }}
-              initial={{ opacity: 0, y: 16 }}
-              key={pillar.label}
-              transition={
-                reduced
-                  ? { duration: 0 }
-                  : { type: "spring", stiffness: 320, damping: 32 }
-              }
-            >
-              <p className="chart-label text-gold">{pillar.label}</p>
-              <h3 className="display gold-shine mt-3 text-3xl leading-tight">
-                {pillar.title}
-              </h3>
-              <p className="prose-compact mt-4 max-w-md text-silver">{pillar.body}</p>
-            </motion.article>
-          </AnimatePresence>
-        </div>
+    <div className={`page-shell ${styles.story}`} ref={sectionRef}>
+      <div className={styles.recordColumn}>
+        <figure className={styles.record}>
+          <GoldenRecord progress={scrollYProgress} reduced={Boolean(reduced)} />
+          <figcaption>THE GOLDEN RECORD <span>VOYAGER / 1977</span></figcaption>
+        </figure>
       </div>
-
-      <div className="page-shell space-y-12 pb-12 lg:hidden">
-        {pillars.map((item) => (
-          <article key={item.label}>
-            <p className="chart-label text-gold">{item.label}</p>
-            <h3 className="display mt-2 text-2xl text-cream">{item.title}</h3>
-            <p className="prose-compact mt-3 text-muted">{item.body}</p>
+      <div className={styles.chapters}>
+        {pillars.map((pillar, index) => (
+          <article className={styles.chapter} key={pillar.label}>
+            <p className={styles.label}><span>0{index + 1}</span> {pillar.label}</p>
+            <h3>{pillar.title}</h3>
+            <p className={styles.body}>{pillar.body}</p>
           </article>
         ))}
-        <LiquidButton href="/about" variant="outline">
-          Full story
-        </LiquidButton>
       </div>
-    </section>
+    </div>
   );
 }

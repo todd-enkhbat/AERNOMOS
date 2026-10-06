@@ -105,7 +105,7 @@ def get_scene(session: Session, job_id: str) -> Optional[Dict[str, Any]]:
     scene = session.scalars(select(Scene).where(Scene.job_id == job_id)).one_or_none()
     if scene is None:
         return None
-    aoi_row = session.execute(
+    aoi_row: str = session.execute(
         select(func.ST_AsGeoJSON(Scene.aoi)).where(Scene.id == scene.id)
     ).scalar_one()
     return {

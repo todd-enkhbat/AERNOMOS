@@ -1,0 +1,176 @@
+.page {
+  background: linear-gradient(180deg, #001045 0%, #001a75 32%, #001045 78%);
+  --gold: #e3c05c;
+  padding-bottom: 3rem;
+}
+
+/* One stable field: section motion belongs to the content, not its background. */
+.lineage { padding-top: clamp(3.5rem, 6vw, 6rem); border-top: 1px solid #e3c05c30; }
+.lineageIntro { max-width: 1180px; }
+.lineageIntro h2 { font-size: clamp(2rem, 3.7vw, 3.5rem); line-height: 1.06; }
+.lineageIntro > p:last-child { max-width: 43rem; line-height: 1.75; }
+.archive, .today { padding-block: clamp(4rem, 7vw, 7rem); }
+.today { border-top: 1px solid #e3c05c30; }
+.links { padding-bottom: 2rem; }
+
+.hero {
+  position: relative;
+  min-height: min(56rem, 88svh);
+  overflow: hidden;
+  border-bottom: 1px solid rgba(227, 192, 92, 0.2);
+  background: var(--klein-void);
+}
+
+.heroMedia,
+.heroScrim {
+  position: absolute;
+  inset: 0;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: 54% center;
+  filter: saturate(0.86) contrast(1.08) brightness(0.78);
+  transform: scale(1.015);
+}
+
+.heroScrim {
+  background:
+    linear-gradient(90deg, rgba(0, 7, 29, 0.96) 0%, rgba(0, 8, 34, 0.68) 42%, rgba(0, 7, 29, 0.18) 72%),
+    linear-gradient(180deg, rgba(0, 7, 29, 0.14) 0%, rgba(0, 7, 29, 0.16) 52%, rgba(0, 7, 29, 0.96) 100%);
+}
+
+.heroSection {
+  min-height: inherit;
+}
+
+.heroContent {
+  display: flex;
+  min-height: inherit;
+  align-items: flex-end;
+  padding-top: clamp(8rem, 16vw, 13rem);
+  padding-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+.heroContent h1 {
+  max-width: 56rem;
+  margin-top: 0.8rem;
+  color: var(--cream);
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: clamp(3.4rem, 8vw, 8rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+}
+
+.heroLead {
+  max-width: 39rem;
+  margin-top: 1.6rem;
+  color: rgba(242, 238, 228, 0.8);
+  font-size: clamp(1rem, 1.45vw, 1.2rem);
+  line-height: 1.7;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.beliefSection {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.35fr);
+  column-gap: clamp(2.5rem, 6vw, 6rem);
+  row-gap: 2rem;
+  padding-block: clamp(4rem, 7vw, 7rem);
+}
+
+.beliefTitle {
+  max-width: 38rem;
+  margin-top: 0.75rem;
+  color: var(--cream);
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: clamp(2.25rem, 3.6vw, 3.7rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.beliefs {
+  border-top: 1px solid rgba(227, 192, 92, 0.28);
+}
+
+.belief {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(1.75rem, 3vw, 2.6rem) 0;
+  border-bottom: 1px solid rgba(227, 192, 92, 0.2);
+}
+
+.beliefIndex {
+  color: var(--gold);
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 1.65rem;
+  font-style: italic;
+  line-height: 1.08;
+}
+
+.belief h3 {
+  color: var(--cream);
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.belief p:last-child {
+  max-width: 48rem;
+  margin-top: 0.85rem;
+  color: rgba(242, 238, 228, 0.8);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.beliefClose {
+  grid-column: 2;
+  max-width: 50rem;
+  color: var(--silver);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+@media (max-width: 900px) {
+  .hero { min-height: 46rem; }
+  .beliefSection { grid-template-columns: 1fr; }
+  .beliefClose { grid-column: auto; }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    min-height: 42rem;
+  }
+
+  .heroImage { object-position: 62% center; }
+  .heroScrim {
+    background:
+      linear-gradient(90deg, rgba(0, 7, 29, 0.91), rgba(0, 7, 29, 0.35)),
+      linear-gradient(180deg, rgba(0, 7, 29, 0.12), rgba(0, 7, 29, 0.96));
+  }
+  .heroContent h1 { font-size: clamp(3.3rem, 17vw, 5.5rem); }
+  .belief { grid-template-columns: 2.4rem minmax(0, 1fr); }
+}
+
+/* About shares the product typography, including legacy utility headings. */
+.page h1, .page h2, .page h3 {
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-weight: 500;
+}
+.heroSection { position: relative; z-index: 2; pointer-events: none; }
+.heroSection a { pointer-events: auto; }
+.heroImage { opacity: 0.6; }
+.heroContent h1 { max-width: 50rem; letter-spacing: -0.065em; line-height: 0.96; }
+.beliefTitle { letter-spacing: -0.045em; line-height: 1.08; }
+.today :global(.text-muted-dark) { color: #aebbd7; }

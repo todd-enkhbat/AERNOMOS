@@ -1,0 +1,37 @@
+.signal {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding-block: clamp(4rem, 8vw, 7rem) clamp(1rem, 3vw, 3rem);
+  font: 500 clamp(2.6rem, 6.3vw, 6rem)/0.98 var(--font-sans), sans-serif;
+  letter-spacing: -0.055em;
+  color: #f2eee4;
+  pointer-events: none;
+}
+.signal span:last-child { color: #b7c9ec; }
+
+.footer {
+  isolation: isolate;
+  border-top: 1px solid #8fa8dc30;
+  background: linear-gradient(125deg, #001045 5%, #001b68 62%, #002784);
+}
+.footer :global(.atlas-footer__shell) { pointer-events: none; }
+.footer :global(.atlas-footer__shell a) { pointer-events: auto; }
+.footer :global(.atlas-footer__card) {
+  background: linear-gradient(90deg, #001039f5, #001039e8 65%, #00103988);
+  box-shadow: none;
+  border-color: #a5bdf22e;
+}
+.footer :global(.atlas-footer__meta) { padding-block: 1rem; }
+.footer :global(.atlas-footer__nav a) {
+  display: inline-block;
+  transition: color 180ms ease-out, transform 180ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .footer :global(.atlas-footer__nav a:hover) { transform: translateX(4px); color: #f4d481; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer :global(.atlas-footer__nav a) { transition: none; }
+  .footer :global(.atlas-footer__nav a:hover) { transform: none; }
+}
