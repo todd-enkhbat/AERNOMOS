@@ -51,7 +51,7 @@ function FooterLinkList({
 
 export function SiteFooter() {
   return (
-    <footer className="atlas-footer relative overflow-hidden">
+    <footer className={`atlas-footer relative overflow-hidden ${styles.footer}`}>
       <OrbitalField variant="footer" />
       <div className={`page-shell ${styles.signal}`} aria-hidden>
         <span>One request.</span>

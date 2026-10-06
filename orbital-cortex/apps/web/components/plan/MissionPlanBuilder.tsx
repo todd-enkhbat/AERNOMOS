@@ -29,6 +29,7 @@ import {
   type AreaOfInterest,
   type ObjectiveType
 } from "@/lib/mission-builder";
+import styles from "./MissionPlanBuilder.module.css";
 
 const AoiMapDraw = dynamic(
   () => import("@/components/plan/AoiMapDraw").then((m) => m.AoiMapDraw),
@@ -51,11 +52,11 @@ const STEPS = [
 ] as const;
 
 function fieldClassName() {
-  return "mt-1.5 w-full rounded-lg border border-white/10 bg-klein-void/50 px-3 py-2 text-cream outline-none focus:border-gold/40";
+  return styles.field;
 }
 
 function labelClassName() {
-  return "block text-sm text-muted";
+  return styles.label;
 }
 
 export function MissionPlanBuilder() {
@@ -206,7 +207,7 @@ export function MissionPlanBuilder() {
               <button
                 aria-current={active ? "step" : undefined}
                 className={[
-                  "rounded-lg border px-3 py-1.5 text-xs transition-colors",
+                  `${styles.step} rounded-lg border px-3 py-1.5 text-xs`,
                   active
                     ? "border-gold/50 bg-gold/10 text-cream"
                     : done
@@ -219,6 +220,7 @@ export function MissionPlanBuilder() {
                     dispatch({ type: "setStep", step: step.id });
                   }
                 }}
+                disabled={step.id >= state.step}
                 type="button"
               >
                 {step.id}. {step.label}
@@ -230,7 +232,7 @@ export function MissionPlanBuilder() {
 
       {error ? <InlineNotice message={error} /> : null}
 
-      <LiquidCard interactive={false}>
+      <LiquidCard className={styles.card} interactive={false}>
         {state.step === 1 ? (
           <fieldset className="space-y-3">
             <legend className="chart-label text-gold">What are you trying to do?</legend>

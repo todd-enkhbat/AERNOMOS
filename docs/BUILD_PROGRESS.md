@@ -2,6 +2,13 @@
 
 Current phase: **complete** (A–T finished)
 
+## Planning form visual polish (October 6, 2026)
+
+- Replaced the planning builder's unreliable translucent Tailwind variable backgrounds with explicit blue ink controls, legible labels and placeholders, clear hover/focus states, and browser-native dark date/select menus. The change covers all builder steps, including constraints and advanced fields.
+- Step navigation now has a larger touch target and only earlier steps are actionable; press feedback respects reduced-motion settings. The form card uses `overflow: clip` so focusing Continue cannot scroll its contents under the top edge.
+- Corrected the footer CSS module's local selector scoping so the shared footer styling compiles.
+- Lint, TypeScript, and production build passed (19 routes). Browser review covered the objective-to-constraints flow at desktop and 390px mobile widths: blue fields render, the card no longer scrolls internally, and mobile has no horizontal overflow. No deployment.
+
 ## Completed
 - Phase A: Current-system audit (`orbital-cortex/docs/current-system-audit.md`, commit `c5d6f90`)
 - Phase B: Mission data model + TruthStatus enum (`feat: add private mission planning data model`)
