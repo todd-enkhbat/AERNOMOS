@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    // Request, Missions, Network and Control are combined into the Console.
+    // Mission briefs (/missions/[id]), jobs and share links keep their routes.
+    return ["/plan", "/missions", "/network", "/dashboard"].map((source) => ({
+      source,
+      destination: "/console",
+      permanent: false
+    }));
+  },
   async rewrites() {
     // Same-origin proxy so HttpOnly session cookies work in local dev
     // (browser localhost:3000 → API localhost:8000 is cross-origin).
