@@ -38,10 +38,18 @@ export function NomosConsole() {
     size();
     window.addEventListener("resize", size);
 
+    // One shared session request: parallel ensureAnonymousSession() calls each mint a
+    // new session, which would orphan the mission from the browser's final cookie.
+    let session: Promise<unknown> | null = null;
+    const ensureSession = () => (session ??= ensureAnonymousSession().catch((err) => {
+      session = null;
+      throw err;
+    }));
+
     const unmount = mountConsole(root, {
       async createMission(spec) {
         try {
-          await ensureAnonymousSession();
+          await ensureSession();
           const created = await createMission(spec as MissionCreatePayload);
           return created.mission.id;
         } catch (err) {
@@ -50,7 +58,7 @@ export function NomosConsole() {
       },
       async listMissions() {
         try {
-          await ensureAnonymousSession();
+          await ensureSession();
           const { missions } = await listMissions();
           return missions.map((m) => ({ id: m.id, title: m.title }));
         } catch {
