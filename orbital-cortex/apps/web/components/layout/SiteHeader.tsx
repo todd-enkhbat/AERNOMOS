@@ -10,10 +10,7 @@ import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { useLiquidMouse } from "@/components/liquid/useLiquidMouse";
 
 const navItems = [
-  { href: "/plan", label: "Request" },
-  { href: "/missions", label: "Missions" },
-  { href: "/network", label: "Network" },
-  { href: "/dashboard", label: "Control" },
+  { href: "/console", label: "Console" },
   { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }
@@ -67,7 +64,7 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <LiquidButton className="!hidden md:!inline-flex" href="/plan" variant="primary">
+            <LiquidButton className="!hidden md:!inline-flex" href="/console" variant="primary">
               Run a request
             </LiquidButton>
             <button
@@ -106,10 +103,10 @@ export function SiteHeader() {
             })}
               <Link
                 className="col-span-2 flex min-h-[42px] items-center justify-center rounded-lg bg-gold px-3 py-2 text-xs font-semibold text-klein-void"
-                href="/plan"
+                href="/console"
                 onClick={() => setMenuOpen(false)}
               >
-                Build a mission plan
+                Run a request
               </Link>
           </nav>
         ) : null}

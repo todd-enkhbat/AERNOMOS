@@ -6,11 +6,8 @@ import { NomosMark } from "@/components/brand/NomosMark";
 import styles from "./SiteFooter.module.css";
 
 const productLinks = [
-  { href: "/plan", label: "Run a request" },
+  { href: "/console", label: "Console" },
   { href: "/examples", label: "Example requests" },
-  { href: "/missions", label: "Missions" },
-  { href: "/network", label: "Network" },
-  { href: "/dashboard", label: "Network control" },
   { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/calendar", label: "Calendar" },
@@ -103,7 +100,7 @@ export function SiteFooter() {
           </p>
           <Link
             className="text-[11px] text-cream/70 transition-colors hover:text-cream"
-            href="/plan"
+            href="/console"
           >
             Run a request
           </Link>
