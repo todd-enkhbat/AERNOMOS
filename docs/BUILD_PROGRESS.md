@@ -9,6 +9,15 @@ Current phase: **complete** (A–T finished)
 - Validation before release: web lint and production build passed (19 routes). Browser review covered the homepage, About, and Capabilities on desktop and the homepage at 390px; the compact mobile navigation is present, the new hero and font load, and no horizontal overflow was observed.
 - Release target: Vercel project `aernomos` on `nomosorbital.com`. Verify the final production deployment and route behavior after publishing.
 
+## Production homepage applications and continuity (October 13, 2026)
+
+- Applied the requested homepage edits on the current production base `a5a1d46` (Vercel project `aernomos`, production branch `main`), preserving the combined Console and its anonymous-session race fix. Older local branch changes were not included.
+- Added three independently moving application rows with dark hover/press feedback, row-local hover/focus pause, an explicit pause-all control, and static wrapping reduced-motion content. New application links and the prominent “Try Nomos” action enter `/console`; renamed its header navigation entry and page title to “Try Nomos”.
+- Blended image section boundaries into the shared blue field and removed full-width narrative section dividers. Preserved the final CTA/contact transition and existing content after the applications section.
+- Files: homepage and narrative CSS, `HomeNarrative.tsx`, new `HomeApplications.tsx`/CSS, `SiteHeader.tsx`, Console metadata, and SOUL.md. No dependencies, API, session, or redirect behavior changed.
+- Validation: clean lockfile install; production build with lint/TypeScript passed (20 routes). Desktop 1440px/mobile 390px preview reviewed, three rows and no horizontal overflow. Clicked the new CTA and confirmed the current combined Console opens. Existing row-hover and reduced-motion checks passed before porting; closing sections, footer, API client and redirects verified unchanged against production.
+- Release: user authorized commit and publication; release from this production-based checkout through Vercel’s existing main-branch integration. Mission-planner phases remain complete.
+
 ## Planning form visual polish (October 6, 2026)
 
 - Replaced the planning builder's unreliable translucent Tailwind variable backgrounds with explicit blue ink controls, legible labels and placeholders, clear hover/focus states, and browser-native dark date/select menus. The change covers all builder steps, including constraints and advanced fields.

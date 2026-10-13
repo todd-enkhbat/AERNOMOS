@@ -14,7 +14,6 @@
   object-fit: cover;
   object-position: center 58%;
   filter: saturate(0.82) contrast(1.08) brightness(0.76);
-  transform: scale(1.015);
 }
 
 .heroScrim {
@@ -32,6 +31,14 @@
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
   mix-blend-mode: soft-light;
+}
+
+/* Let the photography resolve into the shared field before the next beat. */
+.heroImage,
+.heroScrim,
+.heroGrain {
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 96%);
 }
 
 .heroInner {
@@ -150,7 +157,7 @@
   scroll-margin-top: 7rem;
   padding: clamp(6rem, 10vw, 9rem) 0;
   background:
-    radial-gradient(circle at 82% 30%, rgba(0, 47, 167, 0.28), transparent 34%),
+    radial-gradient(ellipse 65% 45% at 82% 45%, rgba(0, 47, 167, 0.28), transparent 100%),
     #001045;
 }
 
@@ -225,6 +232,12 @@
     radial-gradient(circle at 72% 42%, rgba(0, 47, 167, 0.18), transparent 34%),
     linear-gradient(90deg, rgba(0, 16, 69, 0.96) 0%, rgba(0, 16, 69, 0.73) 48%, rgba(0, 26, 117, 0.38) 100%),
     linear-gradient(180deg, rgba(0, 16, 69, 0.44), rgba(0, 11, 48, 0.86));
+}
+
+.solutionImage,
+.solutionScrim {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 75%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 75%, transparent);
 }
 
 .solutionInner {

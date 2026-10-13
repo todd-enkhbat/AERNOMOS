@@ -10,7 +10,7 @@ import { LiquidButton } from "@/components/liquid/LiquidButton";
 import { useLiquidMouse } from "@/components/liquid/useLiquidMouse";
 
 const navItems = [
-  { href: "/console", label: "Console" },
+  { href: "/console", label: "Try Nomos" },
   { href: "/capabilities", label: "Capabilities" },
   { href: "/about", label: "About" },
   { href: "/docs", label: "Docs" }

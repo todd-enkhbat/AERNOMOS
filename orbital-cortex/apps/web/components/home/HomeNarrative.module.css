@@ -1,9 +1,7 @@
 .narrative {
   margin-top: 0;
   padding: clamp(5rem, 9vw, 8rem) 0;
-  border-top: 1px solid rgba(227, 192, 92, 0.16);
-  background:
-    linear-gradient(180deg, rgba(0, 12, 54, 0.35) 0%, rgba(0, 12, 54, 0.74) 100%);
+  background: transparent;
 }
 
 .shell {
@@ -335,7 +333,6 @@
   position: relative;
   overflow: hidden;
   padding: clamp(5rem, 9vw, 8.5rem) 0;
-  border-top: 1px solid rgba(227, 192, 92, 0.2);
   background: #001045;
   color: var(--cream);
 }
@@ -352,6 +349,12 @@
   background:
     linear-gradient(90deg, rgba(0, 16, 69, 0.76) 0%, rgba(0, 16, 69, 0.58) 50%, rgba(0, 11, 48, 0.9) 100%),
     linear-gradient(180deg, rgba(0, 26, 117, 0.36), rgba(0, 11, 48, 0.92));
+}
+
+.resultImage,
+.resultScrim {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 75%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 75%, transparent);
 }
 
 .resultGrid {
@@ -507,9 +510,8 @@
 
 .maturitySection {
   padding: clamp(4.5rem, 8vw, 7rem) 0;
-  border-top: 1px solid rgba(227, 192, 92, 0.16);
   background:
-    radial-gradient(circle at 20% 30%, rgba(0, 47, 167, 0.24), transparent 32%),
+    radial-gradient(ellipse 65% 45% at 20% 45%, rgba(0, 47, 167, 0.24), transparent 100%),
     #001045;
 }
 
