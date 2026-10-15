@@ -23,7 +23,7 @@ const proofPoints = [
   },
   {
     label: "Recommend",
-    value: "Source-backed mission plans",
+    value: "Source-backed infrastructure routes",
     status: "LIVE"
   }
 ];
@@ -66,7 +66,7 @@ export default function HomePage() {
             <FadeIn when="mount">
               <p className={styles.eyebrow}>
                 <NomosMark size={18} />
-                Space intelligence infrastructure
+                Space infrastructure software
               </p>
             </FadeIn>
             <FadeIn delay={0.06} when="mount">
@@ -80,7 +80,7 @@ export default function HomePage() {
             </FadeIn>
             <FadeIn delay={0.18} when="mount">
               <div className={styles.heroActions}>
-                <LiquidButton href="/plan" variant="primary">
+                <LiquidButton href="/console" variant="primary">
                   Run a request
                 </LiquidButton>
                 <LiquidButton href="/network" variant="ghost">

@@ -159,9 +159,9 @@ function MissionDetailInner() {
       const response = await generateMissionPlans(params.id);
       const detailed = await loadPlanDetails(params.id, response.plans, shareToken);
       setPlans(detailed);
-      if (!detailed.length) setPlanError("No mission plans were generated.");
+      if (!detailed.length) setPlanError("No infrastructure routes were generated.");
     } catch (error) {
-      setPlanError(apiErrorMessage(error, "Could not generate mission plans."));
+      setPlanError(apiErrorMessage(error, "Could not generate infrastructure routes."));
     } finally {
       setPlanning(false);
     }

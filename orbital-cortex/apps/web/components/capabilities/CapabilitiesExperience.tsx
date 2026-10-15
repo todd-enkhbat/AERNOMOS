@@ -412,7 +412,7 @@ function IntelligenceLoopScene() {
       <div className={styles.stickyStage}>
         <div className={`page-shell ${styles.loopInner}`}>
           <div className={styles.loopCopy}>
-            <TechnicalLabel>PLANNING LOOP</TechnicalLabel>
+            <TechnicalLabel>INFRASTRUCTURE LOOP</TechnicalLabel>
             {reduced ? (
               <div className={styles.reducedStateList}>
                 {loopStates.map((item) => (

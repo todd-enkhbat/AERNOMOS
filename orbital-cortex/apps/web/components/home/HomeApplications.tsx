@@ -71,7 +71,7 @@ export function HomeApplications() {
           <LiquidButton className={styles.tryButton} href="/console" variant="primary">
             Try Nomos <ArrowRight aria-hidden size={18} />
           </LiquidButton>
-          <p>Start with a plan. No account required.</p>
+          <p>One interface to the space stack. No account required.</p>
         </div>
       </div>
     </section>

@@ -63,8 +63,8 @@ export default function MissionsPage() {
     <div className="page-shell pb-16">
       <PageHeader
         action={
-          <LiquidButton href="/plan" variant="primary">
-            Build a mission plan
+          <LiquidButton href="/console" variant="primary">
+            Run a request
           </LiquidButton>
         }
         description="Plans created here stay private to this browser session until you explicitly make a share link. This is your technical record, not a public activity feed."
@@ -115,8 +115,8 @@ export default function MissionsPage() {
                 this workspace reconnects.
               </p>
               <div className="nomos-empty-state__actions">
-                <LiquidButton href="/plan" variant="primary">
-                  Build a mission plan
+                <LiquidButton href="/console" variant="primary">
+                  Run a request
                 </LiquidButton>
                 <LiquidButton href="/examples" variant="outline">
                   Open an example
@@ -136,8 +136,8 @@ export default function MissionsPage() {
                 resulting plan privately to this browser session.
               </p>
               <div className="nomos-empty-state__actions">
-                <LiquidButton href="/plan" variant="primary">
-                  Build a mission plan
+                <LiquidButton href="/console" variant="primary">
+                  Run a request
                 </LiquidButton>
                 <LiquidButton href="/examples" variant="outline">
                   Open an example

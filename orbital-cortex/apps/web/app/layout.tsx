@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 
-import { DemoEnvironmentBanner } from "@/components/layout/DemoEnvironmentBanner";
 import { MetalScrollRail } from "@/components/layout/MetalScrollRail";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -48,11 +47,11 @@ const mono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://nomosorbital.com"),
   title: {
-    default: "Nomos Orbital | Space Intelligence Infrastructure",
+    default: "Nomos Orbital | Space Infrastructure Software",
     template: "%s · Nomos Orbital"
   },
   description:
-    "Nomos Orbital is building the intelligence and orchestration layer across satellites, ground infrastructure, and cloud compute. Express what you need; Nomos determines how the space stack can deliver it.",
+    "Nomos Orbital is space infrastructure software: an intelligence and orchestration layer across satellites, ground systems, and cloud compute. Express what you need; Nomos determines how the space stack can deliver it.",
   icons: {
     icon: [{ url: "/images/nomos-golden-record.png", type: "image/png" }],
     apple: [{ url: "/images/nomos-golden-record.png", type: "image/png" }]
@@ -99,7 +98,6 @@ export default function RootLayout({
         <div className="starfield" aria-hidden />
         <SiteCadence />
         <div className="relative z-10 flex min-h-screen flex-col">
-          <DemoEnvironmentBanner />
           <SiteHeader />
           <main className="flex-1" id="main-content">
             {children}

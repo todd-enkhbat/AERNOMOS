@@ -105,7 +105,7 @@ function FeaturedSpecimen({
       <LiquidCard className="overflow-visible">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="chart-label text-gold">Featured example · live planner output</p>
+            <p className="chart-label text-gold">Featured example · infrastructure analysis</p>
             <h2 className="mt-2 text-xl font-medium text-cream">{mission.title}</h2>
             <p className="mt-1 text-sm text-muted">
               {labelize(mission.objective_type)}

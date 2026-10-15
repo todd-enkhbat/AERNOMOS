@@ -83,7 +83,7 @@ function estimateMetric(
   return {
     value: estimate?.value ?? null,
     truth_status: asTruthStatus(estimate?.truth_status),
-    source: "Nomos structured planner",
+    source: "Nomos infrastructure engine",
     method: estimate?.method ?? undefined,
     explanation:
       key === "cost_usd" && estimate?.value == null
@@ -657,7 +657,7 @@ export function MissionBrief({
         <p className="chart-label text-gold">01 · Executive recommendation</p>
         <h2 className="mt-5 max-w-4xl font-sans text-4xl font-medium leading-[1.04] tracking-[-0.05em] text-cream sm:text-6xl" id="mission-section-01">
           {recommended
-            ? `Recommended plan: ${primary.summary.toLowerCase()}`
+            ? `Recommended infrastructure route: ${primary.summary.toLowerCase()}`
             : "No executable recommendation"}
         </h2>
         <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -691,7 +691,7 @@ export function MissionBrief({
                 metric={{
                   value: primary.explanation?.top_assumptions?.length ?? 0,
                   truth_status: "CALCULATED",
-                  source: "Structured planner explanation",
+                  source: "Infrastructure engine explanation",
                   method: "Count of persisted top assumptions",
                 }}
               />
@@ -705,7 +705,7 @@ export function MissionBrief({
                 metric={{
                   value: missingIntegrations.length,
                   truth_status: "CALCULATED",
-                  source: "Structured planner explanation",
+                  source: "Infrastructure engine explanation",
                   method: "Count of persisted unavailable integrations",
                 }}
               />

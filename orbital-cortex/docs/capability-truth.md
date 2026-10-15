@@ -35,7 +35,7 @@ Safe to claim on the homepage and customer surfaces:
 - searches real public data catalogs (Microsoft Planetary Computer STAC)
 - calculates satellite and ground contact opportunities (SGP4 / Skyfield over
   CelesTrak TLEs, live or pinned)
-- compares feasible infrastructure routes (mission planner patterns)
+- compares feasible infrastructure routes (infrastructure route patterns)
 - labels assumptions and unavailable integrations with truth status
 - generates a technical mission brief at `/missions/[id]`
 - keeps visitor missions private to an anonymous browser session
@@ -71,7 +71,7 @@ Do not write or imply:
 
 ## Truth classes
 
-### Mission planning (customer path)
+### Infrastructure requests (customer path)
 
 - guided builder at `/plan`
 - private anonymous sessions and optional share links
@@ -171,7 +171,7 @@ Do not say: **live SAR**, **live AIS**, **current vessel intelligence**, or
 
 ## Important qualifications
 
-- Homepage primary CTA is mission planning (`/plan`), secondary is `/examples`.
+- Homepage primary CTA is Run a request (`/console`); examples remain available at `/examples`.
 - `/jobs` is a labeled historical simulation demo, not the primary product path.
 - Curated examples are `missions.is_example=true` with disclosure metadata;
   demo reset preserves or reseeds them and never deletes example missions.

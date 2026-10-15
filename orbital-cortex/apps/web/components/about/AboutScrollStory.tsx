@@ -9,7 +9,7 @@ const pillars = [
   {
     label: "Nomos",
     title: "Order among the stars",
-    body: "Nomos (νόμος) is Greek for law and the ordering principle behind how things are arranged. Orbital infrastructure is a planning problem under contact windows, data availability, policy limits, and processing constraints. Nomos is the intelligence layer that makes those facts legible together."
+    body: "Nomos (νόμος) is Greek for law and the ordering principle behind how things are arranged. Orbital infrastructure operates under contact windows, data availability, policy limits, and processing constraints. Nomos is the intelligence layer that makes those facts legible together."
   },
   {
     label: "Golden Record",

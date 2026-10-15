@@ -27,8 +27,8 @@ Intellectual lineage: Carl Sagan and the Golden Record, engineering humility, Ru
 ## 2. Positioning
 
 - **Primary tagline:** *Order, for the orbital age.*
-- **Category:** Space intelligence infrastructure. The intelligence and orchestration layer for space infrastructure.
-- **Category rule:** Mission planning is a current product surface and an output, never the company category. The company is the layer that turns fragmented space infrastructure into a programmable network. Do not let current limitations define the company; state them as product maturity.
+- **Category:** Space infrastructure software. The intelligence and orchestration layer across satellites, ground systems, and cloud compute.
+- **Category rule:** Always describe Nomos as infrastructure software. Never present it as a mission planner or planning platform. Planning and route analysis are capabilities within the infrastructure layer. The company is the layer that turns fragmented space infrastructure into a programmable network. Do not let current limitations define the company; state them as product maturity.
 - **One-line description:** Nomos turns fragmented space infrastructure into a programmable network.
 - **Interaction model:** Tell the network what you need. Nomos determines how the space stack can deliver it.
 - **North star:** One request. The whole space stack. Space should be callable.
@@ -304,14 +304,14 @@ flat projection.
 ## 8. Approved copy
 
 - **Final claim:** Nomos turns a space-data objective into a source-backed infrastructure plan. It searches real public data catalogs, calculates orbital and communication constraints, compares feasible execution paths, explains assumptions, and produces a shareable technical mission brief.
-- **Hero eyebrow:** Space intelligence infrastructure
+- **Hero eyebrow:** Space infrastructure software
 - **Hero:** The intelligence layer for space.
 - **Hero subline:** Tell the network what you need. Nomos determines how satellites, ground systems, and cloud compute deliver it.
 - **Hero (alt):** Make space programmable. / One request. The whole space stack.
 - **Primary CTA:** Run a request
 - **Secondary CTA:** See the network
 - **Tagline (brand):** Order, for the orbital age.
-- **Site title:** Nomos Orbital | Space Intelligence Infrastructure
+- **Site title:** Nomos Orbital | Space Infrastructure Software
 - **Meta description:** Nomos Orbital is building the intelligence and orchestration layer across satellites, ground infrastructure, and cloud compute.
 - **Problem:** Space is powerful. Access to it is still bespoke.
 - **Network line:** Different infrastructure. One interface. / The infrastructure can stay heterogeneous. Access to it should not.
@@ -324,7 +324,7 @@ flat projection.
 
 ## 9. Instructions for agents
 
-1. Lead every surface with the intelligence-layer category. Mission planning is a surface and an output, not the company; the job demo is demoted further still.
+1. Lead every surface with infrastructure software and the intelligence/orchestration layer. Describe plans as infrastructure outputs, never the company category. The historical job demo remains secondary.
 2. Keep `/examples` as the home for curated public examples with truth disclosures.
 3. Preserve Request → Score → Route → Return for the historical simulation demo and docs; label it SIMULATED.
 4. Do not claim live tasking, operational ground-station access, real orbital compute, live inference, commercial pricing guarantees, real authentication, or cryptographically signed events.
@@ -332,3 +332,7 @@ flat projection.
 6. Prefer readability over decorative complexity on first-viewport surfaces.
 7. Prefer the shorter and truer sentence.
 8. Write lasting decisions back into this file.
+
+### Public framing (October 15, 2026 user direction)
+
+Nomos is infrastructure software across the space stack. Public titles, descriptions, CTAs, and examples must not position it as a mission planner. Use Run a request and the combined Console entry. Remove the global demo-environment banner; retain evidence-level truth statuses and explicit provider-integration boundaries. Internal model names and historical build-phase records do not define the public category.

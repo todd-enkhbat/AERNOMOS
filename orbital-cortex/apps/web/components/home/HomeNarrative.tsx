@@ -57,7 +57,7 @@ export function HomeNarrative() {
             <div className={styles.planSpecimen}>
               <div className={styles.planHeader}>
                 <div>
-                  <span>Recommended plan</span>
+                  <span>Recommended infrastructure route</span>
                   <small>REFERENCE MISSION BRIEF</small>
                 </div>
                 <span className={styles.planStatus}>CONDITIONAL</span>
@@ -105,11 +105,11 @@ export function HomeNarrative() {
           <FadeIn delay={0.05} viewportMargin="0px" y={6}>
             <div className={styles.resultCopy}>
               <p className={styles.beatIndex}>Recommend</p>
-              <h2 id="mission-brief-title">Receive one technical plan.</h2>
+              <h2 id="mission-brief-title">See the recommended infrastructure route.</h2>
               <p className={styles.resultLead}>
                 Nomos returns the route it recommends, the alternatives it rejects,
-                and the evidence behind the decision. The output is a shareable
-                technical brief, not an opaque score.
+                and the evidence behind the decision. The output is a source-backed
+                technical brief.
               </p>
               <ul>
                 <li>

@@ -199,7 +199,7 @@ export function ExecutionDemoPanel({
 
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-              <dt className="chart-label text-muted-dark">Planner duration</dt>
+              <dt className="chart-label text-muted-dark">Estimated step duration</dt>
               <dd className="mt-2 flex flex-wrap items-center gap-2 text-sm text-cream">
                 {plannerDuration != null ? `${plannerDuration.toFixed(0)} sec` : "Unavailable"}
                 <TruthBadge compact status="ESTIMATED" />

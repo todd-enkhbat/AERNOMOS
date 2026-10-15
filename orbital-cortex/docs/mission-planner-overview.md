@@ -1,4 +1,6 @@
-# Mission planner overview
+# Nomos infrastructure software overview
+
+Nomos is space infrastructure software: an intelligence and orchestration layer across satellites, ground systems, and cloud compute. This document describes its request-analysis capability, not a standalone mission-planner product.
 
 ## Status
 

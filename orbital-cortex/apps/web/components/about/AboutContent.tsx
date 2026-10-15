@@ -89,7 +89,7 @@ export function AboutContent() {
           integrations and is never claimed early.
         </p>
         <div className={styles.actions}>
-          <LiquidButton href="/plan" variant="primary">Build a mission plan</LiquidButton>
+          <LiquidButton href="/console" variant="primary">Run a request</LiquidButton>
           <LiquidButton href="/docs" variant="outline">Read the API reference</LiquidButton>
         </div>
       </FadeIn>

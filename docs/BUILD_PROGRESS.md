@@ -2,6 +2,12 @@
 
 Current phase: **complete** (A–T finished)
 
+## Infrastructure software framing and banner removal (October 15, 2026)
+
+- Removed the global demo-environment banner and its unused component at user request. Reframed public category/metadata as space infrastructure software, replaced mission-plan entry CTAs with Run a request to Console, and aligned homepage evidence, examples, About narrative, and capability-loop labels with infrastructure routing.
+- Preserved operational truth statuses, simulation/integration boundaries, API contracts, and existing mission/plan data models. Internal planning algorithms and historical A–T records remain technical context, not public company positioning. Updated SOUL.md and current capability/overview documentation to keep this direction persistent.
+- Validation: production build including lint and TypeScript passed. Browser review at 1440px and 390px confirmed header starts at the top, banner absent, infrastructure category/title visible, and no horizontal overflow. Source audit found no remaining mission-planner positioning or old Build a mission plan CTAs in active app/components. User authorized local commit; no push or deployment. A–T remain complete.
+
 ## Reference-style white Nomos navigation (October 14, 2026)
 
 - User clarified that the desired result is the Bessemer white header and drawer, fitted to Nomos, superseding the blue-pill size adjustment below. Implemented on verified current main with Console links preserved.

@@ -163,10 +163,10 @@ export default function FinalSymposiumPage() {
               Back to About
             </LiquidButton>
             <LiquidButton
-              href="/plan"
+              href="/console"
               variant="primary"
             >
-              Build a mission plan
+              Run a request
             </LiquidButton>
           </div>
         </section>

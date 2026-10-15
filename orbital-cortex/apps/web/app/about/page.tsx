@@ -82,8 +82,8 @@ export default function AboutPage() {
                 path across satellites, ground systems, and cloud compute.
               </p>
               <div className={styles.heroActions}>
-                <LiquidButton href="/plan" variant="primary">
-                  Build a mission plan
+                <LiquidButton href="/console" variant="primary">
+                  Run a request
                 </LiquidButton>
                 <LiquidButton href="/network" variant="ghost">
                   See the network →
