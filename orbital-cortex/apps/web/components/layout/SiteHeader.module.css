@@ -1,0 +1,39 @@
+.header { position: sticky; top: 0; z-index: 70; color: #191e31; background: #fff; }
+.bar { margin: 0 3%; min-height: 80px; display: flex; align-items: center; gap: 32px; border-bottom: 1px solid #d5dbe5; }
+.brand { display: flex; align-items: center; gap: 15px; margin-right: auto; color: #191e31; }
+.brand > span { display: grid; font-size: 24px; line-height: 1.02; letter-spacing: -.8px; }
+.brand strong { font-weight: 650; }
+.brand > span > span { font-weight: 350; }
+.desktop { display: flex; align-items: center; gap: clamp(24px, 3vw, 54px); }
+.desktop a { font-family: var(--font-mono), monospace; font-size: 13px; font-weight: 500; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap; }
+.desktop a:hover, .desktop a[aria-current], .primary a:hover, .secondary a:hover, .results a:hover { color: #145ac5; }
+.menuButton, .close { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; background: transparent; border: 0; color: inherit; cursor: pointer; border-radius: 50%; }
+.menuButton:active, .close:active { transform: scale(.97); }
+.header a:focus-visible, .header button:focus-visible, .drawer a:focus-visible, .drawer button:focus-visible { outline: 2px solid #0967d8; outline-offset: 5px; }
+.drawer { position: fixed; inset: 0 0 0 auto; margin: 0; padding: 0; height: 100dvh; max-height: 100dvh; width: min(32.6vw, 650px); min-width: 430px; max-width: 100vw; border: 0; color: #191e31; background: #fff; overflow-y: auto; box-shadow: -10px 0 50px #1527440a; }
+.drawer[open] { animation: enter 260ms cubic-bezier(.32,.72,0,1); }
+.drawer::backdrop { background: rgb(255 255 255 / .3); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px); }
+.drawerInner { min-height: 100%; display: flex; flex-direction: column; padding: 32px 9% 36px; }
+.drawerTop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 44px; }
+.close:focus-visible { outline-offset: 0 !important; }
+.primary { display: grid; gap: 19px; font-size: clamp(27px, 2vw, 38px); line-height: 1.25; letter-spacing: -.8px; }
+.secondary { display: grid; gap: 21px; border-top: 1px solid #d5dbe5; margin-top: 40px; padding-top: 33px; color: #445779; font-size: 18px; }
+.searchArea { margin-top: 34px; }
+.search { display: flex; align-items: center; gap: 13px; padding: 14px 22px; border-radius: 100px; color: #657fa5; background: linear-gradient(100deg, #fff 35%, #ffead9); box-shadow: 0 9px 30px #18213712; }
+.search input { width: 100%; min-width: 0; background: transparent; border: 0; outline: none; color: #243c62; font: inherit; font-size: 23px; }
+.search:focus-within { outline: 2px solid #0967d8; outline-offset: 3px; }
+.search input::placeholder { color: #657fa5; opacity: 1; }
+.search kbd { font: inherit; font-size: 16px; background: #e8d9d14d; padding: 0 5px; border-radius: 3px; }
+.results { display: grid; gap: 12px; padding: 22px; color: #445779; }
+.action { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 42px; color: #445779; font-size: 16px; }
+@keyframes enter { from { transform: translateX(100%); opacity: .7; } to { transform: translateX(0); opacity: 1; } }
+
+@media (max-width: 1000px) { .desktop { gap: 22px; } .desktop a { font-size: 11px; } .bar { gap: 24px; } }
+@media (max-width: 760px) { .bar { min-height: 68px; margin: 0 20px; } .brand > span { font-size: 23px; } .brand svg, .brand img { width: 38px; height: 38px; } .desktop { display: none; } .drawer { width: min(100vw, 500px); min-width: 0; } .drawerInner { padding: 26px 7% 28px; } .drawerTop { margin-bottom: 34px; } .primary { font-size: 29px; gap: 18px; } .secondary { margin-top: 30px; padding-top: 26px; gap: 17px; } .searchArea { margin-top: 28px; } }
+@media (prefers-reduced-motion: reduce) { .drawer[open] { animation: none; } .menuButton:active, .close:active { transform: none; } }
+
+/* Peripheral gold signal echoes the reference without competing with the wordmark. */
+.bar { position: relative; isolation: isolate; }
+.bar::before { content: ""; position: absolute; z-index: -1; pointer-events: none; inset: 0 -3.2% 0 auto; width: min(28vw, 350px); background: repeating-linear-gradient(125deg, transparent 0 26px, #c9a22708 27px 28px, transparent 29px 50px), linear-gradient(115deg, transparent 40%, #f3ead533); }
+.brand > span:first-child, .drawerTop a > span { box-shadow: none; }
+@media (max-width: 760px) { .brand > span:first-child { width: 32px !important; height: 32px !important; } }

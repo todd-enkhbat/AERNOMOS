@@ -2,6 +2,13 @@
 
 Read this file first in any new chat session before making changes.
 
+## Working baseline (user direction, October 14, 2026)
+
+- Use this permanent checkout (`/Users/kintekente-mac/Documents/GitHub/AERNOMOS`) on `main` as the starting point for future work. The baseline is the version published at https://nomosorbital.com/.
+- Before making changes, check branch, working-tree status, and fetch `origin/main`; verify the live Vercel production commit when publication state matters. Fast-forward only when local work is safely preserved. Do not silently switch to an older branch or reuse an older temporary checkout.
+- On October 14, local `main`, `origin/main`, and the live domain were verified at `78ca5859d0c16e7c3c1fdb90ff61ff6d918958b9`. This is a verification record, not a permanent version pin; follow subsequent published main updates.
+- Earlier local changes from `cursor/phase-prompts-detail`, including the unapproved header draft, are preserved in the Git stash named `Preserved old checkout and header draft before aligning with published main 2026-10-14`. Do not apply that stash wholesale over current production. Port specific changes only when requested and check the current Console routes.
+
 ## Canonical product soul
 
 Before writing site copy, changing product language, or touching visual design, read

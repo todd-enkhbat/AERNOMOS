@@ -2,6 +2,22 @@
 
 Current phase: **complete** (A–T finished)
 
+## Reference-style white Nomos navigation (October 14, 2026)
+
+- User clarified that the desired result is the Bessemer white header and drawer, fitted to Nomos, superseding the blue-pill size adjustment below. Implemented on verified current main with Console links preserved.
+- White 80px desktop / 68px mobile header, ink stacked wordmark, 36px Golden Record, uppercase mono links, fine rule, peripheral gold line treatment. Native modal right drawer includes grouped existing routes, navigation search, slash shortcut, Escape/backdrop/close handling, focus containment/restoration, body scroll lock, and reduced-motion support. No dependencies or product claims added.
+- Files: SiteHeader.tsx, new SiteHeader.module.css, DemoEnvironmentBanner.tsx, header offsets in globals.css, SOUL.md. Production build with lint/TypeScript passed; desktop 1440px/mobile 390px visuals, search for Docs, and Escape close checked. User requested a local commit; no push or deployment. A–T remain complete.
+
+## Compact shared header (October 14, 2026)
+
+- Reduced current production header vertical footprint from roughly 62px to 50px on desktop: 44px content row, 4px top inset, 26px mark, and a header-only 36px request button. Updated sticky offsets to 60px desktop / 56px mobile. Existing Console destinations and mobile menu preserved.
+- Files: SiteHeader.tsx and globals.css. Production build (lint and TypeScript included) passed; desktop 1440px and mobile 390px browser checks verified fit, no horizontal overflow, and menu open/close. No commit or deployment. A–T remain complete.
+
+## Permanent checkout aligned with published main (October 14, 2026)
+
+- User requested that future work in the existing AERNOMOS folder start from the published website. Verified the live Vercel domain serves main commit `78ca5859d0c16e7c3c1fdb90ff61ff6d918958b9`; fetched origin, preserved tracked/untracked changes in a named Git stash, switched to main, and fast-forwarded to that exact commit.
+- Local main and origin/main match production. Old branch and stash remain recoverable; the earlier header draft was not reapplied. Added the baseline procedure to AGENTS.md for future chats. No product code changes, commit, push, or deployment. A–T remain complete.
+
 ## Complete website restoration (October 6, 2026)
 
 - The first October 6 production publish used committed code while the newer homepage, product pages, typography, responsive navigation, source-backed network atlas, imagery, and design assets still existed only in the local working tree. That produced an inconsistent site.

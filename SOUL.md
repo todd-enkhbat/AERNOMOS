@@ -212,6 +212,10 @@ Readability beats decorative complexity in the first viewport. No stat strips, f
 
 The longer four-phase scroll narrative (SIGNVM → FVSIO → SPHÆRA → LITHOGRAPHIA) may still appear on About and immersive story surfaces. Reduced-motion users see the ordered final frame.
 
+### Shared navigation (October 14, 2026 user direction)
+
+Use the Bessemer reference for the navigation composition: flat white header, ink stacked Nomos Orbital wordmark with the Golden Record, uppercase monospace desktop links, thin bottom rule, restrained peripheral gold detail, and a hamburger at every width. Header content is 80px tall on desktop and 68px on mobile. The menu opens a full-height white right drawer over a blurred page, with grouped links and navigation search. Try Nomos and Run a request use the current `/console` entry. This white navigation is a deliberate frame for the blue site, not a replacement of the page palette.
+
 ## 6. Visual direction
 
 **Ancient celestial cartography meets modern orbital infrastructure.** A forgotten astronomical instrument rebuilt as a distributed computing network. Buddhist restraint meets Greek order.

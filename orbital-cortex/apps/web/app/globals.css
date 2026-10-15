@@ -23,7 +23,7 @@
   --muted-dark: #7a7694;
   --cobalt: #4a6ec8;
   --vermilion: #a84d35;
-  --header-offset: 72px;
+  --header-offset: 80px;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
@@ -891,7 +891,7 @@ textarea {
 
 @media (max-width: 760px) {
   :root {
-    --header-offset: 64px;
+    --header-offset: 68px;
   }
 
   .page-shell {
