@@ -29,7 +29,7 @@
 @keyframes enter { from { transform: translateX(100%); opacity: .7; } to { transform: translateX(0); opacity: 1; } }
 
 @media (max-width: 1000px) { .desktop { gap: 22px; } .desktop a { font-size: 11px; } .bar { gap: 24px; } }
-@media (max-width: 760px) { .bar { min-height: 68px; margin: 0 20px; } .brand > span { font-size: 23px; } .brand svg, .brand img { width: 38px; height: 38px; } .desktop { display: none; } .drawer { width: min(100vw, 500px); min-width: 0; } .drawerInner { padding: 26px 7% 28px; } .drawerTop { margin-bottom: 34px; } .primary { font-size: 29px; gap: 18px; } .secondary { margin-top: 30px; padding-top: 26px; gap: 17px; } .searchArea { margin-top: 28px; } }
+@media (max-width: 760px) { .bar { min-height: 68px; margin: 0 20px; } .brand > span { font-size: 23px; } .desktop { display: none; } .drawer { width: min(100vw, 500px); min-width: 0; } .drawerInner { padding: 26px 7% 28px; } .drawerTop { margin-bottom: 34px; } .primary { font-size: 29px; gap: 18px; } .secondary { margin-top: 30px; padding-top: 26px; gap: 17px; } .searchArea { margin-top: 28px; } }
 @media (prefers-reduced-motion: reduce) { .drawer[open] { animation: none; } .menuButton:active, .close:active { transform: none; } }
 
 /* Peripheral gold signal echoes the reference without competing with the wordmark. */
@@ -37,3 +37,17 @@
 .bar::before { content: ""; position: absolute; z-index: -1; pointer-events: none; inset: 0 -3.2% 0 auto; width: min(28vw, 350px); background: repeating-linear-gradient(125deg, transparent 0 26px, #c9a22708 27px 28px, transparent 29px 50px), linear-gradient(115deg, transparent 40%, #f3ead533); }
 .brand > span:first-child, .drawerTop a > span { box-shadow: none; }
 @media (max-width: 760px) { .brand > span:first-child { width: 32px !important; height: 32px !important; } }
+
+.drawer { overscroll-behavior: contain; }
+
+/* White at the page opening, gradually frosted over the first viewport. */
+.header {
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  backdrop-filter: blur(18px) saturate(115%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header { background: #fff !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .header { background: #fff !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

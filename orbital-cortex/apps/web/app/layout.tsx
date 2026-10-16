@@ -8,22 +8,6 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteCadence } from "@/components/motion/SiteCadence";
 import "./globals.css";
 
-const serif = localFont({
-  src: [
-    {
-      path: "./fonts/fraunces-latin-normal.woff2",
-      style: "normal",
-      weight: "300 900"
-    },
-    {
-      path: "./fonts/fraunces-latin-italic.woff2",
-      style: "italic",
-      weight: "300 900"
-    }
-  ],
-  variable: "--font-serif"
-});
-
 const sans = localFont({
   src: "./fonts/inter-tight-latin.woff2",
   weight: "100 900",
@@ -91,7 +75,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+      <body className={`${sans.variable} ${mono.variable}`}>
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>

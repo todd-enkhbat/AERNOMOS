@@ -23,7 +23,7 @@
   margin-top: 0.75rem;
   color: var(--cream);
   font-size: clamp(2.5rem, 5vw, 5rem);
-  line-height: 0.98;
+  line-height: 1.02;
 }
 
 .intro > p:last-child {

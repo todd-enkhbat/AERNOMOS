@@ -181,22 +181,9 @@ The customer planning path is the spine. The developer demo and mission narrativ
 
 Keep the main navigation brand-first and product-accessible: Try Nomos (`/console`), Capabilities, About, Docs. The combined Console retains Request, Missions, Network, and Control internally. Calendar stays reachable from the footer and About, not top navigation. UI labels may differ from internal routes; do not rename routes for branding. Capabilities (`/capabilities`) is the public truth map: live product, provider gaps, aspirations, and forward work. The Final Symposium remains an About subpage. Calendar is a shared verified industry register the public can use. Presence is framed as "you may see us there," not confirmed attendance. Include a register-interest path for business and operations conversations. Export ICS/CSV/JSON.
 
-The Capabilities page uses one persistent visual metaphor: **the user sees one
-request; Nomos sees the space stack**. Its product story is a sequence rather than
-a feature grid: request simplicity, the evolving intelligence loop, current
-evidence, claim classification, the provider-integration boundary, and the network
-effect. Scroll motion must reveal causality. Reduced-motion users receive the same
-ordered content without sticky pacing. Future nodes remain physically disconnected
-and labeled PLANNED; simulated behavior remains a separate branch, never the main
-route.
+The Capabilities page uses tangible conceptual hardware to explain **one request across the space stack** (October 15, 2026 user direction). A cinematic gold spacecraft over Earth introduces it; selectable photorealistic Orbital, Ground, and Compute cutouts pair physical assets with real software capabilities and missing integrations. An exploded instrument explains the intelligence layer; a sculptural orbital instrument closes the page. Keep the open editorial composition, shared Inter Tight typography, blue/ivory field, tactile gold actions, and controlled metallic shine. Avoid schematic boxes, nested card grids, and primitive-node illustrations on this marketing surface.
 
-The product-evidence scene is a mission-analysis plate, not a process chart. Its
-geometry must correspond to physical or operational meaning: the propagated orbit,
-spacecraft position, AOI footprint, access rays, AOS/LOS window, candidate handoff,
-and attached evidence readout share one coordinate system. Pipeline language is
-anchored to those objects; it never returns to an arbitrary spline with labeled
-nodes. Small screens receive a deliberate recomposition, not a scaled-down desktop
-drawing.
+Generated hardware is explicitly conceptual and must never imply provider integration, live telemetry, tasking, or actual spacecraft execution. Keep the working-software proof and LIVE, REFERENCE, SIMULATED, PLANNED vocabulary clear. Layer selection works by pointer, keyboard, and touch. Slow suspension and fine-pointer tilt convey physical depth; pause, offscreen suspension, and static reduced-motion layouts remain required. Gold actions may catch a brief highlight on hover/focus; no perpetual flashing. See `docs/design/capabilities/generated-assets.md` for directions and generation prompts.
 
 ## 5. Hero narrative
 
@@ -247,8 +234,7 @@ Typography:
 - restrained grotesk for homepage marketing, product explanation, product page
   headers, and conversion surfaces; the homepage hero establishes this scale
 - About uses the same Inter Tight sans-serif as the product pages, including narrative headings (October 2026 user direction).
-- editorial serif only for manifesto, archival quotation, and rare
-  narrative display moments, never as a font switch between product steps
+- use the same Inter Tight family for all titles, body copy, manifesto, and narrative text; no editorial serif switches (October 15, 2026 user direction)
 - monospace for code, IDs, coordinates, and measurements
 
 Use fine linework, generous spacing, controlled grain, engraved hatching, polar grids, and specimen labels. Ornament stays peripheral.
@@ -336,3 +322,9 @@ flat projection.
 ### Public framing (October 15, 2026 user direction)
 
 Nomos is infrastructure software across the space stack. Public titles, descriptions, CTAs, and examples must not position it as a mission planner. Use Run a request and the combined Console entry. Remove the global demo-environment banner; retain evidence-level truth statuses and explicit provider-integration boundaries. Internal model names and historical build-phase records do not define the public category.
+
+### Design hygiene (October 15, 2026 user direction)
+
+Use Inter Tight throughout the site for headings, prose, controls, and capability labels. Reserve IBM Plex Mono for code, identifiers, coordinates, and measured data. Display headings need at least 1.02 line-height and balanced wrapping so glyphs never collide. Give labels and explanatory copy their own layout space; connector rules belong in dedicated gutters or behind a clear text halo in instrument drawings. The Golden Record mark uses the centered photographic disc within an antialiased circular mask, never an uneven rectangular crop, glow, or a header-specific image size that breaks the square. Check whole pages at desktop and mobile widths, including reduced-motion layouts.
+
+The shared white header gradually becomes a lightly translucent frosted surface over the first viewport of document scroll (October 15, 2026 user direction). Keep it opaque white at the top, retain ink navigation and a fully opaque menu drawer, and provide solid-white fallback for reduced transparency or unavailable backdrop filtering. This applies to every route through the shared layout.

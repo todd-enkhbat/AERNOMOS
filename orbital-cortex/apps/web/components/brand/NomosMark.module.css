@@ -1,0 +1,22 @@
+.mark {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #100d09;
+  isolation: isolate;
+  /* The source is a 16:9 photograph. Fill a square before clipping its centered disc. */
+  -webkit-mask-image: radial-gradient(circle, #000 69.5%, transparent 71%);
+  mask-image: radial-gradient(circle, #000 69.5%, transparent 71%);
+}
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50.4% 49%;
+  transform: scale(1.13);
+}

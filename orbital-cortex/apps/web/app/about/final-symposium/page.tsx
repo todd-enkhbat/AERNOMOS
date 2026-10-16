@@ -149,7 +149,7 @@ export default function FinalSymposiumPage() {
           <h2 className="display-editorial mt-3 max-w-3xl text-3xl">
             The mission begins with a small, exact promise.
           </h2>
-          <p className="mt-5 max-w-3xl font-serif text-lg leading-8 text-silver">
+          <p className="mt-5 max-w-3xl font-sans text-lg leading-8 text-silver">
             Route a space-data job. Compare the candidates. Explain the decision.
             Preserve enough evidence to replay it. The Final Symposium is not a claim
             that this product solves mortality or cosmic entropy. It is a reason to

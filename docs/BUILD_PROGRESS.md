@@ -2,6 +2,30 @@
 
 Current phase: **complete** (A–T finished)
 
+## Main-branch handoff (October 16, 2026)
+
+- User requested commit and push of all completed site updates: shared typography/logo hygiene, generated gold hardware Capabilities redesign, and scroll-responsive white header. Earlier white navigation and infrastructure-positioning commits are included in the same main-branch push.
+- Production build (lint/TypeScript included) and desktop/mobile interaction checks passed on the final source. Art assets, generation prompts, and canonical design decisions are saved in this checkout. No new implementation phase is active.
+- Next chat: use this permanent checkout on main; fetch and inspect Git state before editing. Unrelated untracked files with “ 2” suffixes are local duplicates, not release inputs; do not import or stage them. The old-branch stash remains recoverable. Verify Vercel’s deployment status before claiming the domain serves this release.
+
+## Scroll-responsive shared header (October 15, 2026)
+
+- Shared header remains opaque white at the page opening, then gradually resolves to 86% white with a soft blur and subtle shadow by one viewport of document scroll. Uses existing Motion scroll values without per-frame React renders or a custom scroll listener. Viewport height updates on resize; drawer remains opaque.
+- Solid white fallback for reduced transparency or unsupported backdrop filtering. Applies to all routes through the shared SiteHeader. Files: SiteHeader.tsx/CSS, SOUL.md. Validation: lint and production build with TypeScript passed. Browser checks on homepage/Capabilities confirmed opaque white at y=0 and 86% white after one viewport; 390px mobile has the same effect, no overflow, and an opaque functional drawer. No commit or deployment; A–T remain complete.
+
+## Image-led gold hardware Capabilities redesign (October 15, 2026)
+
+- User requested a more dynamic, realistic, reflective blue/gold Capabilities surface. Generated seven images with built-in ImageGen: one section design reference, three conceptual visual directions, and separate transparent orbital/ground/compute parts. Selected the cinematic hero, exploded hardware study, and orbital sculpture; all project assets and a prompt/role manifest are saved in the repository.
+- Rebuilt Capabilities around open editorial sections, a selectable hardware stage with synchronized real capability copy, a compact working-software proof, explicit truth statuses, and integration boundaries. Replaced the primitive box/circle animations and long sticky stages. Added a brushed-gold HTML action with hover sheen, subtle fine-pointer tilt and suspension, native pause, offscreen/document-visibility suspension, keyboard tabs, and static reduced-motion fallbacks. No new dependencies, provider facts, or operational claims.
+- Files: CapabilitiesExperience.tsx/CSS, generated public assets, `docs/design/capabilities/`, SOUL.md. Preserved ongoing typography/logo improvements and unrelated files. Validation: lint and production build including TypeScript passed. Reviewed the complete page and image loading; 1366×768 hero action stays visible (bottom 622px), desktop hardware switching and arrow-key tabs passed, Pause sets animation-play-state to paused, and 390px reduced motion has animation none with no horizontal overflow. Closing artwork loads as intended. No commit or deployment; A–T remain complete.
+
+## Site typography and brand-mark hygiene (October 15, 2026)
+
+- Corrected the shared Golden Record mark using a centered cover crop, symmetric antialiased circular mask, and no decorative glow. Removed mobile header image sizing that conflicted with the mask. Original photographic asset preserved.
+- Standardized prose and headings on Inter Tight, removed the serif font load, retained the serif variable as a compatibility alias, and gave display headings 1.02 line-height with balanced wrapping. Applied across homepage, About, network, shared typography, and Capabilities. Code/data retain monospace; Capabilities labels now share the main font.
+- Reworked Capabilities truth timeline into dedicated node/rule gutters, sentence-case titles, readable labels and body text, consistent badge spacing, mobile border cleanup, label clearance over instrument lines, and stronger future-state contrast. Reduced-motion facts now use compact static groups; fixed reduced-motion hydration mismatch by selecting the alternate DOM after mount. Updated SOUL.md with persistent design-hygiene rules.
+- Verification: lint and production build with TypeScript passed. Fresh production browser session verified no console/hydration errors in reduced motion; 390px Capabilities has one heading font, no horizontal overflow, and no broken images. Desktop route audit of About, Console, Docs, Examples, Calendar confirmed shared heading family and no horizontal overflow; mobile Capabilities confirmed no overflow or broken images. Whole Capabilities page reviewed in reduced motion, plus normal-motion request scene and homepage logo. Local API at port 8000 unavailable, so data-dependent Console responses were not validated. No commit or deployment; A–T remain complete.
+
 ## Infrastructure software framing and banner removal (October 15, 2026)
 
 - Removed the global demo-environment banner and its unused component at user request. Reframed public category/metadata as space infrastructure software, replaced mission-plan entry CTAs with Run a request to Console, and aligned homepage evidence, examples, About narrative, and capability-loop labels with infrastructure routing.

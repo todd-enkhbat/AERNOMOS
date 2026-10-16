@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --font-serif: var(--font-sans);
   /* Yves Klein International Klein Blue field + Golden Record brass */
   --klein: #002fa7;
   --klein-mid: #00268f;
@@ -162,7 +163,7 @@ textarea {
   max-width: 15ch;
   font-size: clamp(2.55rem, 5vw, 4.9rem);
   letter-spacing: -0.045em;
-  line-height: 0.98;
+  line-height: 1.02;
 }
 
 .page-header__description {
@@ -373,7 +374,7 @@ textarea {
   font-size: clamp(2rem, 3.4vw, 3.4rem);
   font-weight: 500;
   letter-spacing: -0.05em;
-  line-height: 0.98;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
@@ -443,7 +444,7 @@ textarea {
   font-size: clamp(2.4rem, 5vw, 5.2rem);
   font-weight: 500;
   letter-spacing: -0.052em;
-  line-height: 0.96;
+  line-height: 1.02;
 }
 
 .ground-atlas__header > p {
@@ -748,7 +749,7 @@ textarea {
   font-size: clamp(2.1rem, 4vw, 4rem);
   font-weight: 500;
   letter-spacing: -0.05em;
-  line-height: 0.98;
+  line-height: 1.02;
 }
 
 .network-purpose__statement > p:last-child {
@@ -828,7 +829,7 @@ textarea {
 
 .about-pillar h3 {
   color: var(--cream);
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: clamp(1.4rem, 2.3vw, 2.1rem);
   font-weight: 400;
   letter-spacing: -0.035em;
@@ -868,7 +869,7 @@ textarea {
 .about-archive-link h2 {
   margin-top: 0.65rem;
   color: var(--cream);
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: clamp(1.6rem, 2.8vw, 2.35rem);
   font-weight: 400;
   letter-spacing: -0.04em;
@@ -1321,7 +1322,7 @@ textarea {
 
 .prose-essay {
   color: var(--silver);
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: clamp(1.08rem, 1.5vw, 1.28rem);
   line-height: 1.8;
 }
@@ -2242,7 +2243,7 @@ textarea {
 }
 
 .display-editorial {
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-weight: 400;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -4004,3 +4005,11 @@ body.is-scroll-rail-dragging {
     top: 82%;
   }
 }
+
+/* Shared editorial hierarchy: one family for prose, titles, and controls. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+button, input, select, textarea { font-family: inherit; }

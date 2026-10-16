@@ -22,7 +22,7 @@
   font-size: clamp(2.8rem, 5.4vw, 5.4rem);
   font-weight: 500;
   letter-spacing: -0.055em;
-  line-height: 0.94;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
@@ -62,7 +62,7 @@
   font-family: var(--font-sans), Arial, sans-serif;
   font-weight: 500;
   letter-spacing: -0.052em;
-  line-height: 0.98;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
@@ -690,7 +690,7 @@
   margin-left: auto;
   color: var(--cream);
   font-size: clamp(2.75rem, 6vw, 6rem);
-  line-height: 0.96;
+  line-height: 1.02;
 }
 
 .finalLead {

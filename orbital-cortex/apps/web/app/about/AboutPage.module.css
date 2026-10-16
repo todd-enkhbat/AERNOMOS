@@ -60,7 +60,7 @@
   font-size: clamp(3.4rem, 8vw, 8rem);
   font-weight: 500;
   letter-spacing: -0.055em;
-  line-height: 0.9;
+  line-height: 1.02;
 }
 
 .heroLead {
@@ -171,6 +171,6 @@
 .heroSection { position: relative; z-index: 2; pointer-events: none; }
 .heroSection a { pointer-events: auto; }
 .heroImage { opacity: 0.6; }
-.heroContent h1 { max-width: 50rem; letter-spacing: -0.065em; line-height: 0.96; }
+.heroContent h1 { max-width: 50rem; letter-spacing: -0.065em; line-height: 1.02; }
 .beliefTitle { letter-spacing: -0.045em; line-height: 1.08; }
 .today :global(.text-muted-dark) { color: #aebbd7; }

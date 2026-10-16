@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight, Menu, Search, X } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +24,16 @@ const secondary = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [viewportHeight, setViewportHeight] = useState(900);
+  const { scrollY } = useScroll();
+  const backgroundColor = useTransform(scrollY, [0, viewportHeight * .25, viewportHeight], ["rgba(255,255,255,1)", "rgba(255,255,255,0.98)", "rgba(255,255,255,0.86)"]);
+  const boxShadow = useTransform(scrollY, [0, viewportHeight], ["0 5px 24px rgba(5,20,55,0)", "0 5px 24px rgba(5,20,55,0.10)"]);
+  useEffect(() => {
+    const resize = () => setViewportHeight(window.innerHeight);
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
   const [query, setQuery] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -50,7 +61,7 @@ export function SiteHeader() {
   );
 
   return (
-    <header className={styles.header}>
+    <motion.header className={styles.header} style={{ backgroundColor, boxShadow }}>
       <div className={styles.bar}>
         <Link className={styles.brand} href="/" aria-label="Nomos Orbital home">
           <NomosMark size={36} />
@@ -74,6 +85,6 @@ export function SiteHeader() {
           <Link className={styles.action} href="/console" onClick={close}>Run a request <ArrowUpRight size={19} /></Link>
         </div>
       </dialog>
-    </header>
+    </motion.header>
   );
 }
