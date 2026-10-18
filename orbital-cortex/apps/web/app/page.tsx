@@ -12,18 +12,18 @@ import styles from "./HomePage.module.css";
 
 const proofPoints = [
   {
-    label: "Search",
-    value: "Public satellite catalogs",
+    label: "Describe",
+    value: "Outcome and constraints",
     status: "LIVE"
   },
   {
-    label: "Calculate",
-    value: "Orbital and contact geometry",
+    label: "Resolve",
+    value: "Source-backed infrastructure path",
     status: "LIVE"
   },
   {
-    label: "Recommend",
-    value: "Source-backed infrastructure routes",
+    label: "Audit",
+    value: "Evidence, assumptions, rejected routes",
     status: "LIVE"
   }
 ];
@@ -32,17 +32,22 @@ const networkLayers = [
   {
     index: "01",
     name: "Orbital",
-    detail: "Sensors, spacecraft, public catalogs, and contact opportunities."
+    detail: "Spacecraft, sensors, onboard resources, and orbital opportunities."
   },
   {
     index: "02",
-    name: "Ground",
-    detail: "Reference stations, downlink geometry, and handoff constraints."
+    name: "Connectivity",
+    detail: "Ground networks, relay paths, contact windows, and handoff constraints."
   },
   {
     index: "03",
-    name: "Cloud",
-    detail: "Processing environments, residency requirements, and delivery paths."
+    name: "Compute",
+    detail: "Onboard, edge, and cloud environments with policy and latency constraints."
+  },
+  {
+    index: "04",
+    name: "Control",
+    detail: "Routing, policy, provenance, and the execution record above the providers."
   }
 ];
 
@@ -66,25 +71,27 @@ export default function HomePage() {
             <FadeIn when="mount">
               <p className={styles.eyebrow}>
                 <NomosMark size={18} />
-                Space infrastructure software
+                Orbital infrastructure control plane
               </p>
             </FadeIn>
             <FadeIn delay={0.06} when="mount">
-              <h1 id="home-title">The intelligence layer for space.</h1>
+              <h1 id="home-title">The control plane for space infrastructure.</h1>
             </FadeIn>
             <FadeIn delay={0.12} when="mount">
               <p className={styles.heroLead}>
-                Tell the network what you need. Nomos determines how satellites,
-                ground systems, and cloud compute can deliver it.
+                Orbital Cortex turns heterogeneous satellites, ground networks,
+                relays, and compute into one programmable interface. Today it
+                resolves and audits infrastructure routes; provider integrations
+                progressively turn those routes into execution.
               </p>
             </FadeIn>
             <FadeIn delay={0.18} when="mount">
               <div className={styles.heroActions}>
-                <LiquidButton href="/console" variant="primary">
-                  Run a request
+                <LiquidButton href="/orbital-cortex" variant="primary">
+                  Explore Orbital Cortex
                 </LiquidButton>
                 <LiquidButton href="/network" variant="ghost">
-                  Explore the network
+                  Open the network
                 </LiquidButton>
               </div>
             </FadeIn>
@@ -110,7 +117,7 @@ export default function HomePage() {
         <div className={`page-shell ${styles.challengeGrid}`}>
           <FadeIn className={styles.challengeStatement} viewportMargin="0px" y={6}>
             <p className={styles.sectionLabel}>The challenge</p>
-            <h2>Space capability is fragmented across systems that do not speak the same language.</h2>
+            <h2>Space infrastructure is becoming powerful faster than it is becoming interoperable.</h2>
           </FadeIn>
           <ArchiveImage
             alt="Children gathered around a terrestrial globe"
@@ -123,13 +130,14 @@ export default function HomePage() {
           />
           <FadeIn className={styles.challengeDetail} delay={0.05} viewportMargin="0px" y={6}>
             <p>
-              A single workload can require a satellite operator, orbital data,
-              a ground-station window, a processing environment, and a delivery
-              path. Teams coordinate every interface and constraint by hand.
+              A single workload can span a spacecraft, a communications path,
+              compute, storage, policy, and delivery. Every provider exposes a
+              different interface, commercial model, and operating constraint.
             </p>
             <p>
-              Nomos sits above that infrastructure. It turns one objective into a
-              feasible path and shows the evidence behind the decision.
+              Nomos sits above that fragmentation. Orbital Cortex resolves the
+              workload against the available stack, records why a route was chosen,
+              and creates the control surface that provider adapters can execute.
             </p>
           </FadeIn>
         </div>
@@ -146,11 +154,12 @@ export default function HomePage() {
         <div className={styles.solutionScrim} aria-hidden />
         <div className={`page-shell ${styles.solutionInner}`}>
           <FadeIn className={styles.solutionCopy} viewportMargin="0px" y={6}>
-            <p className={styles.sectionLabel}>The Nomos layer</p>
-            <h2 id="solution-title">Different infrastructure. One interface.</h2>
+            <p className={styles.sectionLabel}>Orbital Cortex</p>
+            <h2 id="solution-title">Independent infrastructure. One control plane.</h2>
             <p>
-              The providers stay independent. Nomos compares their possible role
-              in the mission before it recommends a route.
+              Providers keep their own spacecraft, networks, and compute. Nomos
+              supplies the common job model, capability graph, routing logic, policy,
+              and audit layer above them.
             </p>
           </FadeIn>
 
@@ -171,7 +180,7 @@ export default function HomePage() {
           </div>
 
           <Link className={styles.networkLink} href="/network">
-            Open the live network atlas <ArrowRight aria-hidden size={16} />
+            Open the infrastructure atlas <ArrowRight aria-hidden size={16} />
           </Link>
         </div>
       </section>
